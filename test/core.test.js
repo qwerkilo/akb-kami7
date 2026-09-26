@@ -123,3 +123,43 @@ test("groupSections 按团体过滤并保留分段序号", () => {
 
   assert.deepEqual(core.groupSections(sections, "NMB48"), []);
 });
+
+test("normalizeName 归一全部七组汉字变体", () => {
+  assert.deepEqual(
+    ["﨑", "髙", "邉", "邊", "濵", "德", "瀨"].map((c) =>
+      core.normalizeName(c)
+    ),
+    ["崎", "高", "辺", "辺", "浜", "徳", "瀬"]
+  );
+});
+
+test("placeholderSrc 转义名字首字符的 XML 特殊字符", () => {
+  const cases = [
+    ["&B<C>", "&amp;"],
+    ["<C>A", "&lt;"],
+    [">A<B", "&gt;"],
+    ['"A<B', "&quot;"],
+  ];
+  for (const [name, entity] of cases) {
+    const svg = decodeURIComponent(core.placeholderSrc(name));
+    assert.ok(svg.includes(entity), `${name} 应输出实体 ${entity}`);
+    assert.ok(!/&(?!(amp|lt|gt|quot);)/.test(svg), `${name} 不应出现裸 &`);
+  }
+});
+
+test("placeholderSrc 对空名与纯空白名回退问号", () => {
+  for (const name of ["", "   "]) {
+    const svg = decodeURIComponent(core.placeholderSrc(name));
+    assert.ok(svg.includes("?"), `${JSON.stringify(name)} 应回退为 ?`);
+  }
+});
+
+test("shuffle 确实会重排元素顺序", () => {
+  const base = [1, 2, 3, 4, 5, 6];
+  let changed = false;
+  for (let i = 0; i < 30 && !changed; i++) {
+    const out = core.shuffle([...base]);
+    if (out.join() !== base.join()) changed = true;
+  }
+  assert.ok(changed, "30 次洗牌应至少出现一次顺序不同");
+});
