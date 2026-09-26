@@ -1,3 +1,4 @@
 scripts/_orig/
 scripts/_*.wiki
 __pycache__/
+node_modules/

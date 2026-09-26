@@ -1,0 +1,14 @@
+{
+  "name": "akb-kami7",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AKB KAMI7 static site",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.9.9"
+  }
+}
