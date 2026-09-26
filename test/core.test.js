@@ -57,3 +57,36 @@ test("shuffle 只重排不增删元素", () => {
     [1, 2, 3, 4, 5]
   );
 });
+
+test("groupSections 按团体过滤并保留分段序号", () => {
+  const sections = [
+    { group: "AKB48", label: "1期生", members: [{ id: "a" }] },
+    { group: "SKE48", label: "1期生", members: [{ id: "b" }] },
+    { group: "AKB48", label: "2期生", members: [{ id: "c" }] },
+  ];
+  const all = core.groupSections(sections, "all");
+  assert.deepEqual(
+    all.map((g) => g.group),
+    ["AKB48", "SKE48"]
+  );
+  assert.deepEqual(
+    all[0].sections.map((s) => s.index),
+    [0, 2]
+  );
+  assert.deepEqual(
+    all[0].sections.map((s) => s.label),
+    ["1期生", "2期生"]
+  );
+
+  const ske = core.groupSections(sections, "SKE48");
+  assert.deepEqual(
+    ske.map((g) => g.group),
+    ["SKE48"]
+  );
+  assert.deepEqual(
+    ske[0].sections.map((s) => s.index),
+    [1]
+  );
+
+  assert.deepEqual(core.groupSections(sections, "NMB48"), []);
+});

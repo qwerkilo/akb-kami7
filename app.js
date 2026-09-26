@@ -8,7 +8,8 @@
   const BY_ID = new Map();
   GROUPS.forEach((g) =>
     g.members.forEach((m) => {
-      m.group = g.label;
+      m.group = g.group;
+      m.generation = g.label;
       BY_ID.set(m.id, m);
     })
   );
@@ -26,6 +27,8 @@
       filter_all: "全部",
       filter_current: "现役",
       filter_former: "已毕业",
+      all_groups: "全部团体",
+      group_label: "团体",
       search_label: "搜索成员",
       search_ph: "搜索名字（日文汉字）",
       tray_hint: "点底部头像即可去掉，再选别人",
@@ -78,6 +81,8 @@
       filter_all: "All",
       filter_current: "Active",
       filter_former: "Graduated",
+      all_groups: "All groups",
+      group_label: "Group",
       search_label: "Search members",
       search_ph: "Search by name (Japanese kanji)",
       tray_hint: "Tap a selected face below to remove her",
@@ -176,7 +181,7 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
     );
 
-  const isTransfer = (m) => m.group === "兼任・移籍加入";
+  const isTransfer = (m) => m.generation === "兼任・移籍加入";
 
   function leaveText(reason) {
     return lang === "en" ? t("leave_" + reason) || reason : reason;
@@ -195,17 +200,19 @@
     return yearLeave(m);
   }
   function fullMeta(m) {
-    if (m.status === "current") return `${m.note || m.group} · ${t("active")}`;
+    if (m.status === "current")
+      return `${m.note || m.generation} · ${t("active")}`;
     if (isTransfer(m)) {
       const extra = m.leave ? leaveText(m.leave) : t("transfer");
       return `${m.note} · ${extra}`;
     }
-    return `${m.note || m.group} · ${yearLeave(m)}`;
+    return `${m.note || m.generation} · ${yearLeave(m)}`;
   }
 
   const state = {
     selected: [],
     filter: "all",
+    group: "all",
     query: "",
     open: new Set(),
   };
@@ -225,9 +232,9 @@
     return CORE.isVisible(m, state.filter);
   }
 
-  function cardHTML(m) {
+  function cardHTML(m, showGroup) {
     const i = state.selected.indexOf(m.id);
-    const meta = metaText(m);
+    const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
     return `<button class="card" data-id="${m.id}" aria-pressed="${i >= 0}" data-order="${i + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
       <span class="nm">${esc(m.name)}</span>
@@ -239,31 +246,68 @@
     return g.members.filter((m) => state.selected.includes(m.id)).length;
   }
 
+  function pickedInNode(node) {
+    return node.sections
+      .flatMap((s) => s.members)
+      .filter((m) => state.selected.includes(m.id)).length;
+  }
+
+  function sectionHTML(s) {
+    const ms = s.members.filter(visible);
+    if (!ms.length) return "";
+    const gi = s.index;
+    const open = state.open.has(gi);
+    const now = ms.filter((m) => m.status === "current").length;
+    const count =
+      state.filter === "all" && now
+        ? t("people_now", ms.length, now)
+        : t("people", ms.length);
+    const picked = ms.filter((m) => state.selected.includes(m.id)).length;
+    const sub = state.group === "all" ? " sub" : "";
+    return `<section class="gen${sub}" data-gi="${gi}">
+      <button class="gen-head" aria-expanded="${open}" aria-controls="gen-${gi}">
+        <i class="chev" aria-hidden="true"></i>
+        <span class="gen-name">${esc(s.label)}</span>
+        <span class="gen-count">${count}</span>
+        <span class="gen-picked">${picked ? t("picked", picked) : ""}</span>
+      </button>
+      <div class="gen-body" id="gen-${gi}" ${open ? "" : "hidden"}>${open ? ms.map((m) => cardHTML(m)).join("") : ""}</div>
+    </section>`;
+  }
+
   function renderRoster() {
     const q = CORE.normalizeName(state.query);
     if (q) return renderSearch(q);
 
+    const tree = CORE.groupSections(GROUPS, state.group);
+    const twoLevel = state.group === "all";
     const html = [];
-    GROUPS.forEach((g, gi) => {
-      const ms = g.members.filter(visible);
-      if (!ms.length) return;
-      const open = state.open.has(gi);
+    for (const node of tree) {
+      const body = node.sections.map(sectionHTML).filter(Boolean).join("");
+      if (!body) continue;
+      if (!twoLevel) {
+        html.push(body);
+        continue;
+      }
+      const ms = node.sections.flatMap((s) => s.members).filter(visible);
       const now = ms.filter((m) => m.status === "current").length;
       const count =
         state.filter === "all" && now
           ? t("people_now", ms.length, now)
           : t("people", ms.length);
-      const picked = pickedIn(g);
-      html.push(`<section class="gen" data-gi="${gi}">
-        <button class="gen-head" aria-expanded="${open}" aria-controls="gen-${gi}">
+      const picked = pickedInNode(node);
+      const key = "g:" + node.group;
+      const open = state.open.has(key);
+      html.push(`<section class="grp" data-group="${esc(node.group)}">
+        <button class="grp-head" aria-expanded="${open}" aria-controls="grp-${esc(node.group)}">
           <i class="chev" aria-hidden="true"></i>
-          <span class="gen-name">${esc(g.label)}</span>
-          <span class="gen-count">${count}</span>
-          <span class="gen-picked">${picked ? t("picked", picked) : ""}</span>
+          <span class="grp-name">${esc(node.group)}</span>
+          <span class="grp-count">${count}</span>
+          <span class="grp-picked">${picked ? t("picked", picked) : ""}</span>
         </button>
-        <div class="gen-body" id="gen-${gi}" ${open ? "" : "hidden"}>${open ? ms.map(cardHTML).join("") : ""}</div>
+        <div class="grp-body" id="grp-${esc(node.group)}" ${open ? "" : "hidden"}>${open ? body : ""}</div>
       </section>`);
-    });
+    }
     roster.innerHTML =
       html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
   }
@@ -277,12 +321,13 @@
   function renderSearch(q) {
     const hits = [];
     for (const g of GROUPS) {
+      if (state.group !== "all" && g.group !== state.group) continue;
       for (const m of g.members) {
         if (visible(m) && m.hay.includes(q)) hits.push(m);
       }
     }
     roster.innerHTML = hits.length
-      ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map(cardHTML).join("")}</div>`
+      ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map((m) => cardHTML(m, true)).join("")}</div>`
       : `<p class="empty">${t("empty_search", esc(state.query))}</p>`;
   }
 
@@ -312,6 +357,30 @@
     }
   }
 
+  function toggleGroupNode(name) {
+    const sec = roster.querySelector(`.grp[data-group="${name}"]`);
+    if (!sec) return;
+    const head = sec.querySelector(".grp-head");
+    const body = sec.querySelector(".grp-body");
+    const key = "g:" + name;
+    const open = !state.open.has(key);
+    if (open) {
+      state.open.add(key);
+      const node = CORE.groupSections(GROUPS, state.group).find(
+        (n) => n.group === name
+      );
+      body.innerHTML = node
+        ? node.sections.map(sectionHTML).filter(Boolean).join("")
+        : "";
+      body.hidden = false;
+    } else {
+      state.open.delete(key);
+      body.hidden = true;
+      body.innerHTML = "";
+    }
+    head.setAttribute("aria-expanded", open);
+  }
+
   function toggleMember(id) {
     const i = state.selected.indexOf(id);
     if (i >= 0) {
@@ -338,6 +407,14 @@
       const n = pickedIn(GROUPS[sec.dataset.gi]);
       sec.querySelector(".gen-picked").textContent = n ? t("picked", n) : "";
     });
+    const tree = CORE.groupSections(GROUPS, state.group);
+    roster.querySelectorAll(".grp").forEach((sec) => {
+      const node = tree.find((n) => n.group === sec.dataset.group);
+      const picked = node ? pickedInNode(node) : 0;
+      sec.querySelector(".grp-picked").textContent = picked
+        ? t("picked", picked)
+        : "";
+    });
     roster.classList.toggle("full", state.selected.length >= pick);
     renderTray();
   }
@@ -362,6 +439,8 @@
   }
 
   roster.addEventListener("click", (e) => {
+    const grp = e.target.closest(".grp-head");
+    if (grp) return toggleGroupNode(grp.parentElement.dataset.group);
     const head = e.target.closest(".gen-head");
     if (head) return toggleGroup(+head.parentElement.dataset.gi);
     const card = e.target.closest(".card");
@@ -371,6 +450,20 @@
   $("#slots").addEventListener("click", (e) => {
     const b = e.target.closest("[data-remove]");
     if (b) toggleMember(b.dataset.remove);
+  });
+
+  const groupSelect = $("#group-filter");
+  for (const name of CORE.groupSections(GROUPS, "all").map((n) => n.group)) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    groupSelect.appendChild(opt);
+  }
+  groupSelect.addEventListener("change", () => {
+    state.group = groupSelect.value;
+    renderRoster();
+    syncSelection();
+    roster.scrollTop = 0;
   });
 
   document.querySelectorAll(".seg-filter button").forEach((b) => {
@@ -675,14 +768,14 @@
     ctx.fillText(m.name, x + w / 2, y + h + nameSize + 14);
     const sub =
       m.status === "current"
-        ? m.group
+        ? m.generation
         : isTransfer(m)
           ? m.leave
             ? `${m.note} · ${leaveText(m.leave)}`
             : m.note
           : m.leave
-            ? `${m.group} · ${yearLeave(m)}`
-            : `${m.group} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
+            ? `${m.generation} · ${yearLeave(m)}`
+            : `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
     const subSize = fitText(ctx, sub, w + 10, big ? 20 : 17, 500, UI_FONT);
     ctx.fillStyle = C.muted;
     ctx.fillText(sub, x + w / 2, y + h + nameSize + subSize + 22);

@@ -28,6 +28,23 @@
     return filter === "all" || member.status === filter;
   }
 
+  function groupSections(sections, groupFilter) {
+    const groups = [];
+    const byGroup = new Map();
+    sections.forEach((s, index) => {
+      if (groupFilter !== "all" && s.group !== groupFilter) return;
+      if (!byGroup.has(s.group)) {
+        const node = { group: s.group, sections: [] };
+        byGroup.set(s.group, node);
+        groups.push(node);
+      }
+      byGroup
+        .get(s.group)
+        .sections.push({ index, label: s.label, members: s.members });
+    });
+    return groups;
+  }
+
   function* mergeSort(a) {
     if (a.length <= 1) return a;
     const mid = a.length >> 1;
@@ -64,5 +81,12 @@
     return a;
   }
 
-  return { normalizeName, isVisible, replay, worstCase, shuffle };
+  return {
+    normalizeName,
+    isVisible,
+    groupSections,
+    replay,
+    worstCase,
+    shuffle,
+  };
 });
