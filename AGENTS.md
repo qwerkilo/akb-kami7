@@ -2,10 +2,11 @@
 
 ## 项目概览
 
-纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `app.js` + `members.js`，用静态服务器直接托管。
+纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `i18n.js` + `app.js` + `members.js`，用静态服务器直接托管。
 
-- `app.js` 是单文件 IIFE，三个阶段：pick（选人/筛选/搜索）→ duel（两两对比排序，可回放的归并排序，支持撤回）→ result（canvas 1080×1440 海报导出）。
-- 双语 UI：文案同时存在于 `app.js` 顶部的 `I18N` 对象（zh/en）和 `index.html` 的 `data-i18n` 属性里，改文案必须两处、双语同步。
+- 站点覆盖 AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48 七个团体（现役 + 毕业，跨团去重后 1136 人）。
+- `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、两级分组、对决 replay、占位图）；`i18n.js` 是 zh/en 文案；`app.js` 是单文件 IIFE：pick（选人/筛选/搜索）→ duel（两两对比排序，可回放的归并排序，支持撤回）→ result（canvas 海报导出）。
+- 双语 UI：文案在 `i18n.js`（zh/en），`index.html` 的 `data-i18n` 属性引用同一批键；改文案两处同步，`test/i18n.test.js` 会检查键完整性。
 - `members.js` 是生成文件（数据来自 48pedia），不要手改。
 
 ## CodeGraph（代码检索优先）
@@ -22,6 +23,7 @@
 - 格式化（Prettier，配置见 `.prettierrc`）。本机钩子不执行（原因见下），提交前手动运行：
   `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）
+- 测试：`npm test`（node:test 跑 `test/*.test.js` + Python 标准库 unittest 跑 `scripts/test_*.py`，均离线、不联网）。
 - 没有 lint / typecheck 脚本。
 
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）
@@ -31,7 +33,8 @@
 
 ## 数据与图片生成
 
-- `members.js`、`img/full`（720×960 WebP）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
+- `members.js`、`img/full`（720×960 WebP）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 从 48pedia 的 8 个来源页生成（`SOURCES`，7 团；跨团按姓名+假名去重归口）；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
+- 当前规模：1136 人、1136 张图，full 55M + thumb 15M（约 70MB）；members.js 约 230K。
 - 依赖 Pillow（已装 12.3.0；缺失时 `pip install Pillow`）；网络默认走代理 `http://127.0.0.1:7897`，本机实际用 `AKB_PROXY=http://127.0.0.1:7890` 覆盖。
 - 重跑：`cd scripts && python3 fetch_members.py`；`--no-dl` 只用缓存，`--force` 强制重新压缩。
 
@@ -41,7 +44,7 @@
 2. 更新 `CONTEXT.md` 和 `docs/adr/`（`domain-modeling`）。
 3. `to-spec` → `.scratch/<feature>/spec.md`。
 4. `to-tickets` → `.scratch/<feature>/issues/NN-*.md`。
-5. `implement`，遵循 `tdd`（跑在 Node 内置 `node:test` 上；测试基建尚未搭建，首个实现任务需先补 `npm test` 脚本与测试文件）。
+5. `implement`，遵循 `tdd`（测试跑在 `node:test` + Python unittest 上，`npm test` 一键；基建已就位）。
 
 ## Code Review 检查点
 
