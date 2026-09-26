@@ -72,6 +72,25 @@ test("haystack 覆盖名字、假名与昵称", () => {
   assert.equal(core.haystack({ name: "前田敦子" }), "前田敦子");
 });
 
+test("photoSrc 对有图成员给出图片路径，对无图成员给出占位图", () => {
+  assert.equal(
+    core.photoSrc({ id: "m1", img: true }, "thumb"),
+    "img/thumb/m1.webp"
+  );
+  assert.equal(
+    core.photoSrc({ id: "m1", img: true }, "full"),
+    "img/full/m1.webp"
+  );
+  const ph = core.photoSrc({ id: "m2", img: false, name: "無写真子" }, "thumb");
+  assert.ok(ph.startsWith("data:image/svg+xml"));
+  assert.ok(decodeURIComponent(ph).includes("無"));
+  assert.ok(
+    core
+      .photoSrc({ id: "m3", img: false, name: "" }, "thumb")
+      .startsWith("data:image/svg+xml")
+  );
+});
+
 test("groupSections 按团体过滤并保留分段序号", () => {
   const sections = [
     { group: "AKB48", label: "1期生", members: [{ id: "a" }] },

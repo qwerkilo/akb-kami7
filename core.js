@@ -37,6 +37,25 @@
     return filter === "all" || member.status === filter;
   }
 
+  function placeholderSrc(name) {
+    const ch =
+      String(name || "")
+        .trim()
+        .charAt(0) || "?";
+    const safe = ch.replace(
+      /[&<>"]/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
+    );
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="320"><rect width="240" height="320" fill="#e4e7ee"/><text x="120" y="184" font-size="96" text-anchor="middle" fill="#9aa0b0" font-family="sans-serif">${safe}</text></svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  function photoSrc(member, size) {
+    return member.img
+      ? `img/${size}/${member.id}.webp`
+      : placeholderSrc(member.name);
+  }
+
   function groupSections(sections, groupFilter) {
     const groups = [];
     const byGroup = new Map();
@@ -94,6 +113,8 @@
     normalizeName,
     haystack,
     isVisible,
+    placeholderSrc,
+    photoSrc,
     groupSections,
     replay,
     worstCase,

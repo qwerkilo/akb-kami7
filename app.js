@@ -56,8 +56,8 @@
   }
 
   const $ = (s) => document.querySelector(s);
-  const thumbSrc = (m) => `img/thumb/${m.id}.webp`;
-  const fullSrc = (m) => `img/full/${m.id}.webp`;
+  const thumbSrc = (m) => CORE.photoSrc(m, "thumb");
+  const fullSrc = (m) => CORE.photoSrc(m, "full");
   const esc = (s) =>
     String(s ?? "").replace(
       /[&<>"]/g,
@@ -77,19 +77,23 @@
     return m.end ? t("grad_year", m.end.slice(0, 4)) : t("graduated");
   }
   function metaText(m) {
-    if (m.status === "current") return t("active");
-    if (isTransfer(m) && !m.leave) return m.note;
+    const prefix = m.note ? `${m.note} · ` : "";
+    if (m.status === "current") return `${prefix}${t("active")}`;
+    if (isTransfer(m) && !m.leave) return m.note || t("transfer");
     if (isTransfer(m)) return `${m.note} · ${leaveText(m.leave)}`;
-    return yearLeave(m);
+    return `${prefix}${yearLeave(m)}`;
   }
   function fullMeta(m) {
-    if (m.status === "current")
-      return `${m.note || m.generation} · ${t("active")}`;
-    if (isTransfer(m)) {
-      const extra = m.leave ? leaveText(m.leave) : t("transfer");
-      return `${m.note} · ${extra}`;
+    const parts = [m.group, m.generation];
+    if (m.note) parts.push(m.note);
+    if (m.status === "current") {
+      parts.push(t("active"));
+    } else if (isTransfer(m)) {
+      parts.push(m.leave ? leaveText(m.leave) : t("transfer"));
+    } else {
+      parts.push(yearLeave(m));
     }
-    return `${m.note || m.generation} · ${yearLeave(m)}`;
+    return parts.filter(Boolean).join(" · ");
   }
 
   const state = {
@@ -612,7 +616,17 @@
     ctx.save();
     roundRect(ctx, x, y, w, h, 10);
     ctx.clip();
-    if (im) cover(ctx, im, x, y, w, h);
+    if (im) {
+      cover(ctx, im, x, y, w, h);
+    } else {
+      ctx.fillStyle = "#e4e7ee";
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = "#9aa0b0";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `700 ${Math.round(h / 3)}px ${JP_FONT}`;
+      ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + h / 2);
+    }
     ctx.restore();
 
     const tw = big ? 118 : rank <= 3 ? 76 : 64;
