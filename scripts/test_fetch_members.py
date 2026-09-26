@@ -122,8 +122,7 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([old, new])
         self.assertEqual(len(merged), 1)
         self.assertEqual(merged[0]["group"], "NMB48")
-        self.assertIn("移籍", merged[0]["note"])
-        self.assertIn("SKE48", merged[0]["note"])
+        self.assertEqual(merged[0]["extras"], [{"group": "SKE48", "current": False}])
 
     def test_merges_concurrent_members_preferring_home_group(self):
         home = member("兼任子", "けんにん こ", "AKB48", "current", "14期|AKB48")
@@ -131,8 +130,7 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([side, home])
         self.assertEqual(len(merged), 1)
         self.assertEqual(merged[0]["group"], "AKB48")
-        self.assertIn("兼任", merged[0]["note"])
-        self.assertIn("STU48", merged[0]["note"])
+        self.assertEqual(merged[0]["extras"], [{"group": "STU48", "current": True}])
 
     def test_keeps_same_name_with_different_kana(self):
         a = member("同名", "どうめい いち", "AKB48", "former", "1期|AKB48", "2010.01.01")
@@ -145,6 +143,7 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([one])
         self.assertEqual(merged, [one])
         self.assertNotIn("note", merged[0])
+        self.assertNotIn("extras", merged[0])
 
 
 AKB_CURRENT_PAGE = """== 現役メンバー ==

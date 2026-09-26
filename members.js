@@ -332,7 +332,16 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.04.30",
     "img": true,
-    "note": "兼任・移籍：NMB48、NGT48"
+    "extras": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
+     {
+      "group": "NGT48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m2fae710269",
@@ -1051,7 +1060,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.12.09",
     "img": true,
-    "note": "兼任・移籍：NMB48"
+    "extras": [
+     {
+      "group": "NMB48",
+      "current": false
+     }
+    ]
    }
   ]
  },
@@ -1515,7 +1529,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.04.02",
     "img": true,
-    "note": "兼任・移籍：STU48"
+    "extras": [
+     {
+      "group": "STU48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m7c55824785",
@@ -3208,7 +3227,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.12.24",
     "img": true,
-    "note": "兼任・移籍：NMB48"
+    "extras": [
+     {
+      "group": "NMB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "ma6fda0b37c",
@@ -3218,7 +3242,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.09.30",
     "img": true,
-    "note": "兼任・移籍：SKE48"
+    "extras": [
+     {
+      "group": "SKE48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mb1e792ec04",
@@ -3228,7 +3257,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.08.28",
     "img": true,
-    "note": "兼任・移籍：HKT48"
+    "extras": [
+     {
+      "group": "HKT48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "meef0b581c1",
@@ -3433,7 +3467,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.04.29",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m7cfca0fe3e",
@@ -3470,7 +3509,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.04.30",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m0e849444a8",
@@ -3558,7 +3602,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.05.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "ma6efe088e7",
@@ -3650,7 +3699,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.04.30",
     "img": true,
-    "note": "兼任・移籍：NMB48"
+    "extras": [
+     {
+      "group": "NMB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m84a6beb68b",
@@ -3900,7 +3954,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.12.01",
     "img": true,
-    "note": "兼任・移籍：HKT48"
+    "extras": [
+     {
+      "group": "HKT48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m485837e7c5",
@@ -4116,7 +4175,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.09.30",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m8afc8a2ab0",
@@ -4215,7 +4279,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.09.30",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m7e9d752813",
@@ -5504,7 +5573,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.05.21",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m5fc97e36eb",
@@ -5514,7 +5588,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.12.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "md4e0aa6e1d",
@@ -5524,7 +5603,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.03.31",
     "img": true,
-    "note": "兼任・移籍：HKT48"
+    "extras": [
+     {
+      "group": "HKT48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mcf2027bc84",
@@ -5534,7 +5618,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mc2115f4357",
@@ -5544,7 +5633,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mf17a7c90dc",
@@ -5554,7 +5648,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.11.30",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    }
   ]
  },
@@ -5633,7 +5732,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.02.04",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "md056082b1c",
@@ -5670,7 +5774,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.08.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m2b7030c6a3",
@@ -5762,7 +5871,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.04.03",
     "img": true,
-    "note": "兼任・移籍：SKE48"
+    "extras": [
+     {
+      "group": "SKE48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m6fdb66051f",
@@ -5772,7 +5886,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.11.04",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "medc18c28c3",
@@ -5791,7 +5910,16 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.08.09",
     "img": true,
-    "note": "兼任・移籍：AKB48、SKE48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
+     {
+      "group": "SKE48",
+      "current": false
+     }
+    ]
    }
   ]
  },
@@ -5979,7 +6107,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.04.10",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m7afd1a2cfa",
@@ -6276,7 +6409,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.12.27",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m696a54c729",
@@ -7540,7 +7678,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.05.01",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m60c3483f7c",
@@ -7550,7 +7693,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mac16a93ea1",
@@ -7560,7 +7708,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.05.27",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    }
   ]
  },
@@ -7648,7 +7801,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.09",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "me97616fed8",
@@ -7687,7 +7845,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.01.11",
     "img": true,
-    "note": "兼任・移籍：SKE48"
+    "extras": [
+     {
+      "group": "SKE48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "md258620eb8",
@@ -7735,7 +7898,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.06.19",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mb5a64b6d3e",
@@ -7745,7 +7913,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.12.27",
     "img": true,
-    "note": "兼任・移籍：NMB48"
+    "extras": [
+     {
+      "group": "NMB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m346c9b186e",
@@ -7950,7 +8123,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.01.15",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m70658f63cf",
@@ -8038,7 +8216,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.04.01",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m9fd332bec4",
@@ -8723,7 +8906,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.04.10",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m8fc71b5ebc",
@@ -8733,7 +8921,16 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.04.28",
     "img": true,
-    "note": "兼任・移籍：AKB48、STU48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
+     {
+      "group": "STU48",
+      "current": false
+     }
+    ]
    }
   ]
  },
@@ -9607,7 +9804,16 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.04.30",
     "img": true,
-    "note": "兼任・移籍：AKB48、SKE48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
+     {
+      "group": "SKE48",
+      "current": false
+     }
+    ]
    }
   ]
  },
@@ -10582,7 +10788,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mf68135c28b",
@@ -10601,7 +10812,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m6e3598fb55",
@@ -10638,7 +10854,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m373b629544",
@@ -10657,7 +10878,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "ma5858f9e68",
@@ -10712,7 +10938,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m221e429bc8",
@@ -10916,7 +11147,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "mda13bfd549",
@@ -10935,7 +11171,12 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "note": "兼任・移籍：AKB48"
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m33b0a618ab",

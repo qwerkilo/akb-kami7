@@ -173,13 +173,9 @@ def merge_members(rows):
             continue
         keeper = max(records, key=member_rank)
         others = [r for r in records if r is not keeper]
-        groups = list(dict.fromkeys(r["group"] for r in others))
-        if keeper["status"] == "current" and all(r["status"] == "current" for r in others):
-            keeper["note"] = "兼任：" + "、".join(groups)
-        elif keeper["status"] == "current":
-            keeper["note"] = "移籍自：" + "、".join(groups)
-        else:
-            keeper["note"] = "兼任・移籍：" + "、".join(groups)
+        keeper["extras"] = [
+            {"group": r["group"], "current": r["status"] == "current"} for r in others
+        ]
         merged.append(keeper)
     return merged
 
@@ -296,7 +292,7 @@ def main():
     grouped = {}
     for m in members:
         key, label = group_of(m["join"], m["group"])
-        if key >= 130 and not m.get("note"):
+        if key >= 130 and not m.get("note") and not m.get("extras"):
             m["note"] = note_of(m["join"])
         grouped.setdefault((GROUP_ORDER.index(m["group"]), key, label), []).append(m)
 
@@ -310,6 +306,7 @@ def main():
                 {k: m[k] for k in ("id", "name", "kana", "nick", "status", "end", "img")}
                 | ({"leave": m["leave"]} if m.get("leave") else {})
                 | ({"note": m["note"]} if m.get("note") else {})
+                | ({"extras": m["extras"]} if m.get("extras") else {})
                 for m in ms
             ],
         })

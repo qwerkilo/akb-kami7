@@ -93,6 +93,26 @@ test("成员字段无 wikitext/排序键残留", () => {
   }
 });
 
+test("跨团来源以结构化 extras 表示，note 不写死标注文案", () => {
+  let withExtras = 0;
+  for (const section of loadGroups()) {
+    for (const m of section.members) {
+      if (m.extras) {
+        withExtras++;
+        for (const e of m.extras) {
+          assert.equal(typeof e.group, "string");
+          assert.equal(typeof e.current, "boolean");
+        }
+      }
+      assert.ok(
+        !/兼任|移籍/.test(m.note || ""),
+        `${m.name} 的 note 含硬编码标注: ${m.note}`
+      );
+    }
+  }
+  assert.ok(withExtras > 0, "应存在带 extras 的合并成员");
+});
+
 test("每个分段都有期生标签，人物身份（姓名+假名）不重复", () => {
   const people = new Set();
   for (const section of loadGroups()) {

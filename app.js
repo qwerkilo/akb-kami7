@@ -66,6 +66,18 @@
 
   const isTransfer = (m) => m.generation === "兼任・移籍加入";
 
+  function sourceNote(m) {
+    if (m.extras && m.extras.length) {
+      const sep = lang === "en" ? ", " : "、";
+      const groups = m.extras.map((e) => e.group).join(sep);
+      if (m.status === "current" && m.extras.every((e) => e.current))
+        return t("src_concurrent", groups);
+      if (m.status === "current") return t("src_transferred", groups);
+      return t("src_mixed", groups);
+    }
+    return m.note || "";
+  }
+
   function leaveText(reason) {
     return lang === "en" ? t("leave_" + reason) || reason : reason;
   }
@@ -77,15 +89,19 @@
     return m.end ? t("grad_year", m.end.slice(0, 4)) : t("graduated");
   }
   function metaText(m) {
-    const prefix = m.note ? `${m.note} · ` : "";
+    const src = sourceNote(m);
+    const prefix = src ? `${src} · ` : "";
     if (m.status === "current") return `${prefix}${t("active")}`;
-    if (isTransfer(m) && !m.leave) return m.note || t("transfer");
-    if (isTransfer(m)) return `${m.note} · ${leaveText(m.leave)}`;
+    if (isTransfer(m)) {
+      const parts = [src, m.leave ? leaveText(m.leave) : ""].filter(Boolean);
+      return parts.join(" · ") || t("transfer");
+    }
     return `${prefix}${yearLeave(m)}`;
   }
   function fullMeta(m) {
     const parts = [m.group, m.generation];
-    if (m.note) parts.push(m.note);
+    const src = sourceNote(m);
+    if (src) parts.push(src);
     if (m.status === "current") {
       parts.push(t("active"));
     } else if (isTransfer(m)) {
