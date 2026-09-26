@@ -508,6 +508,11 @@ class MainIntegrationTests(unittest.TestCase):
             stack.enter_context(patch.object(fetch_members, "ORIG", dirs["orig"]))
             stack.enter_context(patch.object(fetch_members, "FULL", dirs["full"]))
             stack.enter_context(patch.object(fetch_members, "THUMB", dirs["thumb"]))
+            # 自检：补丁必须对模块全局生效，否则 main() 会写真实目录
+            self.assertEqual(fetch_members.ROOT, td)
+            self.assertEqual(fetch_members.ORIG, dirs["orig"])
+            self.assertEqual(fetch_members.FULL, dirs["full"])
+            self.assertEqual(fetch_members.THUMB, dirs["thumb"])
 
             fetch_members.main(
                 fetch_page=fake_pages, api_fn=fake_api, fetch_url=lambda url: png_bytes

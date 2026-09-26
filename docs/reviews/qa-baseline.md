@@ -73,3 +73,27 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 - 数据重跑后：产物不变量测试 + `--no-dl` 幂等核对。
 - UI 改动后：E2E 冒烟（`/tmp/opencode/e2e.cjs`，28 项；Playwright 在 npx 缓存）。
 - 每次 code review 后：追加 `docs/reviews/checkpoints.md`。
+
+## 复检：2026-09-26（同日晚）
+
+按本报告逐项修复后的复检结果（提交 `1142d6a`、`4025aca`）：
+
+| 指标                      | 基线                                                                                                                         | 复检                                            |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `fetch_members.py` 覆盖率 | 52%                                                                                                                          | **97%**（缺口仅网络/异常/打印分支）             |
+| CRAP > 6 的函数           | 7 个（`main` 1897、`compress` 34.8、`image_urls` 34.3、`parse_rows` 25.1、`load_rows` 14.1、`group_of`/`merge_members` 7.0） | **0 个**（全部 ≤ 6.0）                          |
+| core.js 变异得分          | 76.34%（幸存 31）                                                                                                            | **90.84%（119/131，幸存 12，全部等价/环境类）** |
+| 测试数                    | JS 24 / Python 21                                                                                                            | JS 28 / Python 37                               |
+| 重复率 / TODO / 依赖漏洞  | 0.59% / 0 / 0                                                                                                                | 未变（未处理项）                                |
+
+修复摘要：
+
+- 解析器与生成器拆出可测函数（`parse_chunk`/`name_kana_from_chunk`/`nick_from_chunk`/`end_leave_from_chunk`、`assign_ids`/`build_sections`/`write_members_js`/`prune_unused`/`collect_paths`/`compress_members` 等），网络、目录、API 均可注入；新增 fixture 单测与离线端到端（含 `--no-dl` 幂等断言）共 16 例。
+- 变异幸存点补断言：七组汉字变体、占位图转义/空名/首字符、shuffle Fisher-Yates 固定随机数、haystack 精确合并、连续空白。
+- 仍幸存 12 个全部为等价/环境类（UMD 分支、被下游归一化抹平的分隔符、自交换边界），不再追。
+
+事故与修复（须引以为戒）：
+
+- 集成测试的 `with patch.object(...)` 块在缩进调整后作用域失效，第二次 `main()` 以**真实目录**运行：prune 删除了 `img` 下全部图片与 `scripts/_orig` 缓存，并重写了 `members.js`。
+- 处置：`git checkout` 恢复图片与产物；重跑生成重新下载 `_orig`（12 名成员图片随上游刷新，已随 `1142d6a` 提交）；测试改为 `contextlib.ExitStack` 包裹整个方法体，杜绝越界。
+- 教训：**集成测试对全局路径的 patch 必须覆盖整个测试体**；今后此类测试应显式断言「补丁生效」（如运行前后校验真实目录数量/哈希不变）。
