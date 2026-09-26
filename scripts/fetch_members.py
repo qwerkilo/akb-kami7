@@ -11,6 +11,7 @@ import os
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 
 from PIL import Image, ImageOps
 
@@ -77,81 +78,131 @@ def parse_page(text, group, default_status):
     return rows
 
 
+def name_kana_from_chunk(chunk, f):
+    r = re.search(r"\{\{ルビ\|((?:\[\[[^\]]*\]\])|[^|]+)\|([^}]*)\}\}", chunk)
+    if r:
+        name, page = clean_name(r.group(1))
+        return name, page, r.group(2).strip()
+    if f:
+        line = chunk.split(f.group(0), 1)[1].split("\n| ", 1)[1].split("\n")[0]
+        name, page = clean_name(line)
+        return name, page, ""
+    return None, None, None
+
+
+def looks_like_row(chunk, f):
+    return bool(f) or "{{ルビ|" in chunk
+
+
+def is_file_line(line):
+    return bool(re.search(r"\[\[(?:ファイル|File):", line))
+
+
+def row_line_index(lines, name):
+    for i, ln in enumerate(lines):
+        if "{{ルビ|" in ln:
+            return i
+        if name in ln and not is_file_line(ln):
+            return i
+    return None
+
+
+def clean_nick(raw):
+    nick = re.sub(r"<[^>]+>|\[\[|\]\]|\{\{[^}]*\}\}", "", raw).strip()
+    if nick.startswith(("style=", "data-")) or re.search(r'\w+="', nick) or len(nick) > 30:
+        return ""
+    return nick
+
+
+def nick_from_chunk(chunk, name):
+    lines = chunk.split("\n")
+    idx = row_line_index(lines, name)
+    if idx is None or idx + 1 >= len(lines) or not lines[idx + 1].startswith("|"):
+        return ""
+    return clean_nick(lines[idx + 1][1:])
+
+
+def end_leave_from_chunk(chunk):
+    end = None
+    dates = re.findall(r"\{\{年月日\|(\d{4})\|(\d*)\|(\d*)\}\}", chunk)
+    if dates:
+        y, mo, d = dates[-1]
+        end = f"{y}.{mo.zfill(2)}.{d.zfill(2)}" if mo else y
+    reason = re.search(r"<br>（([^）]+)）", chunk)
+    return end, (reason.group(1).strip() if reason else None)
+
+
+def parse_chunk(chunk, status):
+    """Return (row, skipped) for one table row; row is None when unparsable."""
+    f = re.search(r"\[\[(?:ファイル|File):([^|\]]+)", chunk)
+    j = re.search(r"\{\{加入期\|([^}]*)\}\}", chunk)
+    if not j:
+        return None, looks_like_row(chunk, f)
+    name, page, kana = name_kana_from_chunk(chunk, f)
+    if name is None:
+        return None, False
+    if status == "former":
+        end, leave = end_leave_from_chunk(chunk)
+    else:
+        end, leave = None, None
+    team = re.search(r"\{\{!チーム\|([^}]*)\}\}", chunk)
+    return {
+        "name": name,
+        "page": page,
+        "kana": kana,
+        "nick": nick_from_chunk(chunk, name),
+        "join": j.group(1).strip(),
+        "team": team.group(1) if team else "",
+        "file": f.group(1).strip() if f else "",
+        "status": status,
+        "end": end,
+        "leave": leave,
+    }, False
+
+
 def parse_rows(text, status, where=""):
     rows = []
     skipped = 0
     for chunk in re.split(r"\n\|-[^\n]*", text):
-        f = re.search(r"\[\[(?:ファイル|File):([^|\]]+)", chunk)
-        j = re.search(r"\{\{加入期\|([^}]*)\}\}", chunk)
-        if not j:
-            if f or "{{ルビ|" in chunk:
-                skipped += 1
-            continue
-        r = re.search(r"\{\{ルビ\|((?:\[\[[^\]]*\]\])|[^|]+)\|([^}]*)\}\}", chunk)
-        if r:
-            name, page = clean_name(r.group(1))
-            kana = r.group(2).strip()
-        elif f:
-            line = chunk.split(f.group(0), 1)[1].split("\n| ", 1)[1].split("\n")[0]
-            name, page = clean_name(line)
-            kana = ""
-        else:
-            continue
-        lines = chunk.split("\n")
-        idx = next(
-            (
-                i
-                for i, ln in enumerate(lines)
-                if "{{ルビ|" in ln
-                or (name in ln and not re.search(r"\[\[(?:ファイル|File):", ln))
-            ),
-            None,
-        )
-        nick = ""
-        if idx is not None and idx + 1 < len(lines) and lines[idx + 1].startswith("|"):
-            nick = re.sub(r"<[^>]+>|\[\[|\]\]|\{\{[^}]*\}\}", "", lines[idx + 1][1:]).strip()
-            if nick.startswith(("style=", "data-")) or re.search(r'\w+="', nick) or len(nick) > 30:
-                nick = ""
-        end = None
-        leave = None
-        if status == "former":
-            dates = re.findall(r"\{\{年月日\|(\d{4})\|(\d*)\|(\d*)\}\}", chunk)
-            if dates:
-                y, mo, d = dates[-1]
-                end = f"{y}.{mo.zfill(2)}.{d.zfill(2)}" if mo else y
-            reason = re.search(r"<br>（([^）]+)）", chunk)
-            if reason:
-                leave = reason.group(1).strip()
-        team = re.search(r"\{\{!チーム\|([^}]*)\}\}", chunk)
-        rows.append({
-            "name": name,
-            "page": page,
-            "kana": kana,
-            "nick": nick,
-            "join": j.group(1).strip(),
-            "team": team.group(1) if team else "",
-            "file": f.group(1).strip() if f else "",
-            "status": status,
-            "end": end,
-            "leave": leave,
-        })
+        row, dirty = parse_chunk(chunk, status)
+        if dirty:
+            skipped += 1
+        if row:
+            rows.append(row)
     if skipped:
         print(f"warning: 跳过 {skipped} 行缺加入期（{where or '未标注位置'}）")
     return rows
 
 
-def group_of(join, group):
-    """Return (sort_key, label) for the accordion section inside one group."""
+def generation_section(join, group):
     m = re.match(r"([\d.]+)期\|" + re.escape(group) + r"$", join)
     if m:
-        n = float(m.group(1))
-        return (n, f"{m.group(1)}期生")
-    if group == "AKB48" and join.startswith("チーム8"):
-        return (100, "Team 8")
+        return (float(m.group(1)), f"{m.group(1)}期生")
+    return None
+
+
+def draft_section(join):
     m = re.match(r"(\d)期\|ドラフト$", join)
     if m:
         return (110 + int(m.group(1)), f"选秀{m.group(1)}期生")
-    if "|" in join and not join.endswith("|" + group):
+    return None
+
+
+def is_foreign_join(join, group):
+    return "|" in join and not join.endswith("|" + group)
+
+
+def group_of(join, group):
+    """Return (sort_key, label) for the accordion section inside one group."""
+    section = generation_section(join, group)
+    if section:
+        return section
+    if group == "AKB48" and join.startswith("チーム8"):
+        return (100, "Team 8")
+    section = draft_section(join)
+    if section:
+        return section
+    if is_foreign_join(join, group):
         return (130, "兼任・移籍加入")
     return (140, "其他")
 
@@ -166,36 +217,94 @@ def member_rank(r):
     return (r["status"] == "current", r["end"] or "", r["join"].endswith("|" + r["group"]))
 
 
+def merge_person(records):
+    if len(records) == 1:
+        return records[0]
+    keeper = max(records, key=member_rank)
+    keeper["extras"] = [
+        {"group": r["group"], "current": r["status"] == "current"}
+        for r in records
+        if r is not keeper
+    ]
+    return keeper
+
+
 def merge_members(rows):
     """Merge the same person (name + kana) appearing in several groups."""
     by_person = {}
     for r in rows:
         by_person.setdefault((r["name"], r["kana"]), []).append(r)
-
-    merged = []
-    for records in by_person.values():
-        if len(records) == 1:
-            merged.append(records[0])
-            continue
-        keeper = max(records, key=member_rank)
-        others = [r for r in records if r is not keeper]
-        keeper["extras"] = [
-            {"group": r["group"], "current": r["status"] == "current"} for r in others
-        ]
-        merged.append(keeper)
-    return merged
+    return [merge_person(records) for records in by_person.values()]
 
 
 def slug(name):
     return "m" + hashlib.md5(name.encode("utf-8")).hexdigest()[:10]
 
 
-def image_urls(files):
+def assign_ids(members):
+    seen_names = set()
+    for m in members:
+        suffix = "" if m["name"] not in seen_names else "#" + m["join"]
+        m["id"] = slug(m["name"] + suffix)
+        seen_names.add(m["name"])
+
+
+def section_key(m):
+    key, label = group_of(m["join"], m["group"])
+    if key >= 130 and not m.get("note") and not m.get("extras"):
+        m["note"] = note_of(m["join"])
+    return (GROUP_ORDER.index(m["group"]), key, label)
+
+
+def project_member(m):
+    return (
+        {k: m[k] for k in ("id", "name", "kana", "nick", "status", "end", "img")}
+        | ({"leave": m["leave"]} if m.get("leave") else {})
+        | ({"note": m["note"]} if m.get("note") else {})
+        | ({"extras": m["extras"]} if m.get("extras") else {})
+    )
+
+
+def build_sections(members):
+    grouped = {}
+    for m in members:
+        grouped.setdefault(section_key(m), []).append(m)
+
+    out = []
+    for (gi, key, label), ms in sorted(grouped.items()):
+        ms.sort(key=lambda m: (m["status"] != "current", m["kana"] or m["name"]))
+        out.append({
+            "group": GROUP_ORDER[gi],
+            "label": label,
+            "members": [project_member(m) for m in ms],
+        })
+    return out
+
+
+def write_members_js(sections, path):
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("// generated by scripts/fetch_members.py from 48pedia.org\n")
+        fh.write("window.AKB_GROUPS = ")
+        json.dump(sections, fh, ensure_ascii=False, indent=1)
+        fh.write(";\n")
+
+
+def prune_unused(keep, dirs):
+    removed = 0
+    for d in dirs:
+        for fn in os.listdir(d):
+            if os.path.splitext(fn)[0] not in keep:
+                os.remove(os.path.join(d, fn))
+                removed += 1
+    return removed
+
+
+def image_urls(files, api_fn=api):
     out = {}
     for i in range(0, len(files), 50):
         batch = files[i:i + 50]
-        data = api(action="query", prop="imageinfo", iiprop="url|size",
-                   titles="|".join("ファイル:" + f for f in batch))
+        data = api_fn(action="query", prop="imageinfo", iiprop="url|size",
+                      titles="|".join("ファイル:" + f for f in batch))
         norm = {n["to"]: n["from"] for n in data["query"].get("normalized", [])}
         for p in data["query"]["pages"].values():
             ii = p.get("imageinfo")
@@ -206,18 +315,41 @@ def image_urls(files):
     return out
 
 
-def download(args):
+def download(args, orig_dir=ORIG, fetch=get):
     mid, url = args
-    path = os.path.join(ORIG, mid + os.path.splitext(url)[1].lower())
+    path = os.path.join(orig_dir, mid + os.path.splitext(url)[1].lower())
     if not os.path.exists(path):
-        data = get(url)
+        data = fetch(url)
         with open(path, "wb") as fh:
             fh.write(data)
     return mid, path
 
 
-def compress(mid, path, force=False):
-    outs = [os.path.join(FULL, mid + ".webp"), os.path.join(THUMB, mid + ".webp")]
+def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6):
+    paths = {}
+    with ThreadPoolExecutor(workers) as ex:
+        mapped = ex.map(partial(download, orig_dir=orig_dir, fetch=fetch), jobs)
+        for n, (mid, p) in enumerate(mapped, 1):
+            paths[mid] = p
+            if n % 50 == 0:
+                print(f"downloaded {n}/{len(jobs)}")
+    return paths
+
+
+def cached_image_paths(jobs, orig_dir=ORIG):
+    paths = {}
+    for mid, url in jobs:
+        p = os.path.join(orig_dir, mid + os.path.splitext(url)[1].lower())
+        if os.path.exists(p):
+            paths[mid] = p
+    return paths
+
+
+def compress(mid, path, force=False, full_dir=FULL, thumb_dir=THUMB):
+    outs = [
+        os.path.join(full_dir, mid + ".webp"),
+        os.path.join(thumb_dir, mid + ".webp"),
+    ]
     if not force and all(os.path.exists(o) and os.path.getmtime(o) > os.path.getmtime(path) for o in outs):
         return Image.open(path).size, None
     im = Image.open(path)
@@ -226,113 +358,101 @@ def compress(mid, path, force=False):
     full.thumbnail(FULL_BOX, Image.LANCZOS)
     # small originals are already the official profile size; avoid a lossy second generation
     q = FULL_Q if full.size != im.size else 94
-    full.save(os.path.join(FULL, mid + ".webp"), "WEBP", quality=q, method=6)
+    full.save(os.path.join(full_dir, mid + ".webp"), "WEBP", quality=q, method=6)
     w, h = im.size
     th = im.resize((THUMB_W, round(h * THUMB_W / w)), Image.LANCZOS)
-    th.save(os.path.join(THUMB, mid + ".webp"), "WEBP", quality=THUMB_Q, method=6)
+    th.save(os.path.join(thumb_dir, mid + ".webp"), "WEBP", quality=THUMB_Q, method=6)
     return im.size, full.size
 
 
-def load_rows():
+def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
     rows = []
-    for group, page, default in SOURCES:
-        page_rows = parse_page(wikitext(page), group, default)
+    for group, page, default in sources:
+        page_rows = parse_page(fetch_page(page), group, default)
         print(f"{group:5s} {page}: {len(page_rows)}")
         rows.extend(page_rows)
-    return [r for r in rows if not r["join"].startswith(EXCLUDE)]
+    return [r for r in rows if not r["join"].startswith(exclude)]
 
 
-def main():
-    no_dl = "--no-dl" in sys.argv
-    for d in (ORIG, FULL, THUMB):
-        os.makedirs(d, exist_ok=True)
+def parse_args(argv):
+    argv = sys.argv[1:] if argv is None else argv
+    return "--no-dl" in argv, "--force" in argv
 
-    members = merge_members(load_rows())
-    print(f"members after dedupe: {len(members)}")
 
-    seen_names = set()
-    for m in members:
-        m["id"] = slug(m["name"] + ("" if m["name"] not in seen_names else "#" + m["join"]))
-        seen_names.add(m["name"])
-
-    urls = image_urls(sorted({m["file"] for m in members if m["file"]}))
-    missing = [m["name"] for m in members if m["file"] and m["file"] not in urls]
+def report_missing_info(missing):
     if missing:
         print("no image info:", missing)
 
-    jobs = [(m["id"], urls[m["file"]]) for m in members if m["file"] in urls]
-    paths = {}
-    if no_dl:
-        for mid, url in jobs:
-            p = os.path.join(ORIG, mid + os.path.splitext(url)[1].lower())
-            if os.path.exists(p):
-                paths[mid] = p
-    else:
-        with ThreadPoolExecutor(6) as ex:
-            for n, (mid, p) in enumerate(ex.map(download, jobs), 1):
-                paths[mid] = p
-                if n % 50 == 0:
-                    print(f"downloaded {n}/{len(jobs)}")
 
+def warn_missing_images(members):
+    no_img = [m["name"] for m in members if not m["img"]]
+    if no_img:
+        print(f"warning: {len(no_img)} 位成员没有照片（界面显示占位）：{'、'.join(no_img[:10])}")
+
+
+def report_removed(removed):
+    if removed:
+        print(f"removed {removed} unused image files")
+
+
+def report_generation(sections, members, sizes):
+    total = sum(len(g["members"]) for g in sections)
+    print(f"groups {len(sections)}  members {total}  with image {sum(m['img'] for m in members)}")
+    if sizes:
+        ws = sorted(s[0] for s in sizes)
+        hs = sorted(s[1] for s in sizes)
+        print(f"original size median {ws[len(ws)//2]}x{hs[len(hs)//2]}  min {ws[0]}x{hs[0]}  max {ws[-1]}x{hs[-1]}")
+
+
+def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
     sizes = []
     for m in members:
         p = paths.get(m["id"])
         m["img"] = bool(p)
         if p:
             try:
-                sizes.append(compress(m["id"], p, "--force" in sys.argv)[0])
+                sizes.append(compress(m["id"], p, force, full_dir, thumb_dir)[0])
             except Exception as e:
                 print("compress failed", m["name"], e)
                 m["img"] = False
+    return sizes
 
-    no_img = [m["name"] for m in members if not m["img"]]
-    if no_img:
-        print(f"warning: {len(no_img)} 位成员没有照片（界面显示占位）：{'、'.join(no_img[:10])}")
 
-    keep = {m["id"] for m in members}
-    removed = 0
+def member_files(members):
+    return sorted({m["file"] for m in members if m["file"]})
+
+
+def resolve_missing(members, urls):
+    return [m["name"] for m in members if m["file"] and m["file"] not in urls]
+
+
+def collect_paths(members, urls, no_dl, fetch_url, orig_dir=ORIG):
+    jobs = [(m["id"], urls[m["file"]]) for m in members if m["file"] in urls]
+    if no_dl:
+        return cached_image_paths(jobs, orig_dir)
+    return download_all(jobs, fetch_url, orig_dir)
+
+
+def main(argv=None, fetch_page=wikitext, api_fn=api, fetch_url=get):
+    no_dl, force = parse_args(argv)
     for d in (ORIG, FULL, THUMB):
-        for fn in os.listdir(d):
-            if os.path.splitext(fn)[0] not in keep:
-                os.remove(os.path.join(d, fn))
-                removed += 1
-    if removed:
-        print(f"removed {removed} unused image files")
+        os.makedirs(d, exist_ok=True)
 
-    grouped = {}
-    for m in members:
-        key, label = group_of(m["join"], m["group"])
-        if key >= 130 and not m.get("note") and not m.get("extras"):
-            m["note"] = note_of(m["join"])
-        grouped.setdefault((GROUP_ORDER.index(m["group"]), key, label), []).append(m)
+    members = merge_members(load_rows(fetch_page))
+    print(f"members after dedupe: {len(members)}")
+    assign_ids(members)
 
-    out = []
-    for (gi, key, label), ms in sorted(grouped.items()):
-        ms.sort(key=lambda m: (m["status"] != "current", m["kana"] or m["name"]))
-        out.append({
-            "group": GROUP_ORDER[gi],
-            "label": label,
-            "members": [
-                {k: m[k] for k in ("id", "name", "kana", "nick", "status", "end", "img")}
-                | ({"leave": m["leave"]} if m.get("leave") else {})
-                | ({"note": m["note"]} if m.get("note") else {})
-                | ({"extras": m["extras"]} if m.get("extras") else {})
-                for m in ms
-            ],
-        })
+    urls = image_urls(member_files(members), api_fn)
+    report_missing_info(resolve_missing(members, urls))
 
-    with open(os.path.join(ROOT, "members.js"), "w", encoding="utf-8") as fh:
-        fh.write("// generated by scripts/fetch_members.py from 48pedia.org\n")
-        fh.write("window.AKB_GROUPS = ")
-        json.dump(out, fh, ensure_ascii=False, indent=1)
-        fh.write(";\n")
+    paths = collect_paths(members, urls, no_dl, fetch_url, ORIG)
+    sizes = compress_members(members, paths, force, FULL, THUMB)
+    warn_missing_images(members)
+    report_removed(prune_unused({m["id"] for m in members}, (ORIG, FULL, THUMB)))
 
-    total = sum(len(g["members"]) for g in out)
-    print(f"groups {len(out)}  members {total}  with image {sum(m['img'] for m in members)}")
-    if sizes:
-        ws = sorted(s[0] for s in sizes)
-        hs = sorted(s[1] for s in sizes)
-        print(f"original size median {ws[len(ws)//2]}x{hs[len(hs)//2]}  min {ws[0]}x{hs[0]}  max {ws[-1]}x{hs[-1]}")
+    sections = build_sections(members)
+    write_members_js(sections, os.path.join(ROOT, "members.js"))
+    report_generation(sections, members, sizes)
 
 
 if __name__ == "__main__":

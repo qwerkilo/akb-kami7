@@ -1,6 +1,12 @@
 import io
+import json
+import os
+import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import ExitStack, redirect_stdout
+from unittest.mock import patch
+
+from PIL import Image
 
 import fetch_members
 
@@ -106,8 +112,12 @@ class GroupOfTests(unittest.TestCase):
         self.assertEqual(fetch_members.note_of("1期|AKB48"), "AKB48 1期")
 
 
-def member(name, kana, group, status, join, end=None):
-    return {
+    def test_unknown_join_falls_back_to_other(self):
+        self.assertEqual(fetch_members.group_of("その他|AKB48", "AKB48"), (140, "其他"))
+
+
+def member(name, kana, group, status, join, end=None, **extra):
+    m = {
         "name": name,
         "kana": kana,
         "group": group,
@@ -115,6 +125,8 @@ def member(name, kana, group, status, join, end=None):
         "join": join,
         "end": end,
     }
+    m.update(extra)
+    return m
 
 
 class MergeMembersTests(unittest.TestCase):
@@ -217,6 +229,14 @@ class ParsePageEdgeTests(unittest.TestCase):
         rows = fetch_members.parse_page(NO_JOIN_PAGE, "AKB48", "former")
         self.assertEqual(rows, [])
 
+    def test_row_with_join_but_no_name_is_dropped(self):
+        page = "== 元メンバー ==\n{|\n|-\n| {{加入期|1期|AKB48}}\n|}"
+        self.assertEqual(fetch_members.parse_rows(page, "former"), [])
+
+    def test_nick_is_empty_when_name_not_in_chunk(self):
+        chunk = "| {{加入期|1期|AKB48}}"
+        self.assertEqual(fetch_members.nick_from_chunk(chunk, "不存在"), "")
+
     def test_missing_join_row_is_reported(self):
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -255,6 +275,266 @@ class SortKeyCellTests(unittest.TestCase):
         for r in rows:
             for field in ("name", "nick", "kana"):
                 self.assertNotIn("data-sort-value", r[field])
+
+
+class LoadRowsTests(unittest.TestCase):
+    def test_load_rows_fetches_each_source_and_tags_group(self):
+        calls = []
+
+        def fake_fetch(page):
+            calls.append(page)
+            return SORTKEY_FIXTURE
+
+        rows = fetch_members.load_rows(
+            fetch_page=fake_fetch, sources=(("SDN48", "SDN48メンバー一覧", "former"),)
+        )
+        self.assertEqual(calls, ["SDN48メンバー一覧"])
+        self.assertEqual([r["name"] for r in rows], ["チェン・チュー", "KONAN"])
+        self.assertTrue(all(r["group"] == "SDN48" for r in rows))
+
+    def test_load_rows_applies_exclusion(self):
+        baito = (
+            "{|\n|-\n| [[File:baito.jpg|50px]]\n"
+            "| {{ルビ|[[バイト子]]|ばいと こ}}\n| {{加入期|バイトAKB}}\n|}"
+        )
+        rows = fetch_members.load_rows(
+            fetch_page=lambda page: baito,
+            sources=(("AKB48", "AKB48元メンバー一覧", "former"),),
+        )
+        self.assertEqual(rows, [])
+
+
+class ImageUrlsTests(unittest.TestCase):
+    def test_maps_normalized_titles_to_urls_and_skips_missing(self):
+        seen = {}
+
+        def fake_api(**params):
+            seen.update(params)
+            return {
+                "query": {
+                    "normalized": [{"from": "File:A.jpg", "to": "ファイル:A.jpg"}],
+                    "pages": {
+                        "1": {
+                            "title": "ファイル:A.jpg",
+                            "imageinfo": [{"url": "https://example.test/a.jpg"}],
+                        },
+                        "2": {"title": "ファイル:B.jpg"},
+                    },
+                }
+            }
+
+        out = fetch_members.image_urls(["A.jpg", "B.jpg"], api_fn=fake_api)
+        self.assertEqual(out, {"A.jpg": "https://example.test/a.jpg"})
+        self.assertEqual(seen["titles"], "ファイル:A.jpg|ファイル:B.jpg")
+
+
+class ImageIoTests(unittest.TestCase):
+    def test_download_writes_file_and_reuses_cache(self):
+        calls = []
+
+        def fake_get(url):
+            calls.append(url)
+            return b"IMG:" + url.encode()
+
+        with tempfile.TemporaryDirectory() as td:
+            mid, path = fetch_members.download(
+                ("mid1", "http://x/A.JPG"), orig_dir=td, fetch=fake_get
+            )
+            self.assertEqual(mid, "mid1")
+            self.assertEqual(path, os.path.join(td, "mid1.jpg"))
+            with open(path, "rb") as fh:
+                self.assertEqual(fh.read(), b"IMG:http://x/A.JPG")
+            fetch_members.download(("mid1", "http://x/A.JPG"), orig_dir=td, fetch=fake_get)
+            self.assertEqual(len(calls), 1)
+
+    def test_download_all_maps_jobs(self):
+        with tempfile.TemporaryDirectory() as td:
+            paths = fetch_members.download_all(
+                [("a", "http://x/a.png"), ("b", "http://x/b.png")],
+                orig_dir=td,
+                fetch=lambda url: b"x",
+                workers=2,
+            )
+            self.assertEqual(set(paths), {"a", "b"})
+            self.assertTrue(os.path.exists(paths["a"]))
+
+    def test_cached_image_paths_only_existing(self):
+        with tempfile.TemporaryDirectory() as td:
+            open(os.path.join(td, "a.png"), "wb").close()
+            out = fetch_members.cached_image_paths(
+                [("a", "http://x/a.png"), ("b", "http://x/b.png")], orig_dir=td
+            )
+            self.assertEqual(set(out), {"a"})
+
+    def test_compress_writes_full_and_thumb(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = os.path.join(td, "src.png")
+            Image.new("RGB", (300, 400), (120, 30, 30)).save(src)
+            full_dir = os.path.join(td, "full")
+            thumb_dir = os.path.join(td, "thumb")
+            os.makedirs(full_dir)
+            os.makedirs(thumb_dir)
+            size, full = fetch_members.compress(
+                "mtest", src, full_dir=full_dir, thumb_dir=thumb_dir
+            )
+            self.assertEqual(size, (300, 400))
+            self.assertEqual(full, (300, 400))
+            self.assertTrue(os.path.exists(os.path.join(full_dir, "mtest.webp")))
+            thumb_path = os.path.join(thumb_dir, "mtest.webp")
+            self.assertEqual(Image.open(thumb_path).size[0], 240)
+            cached = fetch_members.compress(
+                "mtest", src, full_dir=full_dir, thumb_dir=thumb_dir
+            )
+            self.assertEqual(cached, ((300, 400), None))
+
+
+class AssignIdsTests(unittest.TestCase):
+    def test_unique_names_get_slug_ids(self):
+        members = [member("甲", "こう", "AKB48", "current", "1期|AKB48")]
+        fetch_members.assign_ids(members)
+        self.assertEqual(members[0]["id"], fetch_members.slug("甲"))
+
+    def test_duplicate_names_get_join_suffix(self):
+        members = [
+            member("同名", "どうめい", "AKB48", "current", "1期|AKB48"),
+            member("同名", "どうめい", "SKE48", "current", "2期|SKE48"),
+        ]
+        fetch_members.assign_ids(members)
+        self.assertNotEqual(members[0]["id"], members[1]["id"])
+        self.assertEqual(members[1]["id"], fetch_members.slug("同名#2期|SKE48"))
+
+
+class BuildSectionsTests(unittest.TestCase):
+    def test_orders_groups_sections_and_members(self):
+        members = [
+            member("乙", "おつ", "SKE48", "former", "1期|SKE48"),
+            member("甲", "こう", "SKE48", "current", "1期|SKE48"),
+            member("丙", "へい", "SKE48", "current", "2期|SKE48"),
+            member("丁", "てい", "AKB48", "current", "1期|AKB48"),
+        ]
+        for i, m in enumerate(members):
+            m["id"] = f"m{i}"
+            m["img"] = True
+            m["nick"] = ""
+        out = fetch_members.build_sections(members)
+        self.assertEqual([s["group"] for s in out], ["AKB48", "SKE48", "SKE48"])
+        self.assertEqual([s["label"] for s in out], ["1期生", "1期生", "2期生"])
+        self.assertEqual([m["name"] for m in out[1]["members"]], ["甲", "乙"])
+        self.assertEqual(
+            set(out[1]["members"][0]),
+            {"id", "name", "kana", "nick", "status", "end", "img"},
+        )
+
+    def test_projects_note_and_extras(self):
+        concurrent = member(
+            "兼任子",
+            "けんにん こ",
+            "AKB48",
+            "current",
+            "1期|AKB48",
+            id="m1",
+            img=True,
+            nick="",
+            extras=[{"group": "STU48", "current": True}],
+        )
+        foreign = member(
+            "外来子",
+            "がいらい こ",
+            "AKB48",
+            "former",
+            "2期|JKT48",
+            end="2020.01.01",
+            id="m2",
+            img=False,
+            nick="",
+        )
+        out = fetch_members.build_sections([concurrent, foreign])
+        by_name = {m["name"]: m for s in out for m in s["members"]}
+        self.assertEqual(
+            by_name["兼任子"]["extras"], [{"group": "STU48", "current": True}]
+        )
+        self.assertNotIn("note", by_name["兼任子"])
+        self.assertEqual(by_name["外来子"]["note"], "JKT48 2期")
+        self.assertFalse(by_name["外来子"]["img"])
+
+
+class WriteMembersJsTests(unittest.TestCase):
+    def test_writes_round_trippable_file(self):
+        sections = [{"group": "AKB48", "label": "1期生", "members": []}]
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "members.js")
+            fetch_members.write_members_js(sections, path)
+            with open(path, encoding="utf-8") as fh:
+                src = fh.read()
+        self.assertTrue(src.startswith("// generated by scripts/fetch_members.py"))
+        payload = src.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
+        self.assertEqual(json.loads(payload), sections)
+
+
+class PruneUnusedTests(unittest.TestCase):
+    def test_removes_unreferenced_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            open(os.path.join(td, "a.webp"), "wb").close()
+            open(os.path.join(td, "b.webp"), "wb").close()
+            removed = fetch_members.prune_unused({"a"}, [td])
+            self.assertEqual(removed, 1)
+            self.assertTrue(os.path.exists(os.path.join(td, "a.webp")))
+            self.assertFalse(os.path.exists(os.path.join(td, "b.webp")))
+
+
+class MainIntegrationTests(unittest.TestCase):
+    def test_main_runs_offline_pipeline(self):
+        png = io.BytesIO()
+        Image.new("RGB", (60, 80), (10, 120, 30)).save(png, "PNG")
+        png_bytes = png.getvalue()
+
+        def fake_api(**params):
+            titles = params["titles"].split("|")
+            pages = {
+                str(i): {"title": t, "imageinfo": [{"url": f"https://x/{i}.png"}]}
+                for i, t in enumerate(titles)
+            }
+            return {"query": {"pages": pages}}
+
+        def fake_pages(page):
+            return SORTKEY_FIXTURE if page == "SDN48メンバー一覧" else "{|\n|}"
+
+        def no_download(url):
+            raise AssertionError("--no-dl 不应触发下载")
+
+        with tempfile.TemporaryDirectory() as td, ExitStack() as stack:
+            dirs = {k: os.path.join(td, k) for k in ("orig", "full", "thumb")}
+            stack.enter_context(patch.object(fetch_members, "ROOT", td))
+            stack.enter_context(patch.object(fetch_members, "ORIG", dirs["orig"]))
+            stack.enter_context(patch.object(fetch_members, "FULL", dirs["full"]))
+            stack.enter_context(patch.object(fetch_members, "THUMB", dirs["thumb"]))
+
+            fetch_members.main(
+                fetch_page=fake_pages, api_fn=fake_api, fetch_url=lambda url: png_bytes
+            )
+
+            members_js = os.path.join(td, "members.js")
+            self.assertTrue(os.path.exists(members_js))
+            with open(members_js, encoding="utf-8") as fh:
+                raw = fh.read()
+            sections = json.loads(raw.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n"))
+            self.assertEqual(len(sections), 2)
+            self.assertTrue(all(s["group"] == "SDN48" for s in sections))
+            self.assertEqual([s["label"] for s in sections], ["1期生", "3期生"])
+            members = [m for s in sections for m in s["members"]]
+            self.assertEqual(len(members), 2)
+            self.assertTrue(all(m["img"] for m in members))
+            self.assertEqual(len(os.listdir(dirs["full"])), 2)
+            self.assertEqual(len(os.listdir(dirs["thumb"])), 2)
+
+            fetch_members.main(
+                argv=["--no-dl"],
+                fetch_page=fake_pages,
+                api_fn=fake_api,
+                fetch_url=no_download,
+            )
+            with open(members_js, encoding="utf-8") as fh:
+                self.assertEqual(fh.read(), raw)
 
 
 if __name__ == "__main__":
