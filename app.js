@@ -1,10 +1,17 @@
 (() => {
   "use strict";
 
+  const CORE = window.AKB_CORE;
+
   let pick = 7;
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map();
-  GROUPS.forEach((g) => g.members.forEach((m) => { m.group = g.label; BY_ID.set(m.id, m); }));
+  GROUPS.forEach((g) =>
+    g.members.forEach((m) => {
+      m.group = g.label;
+      BY_ID.set(m.id, m);
+    })
+  );
 
   const I18N = {
     zh: {
@@ -29,7 +36,8 @@
       picked: (n) => `已选 ${n}`,
       empty_filter: "这个范围里没有成员。",
       found: (n) => `找到 ${n} 位`,
-      empty_search: (q) => `没有找到“${q}”。请用日文汉字输入，例如 渡辺麻友；或者切换到“全部”。`,
+      empty_search: (q) =>
+        `没有找到“${q}”。请用日文汉字输入，例如 渡辺麻友；或者切换到“全部”。`,
       active: "现役",
       grad_year: (y) => `${y} 毕业`,
       graduated: "已毕业",
@@ -53,7 +61,8 @@
       credit_1: "成员名单与照片来自",
       credit_2: "，版权归原权利人所有。灵感来自",
       photo_src: "照片：48pedia.org",
-      poster_fail: "图片生成失败：请通过网址（http://）打开本页，而不是直接双击 html 文件。",
+      poster_fail:
+        "图片生成失败：请通过网址（http://）打开本页，而不是直接双击 html 文件。",
       empty_slot: "空位",
       remove: (name) => `点这里去掉 ${name}`,
     },
@@ -79,7 +88,8 @@
       picked: (n) => `${n} picked`,
       empty_filter: "No members in this filter.",
       found: (n) => `${n} found`,
-      empty_search: (q) => `No results for “${q}”. Type Japanese kanji, e.g. 渡辺麻友, or switch to All.`,
+      empty_search: (q) =>
+        `No results for “${q}”. Type Japanese kanji, e.g. 渡辺麻友, or switch to All.`,
       active: "Active",
       grad_year: (y) => `Grad. ${y}`,
       graduated: "Graduated",
@@ -103,28 +113,35 @@
       credit_1: "Names and photos from",
       credit_2: ". Copyright belongs to the original owners. Inspired by",
       photo_src: "Photos: 48pedia.org",
-      poster_fail: "Could not generate the image. Open this page via http://, not by double-clicking the HTML file.",
+      poster_fail:
+        "Could not generate the image. Open this page via http://, not by double-clicking the HTML file.",
       empty_slot: "Empty",
       remove: (name) => `Remove ${name}`,
-      "leave_移籍": "transferred",
-      "leave_兼任終了": "kennin ended",
-      "leave_活動辞退": "withdrew",
-      "leave_契約満了": "contract ended",
-      "leave_脱退": "withdrew",
-      "leave_解雇": "dismissed",
-      "leave_留学終了": "study abroad ended",
-      "leave_プロフィール削除": "profile removed",
+      leave_移籍: "transferred",
+      leave_兼任終了: "kennin ended",
+      leave_活動辞退: "withdrew",
+      leave_契約満了: "contract ended",
+      leave_脱退: "withdrew",
+      leave_解雇: "dismissed",
+      leave_留学終了: "study abroad ended",
+      leave_プロフィール削除: "profile removed",
     },
   };
 
   let lang = "zh";
-  try { if (localStorage.getItem("akb-lang") === "en") lang = "en"; } catch (_) {}
+  try {
+    if (localStorage.getItem("akb-lang") === "en") lang = "en";
+  } catch (_) {}
   const t = (key, ...args) => {
     const v = I18N[lang][key];
     return typeof v === "function" ? v(...args) : v;
   };
-  function kamiName() { return pick === 16 ? t("brand_16") : t("brand_7"); }
-  function defaultTitle() { return pick === 16 ? t("title_16") : t("title_7"); }
+  function kamiName() {
+    return pick === 16 ? t("brand_16") : t("brand_7");
+  }
+  function defaultTitle() {
+    return pick === 16 ? t("title_16") : t("title_7");
+  }
 
   function applyStatic() {
     document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
@@ -153,12 +170,16 @@
   const $ = (s) => document.querySelector(s);
   const thumbSrc = (m) => `img/thumb/${m.id}.webp`;
   const fullSrc = (m) => `img/full/${m.id}.webp`;
-  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const esc = (s) =>
+    String(s ?? "").replace(
+      /[&<>"]/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
+    );
 
   const isTransfer = (m) => m.group === "兼任・移籍加入";
 
   function leaveText(reason) {
-    return lang === "en" ? (t("leave_" + reason) || reason) : reason;
+    return lang === "en" ? t("leave_" + reason) || reason : reason;
   }
   function yearLeave(m) {
     if (m.leave) {
@@ -201,7 +222,7 @@
   const roster = $("#roster");
 
   function visible(m) {
-    return state.filter === "all" || m.status === state.filter;
+    return CORE.isVisible(m, state.filter);
   }
 
   function cardHTML(m) {
@@ -219,7 +240,7 @@
   }
 
   function renderRoster() {
-    const q = normalize(state.query);
+    const q = CORE.normalizeName(state.query);
     if (q) return renderSearch(q);
 
     const html = [];
@@ -228,7 +249,10 @@
       if (!ms.length) return;
       const open = state.open.has(gi);
       const now = ms.filter((m) => m.status === "current").length;
-      const count = state.filter === "all" && now ? t("people_now", ms.length, now) : t("people", ms.length);
+      const count =
+        state.filter === "all" && now
+          ? t("people_now", ms.length, now)
+          : t("people", ms.length);
       const picked = pickedIn(g);
       html.push(`<section class="gen" data-gi="${gi}">
         <button class="gen-head" aria-expanded="${open}" aria-controls="gen-${gi}">
@@ -240,17 +264,15 @@
         <div class="gen-body" id="gen-${gi}" ${open ? "" : "hidden"}>${open ? ms.map(cardHTML).join("") : ""}</div>
       </section>`);
     });
-    roster.innerHTML = html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
+    roster.innerHTML =
+      html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
   }
 
   // variant kanji people often type with the common form (山崎 → 山﨑, 高橋 → 髙橋)
-  const VARIANTS = { "﨑": "崎", "髙": "高", "邉": "辺", "邊": "辺", "濵": "浜", "德": "徳", "瀨": "瀬" };
 
-  function normalize(s) {
-    return s.trim().toLowerCase().replace(/\s+/g, "").replace(/[﨑髙邉邊濵德瀨]/g, (c) => VARIANTS[c]);
-  }
-
-  BY_ID.forEach((m) => { m.hay = normalize(m.name); });
+  BY_ID.forEach((m) => {
+    m.hay = CORE.normalizeName(m.name);
+  });
 
   function renderSearch(q) {
     const hits = [];
@@ -271,7 +293,10 @@
     const open = !state.open.has(gi);
     if (open) {
       state.open.add(gi);
-      body.innerHTML = GROUPS[gi].members.filter(visible).map(cardHTML).join("");
+      body.innerHTML = GROUPS[gi].members
+        .filter(visible)
+        .map(cardHTML)
+        .join("");
       body.hidden = false;
     } else {
       state.open.delete(gi);
@@ -279,7 +304,10 @@
       body.innerHTML = "";
     }
     head.setAttribute("aria-expanded", open);
-    if (!open && head.getBoundingClientRect().top < roster.getBoundingClientRect().top) {
+    if (
+      !open &&
+      head.getBoundingClientRect().top < roster.getBoundingClientRect().top
+    ) {
       roster.scrollTop = sec.offsetTop;
     }
   }
@@ -318,9 +346,11 @@
     const slots = [];
     for (let i = 0; i < pick; i++) {
       const m = BY_ID.get(state.selected[i]);
-      slots.push(m
-        ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${esc(t("remove", m.name))}" title="${esc(t("remove", m.name))}"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
-        : `<li class="slot empty-slot" aria-label="${t("empty_slot")}"></li>`);
+      slots.push(
+        m
+          ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${esc(t("remove", m.name))}" title="${esc(t("remove", m.name))}"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
+          : `<li class="slot empty-slot" aria-label="${t("empty_slot")}"></li>`
+      );
     }
     $("#slots").innerHTML = slots.join("");
     $("#tray").classList.toggle("wide", pick === 16);
@@ -345,7 +375,9 @@
 
   document.querySelectorAll(".seg-filter button").forEach((b) => {
     b.addEventListener("click", () => {
-      document.querySelectorAll(".seg-filter button").forEach((x) => x.setAttribute("aria-checked", x === b));
+      document
+        .querySelectorAll(".seg-filter button")
+        .forEach((x) => x.setAttribute("aria-checked", x === b));
       state.filter = b.dataset.filter;
       renderRoster();
       syncSelection();
@@ -356,7 +388,9 @@
     b.addEventListener("click", () => {
       const next = +b.dataset.pick;
       if (next === pick) return;
-      document.querySelectorAll(".seg-size button").forEach((x) => x.setAttribute("aria-checked", x === b));
+      document
+        .querySelectorAll(".seg-size button")
+        .forEach((x) => x.setAttribute("aria-checked", x === b));
       pick = next;
       if (state.selected.length > pick) state.selected.length = pick;
       $("#phase-pick").classList.toggle("pick-16", pick === 16);
@@ -368,7 +402,9 @@
     });
   });
 
-  $("#title-input").addEventListener("change", () => { $("#title-input").dataset.dirty = "1"; });
+  $("#title-input").addEventListener("change", () => {
+    $("#title-input").dataset.dirty = "1";
+  });
 
   let searchTimer;
   $("#search").addEventListener("input", (e) => {
@@ -381,58 +417,34 @@
     }, 120);
   });
 
-  $("#start-btn").addEventListener("click", () => startDuel(shuffle(state.selected.slice())));
+  $("#start-btn").addEventListener("click", () =>
+    startDuel(CORE.shuffle(state.selected.slice()))
+  );
 
   /* ---------------- duel (replayable merge sort) ---------------- */
   const duel = { order: [], answers: [], pair: null };
 
-  function* mergeSort(a) {
-    if (a.length <= 1) return a;
-    const mid = a.length >> 1;
-    const L = yield* mergeSort(a.slice(0, mid));
-    const R = yield* mergeSort(a.slice(mid));
-    const out = [];
-    let i = 0, j = 0;
-    while (i < L.length && j < R.length) {
-      const leftWins = yield [L[i], R[j]];
-      out.push(leftWins ? L[i++] : R[j++]);
-    }
-    return out.concat(L.slice(i), R.slice(j));
-  }
-
-  function worstCase(n) {
-    return n <= 1 ? 0 : worstCase(n >> 1) + worstCase(n - (n >> 1)) + n - 1;
-  }
-
-  function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
   function startDuel(order) {
     duel.order = order;
     duel.answers = [];
-    order.forEach((id) => { new Image().src = fullSrc(BY_ID.get(id)); });
-    $("#duel-max").textContent = worstCase(order.length);
+    order.forEach((id) => {
+      new Image().src = fullSrc(BY_ID.get(id));
+    });
+    $("#duel-max").textContent = CORE.worstCase(order.length);
     show("duel");
     advance();
   }
 
   function advance() {
-    const g = mergeSort(duel.order);
-    let r = g.next();
-    for (const a of duel.answers) r = g.next(a);
-    if (r.done) return finish(r.value);
-    duel.pair = r.value;
-    const max = worstCase(duel.order.length);
+    const r = CORE.replay(duel.order, duel.answers);
+    if (r.done) return finish(r.order);
+    duel.pair = r.pair;
+    const max = CORE.worstCase(duel.order.length);
     $("#duel-step").textContent = duel.answers.length + 1;
     $("#duel-bar").style.width = `${(duel.answers.length / max) * 100}%`;
     $("#undo-btn").disabled = duel.answers.length === 0;
-    fillFighter($("#fighter-a"), BY_ID.get(r.value[0]));
-    fillFighter($("#fighter-b"), BY_ID.get(r.value[1]));
+    fillFighter($("#fighter-a"), BY_ID.get(r.pair[0]));
+    fillFighter($("#fighter-b"), BY_ID.get(r.pair[1]));
   }
 
   function fillFighter(el, m) {
@@ -468,7 +480,14 @@
   $("#back-pick-btn").addEventListener("click", backToPick);
 
   document.addEventListener("keydown", (e) => {
-    if ($("#phase-duel").hidden || e.target.closest?.("input, textarea") || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (
+      $("#phase-duel").hidden ||
+      e.target.closest?.("input, textarea") ||
+      e.ctrlKey ||
+      e.metaKey ||
+      e.altKey
+    )
+      return;
     if (e.key === "ArrowLeft") answer(true);
     else if (e.key === "ArrowRight") answer(false);
     else if (e.key === "z" || e.key === "Z" || e.key === "Backspace") undo();
@@ -485,11 +504,15 @@
 
   function finish(ids) {
     ranking = ids.map((id) => BY_ID.get(id));
-    $("#rank-list").innerHTML = ranking.map((m, i) => `<li>
+    $("#rank-list").innerHTML = ranking
+      .map(
+        (m, i) => `<li>
       <span class="no">${i + 1}</span>
       <img src="${thumbSrc(m)}" alt="">
       <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
-    </li>`).join("");
+    </li>`
+      )
+      .join("");
     show("result");
     drawPoster();
   }
@@ -499,34 +522,56 @@
     clearTimeout(drawTimer);
     drawTimer = setTimeout(drawPoster, 200);
   });
-  $("#resort-btn").addEventListener("click", () => startDuel(shuffle(ranking.map((m) => m.id))));
+  $("#resort-btn").addEventListener("click", () =>
+    startDuel(CORE.shuffle(ranking.map((m) => m.id)))
+  );
   $("#restart-btn").addEventListener("click", backToPick);
   $("#save-btn").addEventListener("click", savePoster);
   $("#share-btn").addEventListener("click", () => {
-    const text = `${$("#title-input").value.trim() || defaultTitle()}\n\n` +
-      ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n") + "\n\n#AKB48 #好き顔ソート";
-    const url = location.protocol.startsWith("http") && !/^(localhost|127\.)/.test(location.hostname) ? location.href.split("#")[0] : "";
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}${url ? "&url=" + encodeURIComponent(url) : ""}`, "_blank", "noopener");
+    const text =
+      `${$("#title-input").value.trim() || defaultTitle()}\n\n` +
+      ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n") +
+      "\n\n#AKB48 #好き顔ソート";
+    const url =
+      location.protocol.startsWith("http") &&
+      !/^(localhost|127\.)/.test(location.hostname)
+        ? location.href.split("#")[0]
+        : "";
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}${url ? "&url=" + encodeURIComponent(url) : ""}`,
+      "_blank",
+      "noopener"
+    );
   });
 
   /* ---------------- poster canvas ---------------- */
   const C = {
-    floor: "#edeff3", card: "#ffffff", ink: "#1c1e2b", muted: "#6b6f80",
-    line: "#d5d9e2", pink: "#e4007f", tape: "#f4c20d",
+    floor: "#edeff3",
+    card: "#ffffff",
+    ink: "#1c1e2b",
+    muted: "#6b6f80",
+    line: "#d5d9e2",
+    pink: "#e4007f",
+    tape: "#f4c20d",
   };
-  const UI_FONT = '"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif';
-  const JP_FONT = '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",' + UI_FONT;
+  const UI_FONT =
+    '"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif';
+  const JP_FONT =
+    '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",' + UI_FONT;
   const DISPLAY = '"Dela Gothic One",' + JP_FONT;
 
   const imgCache = new Map();
   function loadImg(src) {
     if (!imgCache.has(src)) {
-      imgCache.set(src, new Promise((res) => {
-        const im = new Image();
-        im.onload = () => res(im);
-        im.onerror = () => res(null);
-        im.src = src;
-      }));
+      imgCache.set(
+        src,
+        new Promise((res) => {
+          const im = new Image();
+          im.onload = () => res(im);
+          im.onerror = () => res(null);
+          im.src = src;
+        })
+      );
     }
     return imgCache.get(src);
   }
@@ -542,7 +587,8 @@
 
   function cover(ctx, im, x, y, w, h) {
     const s = Math.max(w / im.width, h / im.height);
-    const sw = w / s, sh = h / s;
+    const sw = w / s,
+      sh = h / s;
     const sx = (im.width - sw) / 2;
     const sy = Math.max(0, Math.min(im.height - sh, (im.height - sh) * 0.28));
     ctx.drawImage(im, sx, sy, sw, sh, x, y, w, h);
@@ -595,7 +641,8 @@
 
     const tw = big ? 118 : rank <= 3 ? 76 : 64;
     const th = big ? 70 : rank <= 3 ? 56 : 48;
-    const tx = x - (big ? 14 : 10), ty = y - (big ? 18 : 14);
+    const tx = x - (big ? 14 : 10),
+      ty = y - (big ? 18 : 14);
     tape(ctx, tx, ty, tw, th, big ? C.pink : C.tape, -0.06);
     ctx.save();
     ctx.translate(tx + tw / 2, ty + th / 2);
@@ -617,14 +664,25 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = C.ink;
-    const nameSize = fitText(ctx, m.name, w + 10, big ? 44 : rank <= 3 ? 32 : 26, 700, JP_FONT);
+    const nameSize = fitText(
+      ctx,
+      m.name,
+      w + 10,
+      big ? 44 : rank <= 3 ? 32 : 26,
+      700,
+      JP_FONT
+    );
     ctx.fillText(m.name, x + w / 2, y + h + nameSize + 14);
-    const sub = m.status === "current" ? m.group
-      : isTransfer(m)
-        ? (m.leave ? `${m.note} · ${leaveText(m.leave)}` : m.note)
-        : m.leave
-          ? `${m.group} · ${yearLeave(m)}`
-          : `${m.group} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
+    const sub =
+      m.status === "current"
+        ? m.group
+        : isTransfer(m)
+          ? m.leave
+            ? `${m.note} · ${leaveText(m.leave)}`
+            : m.note
+          : m.leave
+            ? `${m.group} · ${yearLeave(m)}`
+            : `${m.group} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
     const subSize = fitText(ctx, sub, w + 10, big ? 20 : 17, 500, UI_FONT);
     ctx.fillStyle = C.muted;
     ctx.fillText(sub, x + w / 2, y + h + nameSize + subSize + 22);
@@ -649,8 +707,12 @@
     canvas.height = tall ? 1920 : 1440;
     $("#poster").classList.toggle("tall", tall);
     const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
-    const [imgs] = await Promise.all([Promise.all(ranking.map((m) => loadImg(fullSrc(m)))), fontsReady()]);
+    const W = canvas.width,
+      H = canvas.height;
+    const [imgs] = await Promise.all([
+      Promise.all(ranking.map((m) => loadImg(fullSrc(m)))),
+      fontsReady(),
+    ]);
 
     ctx.fillStyle = C.floor;
     ctx.fillRect(0, 0, W, H);
@@ -661,31 +723,77 @@
     ctx.fillStyle = C.ink;
     fitText(ctx, title, W - 144, tall ? 56 : 64, 900, UI_FONT);
     ctx.fillText(title, 72, tall ? 100 : 118);
-    tape(ctx, 72, tall ? 116 : 136, Math.min(ctx.measureText(title).width * 0.72, 520), 12, C.pink, -0.012);
+    tape(
+      ctx,
+      72,
+      tall ? 116 : 136,
+      Math.min(ctx.measureText(title).width * 0.72, 520),
+      12,
+      C.pink,
+      -0.012
+    );
     ctx.font = `500 24px ${UI_FONT}`;
     ctx.fillStyle = C.muted;
     const d = new Date();
-    ctx.fillText(`AKB48 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`, 72, tall ? 168 : 190);
+    ctx.fillText(
+      `AKB48 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+      72,
+      tall ? 168 : 190
+    );
 
     if (!tall) {
       const fy = 262;
-      const bigW = 392, bigH = 523, sideW = 272, sideH = 363, gap = 22;
+      const bigW = 392,
+        bigH = 523,
+        sideW = 272,
+        sideH = 363,
+        gap = 22;
       const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
       const sideY = fy + bigH - sideH;
-      if (ranking[1]) slot(ctx, imgs[1], ranking[1], 2, fx, sideY, sideW, sideH, false);
-      if (ranking[2]) slot(ctx, imgs[2], ranking[2], 3, fx + sideW + gap + bigW + gap, sideY, sideW, sideH, false);
+      if (ranking[1])
+        slot(ctx, imgs[1], ranking[1], 2, fx, sideY, sideW, sideH, false);
+      if (ranking[2])
+        slot(
+          ctx,
+          imgs[2],
+          ranking[2],
+          3,
+          fx + sideW + gap + bigW + gap,
+          sideY,
+          sideW,
+          sideH,
+          false
+        );
       slot(ctx, imgs[0], ranking[0], 1, fx + sideW + gap, fy, bigW, bigH, true);
       const by = fy + bigH + 150;
-      const backW = 216, backH = 288, bgap = 26;
+      const backW = 216,
+        backH = 288,
+        bgap = 26;
       placeRow(ctx, imgs, 3, 4, by, backW, backH, bgap);
     } else {
       // 3 / 6 / 7
       const fy = 210;
-      const bigW = 300, bigH = 400, sideW = 220, sideH = 294, gap = 18;
+      const bigW = 300,
+        bigH = 400,
+        sideW = 220,
+        sideH = 294,
+        gap = 18;
       const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
       const sideY = fy + bigH - sideH;
-      if (ranking[1]) slot(ctx, imgs[1], ranking[1], 2, fx, sideY, sideW, sideH, false);
-      if (ranking[2]) slot(ctx, imgs[2], ranking[2], 3, fx + sideW + gap + bigW + gap, sideY, sideW, sideH, false);
+      if (ranking[1])
+        slot(ctx, imgs[1], ranking[1], 2, fx, sideY, sideW, sideH, false);
+      if (ranking[2])
+        slot(
+          ctx,
+          imgs[2],
+          ranking[2],
+          3,
+          fx + sideW + gap + bigW + gap,
+          sideY,
+          sideW,
+          sideH,
+          false
+        );
       slot(ctx, imgs[0], ranking[0], 1, fx + sideW + gap, fy, bigW, bigH, true);
 
       const midY = fy + bigH + 92;
@@ -732,7 +840,9 @@
   function setLang(next) {
     if (next !== "en" && next !== "zh") return;
     lang = next;
-    try { localStorage.setItem("akb-lang", lang); } catch (_) {}
+    try {
+      localStorage.setItem("akb-lang", lang);
+    } catch (_) {}
     applyStatic();
     renderRoster();
     syncSelection();
@@ -741,11 +851,15 @@
       fillFighter($("#fighter-b"), BY_ID.get(duel.pair[1]));
     }
     if (!$("#phase-result").hidden && ranking.length) {
-      $("#rank-list").innerHTML = ranking.map((m, i) => `<li>
+      $("#rank-list").innerHTML = ranking
+        .map(
+          (m, i) => `<li>
         <span class="no">${i + 1}</span>
         <img src="${thumbSrc(m)}" alt="">
         <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
-      </li>`).join("");
+      </li>`
+        )
+        .join("");
       drawPoster();
     }
   }
