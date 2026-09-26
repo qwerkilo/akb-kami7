@@ -58,6 +58,20 @@ test("shuffle 只重排不增删元素", () => {
   );
 });
 
+test("normalizeName 把片假名归一为平假名", () => {
+  assert.equal(core.normalizeName("サシハラ リノ"), "さしはらりの");
+  assert.equal(core.normalizeName("マイダ アツコ"), "まいだあつこ");
+});
+
+test("haystack 覆盖名字、假名与昵称", () => {
+  const m = { name: "指原莉乃", kana: "さしはら りの", nick: "さっしー" };
+  const hay = core.haystack(m);
+  for (const q of ["指原", "さしはら", "サシハラ", "さっしー", "サッシー"]) {
+    assert.ok(hay.includes(core.normalizeName(q)), `应命中: ${q}`);
+  }
+  assert.equal(core.haystack({ name: "前田敦子" }), "前田敦子");
+});
+
 test("groupSections 按团体过滤并保留分段序号", () => {
   const sections = [
     { group: "AKB48", label: "1期生", members: [{ id: "a" }] },

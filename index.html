@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="doc_title">AKB48 神7 好き顔ソート（含毕业成员）</title>
+    <title data-i18n="doc_title">48 Group 神7 好き顔ソート（历代成员）</title>
     <meta
       name="description"
-      content="从 AKB48 历代成员（含毕业成员）里选出最喜欢的 7 张脸，两两比较排出名次，生成你的神7图片。"
+      content="从 48 Group 历代成员（含毕业成员）里选出最喜欢的 7 张脸，两两比较排出名次，生成你的神7图片。"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +19,7 @@
   <body>
     <header class="masthead">
       <div class="masthead-main">
-        <p class="eyebrow">AKB48 好き顔ソート</p>
+        <p class="eyebrow">48 Group 好き顔ソート</p>
         <h1>
           <span class="kami" id="brand">神7</span
           ><span class="sub" data-i18n="subtitle">历代成员版</span>
@@ -97,7 +97,7 @@
               id="search"
               type="search"
               data-i18n-placeholder="search_ph"
-              placeholder="搜索名字（日文汉字）"
+              placeholder="搜索名字（汉字/假名/昵称）"
               autocomplete="off"
             />
           </label>
@@ -159,7 +159,7 @@
                 id="title-input"
                 type="text"
                 maxlength="24"
-                value="我的 AKB48 神7"
+                value="我的 48 Group 神7"
               />
             </label>
             <ol class="rank-list" id="rank-list"></ol>
@@ -198,6 +198,7 @@
 
     <canvas id="poster-canvas" width="1080" height="1440" hidden></canvas>
     <script src="core.js"></script>
+    <script src="i18n.js"></script>
     <script src="members.js"></script>
     <script src="app.js"></script>
   </body>

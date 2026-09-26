@@ -21,7 +21,16 @@
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "")
+      .replace(/[\u30A1-\u30F6]/g, (c) =>
+        String.fromCharCode(c.charCodeAt(0) - 0x60)
+      )
       .replace(/[﨑髙邉邊濵德瀨]/g, (c) => VARIANTS[c]);
+  }
+
+  function haystack(member) {
+    return normalizeName(
+      [member.name, member.kana, member.nick].filter(Boolean).join(" ")
+    );
   }
 
   function isVisible(member, filter) {
@@ -83,6 +92,7 @@
 
   return {
     normalizeName,
+    haystack,
     isVisible,
     groupSections,
     replay,

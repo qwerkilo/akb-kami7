@@ -14,124 +14,7 @@
     })
   );
 
-  const I18N = {
-    zh: {
-      doc_title: "AKB48 神7 好き顔ソート（含毕业成员）",
-      subtitle: "历代成员版",
-      mode_7: "神7",
-      mode_16: "16人版",
-      brand_7: "神7",
-      brand_16: "选拔组",
-      title_7: "我的 AKB48 神7",
-      title_16: "我的 AKB48 选拔组",
-      filter_all: "全部",
-      filter_current: "现役",
-      filter_former: "已毕业",
-      all_groups: "全部团体",
-      group_label: "团体",
-      search_label: "搜索成员",
-      search_ph: "搜索名字（日文汉字）",
-      tray_hint: "点底部头像即可去掉，再选别人",
-      need: (n) => `还差 ${n} 位`,
-      start: "开始排序",
-      people: (n) => `${n} 人`,
-      people_now: (n, now) => `${n} 人 · 现役 ${now}`,
-      picked: (n) => `已选 ${n}`,
-      empty_filter: "这个范围里没有成员。",
-      found: (n) => `找到 ${n} 位`,
-      empty_search: (q) =>
-        `没有找到“${q}”。请用日文汉字输入，例如 渡辺麻友；或者切换到“全部”。`,
-      active: "现役",
-      grad_year: (y) => `${y} 毕业`,
-      graduated: "已毕业",
-      left_year: (y) => `${y} 年离开`,
-      left: "已离开",
-      transfer: "兼任/移籍",
-      grad_short: "卒业",
-      duel_title: "更喜欢哪张脸？",
-      duel_mid: " / 最多 ",
-      duel_end: " 题",
-      undo: "撤回上一题",
-      reselect: "重新选人",
-      keys: "键盘可用 ← → 选择，Z 撤回",
-      pick_who: (name) => `选 ${name}`,
-      poster_alt: "我的排名图",
-      longpress: "手机上可以长按图片保存",
-      title_label: "标题",
-      save: "保存图片",
-      share: "分享到 X",
-      resort: "这几位重新排序",
-      credit_1: "成员名单与照片来自",
-      credit_2: "，版权归原权利人所有。灵感来自",
-      photo_src: "照片：48pedia.org",
-      poster_fail:
-        "图片生成失败：请通过网址（http://）打开本页，而不是直接双击 html 文件。",
-      empty_slot: "空位",
-      remove: (name) => `点这里去掉 ${name}`,
-    },
-    en: {
-      doc_title: "AKB48 Kami 7 Face Sort (all generations)",
-      subtitle: "All generations",
-      mode_7: "Kami 7",
-      mode_16: "16 members",
-      brand_7: "Kami 7",
-      brand_16: "Senbatsu",
-      title_7: "My AKB48 Kami 7",
-      title_16: "My AKB48 Senbatsu",
-      filter_all: "All",
-      filter_current: "Active",
-      filter_former: "Graduated",
-      all_groups: "All groups",
-      group_label: "Group",
-      search_label: "Search members",
-      search_ph: "Search by name (Japanese kanji)",
-      tray_hint: "Tap a selected face below to remove her",
-      need: (n) => `${n} more`,
-      start: "Start ranking",
-      people: (n) => `${n}`,
-      people_now: (n, now) => `${n} · ${now} active`,
-      picked: (n) => `${n} picked`,
-      empty_filter: "No members in this filter.",
-      found: (n) => `${n} found`,
-      empty_search: (q) =>
-        `No results for “${q}”. Type Japanese kanji, e.g. 渡辺麻友, or switch to All.`,
-      active: "Active",
-      grad_year: (y) => `Grad. ${y}`,
-      graduated: "Graduated",
-      left_year: (y) => `Left ${y}`,
-      left: "Left",
-      transfer: "concurrent / transfer",
-      grad_short: "grad.",
-      duel_title: "Which face do you like more?",
-      duel_mid: " / up to ",
-      duel_end: "",
-      undo: "Undo last",
-      reselect: "Pick again",
-      keys: "← → to choose, Z to undo",
-      pick_who: (name) => `Choose ${name}`,
-      poster_alt: "My ranking image",
-      longpress: "On a phone, long-press the image to save",
-      title_label: "Title",
-      save: "Save image",
-      share: "Share on X",
-      resort: "Re-rank these members",
-      credit_1: "Names and photos from",
-      credit_2: ". Copyright belongs to the original owners. Inspired by",
-      photo_src: "Photos: 48pedia.org",
-      poster_fail:
-        "Could not generate the image. Open this page via http://, not by double-clicking the HTML file.",
-      empty_slot: "Empty",
-      remove: (name) => `Remove ${name}`,
-      leave_移籍: "transferred",
-      leave_兼任終了: "kennin ended",
-      leave_活動辞退: "withdrew",
-      leave_契約満了: "contract ended",
-      leave_脱退: "withdrew",
-      leave_解雇: "dismissed",
-      leave_留学終了: "study abroad ended",
-      leave_プロフィール削除: "profile removed",
-    },
-  };
+  const I18N = window.AKB_I18N;
 
   let lang = "zh";
   try {
@@ -315,7 +198,7 @@
   // variant kanji people often type with the common form (山崎 → 山﨑, 高橋 → 髙橋)
 
   BY_ID.forEach((m) => {
-    m.hay = CORE.normalizeName(m.name);
+    m.hay = CORE.haystack(m);
   });
 
   function renderSearch(q) {
@@ -624,7 +507,7 @@
     const text =
       `${$("#title-input").value.trim() || defaultTitle()}\n\n` +
       ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n") +
-      "\n\n#AKB48 #好き顔ソート";
+      "\n\n#48Group #好き顔ソート";
     const url =
       location.protocol.startsWith("http") &&
       !/^(localhost|127\.)/.test(location.hostname)
@@ -829,7 +712,7 @@
     ctx.fillStyle = C.muted;
     const d = new Date();
     ctx.fillText(
-      `AKB48 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+      `48 Group 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
       72,
       tall ? 168 : 190
     );
@@ -904,7 +787,7 @@
     ctx.font = `700 22px ${UI_FONT}`;
     ctx.fillStyle = C.ink;
     ctx.textAlign = "left";
-    ctx.fillText("#AKB48  #好き顔ソート", 72, H - 44);
+    ctx.fillText("#48Group  #好き顔ソート", 72, H - 44);
     ctx.textAlign = "right";
     ctx.font = `500 18px ${UI_FONT}`;
     ctx.fillStyle = C.muted;
@@ -924,7 +807,7 @@
       if (!blob) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = pick === 16 ? "akb48_senbatsu.png" : "akb48_kami7.png";
+      a.download = pick === 16 ? "48group_senbatsu.png" : "48group_kami7.png";
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, "image/png");
