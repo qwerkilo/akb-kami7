@@ -30,5 +30,5 @@
 - 结论：
   - **Standards**：2 项实缺——① SDN48 4 行姓名/昵称残留 `data-sort-value="…" |`（チェン・チュー、KONAN、シヨン、miray，`clean_name` 与昵称启发式未处理排序键），且产物测试无字段纯净断言；② 跨团合并 `note` 硬编码中文，英文界面直出中文。其余为判断项（重复代码、`isTransfer` 魔字符串、`state.group === "all"` 散落、团体清单三处等）。
   - **Spec**：主体一致（7 团 1136 人、两条流程 E2E 26/26、测试全绿）；3 项偏差——① 用户故事 14 的「托盘显示团体与期生」只做了结果列表；② 用户故事 25 的「缺加入期行给出提示」为静默跳过；③ 移籍类成员结果 meta 缺毕业年份。
-- 遗留：`.scratch/48group-expansion/issues/08-review-fixes.md`
+- 遗留：`.scratch/48group-expansion/issues/08-review-fixes.md`（2026-09-26 已全部修复：`017dd2e` 脏数据、`af34e18` 结构化来源、`3a8b03d` 毕业年份/托盘、`2e8c04f` 缺行提示；两轴问题均已闭环）
 - 下次基点：`2587f333558ca275d7634da2fbc40355f4afe6ac`
