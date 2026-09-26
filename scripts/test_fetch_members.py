@@ -1,4 +1,6 @@
+import io
 import unittest
+from contextlib import redirect_stdout
 
 import fetch_members
 
@@ -214,6 +216,12 @@ class ParsePageEdgeTests(unittest.TestCase):
     def test_row_without_join_is_skipped(self):
         rows = fetch_members.parse_page(NO_JOIN_PAGE, "AKB48", "former")
         self.assertEqual(rows, [])
+
+    def test_missing_join_row_is_reported(self):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            fetch_members.parse_page(NO_JOIN_PAGE, "AKB48", "former")
+        self.assertIn("缺加入期", buf.getvalue())
 
 
 SORTKEY_FIXTURE = """{| 

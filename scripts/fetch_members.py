@@ -70,18 +70,22 @@ def parse_page(text, group, default_status):
     """Parse every member section of one page, tagging rows with their group."""
     rows = []
     for title, body in split_sections(text):
-        for r in parse_rows(body, status_of(title, default_status)):
+        where = f"{group}/{title or '首段'}"
+        for r in parse_rows(body, status_of(title, default_status), where=where):
             r["group"] = group
             rows.append(r)
     return rows
 
 
-def parse_rows(text, status):
+def parse_rows(text, status, where=""):
     rows = []
+    skipped = 0
     for chunk in re.split(r"\n\|-[^\n]*", text):
         f = re.search(r"\[\[(?:ファイル|File):([^|\]]+)", chunk)
         j = re.search(r"\{\{加入期\|([^}]*)\}\}", chunk)
         if not j:
+            if f or "{{ルビ|" in chunk:
+                skipped += 1
             continue
         r = re.search(r"\{\{ルビ\|((?:\[\[[^\]]*\]\])|[^|]+)\|([^}]*)\}\}", chunk)
         if r:
@@ -131,6 +135,8 @@ def parse_rows(text, status):
             "end": end,
             "leave": leave,
         })
+    if skipped:
+        print(f"warning: 跳过 {skipped} 行缺加入期（{where or '未标注位置'}）")
     return rows
 
 
@@ -278,6 +284,10 @@ def main():
             except Exception as e:
                 print("compress failed", m["name"], e)
                 m["img"] = False
+
+    no_img = [m["name"] for m in members if not m["img"]]
+    if no_img:
+        print(f"warning: {len(no_img)} 位成员没有照片（界面显示占位）：{'、'.join(no_img[:10])}")
 
     keep = {m["id"] for m in members}
     removed = 0
