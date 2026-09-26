@@ -104,8 +104,6 @@
     if (src) parts.push(src);
     if (m.status === "current") {
       parts.push(t("active"));
-    } else if (isTransfer(m)) {
-      parts.push(m.leave ? leaveText(m.leave) : t("transfer"));
     } else {
       parts.push(yearLeave(m));
     }
@@ -214,8 +212,6 @@
     roster.innerHTML =
       html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
   }
-
-  // variant kanji people often type with the common form (山崎 → 山﨑, 高橋 → 髙橋)
 
   BY_ID.forEach((m) => {
     m.hay = CORE.haystack(m);
@@ -328,7 +324,7 @@
       const m = BY_ID.get(state.selected[i]);
       slots.push(
         m
-          ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${esc(t("remove", m.name))}" title="${esc(t("remove", m.name))}"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
+          ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${esc(t("remove", m.name))}（${esc(m.group)} · ${esc(m.generation)}）" title="${esc(t("remove", m.name))}（${esc(m.group)} · ${esc(m.generation)}）"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
           : `<li class="slot empty-slot" aria-label="${t("empty_slot")}"></li>`
       );
     }
