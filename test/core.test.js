@@ -91,6 +91,34 @@ test("photoSrc 对有图成员给出图片路径，对无图成员给出占位�
   );
 });
 
+test("normalizeName 去掉连续空白", () => {
+  assert.equal(core.normalizeName("  渡辺  麻友 "), "渡辺麻友");
+});
+
+test("haystack 合并多个字段并忽略空字段", () => {
+  assert.equal(
+    core.haystack({ name: " 前田 敦子 ", kana: "まえだ あつこ", nick: "" }),
+    "前田敦子まえだあつこ"
+  );
+  assert.equal(core.haystack({ name: "KONAN", kana: "コナン" }), "konanこなん");
+});
+
+test("placeholderSrc 只取名字首字符", () => {
+  const svg = decodeURIComponent(core.placeholderSrc("甲乙"));
+  assert.ok(svg.includes("甲"));
+  assert.ok(!svg.includes("乙"));
+});
+
+test("shuffle 用 Fisher-Yates：固定随机数时结果确定", () => {
+  const original = Math.random;
+  Math.random = () => 0.999;
+  try {
+    assert.deepEqual(core.shuffle([1, 2, 3]), [1, 2, 3]);
+  } finally {
+    Math.random = original;
+  }
+});
+
 test("groupSections 按团体过滤并保留分段序号", () => {
   const sections = [
     { group: "AKB48", label: "1期生", members: [{ id: "a" }] },
