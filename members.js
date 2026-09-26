@@ -5566,7 +5566,7 @@ window.AKB_GROUPS = [
     "id": "mc9ffbbec39",
     "name": "太田里織菜",
     "kana": "おおた りおな",
-    "nick": "",
+    "nick": "りおな",
     "status": "former",
     "end": "2012.10.28",
     "img": true
@@ -5639,7 +5639,7 @@ window.AKB_GROUPS = [
     "id": "md056082b1c",
     "name": "小柳有沙",
     "kana": "こやなぎ ありさ",
-    "nick": "",
+    "nick": "ありぃ",
     "status": "former",
     "end": "2014.03.02",
     "img": true
@@ -5657,7 +5657,7 @@ window.AKB_GROUPS = [
     "id": "me8201183f0",
     "name": "篠原栞那",
     "kana": "しのはら かんな",
-    "nick": "",
+    "nick": "かんちる",
     "status": "former",
     "end": "2013.04.12",
     "img": true
@@ -5685,7 +5685,7 @@ window.AKB_GROUPS = [
     "id": "m8921f2cf8d",
     "name": "原みづき",
     "kana": "はら みづき",
-    "nick": "",
+    "nick": "みづき",
     "status": "former",
     "end": "2012.04.28",
     "img": true
@@ -5694,7 +5694,7 @@ window.AKB_GROUPS = [
     "id": "mb4eccb62f6",
     "name": "肥川彩愛",
     "kana": "ひかわ あやめ",
-    "nick": "",
+    "nick": "あやにゃん",
     "status": "former",
     "end": "2012.12.22",
     "img": true
@@ -5703,7 +5703,7 @@ window.AKB_GROUPS = [
     "id": "md9d7bbbbb7",
     "name": "福本愛菜",
     "kana": "ふくもと あいな",
-    "nick": "",
+    "nick": "あいにゃん",
     "status": "former",
     "end": "2013.07.01",
     "img": true
@@ -5712,7 +5712,7 @@ window.AKB_GROUPS = [
     "id": "m861ba728a2",
     "name": "松田栞",
     "kana": "まつだ しおり",
-    "nick": "",
+    "nick": "しおきち",
     "status": "former",
     "end": "2012.10.28",
     "img": true
@@ -5721,7 +5721,7 @@ window.AKB_GROUPS = [
     "id": "m79189b3c1a",
     "name": "森彩華",
     "kana": "もり あやか",
-    "nick": "",
+    "nick": "あーにゃん",
     "status": "former",
     "end": "2011.07.10",
     "img": true
@@ -5730,7 +5730,7 @@ window.AKB_GROUPS = [
     "id": "mf5c3b1395d",
     "name": "山内彩花",
     "kana": "やまうち あやか",
-    "nick": "",
+    "nick": "あや",
     "status": "former",
     "end": "2010.11.05",
     "img": true,
@@ -5830,7 +5830,7 @@ window.AKB_GROUPS = [
     "id": "m9c1abba635",
     "name": "大谷莉子",
     "kana": "おおたに りこ",
-    "nick": "",
+    "nick": "りこぴん",
     "status": "former",
     "end": "2012.01.15",
     "img": true
@@ -5839,7 +5839,7 @@ window.AKB_GROUPS = [
     "id": "mb3f70dbf2e",
     "name": "岡田梨紗子",
     "kana": "おかだ りさこ",
-    "nick": "",
+    "nick": "りさぽよ",
     "status": "former",
     "end": "2012.02.18",
     "img": true
@@ -5857,7 +5857,7 @@ window.AKB_GROUPS = [
     "id": "m4d34ab179a",
     "name": "小鷹狩佑香",
     "kana": "こだかり ゆうか",
-    "nick": "",
+    "nick": "ゆうゆう",
     "status": "former",
     "end": "2012.05.06",
     "img": true
@@ -5866,7 +5866,7 @@ window.AKB_GROUPS = [
     "id": "mb47e22bca7",
     "name": "佐藤天彩",
     "kana": "さとう そらい",
-    "nick": "",
+    "nick": "そらい",
     "status": "former",
     "end": "2012.12.21",
     "img": true
@@ -5875,7 +5875,7 @@ window.AKB_GROUPS = [
     "id": "mf99fde1dd9",
     "name": "島田玲奈",
     "kana": "しまだ れな",
-    "nick": "",
+    "nick": "しまれな",
     "status": "former",
     "end": "2014.04.07",
     "img": true
@@ -5893,7 +5893,7 @@ window.AKB_GROUPS = [
     "id": "m04e8bd6a3e",
     "name": "瀧山あかね",
     "kana": "たきやま あかね",
-    "nick": "",
+    "nick": "ねっち",
     "status": "former",
     "end": "2012.01.15",
     "img": true
@@ -5911,7 +5911,7 @@ window.AKB_GROUPS = [
     "id": "m9f8c6e21e5",
     "name": "中川紘美",
     "kana": "なかがわ ひろみ",
-    "nick": "",
+    "nick": "ひろりん",
     "status": "former",
     "end": "2014.03.15",
     "img": true
@@ -5938,7 +5938,7 @@ window.AKB_GROUPS = [
     "id": "m6e3f1c6698",
     "name": "藤田留奈",
     "kana": "ふじた るな",
-    "nick": "",
+    "nick": "るーたん",
     "status": "former",
     "end": "2012.10.03",
     "img": true,
@@ -5985,7 +5985,7 @@ window.AKB_GROUPS = [
     "id": "m7afd1a2cfa",
     "name": "山本ひとみ",
     "kana": "やまもと ひとみ",
-    "nick": "",
+    "nick": "ひとみん",
     "status": "former",
     "end": "2013.05.30",
     "img": true
@@ -6009,7 +6009,7 @@ window.AKB_GROUPS = [
     "id": "mcc70576a44",
     "name": "赤澤萌乃",
     "kana": "あかざわ ほの",
-    "nick": "",
+    "nick": "ほのり",
     "status": "former",
     "end": "2014.04.16",
     "img": true,
@@ -6019,7 +6019,7 @@ window.AKB_GROUPS = [
     "id": "m90be50579c",
     "name": "石川こころ",
     "kana": "いしかわ こころ",
-    "nick": "",
+    "nick": "こころん",
     "status": "former",
     "end": "2012.04.28",
     "img": true
@@ -6055,7 +6055,7 @@ window.AKB_GROUPS = [
     "id": "m3fafe4ed76",
     "name": "梅原真子",
     "kana": "うめはら まこ",
-    "nick": "",
+    "nick": "まこぽん",
     "status": "former",
     "end": "2014.03.02",
     "img": true
@@ -6127,7 +6127,7 @@ window.AKB_GROUPS = [
     "id": "m21b554dfad",
     "name": "小林莉加子",
     "kana": "こばやし りかこ",
-    "nick": "",
+    "nick": "りっぴー",
     "status": "former",
     "end": "2014.04.20",
     "img": true
@@ -6136,7 +6136,7 @@ window.AKB_GROUPS = [
     "id": "mfd681986ae",
     "name": "佐々木七海",
     "kana": "ささき ななみ",
-    "nick": "",
+    "nick": "ななみん",
     "status": "former",
     "end": "2012.07.07",
     "img": true
@@ -6145,7 +6145,7 @@ window.AKB_GROUPS = [
     "id": "m0a5853de54",
     "name": "杉本香乃",
     "kana": "すぎもと かの",
-    "nick": "",
+    "nick": "のの",
     "status": "former",
     "end": "2012.12.06",
     "img": true,
@@ -6164,7 +6164,7 @@ window.AKB_GROUPS = [
     "id": "m8111f6a8f4",
     "name": "東郷青空",
     "kana": "とうごう そら",
-    "nick": "",
+    "nick": "そら",
     "status": "former",
     "end": "2012.10.11",
     "img": true,
@@ -6174,7 +6174,7 @@ window.AKB_GROUPS = [
     "id": "m8a93cbc035",
     "name": "久田莉子",
     "kana": "ひさだ りこ",
-    "nick": "",
+    "nick": "りこりん",
     "status": "former",
     "end": "2013.03.15",
     "img": true
@@ -6234,7 +6234,7 @@ window.AKB_GROUPS = [
     "id": "m95abd4a8d8",
     "name": "石原雅子",
     "kana": "いしはら まさこ",
-    "nick": "",
+    "nick": "まーこ",
     "status": "former",
     "end": "2013.06.27",
     "img": true,
@@ -6253,7 +6253,7 @@ window.AKB_GROUPS = [
     "id": "mf1d95a2a9d",
     "name": "小川乃愛",
     "kana": "おがわ のあ",
-    "nick": "",
+    "nick": "のあ",
     "status": "former",
     "end": "2013.10.10",
     "img": true,
@@ -6282,7 +6282,7 @@ window.AKB_GROUPS = [
     "id": "m696a54c729",
     "name": "嶋崎百萌香",
     "kana": "しまざき ももか",
-    "nick": "",
+    "nick": "ももりん",
     "status": "former",
     "end": "2014.03.15",
     "img": true
@@ -6291,7 +6291,7 @@ window.AKB_GROUPS = [
     "id": "m03dd3720f5",
     "name": "杉野莉沙",
     "kana": "すぎの りさ",
-    "nick": "",
+    "nick": "りさりさ",
     "status": "former",
     "end": "2013.02.21",
     "img": true,
@@ -6328,7 +6328,7 @@ window.AKB_GROUPS = [
     "id": "meb71c3abed",
     "name": "廣瀬聖七",
     "kana": "ひろせ せな",
-    "nick": "",
+    "nick": "せなぴよ",
     "status": "former",
     "end": "2013.02.21",
     "img": true,
@@ -10530,19 +10530,10 @@ window.AKB_GROUPS = [
   "label": "1期生",
   "members": [
    {
-    "id": "m08196714a9",
-    "name": "data-sort-value=\"ちぇん ちゅー\" | チェン・チュー",
-    "kana": "",
-    "nick": "ちゅちゅー",
-    "status": "former",
-    "end": "2012.03.31",
-    "img": true
-   },
-   {
     "id": "m349c735ec6",
     "name": "穐田和恵",
     "kana": "あきた かずえ",
-    "nick": "",
+    "nick": "かずちぃ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10551,7 +10542,7 @@ window.AKB_GROUPS = [
     "id": "mf8c052408b",
     "name": "伊藤花菜",
     "kana": "いとう かな",
-    "nick": "",
+    "nick": "かなにゃん",
     "status": "former",
     "end": "2011.02.10",
     "img": true
@@ -10560,7 +10551,7 @@ window.AKB_GROUPS = [
     "id": "m464852dcc9",
     "name": "今吉めぐみ",
     "kana": "いまよし めぐみ",
-    "nick": "",
+    "nick": "メグ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10569,7 +10560,7 @@ window.AKB_GROUPS = [
     "id": "m8d6eae372e",
     "name": "岩田優希",
     "kana": "いわた ゆうき",
-    "nick": "",
+    "nick": "がんちゃん",
     "status": "former",
     "end": "2009.09.24",
     "img": true
@@ -10578,7 +10569,7 @@ window.AKB_GROUPS = [
     "id": "m6bf37d4f1b",
     "name": "梅田悠",
     "kana": "うめだ はるか",
-    "nick": "",
+    "nick": "うめこ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10587,7 +10578,7 @@ window.AKB_GROUPS = [
     "id": "m2ba60e0b41",
     "name": "浦野一美",
     "kana": "うらの かずみ",
-    "nick": "",
+    "nick": "CinDy",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10597,7 +10588,7 @@ window.AKB_GROUPS = [
     "id": "mf68135c28b",
     "name": "大河内美紗",
     "kana": "おおこうち みさ",
-    "nick": "",
+    "nick": "みさみさ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10606,7 +10597,7 @@ window.AKB_GROUPS = [
     "id": "mbbde5ee542",
     "name": "大堀恵",
     "kana": "おおほり めぐみ",
-    "nick": "",
+    "nick": "めーたん",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10616,7 +10607,7 @@ window.AKB_GROUPS = [
     "id": "m6e3598fb55",
     "name": "甲斐田樹里",
     "kana": "かいだ じゅり",
-    "nick": "",
+    "nick": "じゅり",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10625,7 +10616,7 @@ window.AKB_GROUPS = [
     "id": "mde48bd239e",
     "name": "加藤雅美",
     "kana": "かとう まみ",
-    "nick": "",
+    "nick": "まみたん",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10634,7 +10625,7 @@ window.AKB_GROUPS = [
     "id": "mc0b7a67250",
     "name": "河内麻沙美",
     "kana": "こうち まさみ",
-    "nick": "",
+    "nick": "まさみん",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10643,7 +10634,7 @@ window.AKB_GROUPS = [
     "id": "ma85bc9bb5f",
     "name": "小原春香",
     "kana": "こはら はるか",
-    "nick": "",
+    "nick": "春ちゃん",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10653,7 +10644,7 @@ window.AKB_GROUPS = [
     "id": "m373b629544",
     "name": "近藤さや香",
     "kana": "こんどう さやか",
-    "nick": "",
+    "nick": "さやねぇ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10662,7 +10653,7 @@ window.AKB_GROUPS = [
     "id": "mc85c828af6",
     "name": "佐藤由加理",
     "kana": "さとう ゆかり",
-    "nick": "",
+    "nick": "ゆかりん",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10672,7 +10663,7 @@ window.AKB_GROUPS = [
     "id": "ma5858f9e68",
     "name": "芹那",
     "kana": "せりな",
-    "nick": "",
+    "nick": "せりんこ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10681,7 +10672,7 @@ window.AKB_GROUPS = [
     "id": "m18a7418ee1",
     "name": "手束真知子",
     "kana": "てづか まちこ",
-    "nick": "",
+    "nick": "まっちぃ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10690,7 +10681,7 @@ window.AKB_GROUPS = [
     "id": "mbfec28beb9",
     "name": "仲里安也美",
     "kana": "なかざと あやみ",
-    "nick": "",
+    "nick": "あやみん",
     "status": "former",
     "end": "2009.12.24",
     "img": true
@@ -10699,7 +10690,7 @@ window.AKB_GROUPS = [
     "id": "m255975ba80",
     "name": "なちゅ",
     "kana": "",
-    "nick": "なちゅ",
+    "nick": "なちゅはむ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10708,7 +10699,7 @@ window.AKB_GROUPS = [
     "id": "m1b32e5c483",
     "name": "西国原礼子",
     "kana": "にしくにはら れいこ",
-    "nick": "",
+    "nick": "レイチェル",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10717,7 +10708,7 @@ window.AKB_GROUPS = [
     "id": "m837dd982ae",
     "name": "野呂佳代",
     "kana": "のろ かよ",
-    "nick": "",
+    "nick": "ノンティー",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10727,7 +10718,7 @@ window.AKB_GROUPS = [
     "id": "m221e429bc8",
     "name": "畠山智妃",
     "kana": "はたけやま ちさき",
-    "nick": "",
+    "nick": "ちゃき",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10736,7 +10727,16 @@ window.AKB_GROUPS = [
     "id": "m782361e6ca",
     "name": "三ツ井裕美",
     "kana": "みつい ひろみ",
-    "nick": "",
+    "nick": "ひろみん",
+    "status": "former",
+    "end": "2012.03.31",
+    "img": true
+   },
+   {
+    "id": "m6a62459875",
+    "name": "チェン・チュー",
+    "kana": "",
+    "nick": "ちゅちゅー",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10751,7 +10751,7 @@ window.AKB_GROUPS = [
     "id": "m81a8db9e7e",
     "name": "相川友希",
     "kana": "あいかわ ゆうき",
-    "nick": "",
+    "nick": "ゆっきー",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10760,7 +10760,7 @@ window.AKB_GROUPS = [
     "id": "m9ba5977024",
     "name": "亜希子",
     "kana": "あきこ",
-    "nick": "",
+    "nick": "あーこ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10769,7 +10769,7 @@ window.AKB_GROUPS = [
     "id": "mc9cdc91981",
     "name": "伊東愛",
     "kana": "いとう まな",
-    "nick": "",
+    "nick": "まなな",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10778,7 +10778,7 @@ window.AKB_GROUPS = [
     "id": "m85b336b4a3",
     "name": "大山愛未",
     "kana": "おおやま あいみ",
-    "nick": "",
+    "nick": "あいみん",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10787,7 +10787,7 @@ window.AKB_GROUPS = [
     "id": "m2092d8c11e",
     "name": "木本夕貴",
     "kana": "きもと ゆうき",
-    "nick": "",
+    "nick": "きーぼう",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10805,7 +10805,7 @@ window.AKB_GROUPS = [
     "id": "m43a35d7ac4",
     "name": "谷咲伴美",
     "kana": "たにさき ともみ",
-    "nick": "",
+    "nick": "ばんび",
     "status": "former",
     "end": "2011.05.29",
     "img": true
@@ -10814,7 +10814,7 @@ window.AKB_GROUPS = [
     "id": "m0f7e54f9d2",
     "name": "津田麻莉奈",
     "kana": "つだ まりな",
-    "nick": "",
+    "nick": "まりなる",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10823,7 +10823,7 @@ window.AKB_GROUPS = [
     "id": "m48d4cba318",
     "name": "奈津子",
     "kana": "なつこ",
-    "nick": "",
+    "nick": "なっちゃん",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10832,7 +10832,7 @@ window.AKB_GROUPS = [
     "id": "m2466470c5c",
     "name": "二宮悠嘉",
     "kana": "にのみや ゆか",
-    "nick": "",
+    "nick": "ゆかぽ",
     "status": "former",
     "end": "2011.05.12",
     "img": true
@@ -10841,7 +10841,7 @@ window.AKB_GROUPS = [
     "id": "m58379b44b7",
     "name": "福田朱子",
     "kana": "ふくだ あかね",
-    "nick": "",
+    "nick": "ね～ね",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10851,7 +10851,7 @@ window.AKB_GROUPS = [
     "id": "mfa2b518dc1",
     "name": "福山咲良",
     "kana": "ふくやま さくら",
-    "nick": "",
+    "nick": "さくらん",
     "status": "former",
     "end": "2010.10.16",
     "img": true,
@@ -10861,7 +10861,7 @@ window.AKB_GROUPS = [
     "id": "m68d37da87f",
     "name": "藤社優美",
     "kana": "ふじこそ ゆみ",
-    "nick": "",
+    "nick": "ゆみんた",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10870,7 +10870,7 @@ window.AKB_GROUPS = [
     "id": "m07f4b664ca",
     "name": "細田海友",
     "kana": "ほそだ みゆう",
-    "nick": "",
+    "nick": "みゆ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10879,7 +10879,7 @@ window.AKB_GROUPS = [
     "id": "mbcd86a4293",
     "name": "松島瑠美",
     "kana": "まつしま るみ",
-    "nick": "",
+    "nick": "ルミルミ",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10888,7 +10888,7 @@ window.AKB_GROUPS = [
     "id": "m14a195fa7c",
     "name": "KONAN",
     "kana": "コナン",
-    "nick": "data-sort-value=\"こなん\" |",
+    "nick": "コニャン",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10900,19 +10900,10 @@ window.AKB_GROUPS = [
   "label": "3期生",
   "members": [
    {
-    "id": "m82d5f8aeaa",
-    "name": "data-sort-value=\"しよん\" | シヨン",
-    "kana": "",
-    "nick": "シヨン",
-    "status": "former",
-    "end": "2012.03.31",
-    "img": true
-   },
-   {
     "id": "md75ed5aeb0",
     "name": "光上せあら",
     "kana": "こうじょう せあら",
-    "nick": "",
+    "nick": "ぴかちゃん",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10921,7 +10912,7 @@ window.AKB_GROUPS = [
     "id": "m3c9f643e4e",
     "name": "駒谷仁美",
     "kana": "こまたに ひとみ",
-    "nick": "",
+    "nick": "ぴーちゃん",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10931,7 +10922,7 @@ window.AKB_GROUPS = [
     "id": "mda13bfd549",
     "name": "尻無浜冴美",
     "kana": "しなはま さえみ",
-    "nick": "",
+    "nick": "さえみん",
     "status": "former",
     "end": "2012.03.31",
     "img": true
@@ -10940,7 +10931,7 @@ window.AKB_GROUPS = [
     "id": "mb568cdd433",
     "name": "戸島花",
     "kana": "とじま はな",
-    "nick": "",
+    "nick": "はな",
     "status": "former",
     "end": "2012.03.31",
     "img": true,
@@ -10956,10 +10947,19 @@ window.AKB_GROUPS = [
     "img": true
    },
    {
+    "id": "mcd8ac05b24",
+    "name": "シヨン",
+    "kana": "",
+    "nick": "シヨン",
+    "status": "former",
+    "end": "2012.03.31",
+    "img": true
+   },
+   {
     "id": "m7c9d08f922",
     "name": "miray",
     "kana": "ミレイ",
-    "nick": "data-sort-value=\"みれい\" |",
+    "nick": "miray将軍",
     "status": "former",
     "end": "2012.03.31",
     "img": true

@@ -217,5 +217,38 @@ class ParsePageEdgeTests(unittest.TestCase):
         self.assertEqual(rows, [])
 
 
+SORTKEY_FIXTURE = """{| 
+|-
+{{!チーム|SDN}}
+| [[File:2012年SDN48プロフィール チェン・チュー.jpg|50px]]
+| data-sort-value="ちぇん ちゅー" | チェン・チュー
+| ちゅちゅー
+| {{生年月日|1986|11|6}}
+| {{加入期|1期|SDN48}}
+| {{年月日|2012|3|31}}
+|-
+{{!チーム|SDN}}
+| [[File:2012年SDN48プロフィール KONAN.jpg|50px]]
+| data-sort-value="こなん" | {{ルビ|KONAN|コナン}}
+| こなん
+| {{生年月日|1983|1|1}}
+| {{加入期|3期|SDN48}}
+| {{年月日|2012|3|31}}
+|}
+"""
+
+
+class SortKeyCellTests(unittest.TestCase):
+    def test_data_sort_value_cells_do_not_leak_into_fields(self):
+        rows = fetch_members.parse_rows(SORTKEY_FIXTURE, "former")
+        self.assertEqual(
+            [(r["name"], r["nick"], r["kana"]) for r in rows],
+            [("チェン・チュー", "ちゅちゅー", ""), ("KONAN", "こなん", "コナン")],
+        )
+        for r in rows:
+            for field in ("name", "nick", "kana"):
+                self.assertNotIn("data-sort-value", r[field])
+
+
 if __name__ == "__main__":
     unittest.main()

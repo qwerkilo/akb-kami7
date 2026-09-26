@@ -44,7 +44,7 @@ SOURCES = (
 
 
 def clean_name(s):
-    s = s.strip()
+    s = re.sub(r'^data-sort-value="[^"]*"\s*\|\s*', "", s.strip())
     m = re.match(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]", s)
     if m:
         return (m.group(2) or m.group(1)).strip(), m.group(1).strip()
@@ -94,11 +94,19 @@ def parse_rows(text, status):
         else:
             continue
         lines = chunk.split("\n")
-        idx = next((i for i, ln in enumerate(lines) if "{{ルビ|" in ln or (name in ln and "ファイル:" not in ln)), None)
+        idx = next(
+            (
+                i
+                for i, ln in enumerate(lines)
+                if "{{ルビ|" in ln
+                or (name in ln and not re.search(r"\[\[(?:ファイル|File):", ln))
+            ),
+            None,
+        )
         nick = ""
         if idx is not None and idx + 1 < len(lines) and lines[idx + 1].startswith("|"):
             nick = re.sub(r"<[^>]+>|\[\[|\]\]|\{\{[^}]*\}\}", "", lines[idx + 1][1:]).strip()
-            if nick.startswith("style=") or len(nick) > 30:
+            if nick.startswith(("style=", "data-")) or re.search(r'\w+="', nick) or len(nick) > 30:
                 nick = ""
         end = None
         leave = None

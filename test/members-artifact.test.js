@@ -79,6 +79,20 @@ test("SDN48 成员全部为毕业", () => {
   }
 });
 
+test("成员字段无 wikitext/排序键残留", () => {
+  for (const section of loadGroups()) {
+    for (const m of section.members) {
+      for (const field of ["name", "kana", "nick"]) {
+        const v = m[field] || "";
+        assert.ok(
+          !/data-sort-value|\[\[|\]\]|\{\{|<[^>]+>/.test(v),
+          `${m.name} 的 ${field} 有残留: ${v}`
+        );
+      }
+    }
+  }
+});
+
 test("每个分段都有期生标签，人物身份（姓名+假名）不重复", () => {
   const people = new Set();
   for (const section of loadGroups()) {
