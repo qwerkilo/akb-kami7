@@ -683,8 +683,8 @@
         ? m.generation
         : isTransfer(m)
           ? m.leave
-            ? `${m.note} · ${leaveText(m.leave)}`
-            : m.note
+            ? `${sourceNote(m)} · ${leaveText(m.leave)}`
+            : sourceNote(m)
           : m.leave
             ? `${m.generation} · ${yearLeave(m)}`
             : `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
