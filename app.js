@@ -41,16 +41,8 @@
     const v = I18N[lang][key];
     return typeof v === "function" ? v(...args) : v;
   };
-  function kamiName() {
-    if (pick === 32) return t("brand_32");
-    if (pick === 16) return t("brand_16");
-    return series === "sakamichi" ? t("brand_7fukujin") : t("brand_7");
-  }
-  function defaultTitle() {
-    const prefix = t(
-      series === "sakamichi" ? "title_prefix_saka" : "title_prefix_48g"
-    );
-    return `${prefix} ${kamiName()}`;
+  function names() {
+    return CORE.names(series, pick, t);
   }
 
   function applyStatic() {
@@ -68,30 +60,24 @@
     document.querySelectorAll(".seg-lang [data-lang]").forEach((b) => {
       b.setAttribute("aria-checked", b.dataset.lang === lang);
     });
+    const N = names();
     const brand = $("#brand");
     if (brand) {
-      brand.textContent = kamiName();
+      brand.textContent = N.brand;
       brand.classList.toggle("long", pick !== 7 || lang === "en");
     }
     const eyebrow = $("#eyebrow");
-    if (eyebrow)
-      eyebrow.textContent = `${t(
-        series === "sakamichi" ? "series_saka" : "series_48g"
-      )} 好き顔ソート`;
+    if (eyebrow) eyebrow.textContent = N.eyebrow;
     const size7 = $("#size-7");
-    if (size7)
-      size7.textContent =
-        series === "sakamichi" ? t("brand_7fukujin") : t("brand_7");
+    if (size7) size7.textContent = N.brand;
     document.querySelectorAll(".seg-series [data-series]").forEach((b) => {
-      b.textContent = t(
-        b.dataset.series === "sakamichi" ? "series_saka" : "series_48g"
-      );
+      b.textContent = CORE.names(b.dataset.series, pick, t).seriesLabel;
       b.setAttribute("aria-checked", b.dataset.series === series);
     });
     const seriesSeg = document.querySelector(".seg-series");
     if (seriesSeg) seriesSeg.setAttribute("aria-label", t("series_label"));
     const title = $("#title-input");
-    if (title && !title.dataset.dirty) title.value = defaultTitle();
+    if (title && !title.dataset.dirty) title.value = N.title;
   }
 
   const $ = (s) => document.querySelector(s);
@@ -378,7 +364,7 @@
     paintSizeButtons();
     applyStatic();
     const title = $("#title-input");
-    if (title && !title.dataset.dirty) title.value = defaultTitle();
+    if (title && !title.dataset.dirty) title.value = names().title;
     if (snap.phase === "duel") {
       show("duel");
       renderDuel();
@@ -417,7 +403,7 @@
       paintSizeButtons();
       applyStatic();
       const title = $("#title-input");
-      if (!title.dataset.dirty) title.value = defaultTitle();
+      if (!title.dataset.dirty) title.value = names().title;
       renderRoster();
       syncSelection();
     });
@@ -565,14 +551,10 @@
   $("#restart-btn").addEventListener("click", backToPick);
   $("#save-btn").addEventListener("click", savePoster);
   $("#share-btn").addEventListener("click", () => {
-    const hashtags =
-      series === "sakamichi"
-        ? "#Sakamichi #好き顔ソート"
-        : "#48Group #好き顔ソート";
     const text =
-      `${$("#title-input").value.trim() || defaultTitle()}\n\n` +
+      `${$("#title-input").value.trim() || names().title}\n\n` +
       ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n") +
-      `\n\n${hashtags}`;
+      `\n\n${names().shareTags}`;
     const url =
       location.protocol.startsWith("http") &&
       !/^(localhost|127\.)/.test(location.hostname)
@@ -624,18 +606,14 @@
       fontsReady(),
     ]);
 
-    const title = $("#title-input").value.trim() || defaultTitle();
+    const title = $("#title-input").value.trim() || names().title;
     const d = new Date();
-    const brand = t(series === "sakamichi" ? "series_saka" : "series_48g");
     AKB_POSTER.draw(ctx, {
       members: ranking,
       images: imgs,
       title,
-      dateText: `${brand} 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      hashtag:
-        series === "sakamichi"
-          ? "#Sakamichi  #好き顔ソート"
-          : "#48Group  #好き顔ソート",
+      dateText: `${names().eyebrow} · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+      hashtag: names().posterTags,
       photoSrc: t("photo_src"),
       subOf: posterSub,
     });
@@ -649,10 +627,7 @@
   }
 
   function posterFileName() {
-    const prefix = series === "sakamichi" ? "sakamichi" : "48group";
-    if (pick === 7)
-      return `${prefix}_${series === "sakamichi" ? "7fukujin" : "kami7"}.png`;
-    return `${prefix}_${pick}.png`;
+    return `${names().fileBase}.png`;
   }
 
   function savePoster() {

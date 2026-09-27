@@ -182,6 +182,35 @@
     return `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
   }
 
+  // ---- 命名（随系列/档位变化的品牌、标题、标签与文件名；文案仍来自 i18n） ----
+  function names(series, size, t) {
+    const saka = series === "sakamichi";
+    const brand =
+      size === 32
+        ? t("brand_32")
+        : size === 16
+          ? t("brand_16")
+          : saka
+            ? t("brand_7fukujin")
+            : t("brand_7");
+    const seriesLabel = t(saka ? "series_saka" : "series_48g");
+    const tag = saka ? "#Sakamichi" : "#48Group";
+    const filePrefix = saka ? "sakamichi" : "48group";
+    return {
+      brand,
+      seriesLabel,
+      title: `${t(saka ? "title_prefix_saka" : "title_prefix_48g")} ${brand}`,
+      eyebrow: `${seriesLabel} 好き顔ソート`,
+      seriesTag: tag,
+      shareTags: `${tag} #好き顔ソート`,
+      posterTags: `${tag}  #好き顔ソート`,
+      fileBase:
+        size === 7
+          ? `${filePrefix}_${saka ? "7fukujin" : "kami7"}`
+          : `${filePrefix}_${size}`,
+    };
+  }
+
   // ---- 持久化（localStorage 序列化；损坏/过期数据安全丢弃） ----
   const STATE_VERSION = 1;
   const SIZES = [7, 16, 32];
@@ -257,5 +286,6 @@
     metaText,
     fullMeta,
     posterSub,
+    names,
   };
 });

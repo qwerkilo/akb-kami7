@@ -378,3 +378,32 @@ test("持久化：32 档对决进度（129 答）可恢复，超出最坏题数�
   );
   assert.equal(tooMany.duel, null);
 });
+
+test("names 组合随系列与档位产出品牌、标题、标签与文件名", () => {
+  const DICT = {
+    brand_7: "神7",
+    brand_7fukujin: "7福神",
+    brand_16: "选拔组",
+    brand_32: "圈内",
+    title_prefix_48g: "我的 48 Group",
+    title_prefix_saka: "我的坂道",
+    series_48g: "48 Group",
+    series_saka: "坂道",
+  };
+  const t = (k) => DICT[k];
+  assert.deepEqual(core.names("48g", 7, t), {
+    brand: "神7",
+    seriesLabel: "48 Group",
+    title: "我的 48 Group 神7",
+    eyebrow: "48 Group 好き顔ソート",
+    seriesTag: "#48Group",
+    shareTags: "#48Group #好き顔ソート",
+    posterTags: "#48Group  #好き顔ソート",
+    fileBase: "48group_kami7",
+  });
+  assert.equal(core.names("sakamichi", 7, t).brand, "7福神");
+  assert.equal(core.names("sakamichi", 7, t).fileBase, "sakamichi_7fukujin");
+  assert.equal(core.names("sakamichi", 16, t).fileBase, "sakamichi_16");
+  assert.equal(core.names("48g", 32, t).brand, "圈内");
+  assert.equal(core.names("48g", 32, t).fileBase, "48group_32");
+});

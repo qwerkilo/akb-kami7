@@ -44,3 +44,47 @@ test("app.js 中静态引用的文案键都存在", () => {
     assert.ok(I18N.en[key] != null, `en 缺: ${key}`);
   }
 });
+
+test("names 组合在 zh/en × 系列 × 档位下都解析出真实文案", () => {
+  const core = require("../core.js");
+  const expectBrand = {
+    zh: {
+      "48g-7": "神7",
+      "sakamichi-7": "7福神",
+      "48g-16": "选拔组",
+      "sakamichi-16": "选拔组",
+      "48g-32": "圈内",
+      "sakamichi-32": "圈内",
+    },
+    en: {
+      "48g-7": "Kami 7",
+      "sakamichi-7": "7 Fukujin",
+      "48g-16": "Senbatsu",
+      "sakamichi-16": "Senbatsu",
+      "48g-32": "Ranked",
+      "sakamichi-32": "Ranked",
+    },
+  };
+  for (const lang of ["zh", "en"]) {
+    const t = (k) => I18N[lang][k];
+    for (const series of ["48g", "sakamichi"]) {
+      for (const size of [7, 16, 32]) {
+        const n = core.names(series, size, t);
+        const where = `${lang}/${series}/${size}`;
+        for (const [field, v] of Object.entries(n)) {
+          assert.equal(typeof v, "string", `${where}/${field}`);
+          assert.ok(
+            v.length > 0 && !v.includes("undefined"),
+            `${where}/${field}=${v}`
+          );
+        }
+        assert.equal(n.brand, expectBrand[lang][`${series}-${size}`], where);
+        assert.ok(n.title.endsWith(n.brand), `${where}/title=${n.title}`);
+        assert.match(
+          n.fileBase,
+          /^(48group|sakamichi)_(kami7|7fukujin|16|32)$/
+        );
+      }
+    }
+  }
+});
