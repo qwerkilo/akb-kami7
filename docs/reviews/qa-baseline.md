@@ -100,3 +100,18 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 - 集成测试的 `with patch.object(...)` 块在缩进调整后作用域失效，第二次 `main()` 以**真实目录**运行：prune 删除了 `img` 下全部图片与 `scripts/_orig` 缓存，并重写了 `members.js`。
 - 处置：`git checkout` 恢复图片与产物；重跑生成重新下载 `_orig`（12 名成员图片随上游刷新，已随 `1142d6a` 提交）；测试改为 `contextlib.ExitStack` 包裹整个方法体，杜绝越界。
 - 教训：**集成测试对全局路径的 patch 必须覆盖整个测试体**；今后此类测试应显式断言「补丁生效」（如运行前后校验真实目录数量/哈希不变）。
+
+## v2 复检（2026-09-27，基线 `546cbc4`）
+
+| 维度                        | v2 复检值                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| JS 行覆盖（node:test 全量） | 99.06% 总；`core.js` 99.62%（分支 90 / 函数 100）、`poster.js` 96.69%（分支 90 / 函数 92.86）  |
+| `i18n.js`                   | 行 99.32%（文案函数仅 6.25%——表函数由 E2E 驱动执行，属预期）                                   |
+| `app.js`                    | 不入 node 覆盖（DOM IIFE），由 E2E 42 项覆盖                                                   |
+| Python 覆盖（coverage.py）  | `fetch_members.py` 96%、`wiki.py` 54%、合计 93%                                                |
+| 测试数                      | JS 43 / Python 47；E2E 42 checks（系列切换、简体搜索、刷新恢复、32 档 129 题与续玩、坂道结果） |
+| 数据                        | 1338 人 / 10 团 / 111 段；`simplified.js` 150 键、158 形、8 键一对多                           |
+
+- 命令口径：`node --test --experimental-test-coverage`；`coverage run -m unittest discover -s scripts`；E2E 为 Playwright 1.62 脚本（临时目录，不入仓）。
+- 未复测项：重复率 / TODO / 依赖漏洞沿用上表首轮值（本批无新增依赖）。
+- 命名变更：坂道 7 人档「7福神」、32 档两系列统一「圈内」（ADR-0004 / CONTEXT / i18n / E2E 同步）。
