@@ -154,6 +154,12 @@
     </section>`;
   }
 
+  function renderPick(opts = {}) {
+    renderRoster();
+    syncSelection();
+    if (opts.resetScroll) roster.scrollTop = 0;
+  }
+
   function renderRoster() {
     sync();
     const q = CORE.normalizeName(snap.query);
@@ -372,16 +378,13 @@
       renderResult();
     } else {
       show("pick");
-      renderRoster();
-      syncSelection();
+      renderPick();
     }
   }
 
   groupSelect.addEventListener("change", () => {
     S.setGroup(groupSelect.value);
-    renderRoster();
-    syncSelection();
-    roster.scrollTop = 0;
+    renderPick({ resetScroll: true });
   });
 
   document.querySelectorAll(".seg-filter button").forEach((b) => {
@@ -390,8 +393,7 @@
         .querySelectorAll(".seg-filter button")
         .forEach((x) => x.setAttribute("aria-checked", x === b));
       S.setFilter(b.dataset.filter);
-      renderRoster();
-      syncSelection();
+      renderPick();
     });
   });
 
@@ -404,8 +406,7 @@
       applyStatic();
       const title = $("#title-input");
       if (!title.dataset.dirty) title.value = names().title;
-      renderRoster();
-      syncSelection();
+      renderPick();
     });
   });
 
@@ -418,9 +419,7 @@
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       S.setQuery(e.target.value);
-      renderRoster();
-      syncSelection();
-      roster.scrollTop = 0;
+      renderPick({ resetScroll: true });
     }, 120);
   });
 
@@ -512,8 +511,7 @@
     S.abandonDuel();
     sync();
     show("pick");
-    renderRoster();
-    syncSelection();
+    renderPick();
   }
 
   /* ---------------- result ---------------- */
@@ -674,8 +672,7 @@
       localStorage.setItem("akb-lang", lang);
     } catch (_) {}
     applyStatic();
-    renderRoster();
-    syncSelection();
+    renderPick();
     if (!$("#phase-duel").hidden) renderDuel();
     if (!$("#phase-result").hidden && ranking.length) {
       renderRankList();
@@ -700,7 +697,6 @@
   } else if (snap.phase === "result") {
     renderResult();
   } else {
-    renderRoster();
-    syncSelection();
+    renderPick();
   }
 })();
