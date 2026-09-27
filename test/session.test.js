@@ -161,11 +161,25 @@ test("重建实例（刷新）：恢复系列、已选与进行中/已完成的�
   let S = make(storage);
   S.toggleSelect("a1");
   S.toggleSelect("a2");
-  S.startDuel(["a1", "a2"]);
+  S.toggleSelect("a3");
+  S.startDuel(["a1", "a2", "a3"]);
   S.answer(true);
+  S = make(storage); // 进行中 → 回到原题号
+  let s = S.snapshot();
+  assert.equal(s.phase, "duel");
+  assert.equal(s.duel.step, 2);
+  assert.equal(s.duel.canUndo, true);
+  assert.deepEqual(s.duel.pair, ["a1", "a2"]);
+  assert.equal(S.undo(), true);
+  s = S.snapshot();
+  assert.equal(s.duel.step, 1);
+  assert.equal(s.duel.canUndo, false);
+  assert.deepEqual(s.duel.pair, ["a2", "a3"]);
+  let guard = 0;
+  while (S.snapshot().phase === "duel" && guard++ < 10) S.answer(true);
   S = make(storage); // 已完成 → 直达结果
   assert.equal(S.snapshot().phase, "result");
-  assert.deepEqual(S.snapshot().ranking, ["a1", "a2"]);
+  assert.deepEqual([...S.snapshot().ranking].sort(), ["a1", "a2", "a3"]);
   assert.equal(S.switchSeries("sakamichi"), true);
   S.toggleSelect("s1");
   S = make(storage); // 系列持久化
@@ -179,7 +193,7 @@ test("损坏与越权数据安全丢弃", () => {
     [JSON.stringify({ v: 0, size: 7 }), null],
     [JSON.stringify({ v: 1, size: 9 }), null],
   ];
-  for (const [raw, _] of cases) {
+  for (const [raw] of cases) {
     const storage = memoryStorage();
     storage.setItem("akb:state:v2:48g", raw);
     const s = make(storage).snapshot();
