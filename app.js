@@ -569,6 +569,7 @@
 
   /* ---------------- poster canvas ---------------- */
   const imgCache = new Map();
+
   function loadImg(src) {
     if (!imgCache.has(src)) {
       imgCache.set(
@@ -591,6 +592,29 @@
       document.fonts.load(`700 40px "Zen Kaku Gothic New"`, "渡辺麻友"),
     ]);
     await Promise.race([wait, new Promise((r) => setTimeout(r, 2500))]);
+  }
+
+  function posterTokens() {
+    const d = AKB_POSTER.defaultTokens();
+    const cs = getComputedStyle(document.documentElement);
+    const v = (name, fallback) =>
+      (cs.getPropertyValue(name) || "").replace(/\s+/g, " ").trim() || fallback;
+    return {
+      colors: {
+        floor: v("--floor", d.colors.floor),
+        card: v("--card", d.colors.card),
+        ink: v("--ink", d.colors.ink),
+        muted: v("--muted", d.colors.muted),
+        line: v("--line", d.colors.line),
+        pink: v("--pink", d.colors.pink),
+        tape: v("--lemon", d.colors.tape),
+      },
+      fonts: {
+        ui: v("--font-ui", d.fonts.ui),
+        jp: v("--font-jp", d.fonts.jp),
+        display: v("--font-display", d.fonts.display),
+      },
+    };
   }
 
   async function drawPoster() {
@@ -616,6 +640,7 @@
       hashtag: names().posterTags,
       photoSrc: t("photo_src"),
       subOf: posterSub,
+      tokens: posterTokens(),
     });
 
     try {

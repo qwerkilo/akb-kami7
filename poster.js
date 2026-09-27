@@ -6,20 +6,33 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
-  const C = {
-    floor: "#f5f1e6",
-    card: "#ffffff",
-    ink: "#20242e",
-    muted: "#6f6a60",
-    line: "#cfc7b8",
-    pink: "#e4007f",
-    tape: "#ffe08a",
-  };
-  const UI_FONT =
-    '"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif';
-  const JP_FONT =
-    '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",' + UI_FONT;
-  const DISPLAY = '"Dela Gothic One",' + JP_FONT;
+  function defaultTokens() {
+    const ui =
+      '"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif';
+    const jp =
+      '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",' + ui;
+    return {
+      colors: {
+        floor: "#f5f1e6",
+        card: "#ffffff",
+        ink: "#20242e",
+        muted: "#6f6a60",
+        line: "#cfc7b8",
+        pink: "#e4007f",
+        tape: "#ffe08a",
+      },
+      fonts: { ui, jp, display: '"Dela Gothic One",' + jp },
+    };
+  }
+
+  function resolveTokens(tokens) {
+    const d = defaultTokens();
+    if (!tokens) return d;
+    return {
+      colors: { ...d.colors, ...(tokens.colors || {}) },
+      fonts: { ...d.fonts, ...(tokens.fonts || {}) },
+    };
+  }
 
   function layout(count) {
     return { width: 1080, height: count > 7 && count <= 16 ? 1920 : 1440 };
@@ -73,20 +86,20 @@
     ctx.restore();
   }
 
-  function slot(ctx, im, m, rank, x, y, w, h, big, compact, subOf) {
+  function slot(ctx, T, im, m, rank, x, y, w, h, big, compact, subOf) {
     ctx.save();
     ctx.shadowColor = "rgba(28,30,43,.18)";
     ctx.shadowBlur = 24;
     ctx.shadowOffsetY = 10;
     roundRect(ctx, x, y, w, h, 10);
-    ctx.fillStyle = C.card;
+    ctx.fillStyle = T.colors.card;
     ctx.fill();
     ctx.restore();
 
     ctx.save();
     roundRect(ctx, x, y, w, h, 10);
     ctx.lineWidth = compact ? 2 : 3;
-    ctx.strokeStyle = C.ink;
+    ctx.strokeStyle = T.colors.ink;
     ctx.stroke();
     ctx.restore();
 
@@ -101,7 +114,7 @@
       ctx.fillStyle = "#9aa0b0";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = `700 ${Math.round(h / 3)}px ${JP_FONT}`;
+      ctx.font = `700 ${Math.round(h / 3)}px ${T.fonts.jp}`;
       ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + h / 2);
     }
     ctx.restore();
@@ -120,43 +133,43 @@
     const padY = big ? 18 : compact ? 10 : 14;
     const tx = x - padX,
       ty = y - padY;
-    tape(ctx, tx, ty, tw, th, big ? C.pink : C.tape, -0.06);
+    tape(ctx, tx, ty, tw, th, big ? T.colors.pink : T.colors.tape, -0.06);
     ctx.save();
     ctx.translate(tx + tw / 2, ty + th / 2);
     ctx.rotate(-0.06);
-    ctx.fillStyle = big ? "#fff" : C.ink;
+    ctx.fillStyle = big ? "#fff" : T.colors.ink;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     if (big) {
-      ctx.font = `400 44px ${DISPLAY}`;
+      ctx.font = `400 44px ${T.fonts.display}`;
       ctx.fillText("1", -26, 3);
-      ctx.font = `700 15px ${UI_FONT}`;
+      ctx.font = `700 15px ${T.fonts.ui}`;
       ctx.fillText("CENTER", 22, 2);
     } else {
       const numSize = compact ? (rank <= 3 ? 22 : 19) : rank <= 3 ? 34 : 28;
-      ctx.font = `400 ${numSize}px ${DISPLAY}`;
+      ctx.font = `400 ${numSize}px ${T.fonts.display}`;
       ctx.fillText(String(rank), 0, 3);
     }
     ctx.restore();
 
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = C.ink;
+    ctx.fillStyle = T.colors.ink;
     const nameBase = big ? 44 : compact ? 20 : rank <= 3 ? 32 : 26;
-    const nameSize = fitText(ctx, m.name, w + 10, nameBase, 700, JP_FONT);
+    const nameSize = fitText(ctx, m.name, w + 10, nameBase, 700, T.fonts.jp);
     ctx.fillText(m.name, x + w / 2, y + h + nameSize + 14);
     const sub = String(subOf(m) || "");
     const subBase = big ? 20 : compact ? 13 : 17;
-    const subSize = fitText(ctx, sub, w + 10, subBase, 500, UI_FONT);
-    ctx.fillStyle = C.muted;
+    const subSize = fitText(ctx, sub, w + 10, subBase, 500, T.fonts.ui);
+    ctx.fillStyle = T.colors.muted;
     ctx.fillText(
-      compact ? clipText(ctx, sub, w + 10, subBase, 500, UI_FONT) : sub,
+      compact ? clipText(ctx, sub, w + 10, subBase, 500, T.fonts.ui) : sub,
       x + w / 2,
       y + h + nameSize + subSize + 22
     );
   }
 
-  function placeRow(ctx, imgs, members, start, count, y, w, h, gap, subOf) {
+  function placeRow(ctx, T, imgs, members, start, count, y, w, h, gap, subOf) {
     const total = count * w + (count - 1) * gap;
     let x = (ctx.canvas.width - total) / 2;
     for (let i = 0; i < count; i++) {
@@ -166,6 +179,7 @@
       if (!members[idx]) continue;
       slot(
         ctx,
+        T,
         imgs[idx],
         members[idx],
         idx + 1,
@@ -180,7 +194,7 @@
     }
   }
 
-  function drawSeven(ctx, members, imgs, subOf) {
+  function drawSeven(ctx, T, members, imgs, subOf) {
     const W = ctx.canvas.width;
     const fy = 262;
     const bigW = 392,
@@ -193,6 +207,7 @@
     if (members[1])
       slot(
         ctx,
+        T,
         imgs[1],
         members[1],
         2,
@@ -207,6 +222,7 @@
     if (members[2])
       slot(
         ctx,
+        T,
         imgs[2],
         members[2],
         3,
@@ -220,6 +236,7 @@
       );
     slot(
       ctx,
+      T,
       imgs[0],
       members[0],
       1,
@@ -232,10 +249,10 @@
       subOf
     );
     const by = fy + bigH + 150;
-    placeRow(ctx, imgs, members, 3, 4, by, 216, 288, 26, subOf);
+    placeRow(ctx, T, imgs, members, 3, 4, by, 216, 288, 26, subOf);
   }
 
-  function drawSixteen(ctx, members, imgs, subOf) {
+  function drawSixteen(ctx, T, members, imgs, subOf) {
     const W = ctx.canvas.width;
     const fy = 210;
     const bigW = 300,
@@ -248,6 +265,7 @@
     if (members[1])
       slot(
         ctx,
+        T,
         imgs[1],
         members[1],
         2,
@@ -262,6 +280,7 @@
     if (members[2])
       slot(
         ctx,
+        T,
         imgs[2],
         members[2],
         3,
@@ -275,6 +294,7 @@
       );
     slot(
       ctx,
+      T,
       imgs[0],
       members[0],
       1,
@@ -287,12 +307,12 @@
       subOf
     );
     const midY = fy + bigH + 92;
-    placeRow(ctx, imgs, members, 3, 6, midY, 148, 198, 14, subOf);
+    placeRow(ctx, T, imgs, members, 3, 6, midY, 148, 198, 14, subOf);
     const backY = midY + 198 + 78;
-    placeRow(ctx, imgs, members, 9, 7, backY, 128, 170, 12, subOf);
+    placeRow(ctx, T, imgs, members, 9, 7, backY, 128, 170, 12, subOf);
   }
 
-  function drawThirtyTwo(ctx, members, imgs, subOf) {
+  function drawThirtyTwo(ctx, T, members, imgs, subOf) {
     const W = ctx.canvas.width;
     const cols = 8,
       margin = 72,
@@ -306,24 +326,25 @@
         c = i % cols;
       const x = margin + c * (w + gap);
       const y = startY + r * rowPitch;
-      slot(ctx, imgs[i], members[i], i + 1, x, y, w, h, false, true, subOf);
+      slot(ctx, T, imgs[i], members[i], i + 1, x, y, w, h, false, true, subOf);
     }
   }
 
   function draw(ctx, opts) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
+    const T = resolveTokens(opts.tokens);
     const W = ctx.canvas.width,
       H = ctx.canvas.height;
     const n = members.length;
 
-    ctx.fillStyle = C.floor;
+    ctx.fillStyle = T.colors.floor;
     ctx.fillRect(0, 0, W, H);
 
     const tall = n > 7 && n <= 16;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = C.ink;
-    fitText(ctx, title, W - 144, tall ? 56 : 64, 900, UI_FONT);
+    ctx.fillStyle = T.colors.ink;
+    fitText(ctx, title, W - 144, tall ? 56 : 64, 900, T.fonts.ui);
     ctx.fillText(title, 72, tall ? 100 : 118);
     tape(
       ctx,
@@ -331,32 +352,32 @@
       tall ? 116 : 136,
       Math.min(ctx.measureText(title).width * 0.72, 520),
       12,
-      C.pink,
+      T.colors.pink,
       -0.012
     );
-    ctx.font = `500 24px ${UI_FONT}`;
-    ctx.fillStyle = C.muted;
+    ctx.font = `500 24px ${T.fonts.ui}`;
+    ctx.fillStyle = T.colors.muted;
     ctx.fillText(dateText, 72, tall ? 168 : 190);
 
-    if (n <= 7) drawSeven(ctx, members, images, subOf);
-    else if (n <= 16) drawSixteen(ctx, members, images, subOf);
-    else drawThirtyTwo(ctx, members, images, subOf);
+    if (n <= 7) drawSeven(ctx, T, members, images, subOf);
+    else if (n <= 16) drawSixteen(ctx, T, members, images, subOf);
+    else drawThirtyTwo(ctx, T, members, images, subOf);
 
-    ctx.strokeStyle = C.line;
+    ctx.strokeStyle = T.colors.line;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(72, H - 84);
     ctx.lineTo(W - 72, H - 84);
     ctx.stroke();
-    ctx.font = `700 22px ${UI_FONT}`;
-    ctx.fillStyle = C.ink;
+    ctx.font = `700 22px ${T.fonts.ui}`;
+    ctx.fillStyle = T.colors.ink;
     ctx.textAlign = "left";
     ctx.fillText(hashtag, 72, H - 44);
     ctx.textAlign = "right";
-    ctx.font = `500 18px ${UI_FONT}`;
-    ctx.fillStyle = C.muted;
+    ctx.font = `500 18px ${T.fonts.ui}`;
+    ctx.fillStyle = T.colors.muted;
     ctx.fillText(photoSrc, W - 72, H - 44);
   }
 
-  return { layout, draw };
+  return { layout, draw, defaultTokens };
 });

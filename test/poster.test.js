@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const poster = require("../poster.js");
 
 function fakeCtx() {
-  const calls = { texts: [] };
+  const calls = { texts: [], fills: [], fonts: [] };
   const ctx = {
     canvas: { width: 1080, height: 1440 },
     save() {},
@@ -28,14 +28,28 @@ function fakeCtx() {
     },
     textAlign: "",
     textBaseline: "",
-    fillStyle: "",
     strokeStyle: "",
     lineWidth: 1,
     shadowColor: "",
     shadowBlur: 0,
     shadowOffsetY: 0,
   };
-  Object.defineProperty(ctx, "font", { value: "", writable: true });
+  let fillStyle = "";
+  let font = "";
+  Object.defineProperty(ctx, "fillStyle", {
+    get: () => fillStyle,
+    set: (v) => {
+      fillStyle = v;
+      calls.fills.push(v);
+    },
+  });
+  Object.defineProperty(ctx, "font", {
+    get: () => font,
+    set: (v) => {
+      font = v;
+      calls.fonts.push(v);
+    },
+  });
   return { ctx, calls };
 }
 
@@ -102,4 +116,56 @@ test("draw：32 人海报 8×4 网格，32 人全部在列", () => {
     Array.from({ length: 32 }, (_, i) => String(i + 1))
   );
   assert.ok(!calls.texts.some((x) => x.includes("undefined")));
+});
+
+test("draw：注入 tokens 后使用注入的颜色与字体，缺省回退内置默认", () => {
+  const tokens = {
+    colors: {
+      floor: "#010101",
+      card: "#020202",
+      ink: "#030303",
+      muted: "#040404",
+      line: "#050505",
+      pink: "#060606",
+      tape: "#070707",
+    },
+    fonts: { ui: "UX", jp: "JX", display: "DX" },
+  };
+  const base = {
+    members: people(7),
+    images: people(7).map(() => null),
+    title: "T",
+    dateText: "D",
+    hashtag: "H",
+    photoSrc: "P",
+    subOf: () => "",
+  };
+  const injected = fakeCtx();
+  poster.draw(injected.ctx, { ...base, tokens });
+  assert.ok(injected.calls.fills.includes("#010101"), "地板色未用注入值");
+  assert.ok(injected.calls.fills.includes("#060606"), "榜首胶带色未用注入值");
+  assert.ok(injected.calls.fills.includes("#070707"), "胶带色未用注入值");
+  assert.ok(
+    injected.calls.fonts.some((f) => f.includes("DX")),
+    "display 字体未用注入值"
+  );
+  assert.ok(
+    injected.calls.fonts.some((f) => f.includes("JX")),
+    "jp 字体未用注入值"
+  );
+  assert.ok(
+    injected.calls.fonts.some((f) => f.includes("UX")),
+    "ui 字体未用注入值"
+  );
+  assert.ok(
+    !injected.calls.fills.some((f) =>
+      ["#f5f1e6", "#20242e", "#ffe08a", "#e4007f"].includes(f)
+    ),
+    "注入后仍出现内置颜色"
+  );
+
+  const fallback = fakeCtx();
+  poster.draw(fallback.ctx, base);
+  assert.ok(fallback.calls.fills.includes("#f5f1e6"), "缺省未回退内置地板色");
+  assert.deepEqual(poster.defaultTokens().colors.tape, "#ffe08a");
 });
