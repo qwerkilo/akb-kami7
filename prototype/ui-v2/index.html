@@ -1,0 +1,1635 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>UI v2 原型 — 48G × 坂道 排序站</title>
+    <!--
+      原型问题：48G × 坂道排序站 v2 应采用哪种「页面结构 + 视觉」？
+      4 个变体经 ?variant=magazine|dark|minimal|sticker 切换（也可用底栏 ← → 或键盘方向键）。
+      throwaway 原型：不进入生产代码；选定后按 prototype 技能折叠进正式实现。
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Public+Sans:wght@400;500;700&family=Outfit:wght@300;400;600;800&family=Work+Sans:wght@300;400;500;600&family=Nunito:wght@700;800;900&family=DM+Sans:wght@400;500;700&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      img {
+        display: block;
+      }
+      .ph {
+        display: block;
+        overflow: hidden;
+      }
+      .ph img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .avatar-ph {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        font-weight: 800;
+      }
+      .switcher {
+        position: fixed;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        z-index: 99;
+        background: #111;
+        color: #fff;
+        border-radius: 999px;
+        padding: 5px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+        font-family: "Public Sans", sans-serif;
+      }
+      .switcher button {
+        background: none;
+        border: 0;
+        color: #fff;
+        font-size: 16px;
+        padding: 6px 13px;
+        cursor: pointer;
+      }
+      .switcher span {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .wrap {
+        max-width: 430px;
+        margin: 0 auto;
+        padding: 18px 16px 96px;
+      }
+
+      /* ============ A · 杂志编排 ============ */
+      body[data-variant="magazine"] {
+        background: #f8f4ec;
+        color: #17130e;
+        font-family: "Public Sans", "Noto Sans SC", sans-serif;
+      }
+      [data-variant="magazine"] .kicker {
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #c8102e;
+      }
+      [data-variant="magazine"] h1 {
+        font-family: "Playfair Display", "Noto Serif SC", serif;
+        font-weight: 900;
+        font-size: 40px;
+        line-height: 1.04;
+        margin: 6px 0 4px;
+      }
+      [data-variant="magazine"] h1 em {
+        font-style: italic;
+        font-weight: 500;
+        color: #c8102e;
+      }
+      [data-variant="magazine"] .issue {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #6b6157;
+        border-bottom: 3px double #17130e;
+        padding-bottom: 12px;
+      }
+      .m-tabs {
+        display: flex;
+        gap: 16px;
+        margin-top: 14px;
+        border-bottom: 1.5px solid #17130e;
+      }
+      .m-tabs button {
+        font: inherit;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        background: none;
+        border: 0;
+        padding: 6px 0;
+        cursor: pointer;
+        color: #6b6157;
+        border-bottom: 3px solid transparent;
+      }
+      .m-tabs button.on {
+        color: #17130e;
+        border-color: #c8102e;
+      }
+      .m-size {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin: 12px 0 22px;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #6b6157;
+      }
+      .m-size button {
+        font: inherit;
+        font-weight: 700;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        color: #6b6157;
+        padding: 0;
+        border-bottom: 2px solid transparent;
+      }
+      .m-size button.on {
+        color: #17130e;
+        border-color: #17130e;
+      }
+      .m-sec {
+        margin-bottom: 34px;
+      }
+      .m-sec > h2 {
+        font-family: "Playfair Display", "Noto Serif SC", serif;
+        font-size: 22px;
+        border-bottom: 1.5px solid #17130e;
+        padding-bottom: 6px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .m-picks {
+        list-style: none;
+        columns: 2;
+        gap: 18px;
+        font-family: "Noto Serif SC", serif;
+        margin-bottom: 12px;
+      }
+      .m-picks li {
+        break-inside: avoid;
+        padding: 5px 0;
+        border-bottom: 1px solid #d8cfc0;
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+      }
+      .m-picks b {
+        font-family: "Playfair Display", serif;
+        color: #c8102e;
+        font-size: 15px;
+      }
+      .m-card {
+        display: grid;
+        grid-template-columns: 74px 1fr;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #d8cfc0;
+        cursor: pointer;
+        background: none;
+        border-left: 0;
+        border-right: 0;
+        border-top: 0;
+        text-align: left;
+        font: inherit;
+        color: inherit;
+        width: 100%;
+      }
+      .m-card .ph {
+        aspect-ratio: 3 / 4;
+        border: 1.5px solid #17130e;
+      }
+      .m-card .idx {
+        font-family: "Playfair Display", serif;
+        font-size: 13px;
+        color: #6b6157;
+      }
+      .m-card h4 {
+        font-family: "Noto Serif SC", serif;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 2px 0 4px;
+      }
+      .m-card[aria-pressed="true"] {
+        background: #f1e9da;
+        outline: 2px solid #c8102e;
+        outline-offset: 4px;
+      }
+      .m-group {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #6b6157;
+        margin: 18px 0 4px;
+      }
+      .m-duel {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 10px;
+        align-items: center;
+        border-top: 3px double #17130e;
+        border-bottom: 3px double #17130e;
+        padding: 14px 0;
+      }
+      .m-duel .fighter {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        text-align: center;
+      }
+      .m-duel .fighter .ph {
+        aspect-ratio: 3 / 4;
+        border: 1.5px solid #17130e;
+        margin-bottom: 6px;
+      }
+      .m-duel .fighter span {
+        font-family: "Noto Serif SC", serif;
+        font-weight: 700;
+      }
+      .m-duel .vs {
+        font-family: "Playfair Display", serif;
+        font-style: italic;
+        color: #c8102e;
+        font-size: 20px;
+      }
+      .m-cta {
+        width: 100%;
+        font: inherit;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        background: #c8102e;
+        color: #f8f4ec;
+        border: 0;
+        padding: 12px;
+        cursor: pointer;
+      }
+      .m-result li {
+        display: grid;
+        grid-template-columns: 30px 1fr;
+        gap: 10px;
+        align-items: baseline;
+        padding: 9px 0;
+        border-bottom: 1px solid #17130e;
+      }
+      .m-result b {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        font-weight: 900;
+      }
+      .m-result li:first-child b {
+        color: #c8102e;
+      }
+      .m-result span {
+        display: grid;
+        font-family: "Noto Serif SC", serif;
+        font-weight: 700;
+      }
+      .m-result small {
+        font-family: "Public Sans", sans-serif;
+        font-weight: 400;
+        color: #6b6157;
+      }
+      .m-poster {
+        display: grid;
+        grid-template-columns: repeat(var(--cols, 4), 1fr);
+        gap: 3px;
+        background: #17130e;
+        padding: 8px;
+        border: 1.5px solid #17130e;
+        margin-top: 16px;
+      }
+      .m-poster .cell {
+        position: relative;
+        background: #f8f4ec;
+      }
+      .m-poster .cell .ph {
+        aspect-ratio: 3 / 4;
+      }
+      .m-poster .cell .pnm {
+        font-family: "Noto Serif SC", serif;
+        font-size: 9px;
+        font-weight: 700;
+        text-align: center;
+        padding: 3px 2px;
+      }
+      .m-poster .rk {
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-family: "Playfair Display", serif;
+        font-size: 12px;
+        font-weight: 900;
+        background: #17130e;
+        color: #f8f4ec;
+        padding: 1px 6px;
+      }
+      .m-poster .rk.r1 {
+        background: #c8102e;
+      }
+
+      /* ============ B · 暗色舞台 ============ */
+      body[data-variant="dark"] {
+        background:
+          radial-gradient(
+            60% 30% at 20% 0%,
+            rgba(167, 139, 250, 0.25),
+            transparent 70%
+          ),
+          radial-gradient(
+            45% 25% at 90% 4%,
+            rgba(34, 211, 238, 0.16),
+            transparent 70%
+          ),
+          #0b0b12;
+        color: #f2f2f7;
+        font-family: "Outfit", "Noto Sans SC", sans-serif;
+      }
+      [data-variant="dark"] h1 {
+        font-weight: 800;
+        font-size: 34px;
+      }
+      [data-variant="dark"] h1 em {
+        font-style: normal;
+        background: linear-gradient(90deg, #a78bfa, #22d3ee);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .s-tabs {
+        display: flex;
+        gap: 8px;
+        margin: 16px 0 10px;
+      }
+      .s-tabs button,
+      .s-size button {
+        font: inherit;
+        font-weight: 700;
+        padding: 7px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: #9a9aae;
+        cursor: pointer;
+      }
+      .s-tabs button.on {
+        background: linear-gradient(90deg, #a78bfa, #22d3ee);
+        color: #0b0b12;
+        border-color: transparent;
+      }
+      .s-size {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+      .s-size button.on {
+        background: #f2f2f7;
+        color: #0b0b12;
+        border-color: transparent;
+      }
+      .s-lineup {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: rgba(11, 11, 18, 0.85);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+      }
+      .s-lineup p {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #9a9aae;
+        display: flex;
+        justify-content: space-between;
+      }
+      .s-lineup b {
+        color: #22d3ee;
+      }
+      .s-lineup ul {
+        list-style: none;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        margin-top: 8px;
+      }
+      .s-lineup li {
+        flex: 0 0 auto;
+        width: 44px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+      }
+      .s-lineup .empty {
+        width: 44px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        color: #9a9aae;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+      }
+      .s-rail {
+        margin-bottom: 22px;
+      }
+      .s-rail h3 {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        color: #f2f2f7;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .s-rail h3 span {
+        color: #9a9aae;
+        font-weight: 500;
+      }
+      .s-films {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scroll-snap-type: x mandatory;
+      }
+      .s-films .card {
+        flex: 0 0 auto;
+        width: 118px;
+        scroll-snap-align: start;
+        background: #15151f;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 12px;
+        padding: 0 0 8px;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+      }
+      .s-films .card[aria-pressed="true"] {
+        border-color: rgba(167, 139, 250, 0.75);
+        box-shadow: 0 6px 22px rgba(167, 139, 250, 0.3);
+      }
+      .s-films .ph {
+        aspect-ratio: 3 / 4;
+      }
+      .s-films .nm {
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        padding: 6px 8px 0;
+      }
+      .s-films .meta {
+        display: block;
+        font-size: 10px;
+        color: #9a9aae;
+        padding: 0 8px;
+      }
+      .s-duel {
+        background: #15151f;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 16px;
+        margin-bottom: 26px;
+      }
+      .s-duel .bar {
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        margin: 8px 0 16px;
+      }
+      .s-duel .bar i {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #a78bfa, #22d3ee);
+      }
+      .s-arena {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+      .s-arena .fighter {
+        font: inherit;
+        color: inherit;
+        text-align: center;
+        background: radial-gradient(
+          80% 60% at 50% 20%,
+          rgba(167, 139, 250, 0.25),
+          transparent 70%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 10px 10px 14px;
+        cursor: pointer;
+      }
+      .s-arena .ph {
+        aspect-ratio: 3 / 4;
+        border-radius: 10px;
+      }
+      .s-arena span {
+        display: block;
+        margin-top: 10px;
+        font-weight: 700;
+      }
+      .s-arena .vs {
+        font-weight: 800;
+        background: linear-gradient(90deg, #a78bfa, #22d3ee);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .s-result {
+        margin-bottom: 22px;
+      }
+      .s-podium {
+        display: grid;
+        grid-template-columns: 1fr 1.25fr 1fr;
+        gap: 8px;
+        align-items: end;
+        margin-bottom: 16px;
+      }
+      .s-podium .pod {
+        text-align: center;
+        background: #15151f;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px 12px 0 0;
+        padding: 10px 6px;
+      }
+      .s-podium .pod .ph {
+        aspect-ratio: 3 / 4;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+      .s-podium .pod b {
+        font-size: 20px;
+        font-weight: 800;
+        color: #f5c518;
+      }
+      .s-podium .pod:nth-child(2) {
+        padding-top: 22px;
+        border-color: rgba(245, 197, 24, 0.5);
+      }
+      .s-result li {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .s-result li b {
+        color: #9a9aae;
+        font-weight: 800;
+      }
+      .s-result span {
+        display: grid;
+        font-weight: 700;
+      }
+      .s-result small {
+        color: #9a9aae;
+        font-weight: 400;
+      }
+      .s-poster {
+        display: grid;
+        grid-template-columns: repeat(var(--cols, 4), 1fr);
+        gap: 4px;
+        padding: 10px;
+        background: #06060a;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        margin-top: 14px;
+      }
+      .s-poster .cell {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #15151f;
+      }
+      .s-poster .cell .ph {
+        aspect-ratio: 3 / 4;
+      }
+      .s-poster .cell .pnm {
+        font-size: 9px;
+        text-align: center;
+        padding: 4px 2px;
+      }
+      .s-poster .rk {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-size: 11px;
+        font-weight: 800;
+        color: #0b0b12;
+        background: #9a9aae;
+        border-radius: 6px;
+        padding: 1px 6px;
+      }
+      .s-poster .rk.r1 {
+        background: #f5c518;
+      }
+
+      /* ============ C · 明亮极简 ============ */
+      body[data-variant="minimal"] {
+        background: #fff;
+        color: #111827;
+        font-family: "Work Sans", "Noto Sans SC", sans-serif;
+      }
+      [data-variant="minimal"] h1 {
+        font-family: "Outfit", sans-serif;
+        font-weight: 600;
+        font-size: 28px;
+        letter-spacing: -0.02em;
+      }
+      [data-variant="minimal"] h1 em {
+        font-style: normal;
+        color: #2563eb;
+      }
+      .n-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0 16px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      .n-tabs {
+        display: flex;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .n-tabs button {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 7px 14px;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        color: #6b7280;
+      }
+      .n-tabs button + button {
+        border-left: 1px solid #e5e7eb;
+      }
+      .n-tabs button.on {
+        background: #2563eb;
+        color: #fff;
+      }
+      .n-search {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid #111827;
+        padding: 12px 0 10px;
+        margin-bottom: 6px;
+      }
+      .n-search input {
+        flex: 1;
+        font: inherit;
+        font-size: 17px;
+        border: 0;
+        outline: none;
+        background: none;
+      }
+      .n-search em {
+        font-style: normal;
+        font-size: 12px;
+        color: #6b7280;
+      }
+      .n-sizes {
+        display: flex;
+        gap: 6px;
+        padding: 12px 0 18px;
+      }
+      .n-sizes button {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 5px 13px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: none;
+        color: #6b7280;
+        cursor: pointer;
+      }
+      .n-sizes button.on {
+        border-color: #111827;
+        color: #111827;
+      }
+      .n-tray {
+        font-size: 12px;
+        color: #6b7280;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 0 14px;
+      }
+      .n-tray b {
+        color: #111827;
+      }
+      .n-group {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: #6b7280;
+        margin: 20px 0 6px;
+      }
+      .n-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 8px 0;
+        border: 0;
+        border-bottom: 1px solid #f3f4f6;
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+      .n-row .ph {
+        width: 40px;
+        height: 52px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        flex: 0 0 auto;
+      }
+      .n-row .nm {
+        font-weight: 500;
+      }
+      .n-row .meta {
+        font-size: 11px;
+        color: #6b7280;
+        display: block;
+      }
+      .n-row .add {
+        margin-left: auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        display: grid;
+        place-items: center;
+        font-size: 15px;
+        color: #6b7280;
+      }
+      .n-row[aria-pressed="true"] .add {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+      }
+      .n-duel {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 24px 0;
+      }
+      .n-duel .bar {
+        height: 3px;
+        background: #e5e7eb;
+        border-radius: 999px;
+        margin: 8px 0 16px;
+      }
+      .n-duel .bar i {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: #2563eb;
+      }
+      .n-arena {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+      .n-arena .fighter {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 8px;
+        cursor: pointer;
+        text-align: center;
+      }
+      .n-arena .fighter:hover {
+        border-color: #2563eb;
+      }
+      .n-arena .ph {
+        aspect-ratio: 3 / 4;
+        border-radius: 6px;
+      }
+      .n-arena .pick {
+        display: block;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #2563eb;
+        font-weight: 500;
+      }
+      .n-arena .vs {
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        color: #6b7280;
+      }
+      .n-result {
+        margin-top: 24px;
+      }
+      .n-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .n-table td {
+        padding: 9px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 13px;
+      }
+      .n-table td:first-child {
+        width: 26px;
+        color: #6b7280;
+        font-variant-numeric: tabular-nums;
+      }
+      .n-table tr:first-child td:first-child {
+        color: #2563eb;
+        font-weight: 600;
+      }
+      .n-poster {
+        display: grid;
+        grid-template-columns: repeat(var(--cols, 4), 1fr);
+        gap: 5px;
+        padding: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fafafa;
+        margin-top: 14px;
+      }
+      .n-poster .cell {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+      }
+      .n-poster .cell .ph {
+        aspect-ratio: 3 / 4;
+      }
+      .n-poster .cell .pnm {
+        font-size: 9px;
+        text-align: center;
+        padding: 4px 2px;
+      }
+      .n-poster .rk {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #fff;
+        background: #6b7280;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+      .n-poster .rk.r1 {
+        background: #2563eb;
+      }
+      .n-note {
+        font-size: 11px;
+        color: #6b7280;
+        margin-top: 10px;
+      }
+
+      /* ============ D · 贴纸网格 ============ */
+      body[data-variant="sticker"] {
+        background: #f5f1e6;
+        color: #20242e;
+        font-family: "DM Sans", "Noto Sans SC", sans-serif;
+      }
+      [data-variant="sticker"] h1 {
+        font-family: "Nunito", "Noto Sans SC", sans-serif;
+        font-weight: 900;
+        font-size: 32px;
+      }
+      [data-variant="sticker"] h1 em {
+        font-style: normal;
+        background: #ffb4a2;
+        border: 2px solid #20242e;
+        border-radius: 12px;
+        padding: 0 8px;
+        box-shadow: 3px 3px 0 #20242e;
+        display: inline-block;
+      }
+      .k-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 16px 0 18px;
+      }
+      .k-chips button {
+        font-family: "Nunito", sans-serif;
+        font-weight: 800;
+        font-size: 13px;
+        padding: 7px 15px;
+        border-radius: 999px;
+        border: 2px solid #20242e;
+        background: #fff;
+        cursor: pointer;
+      }
+      .k-chips button.on {
+        background: #d8ccff;
+        box-shadow: 2px 2px 0 #20242e;
+      }
+      .k-bento {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .k-tile {
+        position: relative;
+        background: #fff;
+        border: 2px solid #20242e;
+        border-radius: 18px;
+        box-shadow: 4px 4px 0 rgba(32, 36, 46, 0.2);
+        padding: 8px;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+      }
+      .k-tile.big {
+        grid-column: span 2;
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+      .k-tile .ph {
+        aspect-ratio: 3 / 4;
+        border-radius: 12px;
+        border: 2px solid #20242e;
+      }
+      .k-tile.big .ph {
+        aspect-ratio: 4 / 5;
+      }
+      .k-tile h4 {
+        font-family: "Nunito", "Noto Sans SC", sans-serif;
+        font-weight: 900;
+        font-size: 17px;
+        margin: 8px 0 2px;
+      }
+      .k-tile.big h4 {
+        font-size: 22px;
+        margin-top: 0;
+      }
+      .k-tile .meta {
+        font-size: 11px;
+        color: #6f6a60;
+      }
+      .k-tile .chip {
+        position: absolute;
+        top: -8px;
+        right: 10px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 800;
+        font-size: 10px;
+        background: #a7e8c8;
+        border: 2px solid #20242e;
+        border-radius: 999px;
+        padding: 1px 9px;
+      }
+      .k-tile[aria-pressed="true"] {
+        background: #ffe08a;
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 #20242e;
+      }
+      .k-tray {
+        background: #fff;
+        border: 2px solid #20242e;
+        border-radius: 18px;
+        box-shadow: 4px 4px 0 rgba(32, 36, 46, 0.2);
+        padding: 12px;
+        margin-bottom: 22px;
+      }
+      .k-tray p {
+        font-family: "Nunito", sans-serif;
+        font-weight: 900;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .k-tray p b {
+        background: #a7e8c8;
+        border: 2px solid #20242e;
+        border-radius: 999px;
+        padding: 0 9px;
+      }
+      .k-tray ul {
+        list-style: none;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .k-tray li {
+        width: 40px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 2px solid #20242e;
+      }
+      .k-tray .empty {
+        width: 40px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        border: 2px dashed #20242e;
+        border-radius: 10px;
+        color: #6f6a60;
+      }
+      .k-duel {
+        margin-bottom: 26px;
+      }
+      .k-arena {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+      .k-arena .fighter {
+        font: inherit;
+        color: inherit;
+        background: #fff;
+        border: 2px solid #20242e;
+        border-radius: 18px;
+        box-shadow: 4px 4px 0 rgba(32, 36, 46, 0.2);
+        padding: 8px 8px 14px;
+        cursor: pointer;
+      }
+      .k-arena .ph {
+        aspect-ratio: 3 / 4;
+        border-radius: 12px;
+        border: 2px solid #20242e;
+      }
+      .k-arena span {
+        display: block;
+        margin-top: 10px;
+        font-family: "Nunito", "Noto Sans SC", sans-serif;
+        font-weight: 900;
+      }
+      .k-arena .vs {
+        font-family: "Nunito", sans-serif;
+        font-weight: 900;
+        background: #ffb4a2;
+        border: 2px solid #20242e;
+        border-radius: 999px;
+        padding: 6px 8px;
+        transform: rotate(-8deg);
+      }
+      .k-result li {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 12px;
+        align-items: center;
+        background: #fff;
+        border: 2px solid #20242e;
+        border-radius: 14px;
+        box-shadow: 3px 3px 0 rgba(32, 36, 46, 0.18);
+        padding: 8px 12px;
+        margin-bottom: 8px;
+      }
+      .k-result b {
+        font-family: "Nunito", sans-serif;
+        font-weight: 900;
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border: 2px solid #20242e;
+        border-radius: 999px;
+        background: #fff;
+      }
+      .k-result li:first-child b {
+        background: #ffe08a;
+      }
+      .k-result span {
+        display: grid;
+        font-weight: 700;
+      }
+      .k-result small {
+        font-weight: 400;
+        color: #6f6a60;
+      }
+      .k-poster {
+        display: grid;
+        grid-template-columns: repeat(var(--cols, 4), 1fr);
+        gap: 6px;
+        padding: 12px;
+        background: #d8ccff;
+        border: 2px solid #20242e;
+        border-radius: 18px;
+        box-shadow: 4px 4px 0 #20242e;
+        margin-top: 14px;
+      }
+      .k-poster .cell {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        border: 2px solid #20242e;
+      }
+      .k-poster .cell:nth-child(odd) {
+        transform: rotate(-1.2deg);
+      }
+      .k-poster .cell:nth-child(even) {
+        transform: rotate(1.2deg);
+      }
+      .k-poster .cell .ph {
+        aspect-ratio: 3 / 4;
+      }
+      .k-poster .cell .pnm {
+        font-family: "Nunito", sans-serif;
+        font-size: 9px;
+        font-weight: 800;
+        text-align: center;
+        padding: 3px 2px;
+      }
+      .k-poster .rk {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 900;
+        font-size: 10px;
+        background: #fff;
+        border: 1.5px solid #20242e;
+        border-radius: 999px;
+        padding: 0 7px;
+      }
+      .k-poster .rk.r1 {
+        background: #ffe08a;
+      }
+      .k-poster .rk.r2 {
+        background: #a7e8c8;
+      }
+      .k-poster .rk.r3 {
+        background: #ffb4a2;
+      }
+    </style>
+  </head>
+  <body data-variant="magazine">
+    <div class="wrap" id="app"></div>
+    <div class="switcher" id="switcher">
+      <button id="prev" aria-label="上一个变体">←</button>
+      <span id="vlabel"></span>
+      <button id="next" aria-label="下一个变体">→</button>
+    </div>
+    <script>
+      const MEMBERS48 = [
+        {
+          id: "m3dbe559b39",
+          name: "前田敦子",
+          group: "AKB48",
+          gen: "1期生",
+          status: "former",
+        },
+        {
+          id: "m3ba08e033b",
+          name: "大島優子",
+          group: "AKB48",
+          gen: "2期生",
+          status: "former",
+        },
+        {
+          id: "m64c32528f0",
+          name: "渡辺麻友",
+          group: "AKB48",
+          gen: "3期生",
+          status: "former",
+        },
+        {
+          id: "m4ff5e7f3b7",
+          name: "柏木由紀",
+          group: "AKB48",
+          gen: "3期生",
+          status: "former",
+        },
+        {
+          id: "m19d40a15c4",
+          name: "小栗有以",
+          group: "AKB48",
+          gen: "Team 8",
+          status: "current",
+        },
+        {
+          id: "m14a7951a65",
+          name: "岩立沙穂",
+          group: "AKB48",
+          gen: "13期生",
+          status: "current",
+        },
+        {
+          id: "m2267bb69ab",
+          name: "松井珠理奈",
+          group: "SKE48",
+          gen: "1期生",
+          status: "former",
+        },
+        {
+          id: "m45b82862d7",
+          name: "井田玲音名",
+          group: "SKE48",
+          gen: "6期生",
+          status: "current",
+        },
+        {
+          id: "m6fdb66051f",
+          name: "山本彩",
+          group: "NMB48",
+          gen: "1期生",
+          status: "former",
+        },
+        {
+          id: "m13bc25e59a",
+          name: "新澤菜央",
+          group: "NMB48",
+          gen: "6期生",
+          status: "current",
+        },
+        {
+          id: "mb259d958cc",
+          name: "宮脇咲良",
+          group: "HKT48",
+          gen: "1期生",
+          status: "former",
+        },
+        {
+          id: "m8fc71b5ebc",
+          name: "指原莉乃",
+          group: "HKT48",
+          gen: "兼任・移籍加入",
+          status: "former",
+        },
+        {
+          id: "m8001f5be2e",
+          name: "秋吉優花",
+          group: "HKT48",
+          gen: "2期生",
+          status: "current",
+        },
+        {
+          id: "md60b1c7253",
+          name: "清司麗菜",
+          group: "NGT48",
+          gen: "1期生",
+          status: "current",
+        },
+        {
+          id: "mc5ecf3e477",
+          name: "甲斐心愛",
+          group: "STU48",
+          gen: "1期生",
+          status: "current",
+        },
+      ];
+      const MEMBERS_SAKA = [
+        { name: "齋藤飛鳥", group: "乃木坂46", gen: "1期生", status: "former" },
+        { name: "山下美月", group: "乃木坂46", gen: "3期生", status: "former" },
+        {
+          name: "遠藤さくら",
+          group: "乃木坂46",
+          gen: "4期生",
+          status: "current",
+        },
+        {
+          name: "賀喜遥香",
+          group: "乃木坂46",
+          gen: "4期生",
+          status: "current",
+        },
+        {
+          name: "森田ひかる",
+          group: "櫻坂46",
+          gen: "2期生",
+          status: "current",
+        },
+        { name: "山﨑天", group: "櫻坂46", gen: "2期生", status: "current" },
+        { name: "藤吉夏鈴", group: "櫻坂46", gen: "2期生", status: "current" },
+        {
+          name: "小坂菜緒",
+          group: "日向坂46",
+          gen: "2期生",
+          status: "current",
+        },
+        {
+          name: "金村美玖",
+          group: "日向坂46",
+          gen: "2期生",
+          status: "current",
+        },
+        { name: "齊藤京子", group: "日向坂46", gen: "1期生", status: "former" },
+        {
+          name: "佐々木久美",
+          group: "日向坂46",
+          gen: "1期生",
+          status: "current",
+        },
+      ];
+      const VARIANTS = [
+        ["magazine", "A · 杂志编排"],
+        ["dark", "B · 暗色舞台"],
+        ["minimal", "C · 明亮极简"],
+        ["sticker", "D · 贴纸网格"],
+      ];
+      const state = {
+        variant: "magazine",
+        series: "48g",
+        size: 7,
+        selected: ["m3dbe559b39", "m19d40a15c4", "m2267bb69ab", "m6fdb66051f"],
+      };
+      const data = () => (state.series === "48g" ? MEMBERS48 : MEMBERS_SAKA);
+      const key = (m) => m.id || m.name;
+      const meta = (m) =>
+        m.status === "current" ? "现役" : `${m.group} · 毕业`;
+      const photo = (m, cls) => {
+        if (m.id)
+          return `<span class="ph ${cls || ""}"><img src="../../img/thumb/${m.id}.webp" alt="" loading="lazy"></span>`;
+        const hue = [...m.name].reduce(
+          (h, c) => (h * 31 + c.codePointAt(0)) % 360,
+          7
+        );
+        return `<span class="ph ${cls || ""}"><span class="avatar-ph" style="--h:${hue};background:hsl(${hue} 55% 85%);color:hsl(${hue} 45% 32%)">${m.name[0]}</span></span>`;
+      };
+      const groups = () => {
+        const out = [];
+        for (const m of data()) {
+          let g = out.find((x) => x.group === m.group);
+          if (!g) out.push((g = { group: m.group, items: [] }));
+          g.items.push(m);
+        }
+        return out;
+      };
+      const on = (m) => state.selected.includes(key(m));
+
+      const seriesTabs = (cls) =>
+        `<div class="${cls}"><button data-series="48g" class="${state.series === "48g" ? "on" : ""}">48 Group</button><button data-series="saka" class="${state.series === "saka" ? "on" : ""}">坂道</button></div>`;
+      const sizeButtons = (cls) =>
+        `<div class="${cls}"><button data-size="7" class="${state.size === 7 ? "on" : ""}">神7 / BEST 7</button><button data-size="16" class="${state.size === 16 ? "on" : ""}">16 人</button><button data-size="32" class="${state.size === 32 ? "on" : ""}">32 人</button></div>`;
+      const poster = (cls, cellCls) => {
+        const d = data();
+        let html = "";
+        for (let i = 0; i < state.size; i++) {
+          const m = d[i % d.length];
+          html += `<div class="cell">${photo(m)}<span class="pnm">${m.name}</span><span class="rk ${i < 3 ? "r" + (i + 1) : ""}">${i + 1}</span></div>`;
+        }
+        return `<div class="${cls}" style="--cols:${state.size === 32 ? 8 : 4}">${html}</div>`;
+      };
+      const duelHTML = (arenaCls, nameCls) => {
+        const a = data()[0],
+          b = data()[2];
+        return `<div class="${arenaCls}"><button class="fighter">${photo(a)}<span class="${nameCls}">${a.name}</span></button><b class="vs">VS</b><button class="fighter">${photo(b)}<span class="${nameCls}">${b.name}</span></button></div>`;
+      };
+      const trayIcon = (m) => (m ? photo(m) : "");
+
+      const renders = {
+        magazine() {
+          return `
+          <p class="kicker">Face Sort Weekly · 原型</p>
+          <h1>48 Group <em>×</em> 坂道</h1>
+          <p class="issue">ISSUE 01 — 选人 / 对决 / 结果</p>
+          ${seriesTabs("m-tabs")}
+          ${sizeButtons("m-size")}
+          <section class="m-sec">
+            <h2>本期选人 <span>${state.selected.length} / ${state.size}</span></h2>
+            <ol class="m-picks">${state.selected
+              .map((id, i) => {
+                const m = data().find((x) => key(x) === id);
+                return m
+                  ? `<li><b>${String(i + 1).padStart(2, "0")}</b>${m.name}</li>`
+                  : "";
+              })
+              .join("")}</ol>
+            <button class="m-cta">开始对决 →</button>
+          </section>
+          <section class="m-sec">${groups()
+            .map(
+              (g) => `<p class="m-group">${g.group} — ${g.items.length}</p>
+              <div>${g.items
+                .map(
+                  (
+                    m
+                  ) => `<button class="m-card" data-member="${key(m)}" aria-pressed="${on(m)}">
+                    <span>${photo(m)}</span>
+                    <span><span class="idx">${String(g.items.indexOf(m) + 1).padStart(2, "0")}</span><h4>${m.name}</h4><p>${m.group} · ${m.gen} · ${m.status === "current" ? "现役" : "毕业"}</p></span>
+                  </button>`
+                )
+                .join("")}</div>`
+            )
+            .join("")}</section>
+          <section class="m-sec"><h2>对决 <span>第 12 / 29 题</span></h2>${duelHTML("m-duel", "")}<p class="issue" style="border:0;margin-top:10px">点击你更喜欢的一张 · 剩余最少 3 题</p></section>
+          <section class="m-sec"><h2>结果 <span>神7</span></h2>
+            <ol class="m-result">${data()
+              .slice(0, 4)
+              .map(
+                (m, i) =>
+                  `<li><b>${i + 1}</b><span>${m.name}<small>${m.group} · ${m.gen} · ${m.status === "current" ? "现役" : "毕业"}</small></span></li>`
+              )
+              .join("")}</ol>
+            ${poster("m-poster")}
+          </section>`;
+        },
+        dark() {
+          return `
+          <h1>48 Group <em>× 坂道</em></h1>
+          ${seriesTabs("s-tabs")}
+          ${sizeButtons("s-size")}
+          <div class="s-lineup"><p><span>已选阵容</span><b>${state.selected.length} / ${state.size}</b></p>
+            <ul>${Array.from({ length: state.size }, (_, i) => {
+              const m = data().find((x) => key(x) === state.selected[i]);
+              return m
+                ? `<li>${trayIcon(m)}</li>`
+                : `<li class="empty">${i + 1}</li>`;
+            }).join("")}</ul></div>
+          ${groups()
+            .map(
+              (
+                g
+              ) => `<section class="s-rail"><h3>${g.group}<span>${g.items.length} 人 · 横向滑动</span></h3>
+              <div class="s-films">${g.items
+                .map(
+                  (m) =>
+                    `<button class="card" data-member="${key(m)}" aria-pressed="${on(m)}">${photo(m)}<span class="nm">${m.name}</span><span class="meta">${meta(m)}</span></button>`
+                )
+                .join("")}</div></section>`
+            )
+            .join("")}
+          <section class="s-duel"><p style="font-size:12px;color:#9a9aae">第 12 / 29 题 · 剩余最少 3 题</p><div class="bar"><i style="width:41%"></i></div>${duelHTML("s-arena", "")}</section>
+          <section class="s-result"><h3 style="margin-bottom:10px">结果 · 前三名</h3>
+            <div class="s-podium">${[1, 0, 2]
+              .map((idx) => {
+                const m = data()[idx];
+                return `<div class="pod">${photo(m)}<span style="display:block;font-weight:700">${m.name}</span><b>${idx + 1}</b></div>`;
+              })
+              .join("")}</div>
+            <ol style="list-style:none">${data()
+              .slice(0, 5)
+              .map(
+                (m, i) =>
+                  `<li><b>${i + 1}</b><span>${m.name}<small>${meta(m)}</small></span></li>`
+              )
+              .join("")}</ol>
+            ${poster("s-poster")}
+          </section>`;
+        },
+        minimal() {
+          return `
+          <div class="n-bar"><h1>48 Group <em>×</em> 坂道</h1>${seriesTabs("n-tabs")}</div>
+          <div class="n-search"><input placeholder="搜索名字（汉字/假名/昵称）" /><em>${state.selected.length}/${state.size} 已选</em></div>
+          ${sizeButtons("n-sizes")}
+          <div class="n-tray"><span>直接点名字快速加入；已选高亮</span><b>开始对决</b></div>
+          ${groups()
+            .map(
+              (g) =>
+                `<p class="n-group">${g.group}</p>${g.items
+                  .map(
+                    (
+                      m
+                    ) => `<button class="n-row" data-member="${key(m)}" aria-pressed="${on(m)}">
+                    ${photo(m)}<span><span class="nm">${m.name}</span><span class="meta">${m.group} · ${m.gen} · ${meta(m)}</span></span><span class="add">${on(m) ? "✓" : "+"}</span>
+                  </button>`
+                  )
+                  .join("")}`
+            )
+            .join("")}
+          <section class="n-duel"><p style="font-size:12px;color:#6b7280">第 12 / 29 题</p><div class="bar"><i style="width:41%"></i></div>
+            ${duelHTML("n-arena", "pick")}
+            <p style="font-size:12px;color:#6b7280;margin-top:10px">点整张卡片即选中；也可用键盘 1 / 2</p></section>
+          <section class="n-result"><h3 style="font-size:13px;color:#6b7280;letter-spacing:.12em">结果</h3>
+            <table class="n-table">${data()
+              .slice(0, 5)
+              .map(
+                (m, i) =>
+                  `<tr><td>${i + 1}</td><td>${m.name}</td><td style="text-align:right;color:#6b7280">${meta(m)}</td></tr>`
+              )
+              .join("")}</table>
+            ${poster("n-poster")}
+            <p class="n-note">海报尺寸 1080×1440 · 32 人为 8×4 网格</p>
+          </section>`;
+        },
+        sticker() {
+          return `
+          <h1>48 Group <em>×</em> 坂道</h1>
+          ${seriesTabs("k-chips")}
+          ${sizeButtons("k-chips")}
+          <div class="k-tray"><p><span>贴纸板</span><b>${state.selected.length} / ${state.size}</b></p>
+            <ul>${Array.from({ length: state.size }, (_, i) => {
+              const m = data().find((x) => key(x) === state.selected[i]);
+              return m
+                ? `<li>${trayIcon(m)}</li>`
+                : `<li class="empty">${i + 1}</li>`;
+            }).join("")}</ul></div>
+          <section class="k-bento">${groups()
+            .flatMap((g) => g.items)
+            .slice(0, 12)
+            .map(
+              (
+                m,
+                i
+              ) => `<button class="k-tile ${i % 5 === 0 ? "big" : ""}" data-member="${key(m)}" aria-pressed="${on(m)}">
+                <span class="chip">${m.gen}</span>${photo(m)}<span><h4>${m.name}</h4><span class="meta">${m.group} · ${meta(m)}</span></span>
+              </button>`
+            )
+            .join("")}</section>
+          <section class="k-duel"><div class="k-arena">${duelHTML("k-arena", "")
+            .replace('class="k-arena"', "")
+            .replace(
+              /^<div[^>]*>|<\/div>$/g,
+              ""
+            )}</div><p style="text-align:center;font-family:Nunito;font-weight:900;margin-top:10px;color:#6f6a60">点一张贴纸 = 选她 · 第 12 / 29 题</p></section>
+          <section class="k-result"><h3 style="font-family:Nunito;font-weight:900;margin-bottom:10px">榜单贴纸</h3>
+            <ol style="list-style:none">${data()
+              .slice(0, 4)
+              .map(
+                (m, i) =>
+                  `<li><b>${i + 1}</b><span>${m.name}<small>${meta(m)}</small></span></li>`
+              )
+              .join("")}</ol>
+            ${poster("k-poster")}
+          </section>`;
+        },
+      };
+
+      const app = document.getElementById("app");
+      const label = document.getElementById("vlabel");
+      const paint = () => {
+        document.body.dataset.variant = state.variant;
+        app.innerHTML = renders[state.variant]();
+        label.textContent = VARIANTS.find((v) => v[0] === state.variant)[1];
+        const url = new URL(location.href);
+        url.searchParams.set("variant", state.variant);
+        history.replaceState(null, "", url);
+      };
+      const step = (d) => {
+        const i = VARIANTS.findIndex((v) => v[0] === state.variant);
+        state.variant =
+          VARIANTS[(i + d + VARIANTS.length) % VARIANTS.length][0];
+        paint();
+      };
+      document.getElementById("prev").addEventListener("click", () => step(-1));
+      document.getElementById("next").addEventListener("click", () => step(1));
+      addEventListener("keydown", (e) => {
+        if (e.target.matches("input, textarea, [contenteditable]")) return;
+        if (e.key === "ArrowLeft") step(-1);
+        if (e.key === "ArrowRight") step(1);
+      });
+      app.addEventListener("click", (e) => {
+        const series = e.target.closest("[data-series]");
+        if (series) {
+          state.series = series.dataset.series;
+          state.selected = state.selected.filter((id) =>
+            data().some((m) => key(m) === id)
+          );
+          return paint();
+        }
+        const size = e.target.closest("[data-size]");
+        if (size) {
+          state.size = Number(size.dataset.size);
+          state.selected = state.selected.slice(0, state.size);
+          return paint();
+        }
+        const card = e.target.closest("[data-member]");
+        if (card) {
+          const id = card.dataset.member;
+          const i = state.selected.indexOf(id);
+          if (i >= 0) state.selected.splice(i, 1);
+          else if (state.selected.length < state.size) state.selected.push(id);
+          return paint();
+        }
+      });
+      const initial = new URLSearchParams(location.search).get("variant");
+      if (VARIANTS.some((v) => v[0] === initial)) state.variant = initial;
+      paint();
+    </script>
+  </body>
+</html>
