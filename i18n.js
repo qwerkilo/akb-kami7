@@ -5,6 +5,14 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
+  const values = {
+    "メイクやファッションを楽しむこと、ラーメン巡り": {
+      zh: "享受化妆与时尚、巡游拉面店",
+      en: "Enjoying makeup and fashion, ramen-hopping",
+    },
+    ジョッキ持ち: { zh: "举扎啤杯", en: "Holding a beer stein" },
+  };
+
   return {
     zh: {
       doc_title: "48 Group × 坂道 好き顔ソート（历代成员）",
@@ -28,6 +36,21 @@
       search_label: "搜索成员",
       search_ph: "搜索名字（汉字/假名/昵称）",
       tray_hint: "点底部头像即可去掉，再选别人",
+      bio_birth: "生年月日",
+      bio_age: "年龄",
+      bio_from: "出身地",
+      bio_height: "身長",
+      bio_blood: "血液型",
+      bio_sign: "星座",
+      bio_hobby: "趣味",
+      bio_skill: "特技",
+      bio_nick: "昵称",
+      bio_group: "团体",
+      bio_gen: "期生",
+      bio_status: "状态",
+      bio_romaji: "罗马字",
+      bio_open: "查看简介",
+      bio_close: "关闭",
       clear_pick: "清空",
       clear_confirm: "清空已选？当前系列的对决进度将一并作废。",
       need: (n) => `还差 ${n} 位`,
@@ -94,6 +117,21 @@
       search_label: "Search members",
       search_ph: "Search by name (kanji, kana, nickname)",
       tray_hint: "Tap a selected face below to remove her",
+      bio_birth: "Date of birth",
+      bio_age: "Age",
+      bio_from: "Hometown",
+      bio_height: "Height",
+      bio_blood: "Blood type",
+      bio_sign: "Zodiac",
+      bio_hobby: "Hobbies",
+      bio_skill: "Skills",
+      bio_nick: "Nickname",
+      bio_group: "Group",
+      bio_gen: "Generation",
+      bio_status: "Status",
+      bio_romaji: "Romaji",
+      bio_open: "View profile",
+      bio_close: "Close",
       clear_pick: "Clear",
       clear_confirm:
         "Clear all picks? This series' duel progress will be discarded.",
@@ -147,5 +185,6 @@
       leave_留学終了: "study abroad ended",
       leave_プロフィール削除: "profile removed",
     },
+    values,
   };
 });

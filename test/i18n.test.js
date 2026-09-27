@@ -1,6 +1,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const vm = require("node:vm");
 const path = require("node:path");
 
 const I18N = require("../i18n.js");
@@ -86,5 +87,28 @@ test("names 组合在 zh/en × 系列 × 档位下都解析出真实文案", () 
         );
       }
     }
+  }
+});
+
+test("简介自由文本对照表：结构合法且覆盖产物中的趣味/特技", () => {
+  for (const [src, entry] of Object.entries(I18N.values)) {
+    assert.ok(src.length > 0);
+    assert.equal(typeof entry.zh, "string", `zh 缺 ${src}`);
+    assert.equal(typeof entry.en, "string", `en 缺 ${src}`);
+    assert.ok(entry.zh.length > 0 && entry.en.length > 0);
+  }
+  const memberSrc = fs.readFileSync(path.join(root, "members.js"), "utf8");
+  const sandbox = { window: {} };
+  vm.runInNewContext(memberSrc, sandbox);
+  const texts = new Set();
+  for (const sec of sandbox.window.AKB_GROUPS) {
+    for (const m of sec.members) {
+      const bio = m.bio || {};
+      if (bio.hobby) texts.add(bio.hobby);
+      if (bio.skill) texts.add(bio.skill);
+    }
+  }
+  for (const v of texts) {
+    assert.ok(I18N.values[v], `缺译文: ${v}`);
   }
 });

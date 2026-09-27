@@ -180,3 +180,28 @@ test("每个分段都有期生标签，人物身份（姓名+假名）不重复"
     }
   }
 });
+
+test("成员 bio：生年月日基本齐全、出身地多数、字段合法", () => {
+  const all = loadGroups().flatMap((g) => g.members);
+  assert.ok(all.length > 1000);
+  const withBirth = all.filter(
+    (m) => m.bio && /^\d{4}\.\d{2}\.\d{2}$/.test(m.bio.birth)
+  );
+  assert.ok(
+    withBirth.length >= all.length - 2,
+    `birth 覆盖 ${withBirth.length}/${all.length}`
+  );
+  const withFrom = all.filter((m) => m.bio && m.bio.from);
+  assert.ok(
+    withFrom.length >= all.length - 60,
+    `from 覆盖 ${withFrom.length}/${all.length}`
+  );
+  for (const m of all) {
+    for (const k of Object.keys(m.bio || {})) {
+      assert.ok(
+        ["birth", "from"].includes(k),
+        `未知 bio 字段 ${k}（${m.name}）`
+      );
+    }
+  }
+});

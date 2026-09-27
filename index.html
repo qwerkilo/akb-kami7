@@ -214,6 +214,26 @@
       </section>
     </main>
 
+    <div class="profile" id="profile" hidden>
+      <div
+        class="profile-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pf-name"
+      >
+        <button class="pf-close" id="pf-close" aria-label="关闭">×</button>
+        <div class="pf-head">
+          <img class="pf-photo" id="pf-photo" alt="" />
+          <div class="pf-id">
+            <h3 id="pf-name"></h3>
+            <p class="pf-kana" id="pf-kana"></p>
+            <span class="pf-badge" id="pf-badge"></span>
+          </div>
+        </div>
+        <dl class="pf-fields" id="pf-fields"></dl>
+      </div>
+    </div>
+
     <footer class="colophon">
       <span data-i18n="credit_1">成员名单与照片来自</span>
       <a href="https://48pedia.org/" target="_blank" rel="noopener"

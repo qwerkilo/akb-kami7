@@ -114,6 +114,7 @@
     const i = snap.selected.indexOf(m.id);
     const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
     return `<button class="card" data-id="${m.id}" aria-pressed="${i >= 0}" data-order="${i + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
+      <span class="info" role="button" aria-label="${t("bio_open")}">i</span>
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
       <span class="nm">${esc(m.name)}</span>
       <span class="meta${m.status === "current" ? " now" : ""}">${esc(meta)}</span>
@@ -326,11 +327,46 @@
     if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
   }
 
+  /* ---------------- 简介（原型 C 杂志编辑） ---------------- */
+  let profileId = null;
+
+  function openProfile(id) {
+    const m = BY_ID.get(id);
+    if (!m) return;
+    profileId = id;
+    const rows = CORE.profileRows(m, t, lang, I18N.values);
+    $("#pf-photo").src = thumbSrc(m);
+    $("#pf-name").textContent = m.name;
+    $("#pf-kana").textContent = m.kana || "";
+    $("#pf-badge").textContent =
+      m.group + (m.generation ? " · " + m.generation : "");
+    $("#pf-close").setAttribute("aria-label", t("bio_close"));
+    $("#pf-fields").innerHTML = rows
+      .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
+      .join("");
+    $("#profile").hidden = false;
+  }
+
+  function closeProfile() {
+    profileId = null;
+    $("#profile").hidden = true;
+  }
+
+  $("#profile").addEventListener("click", (e) => {
+    if (e.target === $("#profile") || e.target.closest(".pf-close"))
+      closeProfile();
+  });
+
   roster.addEventListener("click", (e) => {
     const grp = e.target.closest(".grp-head");
     if (grp) return toggleGroupNode(grp.parentElement.dataset.group);
     const head = e.target.closest(".gen-head");
     if (head) return toggleGroup(head.parentElement.dataset.sec);
+    const info = e.target.closest(".info");
+    if (info) {
+      const card = info.closest(".card");
+      if (card) return openProfile(card.dataset.id);
+    }
     const card = e.target.closest(".card");
     if (card) toggleMember(card.dataset.id);
   });
@@ -503,6 +539,10 @@
   $("#back-pick-btn").addEventListener("click", backToPick);
 
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("#profile").hidden) closeProfile();
+  });
+
+  document.addEventListener("keydown", (e) => {
     if (
       $("#phase-duel").hidden ||
       e.target.closest?.("input, textarea") ||
@@ -533,10 +573,19 @@
       <span class="no">${i + 1}</span>
       <img src="${thumbSrc(m)}" alt="">
       <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
+      <span class="info" role="button" aria-label="${t("bio_open")}">i</span>
     </li>`
       )
       .join("");
   }
+
+  $("#rank-list").addEventListener("click", (e) => {
+    const info = e.target.closest(".info");
+    if (!info) return;
+    const li = info.closest("li");
+    const idx = [...$("#rank-list").children].indexOf(li);
+    if (idx >= 0 && ranking[idx]) openProfile(ranking[idx].id);
+  });
 
   function renderResult() {
     sync();
@@ -682,6 +731,7 @@
     } catch (_) {}
     applyStatic();
     renderPick();
+    if (profileId && !$("#profile").hidden) openProfile(profileId);
     if (!$("#phase-duel").hidden) renderDuel();
     if (!$("#phase-result").hidden && ranking.length) {
       renderRankList();

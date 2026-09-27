@@ -210,6 +210,160 @@
     };
   }
 
+  // ---- 简介（字段组装 + 值本地化；文案经 t，自由文本经 values 对照表） ----
+  const PREFECTURES = {
+    北海道: ["北海道", "Hokkaido"],
+    青森県: ["青森县", "Aomori"],
+    岩手県: ["岩手县", "Iwate"],
+    宮城県: ["宫城县", "Miyagi"],
+    秋田県: ["秋田县", "Akita"],
+    山形県: ["山形县", "Yamagata"],
+    福島県: ["福岛县", "Fukushima"],
+    茨城県: ["茨城县", "Ibaraki"],
+    栃木県: ["栃木县", "Tochigi"],
+    群馬県: ["群马县", "Gunma"],
+    埼玉県: ["埼玉县", "Saitama"],
+    千葉県: ["千叶县", "Chiba"],
+    東京都: ["东京都", "Tokyo"],
+    神奈川県: ["神奈川县", "Kanagawa"],
+    新潟県: ["新潟县", "Niigata"],
+    富山県: ["富山县", "Toyama"],
+    石川県: ["石川县", "Ishikawa"],
+    福井県: ["福井县", "Fukui"],
+    山梨県: ["山梨县", "Yamanashi"],
+    長野県: ["长野县", "Nagano"],
+    岐阜県: ["岐阜县", "Gifu"],
+    静岡県: ["静冈县", "Shizuoka"],
+    愛知県: ["爱知县", "Aichi"],
+    三重県: ["三重县", "Mie"],
+    滋賀県: ["滋贺县", "Shiga"],
+    京都府: ["京都府", "Kyoto"],
+    大阪府: ["大阪府", "Osaka"],
+    兵庫県: ["兵库县", "Hyogo"],
+    奈良県: ["奈良县", "Nara"],
+    和歌山県: ["和歌山县", "Wakayama"],
+    鳥取県: ["鸟取县", "Tottori"],
+    島根県: ["岛根县", "Shimane"],
+    岡山県: ["冈山县", "Okayama"],
+    広島県: ["广岛县", "Hiroshima"],
+    山口県: ["山口县", "Yamaguchi"],
+    徳島県: ["德岛县", "Tokushima"],
+    香川県: ["香川县", "Kagawa"],
+    愛媛県: ["爱媛县", "Ehime"],
+    高知県: ["高知县", "Kochi"],
+    福岡県: ["福冈县", "Fukuoka"],
+    佐賀県: ["佐贺县", "Saga"],
+    長崎県: ["长崎县", "Nagasaki"],
+    熊本県: ["熊本县", "Kumamoto"],
+    大分県: ["大分县", "Oita"],
+    宮崎県: ["宫崎县", "Miyazaki"],
+    鹿児島県: ["鹿儿岛县", "Kagoshima"],
+    沖縄県: ["冲绳县", "Okinawa"],
+  };
+
+  const ZODIAC = {
+    おひつじ座: ["白羊座", "Aries"],
+    おうし座: ["金牛座", "Taurus"],
+    ふたご座: ["双子座", "Gemini"],
+    かに座: ["巨蟹座", "Cancer"],
+    しし座: ["狮子座", "Leo"],
+    おとめ座: ["处女座", "Virgo"],
+    てんびん座: ["天秤座", "Libra"],
+    さそり座: ["天蝎座", "Scorpio"],
+    いて座: ["射手座", "Sagittarius"],
+    やぎ座: ["摩羯座", "Capricorn"],
+    みずがめ座: ["水瓶座", "Aquarius"],
+    うお座: ["双鱼座", "Pisces"],
+  };
+
+  const MONTHS_EN = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  function bioDate(v, lang) {
+    const m = /^(\d{4})\.(\d{1,2})\.(\d{1,2})$/.exec(v || "");
+    if (!m) return v || "";
+    const y = m[1],
+      mo = +m[2],
+      d = +m[3];
+    return lang === "en"
+      ? `${MONTHS_EN[mo - 1]} ${d}, ${y}`
+      : `${y}/${mo}/${d}`;
+  }
+
+  function ageOn(birth, now) {
+    const m = /^(\d{4})\.(\d{1,2})\.(\d{1,2})$/.exec(birth || "");
+    if (!m) return null;
+    const y = +m[1],
+      mo = +m[2],
+      d = +m[3];
+    const n = now || new Date();
+    let age = n.getFullYear() - y;
+    if (n.getMonth() + 1 < mo || (n.getMonth() + 1 === mo && n.getDate() < d))
+      age--;
+    return age;
+  }
+
+  function localized(map, v, lang) {
+    const pair = map[v];
+    return pair ? pair[lang === "en" ? 1 : 0] : v;
+  }
+
+  function bloodText(v, lang) {
+    if (!v || lang !== "en") return v;
+    return v.replace(/^([ABO]+)型$/, "Type $1");
+  }
+
+  function genText(v, lang) {
+    if (!v || lang !== "en") return v;
+    const m = /^(\d+)(?:\.(\d))?期生$/.exec(v);
+    if (!m) return v;
+    if (m[2]) return `${m[1]}.${m[2]} gen`;
+    const suffix =
+      m[1] === "1" ? "st" : m[1] === "2" ? "nd" : m[1] === "3" ? "rd" : "th";
+    return `${m[1]}${suffix} gen`;
+  }
+
+  function profileRows(m, t, lang, values, now) {
+    const bio = m.bio || {};
+    const rows = [];
+    const push = (key, value) => {
+      if (value) rows.push([t(key), String(value)]);
+    };
+    const text = (v) => {
+      if (!v) return "";
+      const entry = values && values[v];
+      return entry ? entry[lang] || v : v;
+    };
+    push("bio_birth", bioDate(bio.birth, lang));
+    const age = ageOn(bio.birth, now);
+    if (age != null) push("bio_age", age);
+    if (bio.from) push("bio_from", localized(PREFECTURES, bio.from, lang));
+    push("bio_height", bio.height);
+    push("bio_blood", bloodText(bio.blood, lang));
+    if (bio.sign) push("bio_sign", localized(ZODIAC, bio.sign, lang));
+    push("bio_hobby", text(bio.hobby));
+    push("bio_skill", text(bio.skill));
+    push("bio_nick", m.nick);
+    push("bio_group", m.group);
+    if (m.generation) push("bio_gen", genText(m.generation, lang));
+    if (m.status === "current") push("bio_status", t("active"));
+    else if (m.status) push("bio_status", yearLeave(m, t, lang));
+    push("bio_romaji", bio.romaji);
+    return rows;
+  }
+
   // ---- 持久化（localStorage 序列化；损坏/过期数据安全丢弃） ----
   const STATE_VERSION = 1;
   const SIZES = [7, 16, 32];
@@ -286,5 +440,6 @@
     fullMeta,
     posterSub,
     names,
+    profileRows,
   };
 });

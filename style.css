@@ -745,3 +745,110 @@ main {
     align-items: start;
   }
 }
+
+/* ---------- 成员简介（杂志编辑风，原型 C） ---------- */
+.profile {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(32, 36, 46, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.profile[hidden] {
+  display: none;
+}
+.profile-card {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 82vh;
+  overflow-y: auto;
+  background: var(--floor);
+  border-top: 6px solid var(--pink);
+  border-radius: 18px 18px 0 0;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 0 rgba(32, 36, 46, 0.14);
+}
+.pf-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: var(--card);
+  font: 800 16px/1 var(--font-ui);
+  cursor: pointer;
+}
+.pf-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+.pf-photo {
+  width: 104px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border: 2px solid var(--ink);
+  background: #e4e7ee;
+}
+.pf-head h3 {
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 30px;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: 0.06em;
+}
+.pf-kana {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+}
+.pf-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  background: var(--pink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  transform: rotate(-2deg);
+}
+.pf-fields {
+  margin: 16px 0 0;
+  columns: 2;
+  column-gap: 18px;
+}
+.pf-fields > div {
+  break-inside: avoid;
+  border-top: 1px solid var(--ink);
+  padding: 4px 0 6px;
+}
+.pf-fields dt {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--pink);
+}
+.pf-fields dd {
+  margin: 1px 0 0;
+  font-size: 13px;
+}
+.card .info,
+.rank-list .info {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: var(--card);
+  font: 800 13px/20px var(--font-ui);
+  text-align: center;
+  cursor: pointer;
+}

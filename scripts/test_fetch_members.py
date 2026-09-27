@@ -275,6 +275,51 @@ SORTKEY_FIXTURE = """{|
 """
 
 
+BIO_FIXTURE = """|-
+| {{!チーム|AKB}}
+| [[ファイル:Bio テスト.jpg|50px]]
+| {{ルビ|[[山田花子]]|やまだ はなこ}}
+| はなちゃん
+| {{生年月日|1994|10|4}}
+| {{出身地|神奈川県}}
+| {{加入期|13期|AKB48}}
+| {{年月日|2013|8|24}}
+| 備考
+"""
+
+
+class BioTests(unittest.TestCase):
+    def test_extracts_birth_and_hometown(self):
+        row, dirty = fetch_members.parse_chunk(BIO_FIXTURE, "current")
+        self.assertFalse(dirty)
+        self.assertEqual(row["bio"], {"birth": "1994.10.04", "from": "神奈川県"})
+
+    def test_omits_bio_when_both_missing(self):
+        chunk = BIO_FIXTURE
+        chunk = chunk.replace("| {{生年月日|1994|10|4}}\n", "")
+        chunk = chunk.replace("| {{出身地|神奈川県}}\n", "")
+        row, _ = fetch_members.parse_chunk(chunk, "current")
+        self.assertNotIn("bio", row)
+
+    def test_merge_keeps_bio_from_every_record(self):
+        a = {
+            "name": "X", "kana": "x", "status": "current", "end": None,
+            "join": "1期|A", "group": "A", "bio": {"birth": "2000.01.02"},
+        }
+        b = {
+            "name": "X", "kana": "x", "status": "current", "end": None,
+            "join": "1期|B", "group": "B", "bio": {"from": "東京都"},
+        }
+        merged = fetch_members.merge_person([a, b])
+        self.assertEqual(merged["bio"], {"birth": "2000.01.02", "from": "東京都"})
+
+    def test_project_member_keeps_bio_only_when_present(self):
+        base = {"id": "m1", "name": "山田", "kana": "やまだ", "nick": "", "status": "current", "end": None, "img": True}
+        self.assertNotIn("bio", fetch_members.project_member(dict(base)))
+        with_bio = dict(base, bio={"birth": "1994.10.04"})
+        self.assertEqual(fetch_members.project_member(with_bio)["bio"], {"birth": "1994.10.04"})
+
+
 class SortKeyCellTests(unittest.TestCase):
     def test_data_sort_value_cells_do_not_leak_into_fields(self):
         rows = fetch_members.parse_rows(SORTKEY_FIXTURE, "former")

@@ -406,3 +406,135 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
   assert.equal(core.names("48g", 32, t).brand, "圈内");
   assert.equal(core.names("48g", 32, t).fileBase, "48group_32");
 });
+
+function bioDict(lang) {
+  const zh = lang === "zh";
+  const dict = {
+    bio_birth: zh ? "生年月日" : "Date of birth",
+    bio_age: zh ? "年龄" : "Age",
+    bio_from: zh ? "出身地" : "Hometown",
+    bio_height: zh ? "身長" : "Height",
+    bio_blood: zh ? "血液型" : "Blood type",
+    bio_sign: zh ? "星座" : "Zodiac",
+    bio_hobby: zh ? "趣味" : "Hobbies",
+    bio_skill: zh ? "特技" : "Skills",
+    bio_nick: zh ? "昵称" : "Nickname",
+    bio_group: zh ? "团体" : "Group",
+    bio_gen: zh ? "期生" : "Generation",
+    bio_status: zh ? "状态" : "Status",
+    bio_romaji: zh ? "罗马字" : "Romaji",
+    active: zh ? "现役" : "Active",
+    grad_year: (y) => (zh ? `${y} 毕业` : `Grad. ${y}`),
+    graduated: zh ? "已毕业" : "Graduated",
+    grad_short: zh ? "卒业" : "grad.",
+  };
+  return (k, ...a) => (typeof dict[k] === "function" ? dict[k](...a) : dict[k]);
+}
+
+const LOVE_M = {
+  name: "大谷映美里",
+  kana: "おおたに えみり",
+  nick: "みりにゃ",
+  group: "=LOVE",
+  generation: "1期生",
+  status: "current",
+  bio: {
+    birth: "1998.03.15",
+    from: "東京都",
+    height: "155cm",
+    blood: "O型",
+    sign: "うお座",
+    hobby: "メイクを楽しむ",
+    skill: "ジョッキ持ち",
+    romaji: "OTANI EMIRI",
+  },
+};
+
+const BIO_VALUES = {
+  メイクを楽しむ: { zh: "享受化妆", en: "Enjoying makeup" },
+};
+const NOW = new Date(2026, 8, 27);
+
+test("profileRows：zh 全字段顺序与本地化，未收录译文回退原文", () => {
+  const rows = core.profileRows(LOVE_M, bioDict("zh"), "zh", BIO_VALUES, NOW);
+  assert.deepEqual(rows, [
+    ["生年月日", "1998/3/15"],
+    ["年龄", "28"],
+    ["出身地", "东京都"],
+    ["身長", "155cm"],
+    ["血液型", "O型"],
+    ["星座", "双鱼座"],
+    ["趣味", "享受化妆"],
+    ["特技", "ジョッキ持ち"],
+    ["昵称", "みりにゃ"],
+    ["团体", "=LOVE"],
+    ["期生", "1期生"],
+    ["状态", "现役"],
+    ["罗马字", "OTANI EMIRI"],
+  ]);
+});
+
+test("profileRows：en 日期/血型/期生/都道府县本地化", () => {
+  const rows = core.profileRows(LOVE_M, bioDict("en"), "en", BIO_VALUES, NOW);
+  const get = (k) => rows.find((r) => r[0] === k);
+  assert.deepEqual(get("Date of birth"), ["Date of birth", "Mar 15, 1998"]);
+  assert.deepEqual(get("Hometown"), ["Hometown", "Tokyo"]);
+  assert.deepEqual(get("Blood type"), ["Blood type", "Type O"]);
+  assert.deepEqual(get("Zodiac"), ["Zodiac", "Pisces"]);
+  assert.deepEqual(get("Hobbies"), ["Hobbies", "Enjoying makeup"]);
+  assert.deepEqual(get("Skills"), ["Skills", "ジョッキ持ち"]);
+  assert.deepEqual(get("Generation"), ["Generation", "1st gen"]);
+  assert.deepEqual(get("Status"), ["Status", "Active"]);
+});
+
+test("profileRows：缺字段不出现，毕业状态用毕业年", () => {
+  const m = {
+    name: "大島優子",
+    kana: "おおしま ゆうこ",
+    nick: "ゆうこ",
+    group: "AKB48",
+    generation: "2期生",
+    status: "former",
+    end: "2014.06.09",
+    bio: { birth: "1988.10.17", from: "栃木県" },
+  };
+  const rows = core.profileRows(m, bioDict("zh"), "zh", {}, NOW);
+  assert.deepEqual(rows, [
+    ["生年月日", "1988/10/17"],
+    ["年龄", "37"],
+    ["出身地", "栃木县"],
+    ["昵称", "ゆうこ"],
+    ["团体", "AKB48"],
+    ["期生", "2期生"],
+    ["状态", "2014 毕业"],
+  ]);
+  const noBio = core.profileRows(
+    { name: "X", group: "AKB48", generation: "1期生", status: "current" },
+    bioDict("zh"),
+    "zh",
+    {},
+    NOW
+  );
+  assert.deepEqual(noBio, [
+    ["团体", "AKB48"],
+    ["期生", "1期生"],
+    ["状态", "现役"],
+  ]);
+});
+
+test("profileRows：生日未到时年龄减一，未知都道府县回退原文", () => {
+  const m = {
+    name: "X",
+    status: "current",
+    bio: { birth: "1998.03.15", from: "海外" },
+  };
+  const before = core.profileRows(
+    m,
+    bioDict("zh"),
+    "zh",
+    {},
+    new Date(2026, 2, 1)
+  );
+  assert.equal(before.find((r) => r[0] === "年龄")[1], "27");
+  assert.equal(before.find((r) => r[0] === "出身地")[1], "海外");
+});

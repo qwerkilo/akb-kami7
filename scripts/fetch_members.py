@@ -145,6 +145,21 @@ def end_leave_from_chunk(chunk):
     return end, (reason.group(1).strip() if reason else None)
 
 
+def birth_from_chunk(chunk):
+    m = re.search(
+        r"\{\{(?:生年月日|生年月日と年齢)\|(\d{4})\|(\d{1,2})\|(\d{1,2})\}\}", chunk
+    )
+    if not m:
+        return None
+    y, mo, d = m.groups()
+    return f"{y}.{mo.zfill(2)}.{d.zfill(2)}"
+
+
+def hometown_from_chunk(chunk):
+    m = re.search(r"\{\{出身地\|([^}|]+)\}\}", chunk)
+    return m.group(1).strip() if m else None
+
+
 def parse_chunk(chunk, status):
     """Return (row, skipped) for one table row; row is None when unparsable."""
     f = re.search(r"\[\[(?:ファイル|File):([^|\]]+)", chunk)
@@ -159,7 +174,14 @@ def parse_chunk(chunk, status):
     else:
         end, leave = None, None
     team = re.search(r"\{\{!チーム\|([^}]*)\}\}", chunk)
-    return {
+    bio = {}
+    birth = birth_from_chunk(chunk)
+    if birth:
+        bio["birth"] = birth
+    hometown = hometown_from_chunk(chunk)
+    if hometown:
+        bio["from"] = hometown
+    row = {
         "name": name,
         "page": page,
         "kana": kana,
@@ -170,7 +192,10 @@ def parse_chunk(chunk, status):
         "status": status,
         "end": end,
         "leave": leave,
-    }, False
+    }
+    if bio:
+        row["bio"] = bio
+    return row, False
 
 
 def parse_rows(text, status, where=""):
@@ -255,6 +280,11 @@ def merge_person(records):
     if len(records) == 1:
         return records[0]
     keeper = max(records, key=member_rank)
+    bio = {}
+    for r in records:
+        bio.update(r.get("bio") or {})
+    if bio:
+        keeper["bio"] = {**bio, **(keeper.get("bio") or {})}
     extras = {}
     for r in records:
         if r is keeper:
@@ -295,6 +325,7 @@ def section_key(m):
 def project_member(m):
     return (
         {k: m[k] for k in ("id", "name", "kana", "nick", "status", "end", "img")}
+        | ({"bio": m["bio"]} if m.get("bio") else {})
         | ({"leave": m["leave"]} if m.get("leave") else {})
         | ({"note": m["note"]} if m.get("note") else {})
         | ({"extras": m["extras"]} if m.get("extras") else {})
