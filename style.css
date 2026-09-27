@@ -513,6 +513,11 @@ main {
   color: var(--muted);
   font-size: 13px;
 }
+.duel-extra {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
 .bar {
   height: 12px;
   max-width: 320px;

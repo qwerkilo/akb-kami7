@@ -117,7 +117,10 @@
         CORE.serializeState({
           size: pick,
           selected: state.selected,
-          duel: null,
+          duel:
+            duel.order.length > 0
+              ? { order: duel.order, answers: duel.answers }
+              : null,
         })
       );
     } catch (_) {}
@@ -313,6 +316,7 @@
     } else {
       state.selected.push(id);
     }
+    invalidateDuel();
     syncSelection();
   }
 
@@ -398,7 +402,10 @@
     seriesStore[series] = {
       size: pick,
       selected: state.selected.slice(),
-      duel: null,
+      duel:
+        duel.order.length > 0
+          ? { order: duel.order.slice(), answers: duel.answers.slice() }
+          : null,
     };
     series = next;
     const st = seriesStore[series];
@@ -420,8 +427,13 @@
     applyStatic();
     const title = $("#title-input");
     if (title && !title.dataset.dirty) title.value = defaultTitle();
-    renderRoster();
-    syncSelection();
+    if (st.duel && st.duel.order.length) {
+      resumeDuel(st);
+    } else {
+      show("pick");
+      renderRoster();
+      syncSelection();
+    }
   }
 
   groupSelect.addEventListener("change", () => {
@@ -448,6 +460,7 @@
       if (next === pick) return;
       pick = next;
       if (state.selected.length > pick) state.selected.length = pick;
+      invalidateDuel();
       paintSizeButtons();
       applyStatic();
       const title = $("#title-input");
@@ -487,17 +500,52 @@
       new Image().src = fullSrc(BY_ID.get(id));
     });
     $("#duel-max").textContent = CORE.worstCase(order.length);
+    saveState();
     show("duel");
     advance();
+  }
+
+  function resumeDuel(st) {
+    if (st.duel.order.some((id) => !BY_ID.get(id))) {
+      duel.order = [];
+      duel.answers = [];
+      saveState();
+      show("pick");
+      renderRoster();
+      syncSelection();
+      return;
+    }
+    duel.order = st.duel.order.slice();
+    duel.answers = st.duel.answers.slice();
+    const r = CORE.replay(duel.order, duel.answers);
+    if (r.done) return finish(r.order);
+    $("#duel-max").textContent = CORE.worstCase(duel.order.length);
+    show("duel");
+    advance();
+  }
+
+  function invalidateDuel() {
+    if (duel.order.length) {
+      duel.order = [];
+      duel.answers = [];
+    }
   }
 
   function advance() {
     const r = CORE.replay(duel.order, duel.answers);
     if (r.done) return finish(r.order);
     duel.pair = r.pair;
-    const max = CORE.worstCase(duel.order.length);
+    const p = CORE.duelProgress(duel.order.length, duel.answers.length);
     $("#duel-step").textContent = duel.answers.length + 1;
-    $("#duel-bar").style.width = `${(duel.answers.length / max) * 100}%`;
+    $("#duel-bar").style.width = `${p.percent}%`;
+    const extra = $("#duel-extra");
+    if (extra)
+      extra.textContent = t(
+        "duel_extra",
+        p.percent,
+        p.remaining,
+        Math.max(1, Math.ceil(p.etaSeconds / 60))
+      );
     $("#undo-btn").disabled = duel.answers.length === 0;
     fillFighter($("#fighter-a"), BY_ID.get(r.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(r.pair[1]));
@@ -520,6 +568,7 @@
     setTimeout(() => {
       duel.answers.push(leftWins);
       answering = false;
+      saveState();
       advance();
     }, 160);
   }
@@ -527,6 +576,7 @@
   function undo() {
     if (!duel.answers.length || $("#phase-duel").hidden) return;
     duel.answers.pop();
+    saveState();
     advance();
   }
 
@@ -560,6 +610,7 @@
 
   function finish(ids) {
     ranking = ids.map((id) => BY_ID.get(id));
+    saveState();
     $("#rank-list").innerHTML = ranking
       .map(
         (m, i) => `<li>
@@ -713,6 +764,10 @@
   refreshGroupOptions();
   paintSizeButtons();
   applyStatic();
-  renderRoster();
-  syncSelection();
+  if (seriesStore[series].duel) {
+    resumeDuel(seriesStore[series]);
+  } else {
+    renderRoster();
+    syncSelection();
+  }
 })();
