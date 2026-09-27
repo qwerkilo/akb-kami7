@@ -513,6 +513,16 @@ class MainIntegrationTests(unittest.TestCase):
         def no_download(url):
             raise AssertionError("--no-dl 不应触发下载")
 
+        # 外部不变量：真实图片目录的文件集合与 mtime 在测试前后必须一致
+        snapshot = {}
+        for name in ("ORIG", "FULL", "THUMB"):
+            d = getattr(fetch_members, name)
+            snapshot[d] = (
+                {f: os.path.getmtime(os.path.join(d, f)) for f in os.listdir(d)}
+                if os.path.isdir(d)
+                else None
+            )
+
         with tempfile.TemporaryDirectory() as td, ExitStack() as stack:
             dirs = {k: os.path.join(td, k) for k in ("orig", "full", "thumb")}
             stack.enter_context(patch.object(fetch_members, "ROOT", td))
@@ -551,6 +561,15 @@ class MainIntegrationTests(unittest.TestCase):
             )
             with open(members_js, encoding="utf-8") as fh:
                 self.assertEqual(fh.read(), raw)
+
+        for d, files in snapshot.items():
+            if files is None:
+                continue
+            self.assertEqual(
+                {f: os.path.getmtime(os.path.join(d, f)) for f in os.listdir(d)},
+                files,
+                f"真实目录被测试写入：{d}",
+            )
 
 
 if __name__ == "__main__":
