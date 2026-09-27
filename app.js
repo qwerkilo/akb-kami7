@@ -635,10 +635,14 @@
   $("#restart-btn").addEventListener("click", backToPick);
   $("#save-btn").addEventListener("click", savePoster);
   $("#share-btn").addEventListener("click", () => {
+    const hashtags =
+      series === "sakamichi"
+        ? "#Sakamichi #好き顔ソート"
+        : "#48Group #好き顔ソート";
     const text =
       `${$("#title-input").value.trim() || defaultTitle()}\n\n` +
       ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n") +
-      "\n\n#48Group #好き顔ソート";
+      `\n\n${hashtags}`;
     const url =
       location.protocol.startsWith("http") &&
       !/^(localhost|127\.)/.test(location.hostname)
@@ -692,12 +696,16 @@
 
     const title = $("#title-input").value.trim() || defaultTitle();
     const d = new Date();
+    const brand = t(series === "sakamichi" ? "series_saka" : "series_48g");
     AKB_POSTER.draw(ctx, {
       members: ranking,
       images: imgs,
       title,
-      dateText: `48 Group 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      hashtag: "#48Group  #好き顔ソート",
+      dateText: `${brand} 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+      hashtag:
+        series === "sakamichi"
+          ? "#Sakamichi  #好き顔ソート"
+          : "#48Group  #好き顔ソート",
       photoSrc: t("photo_src"),
       subOf: posterSub,
     });
@@ -710,13 +718,20 @@
     }
   }
 
+  function posterFileName() {
+    const prefix = series === "sakamichi" ? "sakamichi" : "48group";
+    if (pick === 7)
+      return `${prefix}_${series === "sakamichi" ? "best7" : "kami7"}.png`;
+    return `${prefix}_${pick}.png`;
+  }
+
   function savePoster() {
     const canvas = $("#poster-canvas");
     canvas.toBlob((blob) => {
       if (!blob) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = pick === 16 ? "48group_senbatsu.png" : "48group_kami7.png";
+      a.download = posterFileName();
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, "image/png");

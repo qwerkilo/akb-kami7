@@ -7,13 +7,13 @@
   "use strict";
 
   const C = {
-    floor: "#edeff3",
+    floor: "#f5f1e6",
     card: "#ffffff",
-    ink: "#1c1e2b",
-    muted: "#6b6f80",
-    line: "#d5d9e2",
+    ink: "#20242e",
+    muted: "#6f6a60",
+    line: "#cfc7b8",
     pink: "#e4007f",
-    tape: "#f4c20d",
+    tape: "#ffe08a",
   };
   const UI_FONT =
     '"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif';
@@ -81,6 +81,13 @@
     roundRect(ctx, x, y, w, h, 10);
     ctx.fillStyle = C.card;
     ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    roundRect(ctx, x, y, w, h, 10);
+    ctx.lineWidth = compact ? 2 : 3;
+    ctx.strokeStyle = C.ink;
+    ctx.stroke();
     ctx.restore();
 
     ctx.save();

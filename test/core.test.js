@@ -354,3 +354,26 @@ test("对决进度：32 档最坏 129 与百分比/预计时长", () => {
     etaSeconds: 0,
   });
 });
+
+test("持久化：32 档对决进度（129 答）可恢复，超出最坏题数丢弃", () => {
+  const order = Array.from({ length: 32 }, (_, i) => `id${i}`);
+  const answers = [...Array(129)].map(() => true);
+  const st = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 32,
+      selected: order,
+      duel: { order, answers },
+    })
+  );
+  assert.equal(st.duel.answers.length, 129);
+  const tooMany = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 32,
+      selected: order,
+      duel: { order, answers: [...answers, true] },
+    })
+  );
+  assert.equal(tooMany.duel, null);
+});

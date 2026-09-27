@@ -209,7 +209,7 @@
         s.duel.order.length &&
         s.duel.order.every((x) => typeof x === "string") &&
         Array.isArray(s.duel.answers) &&
-        s.duel.answers.length <= s.duel.order.length &&
+        s.duel.answers.length <= worstCase(s.duel.order.length) &&
         s.duel.answers.every((x) => typeof x === "boolean")
       ) {
         duel = { order: s.duel.order, answers: s.duel.answers };
