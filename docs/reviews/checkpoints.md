@@ -55,3 +55,13 @@
   - 验证：`npm test` JS 43 + Python 47、E2E 42/42（含 32 档 129 题、刷新续玩、坂道流程与海报、跨系列隔离）、`--no-dl` 幂等、截图核对 pick/32 结果/坂道结果。
 - 遗留：判断项 MID——`poster.js` 调色板与 `style.css` 变量重复需人工同步；E2E 脚本在 /tmp 不入仓（Out of Scope）；Stryker 未入仓（口径见 qa-baseline）。
 - 下次基点：`546cbc4`（本批实现提交；文档收口为其后一笔）
+
+## 2026-09-27 · 会话状态模块（第四轮：架构深化 ①）
+
+- 基点：`b51ad23`（v2 文档收口）
+- 范围：`git diff b51ad23...53ab130`，5 个提交（CONTEXT 术语 + ADR-0008、spec、工单 01–02、session.js + 13 例、app.js 接线、审查实缺补齐）
+- 结论：
+  - **Standards**：1 项实缺——「重建恢复」用例名含「进行中」但实测已完结流程，*进行中*恢复与 `undo` 正路径无覆盖（已补 step 2 / canUndo / pair / undo 回退断言，13 例全绿）；判断项——`snap/series/pick` 三镜像靠 `sync()` 纪律（接线中已出一次 `setSize` 后品牌过期的事故并同批修复，镜像模式接受并记录）；nits——测试未用解构已清、setter 返回值直通保留。
+  - **Spec**：逐条通过——接口与 snapshot 形状、恢复语义（未知/跨系列 id 拒绝、完成直达结果）、Out of Scope 遵守（`style.css`/`i18n.js`/`core.js`/`poster.js` 零改动）；`npm test` JS 56 + Python 47、E2E 实跑 42/42、`node --check` 通过；欠账（工单 02 收口与检查点）本轮完成。
+- 遗留：判断项 LOW——`snap` 镜像需保持「先 `sync()` 再读」纪律；无效对决载荷丢弃不回写（与旧行为等价，可接受）。
+- 下次基点：`53ab130fb72bc076ed1c4365c9fff9ea81603527`（本批实现与测试提交；文档收口为其后一笔）
