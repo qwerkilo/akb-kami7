@@ -4,11 +4,11 @@
 
 纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `session.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
 
-- 站点覆盖 48 Group 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）与坂道三团（乃木坂46 / 櫻坂46 / 日向坂46），分「48g / sakamichi」两个系列（现役 + 毕业，跨团去重后 1338 人）。
-- v2 能力：系列切换（各自保留已选/对决进度，localStorage）、7/16/32 档位（32 档精确全序，最坏 129 题）、简体输入检索（`simplified.js` 折叠表，OpenCC 离线生成）、对决进度与刷新续玩。
+- 站点覆盖三系列共 13 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY），现役 + 毕业共 **1375 人**。
+- 能力：三系列切换（各自保留已选/对决进度，localStorage）、7/16/32 档位（32 档精确全序最坏 129 题，结果与海报为金字塔布局）、简体输入检索（`simplified.js` 折叠表）、对决进度与刷新续玩、成员简介（卡片「i」→ 资料卡，值随语言本地化：映射表 + 自由文本对照表）、一键清空已选。
 - `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、折叠索引、两级分组、对决 replay、持久化载荷编解码、字幕 module、占位图）；`session.js` 是会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 是海报绘制 module（7/16/32 布局，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en 文案；`app.js` 是 DOM 层：pick（系列/筛选/搜索）→ duel（两两对比排序，可回放归并、可撤回、可续玩）→ result（canvas 海报导出）。
 - 双语 UI：文案在 `i18n.js`（zh/en），`index.html` 的 `data-i18n` 属性引用同一批键；改文案两处同步，`test/i18n.test.js` 会检查键完整性。
-- `members.js` 是生成文件（数据来自 48pedia），不要手改。
+- `members.js` 是生成文件（48pedia + 等爱三团官网/Wikipedia），不要手改。
 
 ## CodeGraph（代码检索优先）
 
@@ -35,10 +35,10 @@
 
 ## 数据与图片生成
 
-- `members.js`、`img/full`（720×960 WebP）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 从 48pedia 的 11 个来源页生成（`SOURCES`，10 团 × 两系列；跨团按姓名+假名去重归口，跨系列兼任由 keeper+extras 合并）；`simplified.js`（简体折叠表，OpenCC 离线生成，缺依赖时跳过）与 `members.js` 同批产出；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
-- 当前规模：1338 人、1338 张图，full 66M + thumb 17M（约 83MB）；members.js 约 272K、simplified.js 约 2K。
+- `members.js`、`img/full`（720×960 WebP）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成：48G/坂道来自 48pedia 的 11 个来源页（`SOURCES`；跨团按姓名+假名去重归口，跨系列兼任由 keeper+extras 合并；bio 取表内 `生年月日`/`出身地`）；等爱三团由 `scripts/love_members.py` 抓官网（列表+详情：血型/星座/身长/趣味/特技/罗马字）+ 日文 Wikipedia（假名/生年月日/出身地/元成员/毕业日），毕业成员照片走回退链 **Web Archive 列表快照 → 图片快照 → Wikipedia/Commons → 占位**。`main` 的 `love_loader` 可注入（测试离线）。`simplified.js`（OpenCC 离线生成，缺依赖时跳过）与 `members.js` 同批产出；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
+- 当前规模：1375 人、1375 张图，full 68M + thumb 17M（约 85MB）；members.js 约 300K、simplified.js 约 2K。
 - 依赖 Pillow（已装 12.3.0；缺失时 `pip install Pillow`）；网络默认走代理 `http://127.0.0.1:7897`，本机实际用 `AKB_PROXY=http://127.0.0.1:7890` 覆盖。
-- 重跑：`cd scripts && python3 fetch_members.py`；`--no-dl` 只用缓存，`--force` 强制重新压缩。
+- 重跑：`cd scripts && python3 fetch_members.py`；`--no-dl` 只用缓存，`--force` 强制重新压缩。48pedia 偶发 SSL/WAF 失败，重试即可（脚本内已带 4 次重试）。
 
 ## 工作流 SOP（尽量遵守）
 
