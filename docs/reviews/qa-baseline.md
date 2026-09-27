@@ -142,3 +142,51 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 | 覆盖     | `fetch_members.py` 96%、`love_members.py` 87%（新增 fixture/集成 24 项）、`core.js` 行 99.78%                              |
 | 新增面   | 等爱数据管线（官网 + Wikipedia + 存档回退）、简介本地化（映射表 47 县/12 星座 + 20 条自由文本对照）、32 档金字塔、清空已选 |
 | 已知残留 | `love_members.py` 网络编排分支（wayback/commons 失败路径）靠注入测到；实网异常靠快速中止保护                               |
+
+## 全量质检（第七轮，2026-09-27，基线 `5e5d2ff`）
+
+按需裁剪结论：CRAP **部分做**（只查不专拆）、单元测试 **做**（补缺口）、Gherkin **不做**（E2E 已覆盖业务流）、QA 流程 **部分做**（checklist 见下）、质量指标 **做**、变异测试 **做**、覆盖率 **做**、密钥扫描 **按用户要求跳过**、越权/注入 **不做**（纯静态站点，无服务端/鉴权/SQL/命令面；npm audit 0 漏洞作为依赖健康证据）。
+
+### 覆盖率（行 / 分支 / 函数）
+
+| 文件             | lines | branch | funcs |
+| ---------------- | ----- | ------ | ----- |
+| core.js          | 99.78 | 92.04  | 100   |
+| session.js       | 98.94 | 89.25  | 90.91 |
+| poster.js        | 99.09 | 92.73  | 100   |
+| i18n.js          | 99.64 | 60.00  | 6.25  |
+| fetch_members.py | 96    | —      | —     |
+| love_members.py  | 87    | —      | —     |
+| wiki.py          | 54    | —      | —     |
+
+`app.js` 不入单测覆盖表，由 E2E 55 项黑盒兜底。
+
+### CRAP / 复杂度（文件级覆盖近似）
+
+- 超标：`poster.js slot` CCN30 / CRAP≈30（32 档金字塔膨胀）；`core.js names`14、`deserializeState`13、`genText`10、`sourceNote`8、`profileRows`8（该文件覆盖 99.78%，CRAP 受 CCN 主导）；`love_members.py parse_wiki_members`23.1、`build_members`22.0、`resolve_former_photos`10.2；`wiki.py get`7.4。
+- 改善：`fetch_members.py main` 44→9、`drawPoster` 11→5；session.js 全部 ≤5。
+
+### 变异测试（StrykerJS 8.7.1，1372 变异）
+
+| 文件       | 修复前 | 修复后     | 幸存说明                                                  |
+| ---------- | ------ | ---------- | --------------------------------------------------------- |
+| core.js    | 63.76% | **91.98%** | 58 幸存：数据表字符串变体/等价类                          |
+| session.js | 78.31% | **79.78%** | 55 幸存：等价/防御性拷贝/双重校验                         |
+| poster.js  | 33.07% | **37.50%** | 240 幸存：假 ctx 无法验证几何/样式，接受（视觉+E2E 兜底） |
+
+本轮据变异指认补 11 项断言：映射表穷举（47 县/12 星座/12 月）、期生序数、来源标注移籍/分隔符、金字塔行分布/居中/cover 纵横比、长标题缩放、未知 id 拒绝、防御拷贝、返回值语义等（JS 69→80）。
+
+### 其他指标
+
+- 依赖：`npm audit` 0 漏洞；dev 仅 husky/lint-staged/prettier。
+- TODO/FIXME/HACK/XXX：0。
+- 重复率：1.54%（jscpd，6 处自克隆；最大为 poster.js 219-266↔277-324 的布局段 48 行）。
+- 规模：源码 18 文件 / 7183 行；members.js 384KB、图片 85MB、仓库 338MB。
+- 提交前 checklist：`npm test`（JS 80 + Python 71）→ 手动 lint-staged → `npm run graph:sync`；UI 改动跑 E2E（55 项）；review 后记检查点。
+
+### 建议（按优先级）
+
+1. **P2**：下次改动 `poster.js` 时拆 `slot`（CCN 30 → 量算/绘制两段），并顺带把 poster.js 219-266/277-324 的自克隆收敛。
+2. **P3**：`love_members.load` 编排分支补 2-3 项注入式测试（详情页失败重试、单成员失败不阻塞）——目前靠「快速中止」保护。
+3. **P3**：`wiki.py` 的 `get` 重试路径可补 1 项单测（54% 覆盖率的主因）。
+4. 维持现有 checklist；下次质检从本节数字对比。

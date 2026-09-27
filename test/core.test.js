@@ -553,3 +553,184 @@ test("profileRows：生日未到时年龄减一，未知都道府县回退原文
   assert.equal(before.find((r) => r[0] === "年龄")[1], "27");
   assert.equal(before.find((r) => r[0] === "出身地")[1], "海外");
 });
+
+// ---- 映射表穷举与字幕补口（变异测试指认的断言缺口） ----
+const PREF_KEYS = [
+  "北海道",
+  "青森県",
+  "岩手県",
+  "宮城県",
+  "秋田県",
+  "山形県",
+  "福島県",
+  "茨城県",
+  "栃木県",
+  "群馬県",
+  "埼玉県",
+  "千葉県",
+  "東京都",
+  "神奈川県",
+  "新潟県",
+  "富山県",
+  "石川県",
+  "福井県",
+  "山梨県",
+  "長野県",
+  "岐阜県",
+  "静岡県",
+  "愛知県",
+  "三重県",
+  "滋賀県",
+  "京都府",
+  "大阪府",
+  "兵庫県",
+  "奈良県",
+  "和歌山県",
+  "鳥取県",
+  "島根県",
+  "岡山県",
+  "広島県",
+  "山口県",
+  "徳島県",
+  "香川県",
+  "愛媛県",
+  "高知県",
+  "福岡県",
+  "佐賀県",
+  "長崎県",
+  "熊本県",
+  "大分県",
+  "宮崎県",
+  "鹿児島県",
+  "沖縄県",
+];
+const ZODIAC_KEYS = [
+  "おひつじ座",
+  "おうし座",
+  "ふたご座",
+  "かに座",
+  "しし座",
+  "おとめ座",
+  "てんびん座",
+  "さそり座",
+  "いて座",
+  "やぎ座",
+  "みずがめ座",
+  "うお座",
+];
+
+test("简介映射：全部 47 都道府县 zh/en 非空、en 必为罗马字", () => {
+  for (const pref of PREF_KEYS) {
+    for (const lang of ["zh", "en"]) {
+      const rows = core.profileRows(
+        { status: "current", bio: { from: pref } },
+        bioDict(lang),
+        lang,
+        {},
+        NOW
+      );
+      const value = rows.find((r) => r[0] === bioDict(lang)("bio_from"))[1];
+      assert.ok(value && value.length > 0, `${pref}/${lang} 空`);
+      if (lang === "en") assert.notEqual(value, pref, `${pref} 未映射 en`);
+    }
+  }
+});
+
+test("简介映射：全部 12 星座 zh/en 非空", () => {
+  for (const sign of ZODIAC_KEYS) {
+    for (const lang of ["zh", "en"]) {
+      const rows = core.profileRows(
+        { status: "current", bio: { sign } },
+        bioDict(lang),
+        lang,
+        {},
+        NOW
+      );
+      const value = rows.find((r) => r[0] === bioDict(lang)("bio_sign"))[1];
+      assert.ok(value && value.length > 0, `${sign}/${lang} 空`);
+    }
+  }
+});
+
+test("简介映射：12 个月份英文缩写齐全", () => {
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  for (let i = 1; i <= 12; i++) {
+    const birth = `2000.${String(i).padStart(2, "0")}.15`;
+    const rows = core.profileRows(
+      { status: "current", bio: { birth } },
+      bioDict("en"),
+      "en",
+      {},
+      NOW
+    );
+    const value = rows.find((r) => r[0] === "Date of birth")[1];
+    assert.ok(value.includes(months[i - 1]), `${birth} → ${value}`);
+  }
+});
+
+test("期生英文序数：1st/2nd/3rd/4th、带小数与非法输入", () => {
+  const gen = (v) =>
+    core
+      .profileRows(
+        { status: "current", generation: v },
+        bioDict("en"),
+        "en",
+        {},
+        NOW
+      )
+      .find((r) => r[0] === "Generation")?.[1];
+  assert.equal(gen("1期生"), "1st gen");
+  assert.equal(gen("2期生"), "2nd gen");
+  assert.equal(gen("3期生"), "3rd gen");
+  assert.equal(gen("4期生"), "4th gen");
+  assert.equal(gen("1.5期生"), "1.5 gen");
+  assert.equal(gen("研究生"), "研究生");
+  assert.equal(
+    core
+      .profileRows(
+        { status: "current", generation: "2期生" },
+        bioDict("zh"),
+        "zh",
+        {},
+        NOW
+      )
+      .find((r) => r[0] === "期生")[1],
+    "2期生"
+  );
+});
+
+test("字幕：移籍来源（现役但非全现役）、zh 分隔符与无 extras 回退", () => {
+  const transferred = person({
+    extras: [
+      { group: "AKB48", current: true },
+      { group: "NMB48", current: false },
+    ],
+  });
+  assert.equal(
+    core.sourceNote(transferred, t, "zh"),
+    "[src_transferred:AKB48、NMB48]"
+  );
+  assert.equal(
+    core.sourceNote(transferred, t, "en"),
+    "[src_transferred:AKB48, NMB48]"
+  );
+  const full = person({ extras: [{ group: "SKE48", current: true }] });
+  assert.equal(
+    core.fullMeta(full, t, "zh"),
+    "AKB48 · 1期生 · [src_concurrent:SKE48] · [active]"
+  );
+  assert.equal(core.sourceNote(person({ note: "旧备注" }), t, "zh"), "旧备注");
+});

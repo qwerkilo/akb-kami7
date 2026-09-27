@@ -3,7 +3,14 @@ const assert = require("node:assert/strict");
 const poster = require("../poster.js");
 
 function fakeCtx() {
-  const calls = { texts: [], textPos: [], images: [], fills: [], fonts: [] };
+  const calls = {
+    texts: [],
+    textPos: [],
+    textFonts: [],
+    images: [],
+    fills: [],
+    fonts: [],
+  };
   const ctx = {
     canvas: { width: 1080, height: 1440 },
     save() {},
@@ -25,9 +32,12 @@ function fakeCtx() {
     fillText(text, x, y) {
       calls.texts.push(String(text));
       calls.textPos.push([String(text), x, y]);
+      calls.textFonts.push([String(text), font]);
     },
     measureText(s) {
-      return { width: String(s).length * 10 };
+      const m = /(\d+)px/.exec(font);
+      const size = m ? Number(m[1]) : 16;
+      return { width: String(s).length * size * 0.55 };
     },
     textAlign: "",
     textBaseline: "",
@@ -260,4 +270,56 @@ test("draw：32 人金字塔——行分布 1-3-5-7-9-7、居中、宽度不增�
     const idx = +m.name.replace("成员", "");
     assert.equal(names.has(m.name), idx <= 16, `${m.name} 名字显示不符`);
   }
+});
+
+test("draw：32 人金字塔——照片 cover 不变形、每行居中、长标题截断", () => {
+  const members = people(32);
+  members.forEach((m, i) => (m.subtitle = `副标题${i + 1}`));
+  const { ctx, calls } = fakeCtx();
+  poster.draw(ctx, {
+    members,
+    images: members.map(() => ({ width: 300, height: 400 })),
+    title: "很长的标题".repeat(30),
+    dateText: "48 Group 好き顔ソート · 2026.09.27",
+    hashtag: "#48Group  #好き顔ソート",
+    photoSrc: "写真：48pedia",
+    subOf: (m) => m.subtitle,
+  });
+  assert.equal(calls.images.length, 32);
+  for (const args of calls.images) {
+    const [, , , sw, sh, , , w, h] = args;
+    assert.ok(
+      Math.abs(sw / sh - w / h) < 0.02,
+      `cover 变形 ${sw}/${sh} vs ${w}/${h}`
+    );
+    assert.ok(Math.abs(w / h - 0.75) < 0.02, `目标非 3:4 ${w}/${h}`);
+  }
+  const rows = new Map();
+  for (const args of calls.images) {
+    const y = Math.round(args[6]);
+    if (!rows.has(y)) rows.set(y, []);
+    rows.get(y).push(args);
+  }
+  const counts = [...rows.values()].map((arr) => arr.length);
+  assert.deepEqual(counts, [1, 3, 5, 7, 9, 7]);
+  for (const arr of rows.values()) {
+    const left = Math.min(...arr.map((a) => a[5]));
+    const right = Math.max(...arr.map((a) => a[5] + a[7]));
+    const mid = (left + right) / 2;
+    assert.ok(Math.abs(mid - 540) < 2, `行未居中 mid=${mid}`);
+  }
+  const longTitle = "很长的标题".repeat(30);
+  const titleFont = calls.textFonts.find(([t]) => t === longTitle);
+  assert.ok(titleFont, "长标题应完整落笔");
+  const size = Number(/(\d+)px/.exec(titleFont[1])[1]);
+  assert.ok(size < 64, `长标题应缩小字号，实际 ${size}px`);
+});
+
+test("draw：短标题用最大字号 64px 绘制", () => {
+  const { calls } = drawWith(7);
+  const titleFont = calls.textFonts.find(([t]) => t === "我的 48 Group 神7");
+  assert.ok(
+    titleFont && titleFont[1].includes("64px"),
+    titleFont && titleFont[1]
+  );
 });

@@ -293,3 +293,40 @@ test("系列白名单支持等爱（love），状态独立持久化", () => {
   assert.equal(S.snapshot().series, "love");
   assert.deepEqual(S.snapshot().selected, ["l1"]);
 });
+
+test("未知 id 在未满员时也拒绝（不被满员掩蔽）", () => {
+  const S = make();
+  assert.equal(S.toggleSelect("nope"), false);
+  assert.deepEqual(S.snapshot().selected, []);
+});
+
+test("startDuel 拷贝传入顺序（外部数组变更不影响对决）", () => {
+  const S = make();
+  ["a1", "a2", "a3"].forEach((id) => S.toggleSelect(id));
+  const order = ["a1", "a2", "a3"];
+  assert.equal(S.startDuel(order), true);
+  order.reverse();
+  assert.deepEqual(S.snapshot().duel.pair, ["a2", "a3"]);
+});
+
+test("answer/undo 返回值语义：应用为 true，非对决相位为 false", () => {
+  const S = make();
+  assert.equal(S.answer(true), false);
+  ["a1", "a2", "a3"].forEach((id) => S.toggleSelect(id));
+  S.startDuel(["a1", "a2", "a3"]);
+  assert.equal(S.undo(), false);
+  assert.equal(S.answer(true), true);
+  assert.equal(S.undo(), true);
+});
+
+test("clearSelection：已选为空但对决进行中时也清空并返回 true", () => {
+  const S = make();
+  ["a1", "a2", "a3"].forEach((id) => S.toggleSelect(id));
+  S.startDuel(["a1", "a2", "a3"]);
+  S.clearSelection();
+  ["a1", "a2", "a3"].forEach((id) => S.toggleSelect(id));
+  const S2 = make();
+  S2.startDuel(["a1", "a2", "a3"]);
+  assert.equal(S2.clearSelection(), true);
+  assert.equal(S2.snapshot().duel, null);
+});
