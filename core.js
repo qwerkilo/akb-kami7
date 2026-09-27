@@ -201,7 +201,6 @@
       seriesLabel,
       title: `${t(saka ? "title_prefix_saka" : "title_prefix_48g")} ${brand}`,
       eyebrow: `${seriesLabel} 好き顔ソート`,
-      seriesTag: tag,
       shareTags: `${tag} #好き顔ソート`,
       posterTags: `${tag}  #好き顔ソート`,
       fileBase:

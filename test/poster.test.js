@@ -159,9 +159,32 @@ test("draw：注入 tokens 后使用注入的颜色与字体，缺省回退内�
   );
   assert.ok(
     !injected.calls.fills.some((f) =>
-      ["#f5f1e6", "#20242e", "#ffe08a", "#e4007f"].includes(f)
+      [
+        "#f5f1e6",
+        "#ffffff",
+        "#20242e",
+        "#6f6a60",
+        "#cfc7b8",
+        "#ffe08a",
+        "#e4007f",
+      ].includes(f)
     ),
     "注入后仍出现内置颜色"
+  );
+
+  const partial = fakeCtx();
+  poster.draw(partial.ctx, {
+    ...base,
+    tokens: { colors: { floor: "#0a0a0a" } },
+  });
+  assert.ok(partial.calls.fills.includes("#0a0a0a"), "部分注入未生效");
+  assert.ok(
+    partial.calls.fills.includes("#ffe08a"),
+    "未注入的颜色应回退内置默认"
+  );
+  assert.ok(
+    partial.calls.fonts.some((f) => f.includes("Dela Gothic One")),
+    "未注入的字体应回退内置默认"
   );
 
   const fallback = fakeCtx();

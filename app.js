@@ -69,7 +69,7 @@
     const eyebrow = $("#eyebrow");
     if (eyebrow) eyebrow.textContent = N.eyebrow;
     const size7 = $("#size-7");
-    if (size7) size7.textContent = N.brand;
+    if (size7) size7.textContent = CORE.names(series, 7, t).brand;
     document.querySelectorAll(".seg-series [data-series]").forEach((b) => {
       b.textContent = CORE.names(b.dataset.series, pick, t).seriesLabel;
       b.setAttribute("aria-checked", b.dataset.series === series);
