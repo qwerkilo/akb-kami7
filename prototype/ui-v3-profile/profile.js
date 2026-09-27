@@ -2,6 +2,38 @@
 (function () {
   "use strict";
 
+  const ZODIAC = {
+    おひつじ座: ["白羊座", "Aries"],
+    おうし座: ["金牛座", "Taurus"],
+    ふたご座: ["双子座", "Gemini"],
+    かに座: ["巨蟹座", "Cancer"],
+    しし座: ["狮子座", "Leo"],
+    おとめ座: ["处女座", "Virgo"],
+    てんびん座: ["天秤座", "Libra"],
+    さそり座: ["天蝎座", "Scorpio"],
+    いて座: ["射手座", "Sagittarius"],
+    やぎ座: ["摩羯座", "Capricorn"],
+    みずがめ座: ["水瓶座", "Aquarius"],
+    うお座: ["双鱼座", "Pisces"],
+  };
+  const PREF = {
+    東京都: ["东京都", "Tokyo"],
+    栃木県: ["栃木县", "Tochigi"],
+    千葉県: ["千叶县", "Chiba"],
+    神奈川県: ["神奈川县", "Kanagawa"],
+    埼玉県: ["埼玉县", "Saitama"],
+    福岡県: ["福冈县", "Fukuoka"],
+    鹿児島県: ["鹿儿岛县", "Kagoshima"],
+  };
+  const TEXT = {
+    "メイクやファッションを楽しむこと、ラーメン巡り": [
+      "享受化妆与时尚、巡游拉面店",
+      "Enjoying makeup and fashion, ramen-hopping",
+    ],
+    ジョッキ持ち: ["举扎啤杯", "Holding a beer stein"],
+  };
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
   const L = {
     zh: {
       birth: "生年月日",
@@ -84,26 +116,51 @@
     return a;
   }
 
+  function i18n(v) {
+    const pair = PREF[v] || ZODIAC[v] || TEXT[v];
+    return pair ? pair[lang === "zh" ? 0 : 1] : v;
+  }
+
+  function dateOf(v) {
+    if (!v || lang === "zh") return v;
+    const [y, m, d] = v.split("/").map(Number);
+    return MONTHS[m - 1] + " " + d + ", " + y;
+  }
+
+  function genOf(v) {
+    if (!v || lang === "zh") return v;
+    const m = v.match(/^(\d+)(?:\.(\d))?期生$/);
+    if (!m) return v;
+    if (m[2]) return m[1] + "." + m[2] + " gen";
+    const n = m[1];
+    const suffix = n === "1" ? "st" : n === "2" ? "nd" : n === "3" ? "rd" : "th";
+    return n + suffix + " gen";
+  }
+
   function rowsOf(m) {
     const t = L[lang];
     const r = [];
     const push = (k, v) => v && r.push([k, v]);
-    push(t.birth, m.birth);
+    push(t.birth, dateOf(m.birth));
     push(t.age, m.birth ? String(ageOn(m.birth)) : "");
-    push(t.from, m.from);
+    push(t.from, m.from ? i18n(m.from) : "");
     push(t.height, m.height);
-    push(t.blood, m.blood);
-    push(t.sign, m.sign);
-    push(t.hobby, m.hobby);
-    push(t.skill, m.skill);
+    push(
+      t.blood,
+      m.blood && lang === "en" ? m.blood.replace(/^([ABO]+)型$/, "Type $1") : m.blood
+    );
+    push(t.sign, m.sign ? i18n(m.sign) : "");
+    push(t.hobby, m.hobby ? i18n(m.hobby) : "");
+    push(t.skill, m.skill ? i18n(m.skill) : "");
     push(t.nick, m.nick);
     push(t.group, m.grp);
-    push(t.gen, m.gen);
+    push(t.gen, genOf(m.gen));
     if (m.grad) push(t.status, t.grad(m.grad.slice(0, 4)));
     else if (m.current) push(t.status, t.current);
     push(t.romaji, m.romaji);
     return r;
   }
+
 
   function fillSheet(m, photoId) {
     const sheet = document.getElementById("sheet");
