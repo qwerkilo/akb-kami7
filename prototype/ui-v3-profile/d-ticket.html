@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>简介原型 D · 票根通行证</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="v-d">
+<header class="bar"><span class="chip">简介 D</span><strong>票根通行证</strong>
+  <span class="lang"><button data-lang="zh" class="on">中文</button><button data-lang="en">EN</button></span></header>
+<main>
+  <section>
+    <h2>简介样式对比（点卡片右上「i」查看）</h2>
+    <p class="hint">四种样式共用同一份数据与交互，只比较呈现。可点「大（等爱）」看字段更全的版本。</p>
+    <div class="pick" id="pick"></div>
+  </section>
+</main>
+<div class="sheet" id="sheet" hidden>
+  <button class="close" aria-label="关闭">×</button>
+  <div class="ticket">
+    <div class="s-head">
+      <img class="s-photo" id="s-photo" alt="">
+      <div>
+        <h3 id="s-name"></h3>
+        <p class="kana" id="s-kana"></p>
+        <span class="badge" id="s-badge">PROFILE</span>
+      </div>
+    </div>
+    <div class="body">
+      <dl class="s-fields" id="s-fields"></dl>
+    </div>
+  </div>
+</div>
+<script src="../../members.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>

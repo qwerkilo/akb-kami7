@@ -1,0 +1,202 @@
+:root {
+  --floor: #f5f1e6;
+  --card: #ffffff;
+  --ink: #20242e;
+  --muted: #6f6a60;
+  --line: #cfc7b8;
+  --peach: #ffb4a2;
+  --mint: #a7e8c8;
+  --lilac: #d8ccff;
+  --lemon: #ffe08a;
+  --pink: #e4007f;
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-jp: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo", var(--font-ui);
+  --font-display: "Dela Gothic One", "Zen Kaku Gothic New", var(--font-ui);
+  --border: 2px solid var(--ink);
+  --shadow: 4px 4px 0 var(--ink);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #efe8d8;
+  color: var(--ink);
+  font: 14px/1.5 var(--font-ui);
+  padding-bottom: 120px;
+}
+.bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: var(--card); border-bottom: var(--border);
+  position: sticky; top: 0; z-index: 5;
+}
+.chip {
+  background: var(--lemon); border: var(--border); border-radius: 999px;
+  padding: 2px 10px; font-weight: 700;
+}
+.bar strong { font-family: var(--font-display); font-size: 14px; }
+main { max-width: 420px; margin: 0 auto; padding: 14px; }
+h2 { font-family: var(--font-display); font-size: 15px; margin: 0 0 6px; }
+.hint { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+
+.pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.pcard { position: relative; }
+.pcard img, .pcard .ph {
+  width: 100%; aspect-ratio: 3 / 4; object-fit: cover; display: grid; place-items: center;
+  border: var(--border); border-radius: 10px; box-shadow: 2px 2px 0 var(--ink);
+  background: #e4e7ee; font-family: var(--font-display); font-size: 28px;
+}
+.pcard .info {
+  position: absolute; top: -8px; right: -8px;
+  width: 24px; height: 24px; border-radius: 999px;
+  background: var(--card); border: var(--border); font-weight: 800; line-height: 20px;
+  text-align: center; cursor: pointer;
+}
+.pcard .pnm { font-size: 10px; font-weight: 700; margin-top: 3px; white-space: nowrap; overflow: hidden; }
+
+/* ---------- 简介卡公共骨架（四种皮肤只换 CSS） ---------- */
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  max-width: 420px; margin: 0 auto;
+  background: var(--card);
+}
+.sheet[hidden] { display: none; }
+.sheet .close {
+  position: absolute; top: 10px; right: 12px; z-index: 2;
+  border: var(--border); background: var(--card); border-radius: 999px;
+  width: 30px; height: 30px; font-weight: 800; cursor: pointer;
+}
+.sheet .s-photo { display: block; }
+.sheet .kana { margin: 0; }
+.sheet .s-fields { margin: 0; }
+.sheet .s-fields > div { display: contents; }
+.sheet dt { margin: 0; }
+.sheet dd { margin: 0; }
+.badge { display: inline-block; }
+
+/* ============ A 贴纸资料卡 ============ */
+body.v-a .sheet {
+  border: var(--border); border-radius: 18px 18px 0 0;
+  box-shadow: 0 -8px 0 rgba(32, 36, 46, 0.12);
+  padding: 42px 18px 24px;
+}
+body.v-a .s-head { display: flex; gap: 12px; align-items: center; }
+body.v-a .s-photo {
+  width: 78px; aspect-ratio: 3 / 4; object-fit: cover;
+  border: var(--border); border-radius: 10px; box-shadow: 3px 3px 0 var(--ink);
+}
+body.v-a h3 {
+  font-family: var(--font-display); font-size: 20px; margin: 0 0 2px;
+  background: linear-gradient(transparent 62%, var(--lemon) 62%);
+  display: inline;
+}
+body.v-a .kana { color: var(--muted); font-size: 12px; margin: 2px 0 0; }
+body.v-a .badge {
+  margin-top: 6px; background: var(--lilac); border: 1.5px solid var(--ink);
+  border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 800;
+}
+body.v-a .s-fields {
+  margin-top: 14px; display: grid; grid-template-columns: 84px 1fr;
+  gap: 6px 10px; font-size: 13px;
+}
+body.v-a dt { color: var(--muted); }
+body.v-a dd { font-weight: 600; }
+
+/* ============ B 官方档案页 ============ */
+body.v-b .sheet { padding: 0 0 26px; border-top: var(--border); }
+body.v-b .s-photo {
+  width: 100%; height: 190px; object-fit: cover; object-position: 50% 18%;
+  border-bottom: 1px solid var(--line);
+}
+body.v-b .s-head { padding: 16px 20px 4px; }
+body.v-b h3 { margin: 0; font-size: 22px; letter-spacing: 0.04em; font-weight: 700; }
+body.v-b .kana { color: var(--muted); font-size: 12px; letter-spacing: 0.14em; margin-top: 2px; }
+body.v-b .badge { display: none; }
+body.v-b .s-fields {
+  padding: 8px 20px 0; font-size: 13px;
+}
+body.v-b .s-fields > div {
+  display: flex; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--line);
+}
+body.v-b dt { color: var(--muted); width: 76px; flex: none; }
+body.v-b dd { margin: 0; }
+
+/* ============ C 杂志编辑 ============ */
+body.v-c .sheet {
+  background: var(--floor); padding: 34px 20px 26px;
+  border-top: 6px solid var(--pink);
+}
+body.v-c .s-head { display: flex; align-items: flex-end; gap: 12px; }
+body.v-c .s-photo {
+  width: 96px; aspect-ratio: 3 / 4; object-fit: cover;
+  filter: grayscale(0.15) contrast(1.05); border: 1px solid var(--ink);
+}
+body.v-c h3 {
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  font-size: 30px; line-height: 1.1; margin: 0; letter-spacing: 0.06em;
+}
+body.v-c .kana {
+  font-family: "Songti SC", "Noto Serif SC", serif;
+  color: var(--muted); font-size: 12px; letter-spacing: 0.3em; margin-top: 4px;
+}
+body.v-c .badge {
+  font-family: var(--font-display); font-size: 10px; letter-spacing: 0.2em;
+  background: var(--pink); color: #fff; padding: 2px 8px;
+  transform: rotate(-2deg); margin-top: 6px;
+}
+body.v-c .s-fields {
+  margin-top: 14px; columns: 2; column-gap: 18px; font-size: 12.5px;
+}
+body.v-c .s-fields > div {
+  display: block; padding: 4px 0 6px; border-top: 1px solid var(--ink);
+  break-inside: avoid;
+}
+body.v-c dt { font-size: 10px; letter-spacing: 0.18em; color: var(--pink); font-weight: 800; }
+body.v-c dd { margin: 1px 0 0; }
+
+/* ============ D 票根通行证 ============ */
+body.v-d .sheet {
+  background: transparent; padding: 0 14px 22px;
+}
+body.v-d .ticket {
+  background: var(--card); border: var(--border); border-radius: 14px;
+  box-shadow: var(--shadow); display: flex; overflow: hidden;
+  transform: rotate(-0.6deg); position: relative;
+}
+body.v-d .ticket::before,
+body.v-d .ticket::after {
+  content: ""; position: absolute; left: 34%; width: 18px; height: 18px;
+  background: #efe8d8; border: var(--border); border-radius: 999px;
+  transform: translateX(-50%);
+}
+body.v-d .ticket::before { top: -12px; }
+body.v-d .ticket::after { bottom: -12px; }
+body.v-d .s-head {
+  width: 34%; padding: 12px 8px; text-align: center;
+  border-right: 2px dashed var(--line);
+}
+body.v-d .s-photo {
+  width: 100%; aspect-ratio: 3 / 4; object-fit: cover;
+  border: 1.5px solid var(--ink); border-radius: 8px;
+}
+body.v-d h3 { font-size: 13px; margin: 6px 0 0; }
+body.v-d .kana { font-size: 9px; letter-spacing: 0.08em; color: var(--muted); }
+body.v-d .badge {
+  margin-top: 6px; font-family: ui-monospace, monospace; font-size: 9px;
+  letter-spacing: 0.24em; color: var(--muted);
+}
+body.v-d .body { flex: 1; padding: 12px 12px 10px; }
+body.v-d .s-fields { font-size: 12px; }
+body.v-d .s-fields > div {
+  display: flex; gap: 8px; padding: 3px 0;
+}
+body.v-d dt {
+  font-family: ui-monospace, monospace; font-size: 10px; color: var(--muted);
+  width: 62px; flex: none; padding-top: 1px;
+}
+body.v-d dd { margin: 0; font-weight: 700; }
+
+.lang { margin-left: auto; display: flex; gap: 6px; }
+.lang button {
+  font: 800 12px/1 var(--font-ui); border: var(--border); border-radius: 999px;
+  background: var(--card); padding: 4px 10px; cursor: pointer;
+}
+.lang button.on { background: var(--lemon); }
