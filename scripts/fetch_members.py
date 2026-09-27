@@ -15,6 +15,7 @@ from functools import partial
 
 from PIL import Image, ImageOps
 
+import love_members
 from wiki import api, get, wikitext
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -537,32 +538,54 @@ def default_dirs():
     return {"root": ROOT, "orig": ORIG, "full": FULL, "thumb": THUMB}
 
 
-def main(argv=None, dirs=None, fetch_page=wikitext, api_fn=api, fetch_url=get):
+def main(
+    argv=None,
+    dirs=None,
+    fetch_page=wikitext,
+    api_fn=api,
+    fetch_url=get,
+    love_loader=None,
+):
     no_dl, force = parse_args(argv)
     dirs = dirs or default_dirs()
+    if love_loader is None:
+        love_loader = love_members.load
     for d in (dirs["orig"], dirs["full"], dirs["thumb"]):
         os.makedirs(d, exist_ok=True)
 
     members = merge_members(load_rows(fetch_page))
     print(f"members after dedupe: {len(members)}")
-    assign_ids(members)
+
+    love = []
+    love_urls = {}
+    if love_loader:
+        try:
+            love, love_urls = love_loader(
+                lambda url: fetch_url(url).decode("utf-8", "replace")
+            )
+        except Exception as e:
+            print(f"warning: 等爱系列抓取失败，跳过：{e}")
+
+    all_members = members + love
+    assign_ids(all_members)
 
     urls = image_urls(member_files(members), api_fn)
+    urls.update(love_urls)
     report_missing_info(resolve_missing(members, urls))
 
-    paths = collect_paths(members, urls, no_dl, fetch_url, dirs["orig"])
-    sizes = compress_members(members, paths, force, dirs["full"], dirs["thumb"])
-    warn_missing_images(members)
+    paths = collect_paths(all_members, urls, no_dl, fetch_url, dirs["orig"])
+    sizes = compress_members(all_members, paths, force, dirs["full"], dirs["thumb"])
+    warn_missing_images(all_members)
     report_removed(
         prune_unused(
-            {m["id"] for m in members},
+            {m["id"] for m in all_members},
             (dirs["orig"], dirs["full"], dirs["thumb"]),
         )
     )
 
-    sections = build_sections(members)
+    sections = build_sections(members) + love_members.build_sections(love)
     write_members_js(sections, os.path.join(dirs["root"], "members.js"))
-    simplified = build_simplified([m["name"] for m in members])
+    simplified = build_simplified([m["name"] for m in all_members])
     if simplified is not None:
         write_simplified_js(simplified, os.path.join(dirs["root"], "simplified.js"))
     report_generation(sections, members, sizes)

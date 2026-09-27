@@ -18570,5 +18570,675 @@ window.AKB_GROUPS = [
     }
    }
   ]
+ },
+ {
+  "group": "=LOVE",
+  "series": "love",
+  "label": "1期生",
+  "members": [
+   {
+    "id": "m76f533326a",
+    "name": "大谷 映美里",
+    "kana": "おおたに えみり",
+    "nick": "みりにゃ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "O型",
+     "sign": "うお座",
+     "height": "155cm",
+     "birth": "1998.03.15",
+     "from": "東京都",
+     "hobby": "メイクやファッションを楽しむこと、ラーメン巡り",
+     "skill": "ジョッキ持ち",
+     "romaji": "OTANI EMIRI"
+    }
+   },
+   {
+    "id": "m85620333a9",
+    "name": "大場 花菜",
+    "kana": "おおば はな",
+    "nick": "はなちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "みずがめ座",
+     "height": "160cm",
+     "birth": "2000.02.04",
+     "from": "埼玉県",
+     "hobby": "舞台・ミュージカル観劇 レトロ(ファッション・巡り・収集)　動物の赤ちゃんをみること！！",
+     "skill": "イラスト (#はなすと・10秒似顔絵も！) 書道",
+     "romaji": "OBA HANA"
+    }
+   },
+   {
+    "id": "m6c2299a37d",
+    "name": "音嶋 莉沙",
+    "kana": "おとしま りさ",
+    "nick": "りさちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "しし座",
+     "height": "160cm",
+     "birth": "1998.08.11",
+     "from": "福岡県",
+     "hobby": "人間観察、コスメを集めること、食べ歩き",
+     "skill": "フラフープ、ファンの方の名前を覚える、福岡愛を語る",
+     "romaji": "OTOSHIMA RISA"
+    }
+   },
+   {
+    "id": "me89b939290",
+    "name": "齋藤 樹愛羅",
+    "kana": "さいとう きあら",
+    "nick": "きあら",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "いて座",
+     "height": "156.2cm",
+     "birth": "2004.11.26",
+     "from": "栃木県",
+     "hobby": "ゲーム、カラオケに行く、メイク動画など見て真似する",
+     "skill": "立ちブリッチ、秒数を頭の中で測る、ドラえもんとまさおくんのモノマネ",
+     "romaji": "SAITO KIARA"
+    }
+   },
+   {
+    "id": "med8eefd971",
+    "name": "佐々木 舞香",
+    "kana": "ささき まいか",
+    "nick": "まいか",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "みずがめ座",
+     "height": "157cm",
+     "birth": "2000.01.21",
+     "from": "愛知県",
+     "hobby": "寝ること",
+     "skill": "絡まったネックレス絶対解ける",
+     "romaji": "SASAKI MAIKA"
+    }
+   },
+   {
+    "id": "md852a6091b",
+    "name": "髙松 瞳",
+    "kana": "たかまつ ひとみ",
+    "nick": "ひとみ・ひとみん・ひときち",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "AB型",
+     "sign": "やぎ座",
+     "height": "163cm",
+     "birth": "2001.01.19",
+     "from": "東京都",
+     "hobby": "映画、ドラマ鑑賞",
+     "skill": "バトントワリング",
+     "romaji": "TAKAMATSU HITOMI"
+    }
+   },
+   {
+    "id": "mba2ce3cff3",
+    "name": "瀧脇 笙古",
+    "kana": "たきわき しょうこ",
+    "nick": "しょこ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "O型",
+     "sign": "かに座",
+     "height": "158cm",
+     "birth": "2001.07.09",
+     "from": "神奈川県",
+     "hobby": "料理、ヘアアレンジ、横浜散策、カフェ巡り",
+     "skill": "マラソン",
+     "romaji": "TAKIWAKI SHOKO"
+    }
+   },
+   {
+    "id": "mf5acfa4254",
+    "name": "野口 衣織",
+    "kana": "のぐち いおり",
+    "nick": "いおりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "O型",
+     "sign": "おうし座",
+     "height": "161cm",
+     "birth": "2000.04.26",
+     "from": "茨城県",
+     "hobby": "アニメ漫画ゲーム。動画鑑賞",
+     "skill": "特にない！！",
+     "romaji": "NOGUCHI IORI"
+    }
+   },
+   {
+    "id": "m68a8e13e92",
+    "name": "諸橋 沙夏",
+    "kana": "もろはし さな",
+    "nick": "さなつん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "しし座",
+     "height": "158cm",
+     "birth": "1996.08.03",
+     "from": "福島県",
+     "hobby": "映画鑑賞",
+     "skill": "フラダンス、タヒチアンダンス",
+     "romaji": "MOROHASHI SANA"
+    }
+   },
+   {
+    "id": "m542ac2dfe9",
+    "name": "山本 杏奈",
+    "kana": "やまもと あんな",
+    "nick": "あんにゃ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "いて座",
+     "height": "149.5cm",
+     "birth": "1997.11.30",
+     "from": "広島県",
+     "hobby": "スポーツ観戦（野球、サッカー、バレー）ダンス、料理",
+     "skill": "目分量料理",
+     "romaji": "YAMAMOTO ANNA"
+    }
+   },
+   {
+    "id": "m4f811f2976",
+    "name": "齊藤なぎさ",
+    "kana": "さいとう なぎさ",
+    "nick": "なーたん",
+    "status": "former",
+    "end": "2023.01.13",
+    "img": true,
+    "bio": {
+     "birth": "2003.07.06",
+     "from": "神奈川県",
+     "height": "151cm",
+     "blood": "AB型"
+    }
+   },
+   {
+    "id": "mcd4b9fa5ef",
+    "name": "佐竹のん乃",
+    "kana": "さたけ のんの",
+    "nick": "のんの",
+    "status": "former",
+    "end": "2021.03.06",
+    "img": true,
+    "bio": {
+     "birth": "1998.11.06",
+     "from": "群馬県",
+     "height": "159cm",
+     "blood": "A型"
+    }
+   }
+  ]
+ },
+ {
+  "group": "≠ME",
+  "series": "love",
+  "label": "1期生",
+  "members": [
+   {
+    "id": "mb8aee69428",
+    "name": "尾木 波菜",
+    "kana": "おぎ はな",
+    "nick": "はにゃたん・おぎはな",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "おうし座",
+     "height": "162.5cm",
+     "birth": "2003.05.08",
+     "from": "千葉県",
+     "romaji": "OGI HANA"
+    }
+   },
+   {
+    "id": "m50539acc13",
+    "name": "落合 希来里",
+    "kana": "おちあい きらり",
+    "nick": "きらりん・きらこ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "ふたご座",
+     "height": "148.5cm",
+     "birth": "2001.05.22",
+     "from": "栃木県",
+     "romaji": "OCHIAI KIRARI"
+    }
+   },
+   {
+    "id": "m6018ed4ce1",
+    "name": "蟹沢 萌子",
+    "kana": "かにさわ もえこ",
+    "nick": "もえこ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "さそり座",
+     "height": "163.4cm",
+     "birth": "1999.10.25",
+     "from": "神奈川県",
+     "romaji": "KANISAWA MOEKO"
+    }
+   },
+   {
+    "id": "meb8c730c4e",
+    "name": "河口 夏音",
+    "kana": "かわぐち なつね",
+    "nick": "なっちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "AB型",
+     "sign": "しし座",
+     "height": "165cm",
+     "birth": "2001.07.29",
+     "from": "広島県",
+     "romaji": "KAWAGUCHI NATSUNE"
+    }
+   },
+   {
+    "id": "m760c1fee48",
+    "name": "川中子 奈月心",
+    "kana": "かわなご なつみ",
+    "nick": "なつみん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "てんびん座",
+     "height": "163.7cm",
+     "birth": "2005.09.26",
+     "from": "東京都",
+     "romaji": "KAWANAGO NATSUMI"
+    }
+   },
+   {
+    "id": "m03abe648ac",
+    "name": "櫻井 もも",
+    "kana": "さくらい もも",
+    "nick": "ももきゅん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "おひつじ座",
+     "height": "152.7cm",
+     "birth": "2004.04.13",
+     "from": "神奈川県",
+     "romaji": "SAKURAI MOMO"
+    }
+   },
+   {
+    "id": "m41a41baadf",
+    "name": "鈴木 瞳美",
+    "kana": "すずき ひとみ",
+    "nick": "ひぃちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "おひつじ座",
+     "height": "159.5cm",
+     "birth": "2001.04.13",
+     "from": "東京都",
+     "romaji": "SUZUKI HITOMI"
+    }
+   },
+   {
+    "id": "m5e37f34e08",
+    "name": "谷崎 早耶",
+    "kana": "たにざき さや",
+    "nick": "さややん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "B型",
+     "sign": "てんびん座",
+     "height": "161cm",
+     "birth": "1999.10.07",
+     "from": "熊本県",
+     "romaji": "TANIZAKI SAYA"
+    }
+   },
+   {
+    "id": "m53fd117a1d",
+    "name": "冨田 菜々風",
+    "kana": "とみた ななか",
+    "nick": "ななか・なんかちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "かに座",
+     "height": "162cm",
+     "birth": "2000.07.17",
+     "from": "鹿児島県",
+     "romaji": "TOMITA NANAKA"
+    }
+   },
+   {
+    "id": "m70095d5fb9",
+    "name": "永田 詩央里",
+    "kana": "ながた しおり",
+    "nick": "しおりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "A型",
+     "sign": "おひつじ座",
+     "height": "150.2cm",
+     "birth": "2004.04.02",
+     "from": "広島県",
+     "romaji": "NAGATA SHIORI"
+    }
+   },
+   {
+    "id": "m045cc875c2",
+    "name": "本田 珠由記",
+    "kana": "ほんだ みゆき",
+    "nick": "みるてん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "blood": "AB型",
+     "sign": "うお座",
+     "height": "153cm",
+     "birth": "2004.02.27",
+     "from": "栃木県",
+     "romaji": "HONDA MIYUKI"
+    }
+   },
+   {
+    "id": "m46a156a109",
+    "name": "菅波美玲",
+    "kana": "すがなみ みれい",
+    "nick": "みれい",
+    "status": "former",
+    "end": "2026.06.12",
+    "img": true,
+    "bio": {
+     "birth": "2000.02.05",
+     "from": "福島県",
+     "height": "161cm",
+     "blood": "O型"
+    }
+   }
+  ]
+ },
+ {
+  "group": "≒JOY",
+  "series": "love",
+  "label": "1期生",
+  "members": [
+   {
+    "id": "m0a0cee8063",
+    "name": "逢田 珠里依",
+    "kana": "あいだ じゅりい",
+    "nick": "じゅりい",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "じゅりい",
+     "blood": "O型",
+     "sign": "おとめ座",
+     "height": "161cm",
+     "birth": "2005.09.13",
+     "from": "東京都",
+     "romaji": "AIDA JURII"
+    }
+   },
+   {
+    "id": "mbea618d3a2",
+    "name": "天野 香乃愛",
+    "kana": "あまの このあ",
+    "nick": "このたん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "このたん",
+     "blood": "O型",
+     "sign": "みずがめ座",
+     "height": "157cm",
+     "birth": "2007.01.21",
+     "from": "埼玉県",
+     "romaji": "AMANO KONOA"
+    }
+   },
+   {
+    "id": "m6a179f097b",
+    "name": "市原 愛弓",
+    "kana": "いちはら あゆみ",
+    "nick": "あゆみん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "あゆみん",
+     "blood": "A型",
+     "sign": "しし座",
+     "height": "161.5cm",
+     "birth": "2003.08.21",
+     "from": "福岡県",
+     "romaji": "ICHIHARA AYUMI"
+    }
+   },
+   {
+    "id": "mb6c9ab2b9a",
+    "name": "江角 怜音",
+    "kana": "えすみ れのん",
+    "nick": "れのん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "れのん",
+     "blood": "B型",
+     "sign": "おうし座",
+     "height": "160cm",
+     "birth": "2005.04.26",
+     "from": "大阪府",
+     "romaji": "ESUMI RENON"
+    }
+   },
+   {
+    "id": "m19c7755a67",
+    "name": "大信田美月",
+    "kana": "おおしだ みつき",
+    "nick": "みっちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.09.27",
+     "from": "大阪府",
+     "height": "155cm",
+     "blood": "O型"
+    }
+   },
+   {
+    "id": "m5c7761a3d8",
+    "name": "大西 葵",
+    "kana": "おおにし あおい",
+    "nick": "あおい",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "あおい",
+     "blood": "B型",
+     "sign": "しし座",
+     "height": "156cm",
+     "birth": "2005.08.06",
+     "from": "東京都",
+     "romaji": "ONISHI AOI"
+    }
+   },
+   {
+    "id": "ma2ee618e9f",
+    "name": "小澤 愛実",
+    "kana": "おざわ あいみ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "あいみ",
+     "sign": "おひつじ座",
+     "height": "163cm",
+     "birth": "2003.04.09",
+     "from": "神奈川県",
+     "romaji": "OZAWA AIMI"
+    }
+   },
+   {
+    "id": "m15a93383cf",
+    "name": "髙橋 舞",
+    "kana": "たかはし まい",
+    "nick": "まいまい",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "まいちゃん",
+     "blood": "O型",
+     "sign": "うお座",
+     "height": "160cm",
+     "birth": "2005.02.22",
+     "from": "兵庫県",
+     "romaji": "TAKAHASHI MAI"
+    }
+   },
+   {
+    "id": "m79e1e991f8",
+    "name": "藤沢 莉子",
+    "kana": "ふじさわ りこ",
+    "nick": "りこ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "りこ",
+     "blood": "B型",
+     "sign": "やぎ座",
+     "height": "155cm",
+     "birth": "2004.01.16",
+     "from": "埼玉県",
+     "romaji": "FUJISAWA RIKO"
+    }
+   },
+   {
+    "id": "mb3f706a952",
+    "name": "村山 結香",
+    "kana": "むらやま ゆうか",
+    "nick": "ゆうか",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "ゆうか",
+     "blood": "O型",
+     "sign": "みずがめ座",
+     "height": "158.5cm",
+     "birth": "2004.02.15",
+     "from": "福岡県",
+     "romaji": "MURAYAMA YUUKA"
+    }
+   },
+   {
+    "id": "m901394de38",
+    "name": "山田 杏佳",
+    "kana": "やまだ ももか",
+    "nick": "ももちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "ももちゃん",
+     "blood": "B型",
+     "sign": "みずがめ座",
+     "height": "161cm",
+     "birth": "2006.02.02",
+     "from": "神奈川県",
+     "romaji": "YAMADA MOMOKA"
+    }
+   },
+   {
+    "id": "m9eb63f3299",
+    "name": "山野 愛月",
+    "kana": "やまの ありす",
+    "nick": "ありす",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "nick": "ありす",
+     "blood": "A型",
+     "sign": "てんびん座",
+     "height": "153.5cm",
+     "birth": "2006.10.21",
+     "from": "大阪府",
+     "romaji": "YAMANO ARISU"
+    }
+   },
+   {
+    "id": "m0ecffd76d7",
+    "name": "福山萌叶",
+    "kana": "",
+    "nick": "もえか",
+    "status": "former",
+    "end": "2023.03.29",
+    "img": true,
+    "bio": {
+     "birth": "2004.10.22",
+     "from": "神奈川県",
+     "height": "162.5cm",
+     "blood": "O型"
+    }
+   }
+  ]
  }
 ];

@@ -569,6 +569,7 @@ class MainIntegrationTests(unittest.TestCase):
                 fetch_page=fake_pages,
                 api_fn=fake_api,
                 fetch_url=lambda url: png_bytes,
+                love_loader=lambda fetch: ([], {}),
             )
 
             members_js = os.path.join(td, "members.js")
@@ -591,9 +592,63 @@ class MainIntegrationTests(unittest.TestCase):
                 fetch_page=fake_pages,
                 api_fn=fake_api,
                 fetch_url=no_download,
+                love_loader=lambda fetch: ([], {}),
             )
             with open(members_js, encoding="utf-8") as fh:
                 self.assertEqual(fh.read(), raw)
+
+
+class LoveIntegrationTests(unittest.TestCase):
+    def test_love_members_flow_into_members_js(self):
+        png = io.BytesIO()
+        Image.new("RGB", (60, 80), (30, 60, 90)).save(png, "PNG")
+        png_bytes = png.getvalue()
+
+        def fake_api(**params):
+            return {"query": {"pages": {}}}
+
+        def fake_pages(page):
+            return "{|\n|}"
+
+        def love_stub(fetch):
+            members = [{
+                "name": "大谷 映美里",
+                "kana": "おおたに えみり",
+                "nick": "みりにゃ",
+                "status": "current",
+                "group": "=LOVE",
+                "series": "love",
+                "generation": "1期生",
+                "bio": {"birth": "1998.03.15", "romaji": "OTANI EMIRI"},
+                "file": "love:=LOVE:大谷 映美里",
+            }]
+            return members, {"love:=LOVE:大谷 映美里": "https://x/love.png"}
+
+        with tempfile.TemporaryDirectory() as td:
+            dirs = {
+                "root": td,
+                "orig": os.path.join(td, "orig"),
+                "full": os.path.join(td, "full"),
+                "thumb": os.path.join(td, "thumb"),
+            }
+            fetch_members.main(
+                dirs=dirs,
+                fetch_page=fake_pages,
+                api_fn=fake_api,
+                fetch_url=lambda url: png_bytes,
+                love_loader=love_stub,
+            )
+            with open(os.path.join(td, "members.js"), encoding="utf-8") as fh:
+                sections = json.loads(
+                    fh.read().split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
+                )
+            self.assertEqual(len(sections), 1)
+            self.assertEqual(sections[0]["series"], "love")
+            self.assertEqual(sections[0]["group"], "=LOVE")
+            member = sections[0]["members"][0]
+            self.assertEqual(member["name"], "大谷 映美里")
+            self.assertTrue(member["img"])
+            self.assertEqual(member["bio"]["romaji"], "OTANI EMIRI")
 
 
 NOGIZAKA_FIXTURE = """== 現役メンバー ==
