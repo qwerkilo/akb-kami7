@@ -4,3 +4,7 @@ __pycache__/
 node_modules/
 .codegraph/
 .coverage
+
+# E2E 保存海报的落盘产物
+48group_*.png
+sakamichi_*.png
