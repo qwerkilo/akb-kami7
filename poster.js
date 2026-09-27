@@ -86,7 +86,21 @@
     ctx.restore();
   }
 
-  function slot(ctx, T, im, m, rank, x, y, w, h, big, compact, subOf) {
+  function slot(
+    ctx,
+    T,
+    im,
+    m,
+    rank,
+    x,
+    y,
+    w,
+    h,
+    big,
+    compact,
+    subOf,
+    hideText
+  ) {
     ctx.save();
     ctx.shadowColor = "rgba(28,30,43,.18)";
     ctx.shadowBlur = 24;
@@ -152,6 +166,7 @@
     }
     ctx.restore();
 
+    if (hideText) return;
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = T.colors.ink;
@@ -312,21 +327,61 @@
     placeRow(ctx, T, imgs, members, 9, 7, backY, 128, 170, 12, subOf);
   }
 
+  const PYRAMID_ROWS = [1, 3, 5, 7, 9, 7];
+  const PYRAMID_WEIGHTS = [1.45, 1.33, 1.21, 1.09, 0.97, 0.85];
+  const PYRAMID_NAMED_ROWS = 4;
+
   function drawThirtyTwo(ctx, T, members, imgs, subOf) {
     const W = ctx.canvas.width;
-    const cols = 8,
-      margin = 72,
-      gap = 16;
-    const w = (W - margin * 2 - gap * (cols - 1)) / cols;
-    const h = (w * 4) / 3;
-    const rowPitch = h + 88;
-    const startY = 300;
-    for (let i = 0; i < members.length; i++) {
-      const r = Math.floor(i / cols),
-        c = i % cols;
-      const x = margin + c * (w + gap);
-      const y = startY + r * rowPitch;
-      slot(ctx, T, imgs[i], members[i], i + 1, x, y, w, h, false, true, subOf);
+    const H = ctx.canvas.height;
+    const top = 200;
+    const bottom = H - 84;
+    const U = bottom - top;
+    const margin = 56;
+    const gap = 10;
+    const wSum = PYRAMID_WEIGHTS.reduce((a, b) => a + b, 0);
+    const textZone = PYRAMID_ROWS.map((_, i) =>
+      i < PYRAMID_NAMED_ROWS ? 42 : 8
+    );
+    const avail = W - margin * 2;
+    const raw = PYRAMID_ROWS.map((n, i) =>
+      Math.min(
+        (avail - gap * (n - 1)) / n,
+        ((U * PYRAMID_WEIGHTS[i]) / wSum) * 0.86
+      )
+    );
+    for (let i = 1; i < raw.length; i++) raw[i] = Math.min(raw[i], raw[i - 1]);
+    const heightSum = raw.reduce((a, w) => a + (w * 4) / 3, 0);
+    const textSum = textZone.reduce((a, b) => a + b, 0);
+    const f = (U - textSum) / heightSum;
+    let y = top;
+    let idx = 0;
+    for (let r = 0; r < PYRAMID_ROWS.length; r++) {
+      const n = PYRAMID_ROWS[r];
+      const cw = raw[r] * f;
+      const ch = (cw * 4) / 3;
+      const total = n * cw + (n - 1) * gap;
+      let x = (W - total) / 2;
+      for (let i = 0; i < n; i++) {
+        slot(
+          ctx,
+          T,
+          imgs[idx],
+          members[idx],
+          idx + 1,
+          x,
+          y,
+          cw,
+          ch,
+          false,
+          true,
+          subOf,
+          r >= PYRAMID_NAMED_ROWS
+        );
+        x += cw + gap;
+        idx++;
+      }
+      y += ch + textZone[r];
     }
   }
 
