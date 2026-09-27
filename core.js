@@ -185,27 +185,37 @@
   // ---- 命名（随系列/档位变化的品牌、标题、标签与文件名；文案仍来自 i18n） ----
   function names(series, size, t) {
     const saka = series === "sakamichi";
+    const love = series === "love";
     const brand =
       size === 32
         ? t("brand_32")
         : size === 16
           ? t("brand_16")
-          : saka
-            ? t("brand_7fukujin")
-            : t("brand_7");
-    const seriesLabel = t(saka ? "series_saka" : "series_48g");
-    const tag = saka ? "#Sakamichi" : "#48Group";
-    const filePrefix = saka ? "sakamichi" : "48group";
+          : love
+            ? t("brand_7oshi")
+            : saka
+              ? t("brand_7fukujin")
+              : t("brand_7");
+    const seriesLabel = t(
+      love ? "series_love" : saka ? "series_saka" : "series_48g"
+    );
+    const tag = love ? "#イコノイジョイ" : saka ? "#Sakamichi" : "#48Group";
+    const filePrefix = love ? "love" : saka ? "sakamichi" : "48group";
+    const titleKey = love
+      ? "title_prefix_love"
+      : saka
+        ? "title_prefix_saka"
+        : "title_prefix_48g";
     return {
       brand,
       seriesLabel,
-      title: `${t(saka ? "title_prefix_saka" : "title_prefix_48g")} ${brand}`,
+      title: `${t(titleKey)} ${brand}`,
       eyebrow: `${seriesLabel} 好き顔ソート`,
       shareTags: `${tag} #好き顔ソート`,
       posterTags: `${tag}  #好き顔ソート`,
       fileBase:
         size === 7
-          ? `${filePrefix}_${saka ? "7fukujin" : "kami7"}`
+          ? `${filePrefix}_${love ? "7" : saka ? "7fukujin" : "kami7"}`
           : `${filePrefix}_${size}`,
     };
   }

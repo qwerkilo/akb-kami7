@@ -10,7 +10,7 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (CORE) {
   "use strict";
 
-  const SERIES = ["48g", "sakamichi"];
+  const SERIES = ["48g", "sakamichi", "love"];
   const SIZES = [7, 16, 32];
   const SERIES_KEY = "akb:series";
   const stateKey = (s) => `akb:state:v2:${s}`;

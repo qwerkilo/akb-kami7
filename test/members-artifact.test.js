@@ -23,6 +23,9 @@ const GROUP_COUNTS = {
   乃木坂46: 100,
   櫻坂46: 58,
   日向坂46: 46,
+  "=LOVE": 12,
+  "≠ME": 12,
+  "≒JOY": 13,
 };
 const GROUP_ORDER = [
   "AKB48",
@@ -35,6 +38,9 @@ const GROUP_ORDER = [
   "乃木坂46",
   "櫻坂46",
   "日向坂46",
+  "=LOVE",
+  "≠ME",
+  "≒JOY",
 ];
 const SERIES_OF = {
   AKB48: "48g",
@@ -47,6 +53,9 @@ const SERIES_OF = {
   乃木坂46: "sakamichi",
   櫻坂46: "sakamichi",
   日向坂46: "sakamichi",
+  "=LOVE": "love",
+  "≠ME": "love",
+  "≒JOY": "love",
 };
 
 function loadSimplified() {
@@ -82,7 +91,7 @@ test("每个分组有 label 与 members，成员字段完整且 id 唯一", () =
   }
 });
 
-test("十个团体齐备且首个出现顺序固定", () => {
+test("十三个团体齐备且首个出现顺序固定", () => {
   const seen = [];
   for (const section of loadGroups()) {
     if (!seen.includes(section.group)) seen.push(section.group);
@@ -100,7 +109,7 @@ test("每个分段带 series 且与团体对应", () => {
     );
     seen.add(section.series);
   }
-  assert.deepEqual([...seen].sort(), ["48g", "sakamichi"]);
+  assert.deepEqual([...seen].sort(), ["48g", "love", "sakamichi"]);
 });
 
 test("simplified.js 折叠表结构合法且覆盖常见简体字", () => {
@@ -196,12 +205,28 @@ test("成员 bio：生年月日基本齐全、出身地多数、字段合法", (
     withFrom.length >= all.length - 60,
     `from 覆盖 ${withFrom.length}/${all.length}`
   );
+  const BIO_KEYS = [
+    "birth",
+    "from",
+    "height",
+    "blood",
+    "sign",
+    "hobby",
+    "skill",
+    "nick",
+    "romaji",
+  ];
   for (const m of all) {
     for (const k of Object.keys(m.bio || {})) {
-      assert.ok(
-        ["birth", "from"].includes(k),
-        `未知 bio 字段 ${k}（${m.name}）`
-      );
+      assert.ok(BIO_KEYS.includes(k), `未知 bio 字段 ${k}（${m.name}）`);
     }
+  }
+  const love = loadGroups()
+    .filter((g) => g.series === "love")
+    .flatMap((g) => g.members);
+  assert.equal(love.length, 37);
+  for (const m of love) {
+    assert.ok(m.bio && m.bio.birth, `等爱成员缺生日 ${m.name}`);
+    assert.ok(m.bio.from, `等爱成员缺出身地 ${m.name}`);
   }
 });

@@ -405,6 +405,21 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
   assert.equal(core.names("sakamichi", 16, t).fileBase, "sakamichi_16");
   assert.equal(core.names("48g", 32, t).brand, "圈内");
   assert.equal(core.names("48g", 32, t).fileBase, "48group_32");
+  const LOVE_DICT = {
+    ...DICT,
+    brand_7oshi: "推し 7",
+    series_love: "等爱",
+    title_prefix_love: "我的等爱",
+  };
+  const tl = (k) => LOVE_DICT[k];
+  const love7 = core.names("love", 7, tl);
+  assert.equal(love7.brand, "推し 7");
+  assert.equal(love7.seriesLabel, "等爱");
+  assert.equal(love7.title, "我的等爱 推し 7");
+  assert.equal(love7.fileBase, "love_7");
+  assert.equal(love7.shareTags, "#イコノイジョイ #好き顔ソート");
+  assert.equal(love7.posterTags, "#イコノイジョイ  #好き顔ソート");
+  assert.equal(core.names("love", 32, tl).fileBase, "love_32");
 });
 
 function bioDict(lang) {

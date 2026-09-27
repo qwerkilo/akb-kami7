@@ -14,6 +14,7 @@ function memoryStorage() {
 const MEMBERS = [];
 for (let i = 1; i <= 10; i++) MEMBERS.push({ id: `a${i}`, series: "48g" });
 for (let i = 1; i <= 6; i++) MEMBERS.push({ id: `s${i}`, series: "sakamichi" });
+for (let i = 1; i <= 3; i++) MEMBERS.push({ id: `l${i}`, series: "love" });
 const BY_ID = new Map(MEMBERS.map((m) => [m.id, m]));
 const byId = (id) => BY_ID.get(id);
 
@@ -279,4 +280,16 @@ test("清空只影响当前系列", () => {
   const again = make(storage);
   assert.equal(again.snapshot().series, "48g");
   assert.deepEqual(again.snapshot().selected, ["a1"]);
+});
+
+test("系列白名单支持等爱（love），状态独立持久化", () => {
+  const storage = memoryStorage();
+  let S = make(storage);
+  assert.equal(S.switchSeries("love"), true);
+  S.toggleSelect("l1");
+  assert.equal(S.snapshot().series, "love");
+  assert.deepEqual(S.snapshot().selected, ["l1"]);
+  S = make(storage);
+  assert.equal(S.snapshot().series, "love");
+  assert.deepEqual(S.snapshot().selected, ["l1"]);
 });

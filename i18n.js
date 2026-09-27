@@ -6,6 +6,79 @@
   "use strict";
 
   const values = {
+    "舞台・ミュージカル観劇 レトロ(ファッション・巡り・収集)　動物の赤ちゃんをみること！！":
+      {
+        zh: "观看舞台剧与音乐剧，复古风（穿搭、巡游、收藏），看动物幼崽！！",
+        en: "Stage & musical theatre, retro (fashion, browsing, collecting), watching baby animals!!",
+      },
+    "人間観察、コスメを集めること、食べ歩き": {
+      zh: "观察人、收集化妆品、到处尝美食",
+      en: "People-watching, collecting cosmetics, food-hopping",
+    },
+    "ゲーム、カラオケに行く、メイク動画など見て真似する": {
+      zh: "玩游戏、唱卡拉OK、看美妆视频跟着模仿",
+      en: "Games, karaoke, watching makeup videos and copying them",
+    },
+    寝ること: {
+      zh: "睡觉",
+      en: "Sleeping",
+    },
+    "映画、ドラマ鑑賞": {
+      zh: "看电影与电视剧",
+      en: "Watching movies and dramas",
+    },
+    "料理、ヘアアレンジ、横浜散策、カフェ巡り": {
+      zh: "做菜、编发、逛横滨、巡游咖啡馆",
+      en: "Cooking, hair arranging, strolling around Yokohama, cafe-hopping",
+    },
+    "アニメ漫画ゲーム。動画鑑賞": {
+      zh: "动画、漫画、游戏，看视频",
+      en: "Anime, manga, games, watching videos",
+    },
+    映画鑑賞: {
+      zh: "看电影",
+      en: "Watching movies",
+    },
+    "スポーツ観戦（野球、サッカー、バレー）ダンス、料理": {
+      zh: "观看体育比赛（棒球、足球、排球）、跳舞、做菜",
+      en: "Watching sports (baseball, football, volleyball), dancing, cooking",
+    },
+    "イラスト (#はなすと・10秒似顔絵も！) 書道": {
+      zh: "插画（#はなすと、还能10秒画肖像！）、书法",
+      en: "Illustration (#hanasuto, can even sketch a portrait in 10 seconds!), calligraphy",
+    },
+    "フラフープ、ファンの方の名前を覚える、福岡愛を語る": {
+      zh: "转呼啦圈、记住粉丝的名字、畅谈对福冈的爱",
+      en: "Hula hooping, memorizing fans' names, talking up her love for Fukuoka",
+    },
+    "立ちブリッチ、秒数を頭の中で測る、ドラえもんとまさおくんのモノマネ": {
+      zh: "站立后弯腰、在心里默数秒数、模仿哆啦A梦和正男",
+      en: "Standing backbend, counting seconds in her head, impressions of Doraemon and Masao-kun",
+    },
+    絡まったネックレス絶対解ける: {
+      zh: "缠住的项链一定能解开",
+      en: "Can always untangle a knotted necklace",
+    },
+    バトントワリング: {
+      zh: "花式指挥棒",
+      en: "Baton twirling",
+    },
+    マラソン: {
+      zh: "马拉松",
+      en: "Marathon running",
+    },
+    "特にない！！": {
+      zh: "没什么特别的！！",
+      en: "Nothing in particular!!",
+    },
+    "フラダンス、タヒチアンダンス": {
+      zh: "草裙舞、大溪地舞",
+      en: "Hula dancing, Tahitian dancing",
+    },
+    目分量料理: {
+      zh: "凭眼力估量着做菜",
+      en: "Cooking by eyeballing measurements",
+    },
     "メイクやファッションを楽しむこと、ラーメン巡り": {
       zh: "享受化妆与时尚、巡游拉面店",
       en: "Enjoying makeup and fashion, ramen-hopping",
@@ -19,6 +92,7 @@
       subtitle: "历代成员版",
       series_48g: "48 Group",
       series_saka: "坂道",
+      series_love: "等爱",
       series_label: "系列",
       mode_16: "16人版",
       mode_32: "圈内 32",
@@ -26,8 +100,10 @@
       brand_16: "选拔组",
       brand_32: "圈内",
       brand_7fukujin: "7福神",
+      brand_7oshi: "推し 7",
       title_prefix_48g: "我的 48 Group",
       title_prefix_saka: "我的坂道",
+      title_prefix_love: "我的等爱",
       filter_all: "全部",
       filter_current: "现役",
       filter_former: "已毕业",
@@ -87,8 +163,11 @@
       share: "分享到 X",
       resort: "这几位重新排序",
       credit_1: "成员名单与照片来自",
-      credit_2: "，版权归原权利人所有。灵感来自",
+      credit_2: "，版权归原权利人所有。",
+      credit_love:
+        "等爱系列：成员资料与照片来自各团体官网与日文 Wikipedia（含 Web Archive 存档）。灵感来自",
       photo_src: "照片：48pedia.org",
+      photo_src_love: "照片：各团体官网・Wikipedia",
       poster_fail:
         "图片生成失败：请通过网址（http://）打开本页，而不是直接双击 html 文件。",
       empty_slot: "空位",
@@ -100,6 +179,7 @@
       subtitle: "All generations",
       series_48g: "48 Group",
       series_saka: "Sakamichi",
+      series_love: "=LOVE Family",
       series_label: "Series",
       mode_16: "16 members",
       mode_32: "Ranked 32",
@@ -107,8 +187,10 @@
       brand_16: "Senbatsu",
       brand_32: "Ranked",
       brand_7fukujin: "7 Fukujin",
+      brand_7oshi: "Oshi 7",
       title_prefix_48g: "My 48 Group",
       title_prefix_saka: "My Sakamichi",
+      title_prefix_love: "My =LOVE Family",
       filter_all: "All",
       filter_current: "Active",
       filter_former: "Graduated",
@@ -169,8 +251,11 @@
       share: "Share on X",
       resort: "Re-rank these members",
       credit_1: "Names and photos from",
-      credit_2: ". Copyright belongs to the original owners. Inspired by",
+      credit_2: ". Copyright belongs to the original owners.",
+      credit_love:
+        "=LOVE Family: profiles and photos from official sites and Japanese Wikipedia (with Web Archive). Inspired by",
       photo_src: "Photos: 48pedia.org",
+      photo_src_love: "Photos: official sites / Wikipedia",
       poster_fail:
         "Could not generate the image. Open this page via http://, not by double-clicking the HTML file.",
       empty_slot: "Empty",
