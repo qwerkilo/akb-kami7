@@ -87,3 +87,11 @@
   - 验证：`npm test` JS 69 + Python 71、E2E 实跑 55/55、覆盖 `fetch_members.py` 96% / `love_members.py` 87% / `core.js` 行 99.78%、`--no-dl` 幂等。
 - 遗留：LOW——`members-artifact.test.js` bio 覆盖阈值偏松（-2/-60，实际 -1/-46）；原型像素级对照未做；`.info` 在卡片按钮内的嵌套语义仍非标准（已补键盘路径，记为可接受）。
 - 下次基点：`1a0241c90584ec687073c9e1ebb3cb69be471ff5`（审查修复提交；文档收口为其后一笔）
+
+## 2026-09-27 · 质检修复（第七轮后续）
+
+- 基点：`5e5d2ff`（第七轮质检）
+- 范围：`e99ef00`（11 项断言补齐）→ `4a58ad6`（P2 poster 重构）→ `b490870`（P3 注入测试），共 3 个提交
+- 结论：质检建议按优先级全部落地——P2 结构性热点（`slot` CCN 30）拆分并经 3301 条绘制调用快照证明行为不变、48 行克隆消除；P3 两处低覆盖（`love_members.load` 编排、`wiki.get` 重试）补齐注入式测试，覆盖率 96%/89%；`scan-secrets.py` 草稿移出仓库。验证：`npm test` JS 80 + Python 77、E2E 55/55、`--no-dl` 幂等。
+- 遗留：LOW——`members-artifact.test.js` bio 阈值偏松；poster.js 变异幸存仍以假 ctx 无法覆盖的几何/样式为主（视觉 + E2E 兜底，接受）。
+- 下次基点：`b490870153ca18a438c6fb7ea1bca6a64d147851`（含全部质检修复；文档收口为其后一笔）

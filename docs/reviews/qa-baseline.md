@@ -190,3 +190,9 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 2. **P3**：`love_members.load` 编排分支补 2-3 项注入式测试（详情页失败重试、单成员失败不阻塞）——目前靠「快速中止」保护。
 3. **P3**：`wiki.py` 的 `get` 重试路径可补 1 项单测（54% 覆盖率的主因）。
 4. 维持现有 checklist；下次质检从本节数字对比。
+
+### 第七轮修复记录（2026-09-27）
+
+- **P2 已修**（`4a58ad6`）：`poster.js` `slot` 拆为 `slotCard`/`rankTape`/`slotLabel` + `tapeGeom`/`labelSizes` 尺寸表（CCN 30→2，全部助手 ≤5），`drawSeven`/`drawSixteen` 共用 `podium`，48 行克隆消除（jscpd 最大 JS 克隆降至 8 行测试样板）；行为不变由**绘制调用序列快照**验证（7/16/32 共 3301 条调用，重构前后 diff 为空），E2E 55/55。
+- **P3 已修**（`b490870`）：`love_members.load` 补 3 项注入式测试（装配断言、详情失败即抛的快速中止契约、存档失败可存活）；新增 `scripts/test_wiki.py` 3 项（重试后成功、耗尽抛出、首次成功不 sleep）。覆盖率：`love_members.py` 87%→**96%**、`wiki.py` 54%→**89%**；`npm test` JS 80 + Python 77。
+- **P3 草稿处置**：`scripts/scan-secrets.py` 草稿移至 `/tmp/opencode/scan-secrets.py.draft`（密钥扫描按用户要求跳过，仓库不留半成品）。
