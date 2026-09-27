@@ -4,8 +4,6 @@
   const CORE = window.AKB_CORE;
   const FOLD = CORE.foldIndex(window.AKB_SIMPLIFIED || {});
 
-  let series = "48g";
-  let pick = 7;
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map();
   GROUPS.forEach((g) =>
@@ -16,6 +14,22 @@
       BY_ID.set(m.id, m);
     })
   );
+
+  const S = window.AKB_SESSION.create({
+    storage: {
+      getItem: (k) => localStorage.getItem(k),
+      setItem: (k, v) => localStorage.setItem(k, v),
+    },
+    byId: (id) => BY_ID.get(id),
+  });
+  let snap = S.snapshot();
+  let series = snap.series;
+  let pick = snap.size;
+  function sync() {
+    snap = S.snapshot();
+    series = snap.series;
+    pick = snap.size;
+  }
 
   const I18N = window.AKB_I18N;
 
@@ -93,55 +107,6 @@
   const fullMeta = (m) => CORE.fullMeta(m, t, lang);
   const posterSub = (m) => CORE.posterSub(m, t, lang);
 
-  const state = {
-    selected: [],
-    filter: "all",
-    group: "all",
-    query: "",
-    open: new Set(),
-  };
-
-  /* ---------------- 系列与持久化 ---------------- */
-  const seriesStore = {
-    "48g": { size: 7, selected: [], duel: null },
-    sakamichi: { size: 7, selected: [], duel: null },
-  };
-  const storageKey = (s) => `akb:state:v2:${s}`;
-  const SERIES_KEY = "akb:series";
-
-  function saveState() {
-    try {
-      localStorage.setItem(
-        storageKey(series),
-        CORE.serializeState({
-          size: pick,
-          selected: state.selected,
-          duel:
-            duel.order.length > 0
-              ? { order: duel.order, answers: duel.answers }
-              : null,
-        })
-      );
-    } catch (_) {}
-  }
-
-  function loadState(s) {
-    try {
-      const st = CORE.deserializeState(
-        localStorage.getItem(storageKey(s)) || ""
-      );
-      if (!st) return;
-      const kept = st.selected.filter(
-        (id) => (BY_ID.get(id) || {}).series === s
-      );
-      let duel = st.duel;
-      if (duel && duel.order.some((id) => (BY_ID.get(id) || {}).series !== s)) {
-        duel = null;
-      }
-      seriesStore[s] = { size: st.size, selected: kept, duel };
-    } catch (_) {}
-  }
-
   const seriesGroups = () => GROUPS.filter((g) => g.series === series);
 
   /* ---------------- phase switching ---------------- */
@@ -156,11 +121,11 @@
   const roster = $("#roster");
 
   function visible(m) {
-    return m.series === series && CORE.isVisible(m, state.filter);
+    return m.series === series && CORE.isVisible(m, snap.filter);
   }
 
   function cardHTML(m, showGroup) {
-    const i = state.selected.indexOf(m.id);
+    const i = snap.selected.indexOf(m.id);
     const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
     return `<button class="card" data-id="${m.id}" aria-pressed="${i >= 0}" data-order="${i + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
@@ -172,7 +137,7 @@
   function pickedInNode(node) {
     return node.sections
       .flatMap((s) => s.members)
-      .filter((m) => state.selected.includes(m.id)).length;
+      .filter((m) => snap.selected.includes(m.id)).length;
   }
 
   let secSeq = 0;
@@ -184,14 +149,14 @@
     const secId = `${group}#${s.label}`;
     SEC_INDEX.set(secId, ms);
     const secUid = `gen-${++secSeq}`;
-    const open = state.open.has(secId);
+    const open = snap.open.includes(secId);
     const now = ms.filter((m) => m.status === "current").length;
     const count =
-      state.filter === "all" && now
+      snap.filter === "all" && now
         ? t("people_now", ms.length, now)
         : t("people", ms.length);
-    const picked = ms.filter((m) => state.selected.includes(m.id)).length;
-    const sub = state.group === "all" ? " sub" : "";
+    const picked = ms.filter((m) => snap.selected.includes(m.id)).length;
+    const sub = snap.group === "all" ? " sub" : "";
     return `<section class="gen${sub}" data-sec="${esc(secId)}">
       <button class="gen-head" aria-expanded="${open}" aria-controls="${secUid}">
         <i class="chev" aria-hidden="true"></i>
@@ -204,11 +169,12 @@
   }
 
   function renderRoster() {
-    const q = CORE.normalizeName(state.query);
+    sync();
+    const q = CORE.normalizeName(snap.query);
     if (q) return renderSearch(q);
 
-    const tree = CORE.groupSections(seriesGroups(), state.group);
-    const twoLevel = state.group === "all";
+    const tree = CORE.groupSections(seriesGroups(), snap.group);
+    const twoLevel = snap.group === "all";
     const html = [];
     for (const node of tree) {
       const body = node.sections
@@ -223,12 +189,12 @@
       const ms = node.sections.flatMap((s) => s.members).filter(visible);
       const now = ms.filter((m) => m.status === "current").length;
       const count =
-        state.filter === "all" && now
+        snap.filter === "all" && now
           ? t("people_now", ms.length, now)
           : t("people", ms.length);
       const picked = pickedInNode(node);
       const key = "g:" + node.group;
-      const open = state.open.has(key);
+      const open = snap.open.includes(key);
       html.push(`<section class="grp" data-group="${esc(node.group)}">
         <button class="grp-head" aria-expanded="${open}" aria-controls="grp-${esc(node.group)}">
           <i class="chev" aria-hidden="true"></i>
@@ -250,14 +216,14 @@
   function renderSearch(q) {
     const hits = [];
     for (const g of seriesGroups()) {
-      if (state.group !== "all" && g.group !== state.group) continue;
+      if (snap.group !== "all" && g.group !== snap.group) continue;
       for (const m of g.members) {
         if (visible(m) && m.hay.includes(q)) hits.push(m);
       }
     }
     roster.innerHTML = hits.length
       ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map((m) => cardHTML(m, true)).join("")}</div>`
-      : `<p class="empty">${t("empty_search", esc(state.query))}</p>`;
+      : `<p class="empty">${t("empty_search", esc(snap.query))}</p>`;
   }
 
   function toggleGroup(secId) {
@@ -267,13 +233,11 @@
     if (!sec) return;
     const head = sec.querySelector(".gen-head");
     const body = sec.querySelector(".gen-body");
-    const open = !state.open.has(secId);
+    const open = S.toggleOpen(secId);
     if (open) {
-      state.open.add(secId);
       body.innerHTML = (SEC_INDEX.get(secId) || []).map(cardHTML).join("");
       body.hidden = false;
     } else {
-      state.open.delete(secId);
       body.hidden = true;
       body.innerHTML = "";
     }
@@ -292,10 +256,9 @@
     const head = sec.querySelector(".grp-head");
     const body = sec.querySelector(".grp-body");
     const key = "g:" + name;
-    const open = !state.open.has(key);
+    const open = S.toggleOpen(key);
     if (open) {
-      state.open.add(key);
-      const node = CORE.groupSections(seriesGroups(), state.group).find(
+      const node = CORE.groupSections(seriesGroups(), snap.group).find(
         (n) => n.group === name
       );
       body.innerHTML = node
@@ -306,7 +269,6 @@
         : "";
       body.hidden = false;
     } else {
-      state.open.delete(key);
       body.hidden = true;
       body.innerHTML = "";
     }
@@ -314,34 +276,29 @@
   }
 
   function toggleMember(id) {
-    const i = state.selected.indexOf(id);
-    if (i >= 0) {
-      state.selected.splice(i, 1);
-    } else if (state.selected.length >= pick) {
+    if (!S.toggleSelect(id)) {
       const tray = $("#tray");
       tray.classList.remove("shake");
       void tray.offsetWidth;
       tray.classList.add("shake");
       return;
-    } else {
-      state.selected.push(id);
     }
-    invalidateDuel();
     syncSelection();
   }
 
   function syncSelection() {
+    sync();
     roster.querySelectorAll(".card").forEach((el) => {
-      const i = state.selected.indexOf(el.dataset.id);
+      const i = snap.selected.indexOf(el.dataset.id);
       el.setAttribute("aria-pressed", i >= 0);
       el.dataset.order = i + 1;
     });
     roster.querySelectorAll(".gen").forEach((sec) => {
       const members = SEC_INDEX.get(sec.dataset.sec) || [];
-      const n = members.filter((m) => state.selected.includes(m.id)).length;
+      const n = members.filter((m) => snap.selected.includes(m.id)).length;
       sec.querySelector(".gen-picked").textContent = n ? t("picked", n) : "";
     });
-    const tree = CORE.groupSections(seriesGroups(), state.group);
+    const tree = CORE.groupSections(seriesGroups(), snap.group);
     roster.querySelectorAll(".grp").forEach((sec) => {
       const node = tree.find((n) => n.group === sec.dataset.group);
       const picked = node ? pickedInNode(node) : 0;
@@ -349,15 +306,14 @@
         ? t("picked", picked)
         : "";
     });
-    roster.classList.toggle("full", state.selected.length >= pick);
+    roster.classList.toggle("full", snap.selected.length >= pick);
     renderTray();
-    saveState();
   }
 
   function renderTray() {
     const slots = [];
     for (let i = 0; i < pick; i++) {
-      const m = BY_ID.get(state.selected[i]);
+      const m = BY_ID.get(snap.selected[i]);
       const label = m
         ? esc(t("slot_remove", m.name, m.group, m.generation))
         : "";
@@ -370,7 +326,7 @@
     $("#slots").innerHTML = slots.join("");
     $("#tray").classList.toggle("wide", pick !== 7);
     $("#slots").style.setProperty("--slots", String(pick === 7 ? 7 : 8));
-    const left = pick - state.selected.length;
+    const left = pick - snap.selected.length;
     const btn = $("#start-btn");
     btn.disabled = left > 0;
     btn.textContent = left > 0 ? t("need", left) : t("start");
@@ -409,29 +365,8 @@
   }
 
   function switchSeries(next) {
-    if (next === series) return;
-    seriesStore[series] = {
-      size: pick,
-      selected: state.selected.slice(),
-      duel:
-        duel.order.length > 0
-          ? { order: duel.order.slice(), answers: duel.answers.slice() }
-          : null,
-    };
-    duel.order = [];
-    duel.answers = [];
-    duel.pair = null;
-    series = next;
-    try {
-      localStorage.setItem(SERIES_KEY, series);
-    } catch (_) {}
-    const st = seriesStore[series];
-    pick = st.size;
-    state.selected = st.selected.slice();
-    state.filter = "all";
-    state.group = "all";
-    state.query = "";
-    state.open.clear();
+    if (!S.switchSeries(next)) return;
+    sync();
     const search = $("#search");
     if (search) search.value = "";
     document
@@ -444,8 +379,11 @@
     applyStatic();
     const title = $("#title-input");
     if (title && !title.dataset.dirty) title.value = defaultTitle();
-    if (st.duel && st.duel.order.length) {
-      resumeDuel(st);
+    if (snap.phase === "duel") {
+      show("duel");
+      renderDuel();
+    } else if (snap.phase === "result") {
+      renderResult();
     } else {
       show("pick");
       renderRoster();
@@ -454,7 +392,7 @@
   }
 
   groupSelect.addEventListener("change", () => {
-    state.group = groupSelect.value;
+    S.setGroup(groupSelect.value);
     renderRoster();
     syncSelection();
     roster.scrollTop = 0;
@@ -465,7 +403,7 @@
       document
         .querySelectorAll(".seg-filter button")
         .forEach((x) => x.setAttribute("aria-checked", x === b));
-      state.filter = b.dataset.filter;
+      S.setFilter(b.dataset.filter);
       renderRoster();
       syncSelection();
     });
@@ -474,15 +412,12 @@
   document.querySelectorAll(".seg-size button").forEach((b) => {
     b.addEventListener("click", () => {
       const next = +b.dataset.pick;
-      if (next === pick) return;
-      pick = next;
-      if (state.selected.length > pick) state.selected.length = pick;
-      invalidateDuel();
+      if (!S.setSize(next)) return;
+      sync();
       paintSizeButtons();
       applyStatic();
       const title = $("#title-input");
       if (!title.dataset.dirty) title.value = defaultTitle();
-      saveState();
       renderRoster();
       syncSelection();
     });
@@ -496,7 +431,7 @@
   $("#search").addEventListener("input", (e) => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
-      state.query = e.target.value;
+      S.setQuery(e.target.value);
       renderRoster();
       syncSelection();
       roster.scrollTop = 0;
@@ -504,68 +439,37 @@
   });
 
   $("#start-btn").addEventListener("click", () =>
-    startDuel(CORE.shuffle(state.selected.slice()))
+    beginDuel(CORE.shuffle(snap.selected.slice()))
   );
 
   /* ---------------- duel (replayable merge sort) ---------------- */
-  const duel = { order: [], answers: [], pair: null };
-
-  function startDuel(order) {
-    duel.order = order;
-    duel.answers = [];
+  function beginDuel(order) {
+    if (!S.startDuel(order)) return;
     order.forEach((id) => {
       new Image().src = fullSrc(BY_ID.get(id));
     });
-    $("#duel-max").textContent = CORE.worstCase(order.length);
-    saveState();
     show("duel");
-    advance();
+    renderDuel();
   }
 
-  function resumeDuel(st) {
-    if (st.duel.order.some((id) => !BY_ID.get(id))) {
-      duel.order = [];
-      duel.answers = [];
-      saveState();
-      show("pick");
-      renderRoster();
-      syncSelection();
-      return;
-    }
-    duel.order = st.duel.order.slice();
-    duel.answers = st.duel.answers.slice();
-    const r = CORE.replay(duel.order, duel.answers);
-    if (r.done) return finish(r.order);
-    $("#duel-max").textContent = CORE.worstCase(duel.order.length);
-    show("duel");
-    advance();
-  }
-
-  function invalidateDuel() {
-    if (duel.order.length) {
-      duel.order = [];
-      duel.answers = [];
-    }
-  }
-
-  function advance() {
-    const r = CORE.replay(duel.order, duel.answers);
-    if (r.done) return finish(r.order);
-    duel.pair = r.pair;
-    const p = CORE.duelProgress(duel.order.length, duel.answers.length);
-    $("#duel-step").textContent = duel.answers.length + 1;
-    $("#duel-bar").style.width = `${p.percent}%`;
+  function renderDuel() {
+    sync();
+    if (snap.phase === "result") return renderResult();
+    if (snap.phase !== "duel") return;
+    $("#duel-max").textContent = snap.duel.max;
+    $("#duel-step").textContent = snap.duel.step;
+    $("#duel-bar").style.width = `${snap.duel.percent}%`;
     const extra = $("#duel-extra");
     if (extra)
       extra.textContent = t(
         "duel_extra",
-        p.percent,
-        p.remaining,
-        Math.max(1, Math.ceil(p.etaSeconds / 60))
+        snap.duel.percent,
+        snap.duel.remaining,
+        Math.max(1, Math.ceil(snap.duel.etaSeconds / 60))
       );
-    $("#undo-btn").disabled = duel.answers.length === 0;
-    fillFighter($("#fighter-a"), BY_ID.get(r.pair[0]));
-    fillFighter($("#fighter-b"), BY_ID.get(r.pair[1]));
+    $("#undo-btn").disabled = !snap.duel.canUndo;
+    fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
+    fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
   }
 
   function fillFighter(el, m) {
@@ -585,18 +489,18 @@
     (leftWins ? $("#fighter-a") : $("#fighter-b")).classList.add("picked");
     setTimeout(() => {
       answering = false;
-      if (forSeries !== series) return;
-      duel.answers.push(leftWins);
-      saveState();
-      advance();
+      if (S.snapshot().series !== forSeries) return;
+      if (!S.answer(leftWins)) return;
+      sync();
+      if (snap.phase === "result") renderResult();
+      else renderDuel();
     }, 160);
   }
 
   function undo() {
-    if (!duel.answers.length || $("#phase-duel").hidden) return;
-    duel.answers.pop();
-    saveState();
-    advance();
+    if ($("#phase-duel").hidden) return;
+    if (!S.undo()) return;
+    renderDuel();
   }
 
   $("#fighter-a").addEventListener("click", () => answer(true));
@@ -619,8 +523,8 @@
   });
 
   function backToPick() {
-    invalidateDuel();
-    saveState();
+    S.abandonDuel();
+    sync();
     show("pick");
     renderRoster();
     syncSelection();
@@ -629,9 +533,7 @@
   /* ---------------- result ---------------- */
   let ranking = [];
 
-  function finish(ids) {
-    ranking = ids.map((id) => BY_ID.get(id));
-    saveState();
+  function renderRankList() {
     $("#rank-list").innerHTML = ranking
       .map(
         (m, i) => `<li>
@@ -641,6 +543,13 @@
     </li>`
       )
       .join("");
+  }
+
+  function renderResult() {
+    sync();
+    if (snap.phase !== "result") return;
+    ranking = snap.ranking.map((id) => BY_ID.get(id));
+    renderRankList();
     show("result");
     drawPoster();
   }
@@ -651,7 +560,7 @@
     drawTimer = setTimeout(drawPoster, 200);
   });
   $("#resort-btn").addEventListener("click", () =>
-    startDuel(CORE.shuffle(ranking.map((m) => m.id)))
+    beginDuel(CORE.shuffle(ranking.map((m) => m.id)))
   );
   $("#restart-btn").addEventListener("click", backToPick);
   $("#save-btn").addEventListener("click", savePoster);
@@ -767,20 +676,9 @@
     applyStatic();
     renderRoster();
     syncSelection();
-    if (!$("#phase-duel").hidden && duel.pair) {
-      fillFighter($("#fighter-a"), BY_ID.get(duel.pair[0]));
-      fillFighter($("#fighter-b"), BY_ID.get(duel.pair[1]));
-    }
+    if (!$("#phase-duel").hidden) renderDuel();
     if (!$("#phase-result").hidden && ranking.length) {
-      $("#rank-list").innerHTML = ranking
-        .map(
-          (m, i) => `<li>
-        <span class="no">${i + 1}</span>
-        <img src="${thumbSrc(m)}" alt="">
-        <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
-      </li>`
-        )
-        .join("");
+      renderRankList();
       drawPoster();
     }
   }
@@ -793,19 +691,14 @@
   });
 
   /* ---------------- boot ---------------- */
-  try {
-    const saved = localStorage.getItem(SERIES_KEY);
-    if (saved === "48g" || saved === "sakamichi") series = saved;
-  } catch (_) {}
-  loadState("48g");
-  loadState("sakamichi");
-  pick = seriesStore[series].size;
-  state.selected = seriesStore[series].selected.slice();
   refreshGroupOptions();
   paintSizeButtons();
   applyStatic();
-  if (seriesStore[series].duel) {
-    resumeDuel(seriesStore[series]);
+  if (snap.phase === "duel") {
+    show("duel");
+    renderDuel();
+  } else if (snap.phase === "result") {
+    renderResult();
   } else {
     renderRoster();
     syncSelection();

@@ -2,11 +2,11 @@
 
 ## 项目概览
 
-纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
+纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `session.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
 
 - 站点覆盖 48 Group 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）与坂道三团（乃木坂46 / 櫻坂46 / 日向坂46），分「48g / sakamichi」两个系列（现役 + 毕业，跨团去重后 1338 人）。
 - v2 能力：系列切换（各自保留已选/对决进度，localStorage）、7/16/32 档位（32 档精确全序，最坏 129 题）、简体输入检索（`simplified.js` 折叠表，OpenCC 离线生成）、对决进度与刷新续玩。
-- `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、折叠索引、两级分组、对决 replay、持久化序列化、字幕 module、占位图）；`poster.js` 是海报绘制 module（7/16/32 布局，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en 文案；`app.js` 是单文件 IIFE：pick（系列/筛选/搜索）→ duel（两两对比排序，可回放归并、可撤回、可续玩）→ result（canvas 海报导出）。
+- `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、折叠索引、两级分组、对决 replay、持久化载荷编解码、字幕 module、占位图）；`session.js` 是会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 是海报绘制 module（7/16/32 布局，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en 文案；`app.js` 是 DOM 层：pick（系列/筛选/搜索）→ duel（两两对比排序，可回放归并、可撤回、可续玩）→ result（canvas 海报导出）。
 - 双语 UI：文案在 `i18n.js`（zh/en），`index.html` 的 `data-i18n` 属性引用同一批键；改文案两处同步，`test/i18n.test.js` 会检查键完整性。
 - `members.js` 是生成文件（数据来自 48pedia），不要手改。
 
