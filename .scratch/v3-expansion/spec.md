@@ -44,7 +44,9 @@
   - 48pedia 解析新增「生年月日（`{{生年月日|Y|M|D}}`）」「出身地（`{{出身地|…}}`）」两列 → `bio: { birth, from }`。
   - 等爱：官网详情页（血液型/星座/身長/生年月日/出身地/趣味/特技）+ ja.wikipedia（平假名读法、生年月日、出身地、元成员与卒業日、期生）→ `bio: { birth, from, height, blood, sign, hobby, skill }`。
   - `core.js` 新增 `profileRows(m, t, lang)`：把成员可用字段组装为 `[label, value]` 列表（纯函数，node 可测）。
+- **简介样式**：采用原型 C「杂志编辑」（分支 `prototype/ui-v3-profile`，提交 `764d029`）：宋体大字名 + 品红标签 + 双栏字段。
 - **简介交互**：卡片右上角小「i」按钮（`aria-label`）→ 底部资料卡（sheet：名字/假名 + profileRows 渲染；关闭按钮/点背景/Esc 关闭）；选人卡片与结果列表共用（结果行加 ⓘ）。不改变「点卡片 = 选中」。
+- **简介值本地化**：可穷举字段走映射表（星座 12 项、血型、都道府县 47 项、期生序号、日期格式随语言）；自由文本（趣味/特技）走仓库内「日文原文 → zh/en」对照表（`i18n.js`），未收录回退原文（专有名词：姓名/假名/昵称/罗马字保持原文）。测试守卫：当等爱数据的自由文本缺译文时断言失败。
 - **等爱系列**：系列 id `love`；系列名 zh「等爱」/ en「=LOVE Family」；三团 =LOVE / ≠ME / ≒JOY；`members.js` 中 `series: "love"`；分组沿用「团体 → 期生」两级。
 - **命名模块扩展**：`CORE.names` 支持 love——7 档品牌「推し 7」/ "Oshi 7"；标题前缀「我的等爱」/ "My =LOVE Family"；话题标签 `#イコノイジョイ`；`fileBase` = `love_{size}`；16/32 品牌沿用选拔组/圈内。
 - **持久化**：沿用 `akb:state:v2:<series>`（新增 `love`）与 `akb:series`；系列隔离、恢复与校验规则不变。
@@ -57,7 +59,8 @@
 - 缝与用例：
   - **① Python 解析（fixture）**：48pedia 行新增字段（生年月日/出身地）；三官网列表与详情页样本；wikipedia wikitext 样本（现役/元成员/期生/卒業日）；照片回退链（注入 fetcher：官网 200/500 → wayback 命中/未命中 → commons/无 → 占位）。
   - **④ session.js**：`clearSelection` 清空+作废+持久化、空时 no-op、跨系列不影响。
-  - **② core.js**：`names` love 变体（brand/title/fileBase/tags，zh/en 穷举）；`profileRows` 字段顺序与缺失字段过滤。
+  - **② core.js**：`names` love 变体（brand/title/fileBase/tags，zh/en 穷举）；`profileRows` 字段顺序、缺失字段过滤与值本地化（映射命中/回退原文）。
+- **⑥ i18n.js**：自由文本（趣味/特技）对照表完整性——当前全部成员自由文本均有 zh/en 条目。
   - **⑤ poster.js（假 ctx + tokens）**：32 金字塔行分布/顺序/角标、行高权重递减、小格省略名字、7/16 布局回归不变。
   - **③ 产物不变量**：love 系列存在、37 人、`bio` 形状、系列与图片/占位标记。
   - **⑦ E2E（/tmp，不入仓）**：清空按钮（确认）、简介 sheet（打开/关字段/关闭）、三系列切换（品牌/标题/标签/文件名）、32 金字塔海报生成无 `undefined`。
