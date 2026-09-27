@@ -27,10 +27,21 @@
       .replace(/[﨑髙邉邊濵德瀨]/g, (c) => VARIANTS[c]);
   }
 
-  function haystack(member) {
-    return normalizeName(
+  function haystack(member, fold) {
+    const base = normalizeName(
       [member.name, member.kana, member.nick].filter(Boolean).join(" ")
     );
+    if (!fold) return base;
+    const folded = [...base].map((c) => fold[c] || c).join("");
+    return `${base} ${folded}`;
+  }
+
+  function foldIndex(simpMap) {
+    const out = {};
+    for (const [sim, forms] of Object.entries(simpMap || {})) {
+      for (const form of forms) out[form] = sim;
+    }
+    return out;
   }
 
   function isVisible(member, filter) {
@@ -171,9 +182,64 @@
     return `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
   }
 
+  // ---- 持久化（localStorage 序列化；损坏/过期数据安全丢弃） ----
+  const STATE_VERSION = 1;
+  const SIZES = [7, 16, 32];
+
+  function serializeState(state) {
+    return JSON.stringify({
+      v: STATE_VERSION,
+      size: state.size,
+      selected: state.selected,
+      duel: state.duel || null,
+    });
+  }
+
+  function deserializeState(raw) {
+    try {
+      const s = JSON.parse(raw);
+      if (!s || s.v !== STATE_VERSION || !SIZES.includes(s.size)) return null;
+      const selected = Array.isArray(s.selected)
+        ? s.selected.filter((x) => typeof x === "string").slice(0, s.size)
+        : [];
+      let duel = null;
+      if (
+        s.duel &&
+        Array.isArray(s.duel.order) &&
+        s.duel.order.length &&
+        s.duel.order.every((x) => typeof x === "string") &&
+        Array.isArray(s.duel.answers) &&
+        s.duel.answers.length <= s.duel.order.length &&
+        s.duel.answers.every((x) => typeof x === "boolean")
+      ) {
+        duel = { order: s.duel.order, answers: s.duel.answers };
+      }
+      return { size: s.size, selected, duel };
+    } catch (err) {
+      return null;
+    }
+  }
+
+  // ---- 对决进度（剩余按最坏题数估算，ETA 按经验 5s/题） ----
+  const SECONDS_PER_DUEL = 5;
+
+  function duelProgress(size, answered) {
+    const max = worstCase(size);
+    const done = Math.max(0, Math.min(answered, max));
+    const remaining = max - done;
+    return {
+      answered: done,
+      max,
+      percent: max ? Math.round((done / max) * 100) : 0,
+      remaining,
+      etaSeconds: remaining * SECONDS_PER_DUEL,
+    };
+  }
+
   return {
     normalizeName,
     haystack,
+    foldIndex,
     isVisible,
     placeholderSrc,
     photoSrc,
@@ -181,6 +247,9 @@
     replay,
     worstCase,
     shuffle,
+    serializeState,
+    deserializeState,
+    duelProgress,
     isTransfer,
     leaveText,
     yearLeave,

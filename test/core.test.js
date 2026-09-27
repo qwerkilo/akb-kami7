@@ -294,3 +294,63 @@ test("字幕：海报副标题全分支且不产生 undefined", () => {
     "1期生"
   );
 });
+
+test("foldIndex 反转折叠表，haystack 支持简体输入", () => {
+  const fold = core.foldIndex({ 边: ["邊", "辺"], 宫: ["宮"], 马: ["馬"] });
+  assert.deepEqual(fold, { 邊: "边", 辺: "边", 宮: "宫", 馬: "马" });
+  const m = { name: "渡辺麻友", kana: "わたなべ まゆ", nick: "まゆゆ" };
+  const hay = core.haystack(m, fold);
+  assert.ok(hay.includes("渡辺麻友"));
+  assert.ok(hay.includes("渡边麻友"));
+});
+
+test("haystack 无折叠表时行为不变", () => {
+  assert.equal(
+    core.haystack({ name: "高橋みなみ", kana: "たかはし みなみ" }),
+    core.normalizeName("高橋みなみ たかはし みなみ")
+  );
+});
+
+test("持久化：序列化往返与损坏数据安全丢弃", () => {
+  const state = {
+    size: 16,
+    selected: ["a", "b"],
+    duel: { order: ["a", "b", "c"], answers: [true] },
+  };
+  assert.deepEqual(core.deserializeState(core.serializeState(state)), state);
+  assert.equal(core.deserializeState("not json"), null);
+  assert.equal(core.deserializeState(JSON.stringify({ v: 0, size: 7 })), null);
+  assert.equal(core.deserializeState(JSON.stringify({ v: 1, size: 9 })), null);
+  const messy = core.deserializeState(
+    JSON.stringify({ v: 1, size: 7, selected: [1, "a", null], duel: null })
+  );
+  assert.deepEqual(messy.selected, ["a"]);
+  assert.equal(messy.duel, null);
+  const badDuel = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 7,
+      selected: [],
+      duel: { order: ["a"], answers: "x" },
+    })
+  );
+  assert.equal(badDuel.duel, null);
+});
+
+test("对决进度：32 档最坏 129 与百分比/预计时长", () => {
+  assert.equal(core.worstCase(32), 129);
+  assert.deepEqual(core.duelProgress(32, 0), {
+    answered: 0,
+    max: 129,
+    percent: 0,
+    remaining: 129,
+    etaSeconds: 645,
+  });
+  assert.deepEqual(core.duelProgress(7, 14), {
+    answered: 14,
+    max: 14,
+    percent: 100,
+    remaining: 0,
+    etaSeconds: 0,
+  });
+});
