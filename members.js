@@ -2,6 +2,7 @@
 window.AKB_GROUPS = [
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -153,6 +154,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "1.5期生",
   "members": [
    {
@@ -168,6 +170,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -293,6 +296,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -460,6 +464,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "4期生",
   "members": [
    {
@@ -579,6 +584,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "5期生",
   "members": [
    {
@@ -677,6 +683,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "6期生",
   "members": [
    {
@@ -721,6 +728,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "7期生",
   "members": [
    {
@@ -808,6 +816,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "8期生",
   "members": [
    {
@@ -919,16 +928,6 @@ window.AKB_GROUPS = [
     "img": true
    },
    {
-    "id": "m27ef4ccd4f",
-    "name": "西川七海",
-    "kana": "にしかわ ななみ",
-    "nick": "ななみん",
-    "status": "former",
-    "end": "2009.07.25",
-    "img": true,
-    "leave": "解雇"
-   },
-   {
     "id": "m2dde861dda",
     "name": "三木にこる",
     "kana": "みき にこる",
@@ -950,6 +949,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "9期生",
   "members": [
    {
@@ -1071,6 +1071,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "10期生",
   "members": [
    {
@@ -1160,6 +1161,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "11期生",
   "members": [
    {
@@ -1256,6 +1258,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "12期生",
   "members": [
    {
@@ -1343,6 +1346,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "12.5期生",
   "members": [
    {
@@ -1359,6 +1363,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "13期生",
   "members": [
    {
@@ -1510,6 +1515,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "14期生",
   "members": [
    {
@@ -1576,6 +1582,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "15期生",
   "members": [
    {
@@ -1690,6 +1697,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "16期生",
   "members": [
    {
@@ -1870,6 +1878,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "17期生",
   "members": [
    {
@@ -1976,6 +1985,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "18期生",
   "members": [
    {
@@ -2054,6 +2064,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "19期生",
   "members": [
    {
@@ -2105,6 +2116,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "20期生",
   "members": [
    {
@@ -2138,6 +2150,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "21期生",
   "members": [
    {
@@ -2189,6 +2202,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "22期生",
   "members": [
    {
@@ -2231,6 +2245,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "Team 8",
   "members": [
    {
@@ -2904,6 +2919,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "选秀1期生",
   "members": [
    {
@@ -2964,6 +2980,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "选秀2期生",
   "members": [
    {
@@ -3033,6 +3050,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "选秀3期生",
   "members": [
    {
@@ -3206,19 +3224,9 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "兼任・移籍加入",
   "members": [
-   {
-    "id": "m1a9960888b",
-    "name": "生駒里奈",
-    "kana": "いこま りな",
-    "nick": "いこたん",
-    "status": "former",
-    "end": "2015.05.14",
-    "img": true,
-    "leave": "兼任終了",
-    "note": "乃木坂46 1期"
-   },
    {
     "id": "m13807e9202",
     "name": "小笠原茉由",
@@ -3300,6 +3308,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "AKB48",
+  "series": "48g",
   "label": "其他",
   "members": [
    {
@@ -3348,6 +3357,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -3523,7 +3533,13 @@ window.AKB_GROUPS = [
     "nick": "れな",
     "status": "former",
     "end": "2015.08.31",
-    "img": true
+    "img": true,
+    "extras": [
+     {
+      "group": "乃木坂46",
+      "current": false
+     }
+    ]
    },
    {
     "id": "m9177a1fd4c",
@@ -3565,6 +3581,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -3802,6 +3819,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -3917,6 +3935,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "4期生",
   "members": [
    {
@@ -4073,6 +4092,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "5期生",
   "members": [
    {
@@ -4204,6 +4224,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "6期生",
   "members": [
    {
@@ -4404,6 +4425,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "7期生",
   "members": [
    {
@@ -4546,6 +4568,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "8期生",
   "members": [
    {
@@ -4727,6 +4750,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "9期生",
   "members": [
    {
@@ -4917,6 +4941,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "10期生",
   "members": [
    {
@@ -5022,6 +5047,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "11期生",
   "members": [
    {
@@ -5092,6 +5118,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "12期生",
   "members": [
    {
@@ -5199,6 +5226,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "13期生",
   "members": [
    {
@@ -5331,6 +5359,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "14期生",
   "members": [
    {
@@ -5382,6 +5411,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "选秀1期生",
   "members": [
    {
@@ -5460,6 +5490,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "选秀2期生",
   "members": [
    {
@@ -5511,6 +5542,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "选秀3期生",
   "members": [
    {
@@ -5563,6 +5595,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SKE48",
+  "series": "48g",
   "label": "兼任・移籍加入",
   "members": [
    {
@@ -5659,6 +5692,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -5925,6 +5959,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -6136,6 +6171,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -6352,6 +6388,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "4期生",
   "members": [
    {
@@ -6512,6 +6549,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "4.5期生",
   "members": [
    {
@@ -6527,6 +6565,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "5期生",
   "members": [
    {
@@ -6623,6 +6662,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "6期生",
   "members": [
    {
@@ -6757,6 +6797,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "7期生",
   "members": [
    {
@@ -6863,6 +6904,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "7.5期生",
   "members": [
    {
@@ -6878,6 +6920,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "8期生",
   "members": [
    {
@@ -7011,6 +7054,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "9期生",
   "members": [
    {
@@ -7170,6 +7214,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "10期生",
   "members": [
    {
@@ -7311,6 +7356,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "11期生",
   "members": [
    {
@@ -7416,6 +7462,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "选秀1期生",
   "members": [
    {
@@ -7458,6 +7505,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "选秀2期生",
   "members": [
    {
@@ -7527,6 +7575,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "选秀3期生",
   "members": [
    {
@@ -7668,6 +7717,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "兼任・移籍加入",
   "members": [
    {
@@ -7719,6 +7769,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NMB48",
+  "series": "48g",
   "label": "其他",
   "members": [
    {
@@ -7736,6 +7787,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -7951,6 +8003,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -8143,6 +8196,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -8236,6 +8290,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "4期生",
   "members": [
    {
@@ -8342,6 +8397,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "5期生",
   "members": [
    {
@@ -8474,6 +8530,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "6期生",
   "members": [
    {
@@ -8644,6 +8701,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "7期生",
   "members": [
    {
@@ -8796,6 +8854,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "选秀1期生",
   "members": [
    {
@@ -8811,6 +8870,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "选秀2期生",
   "members": [
    {
@@ -8844,6 +8904,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "选秀3期生",
   "members": [
    {
@@ -8896,6 +8957,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "HKT48",
+  "series": "48g",
   "label": "兼任・移籍加入",
   "members": [
    {
@@ -8936,6 +8998,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -9140,6 +9203,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -9295,6 +9359,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -9411,6 +9476,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "4期生",
   "members": [
    {
@@ -9535,6 +9601,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "5期生",
   "members": [
    {
@@ -9640,6 +9707,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "6期生",
   "members": [
    {
@@ -9718,6 +9786,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "选秀2期生",
   "members": [
    {
@@ -9742,6 +9811,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "选秀3期生",
   "members": [
    {
@@ -9794,6 +9864,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "NGT48",
+  "series": "48g",
   "label": "兼任・移籍加入",
   "members": [
    {
@@ -9819,6 +9890,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "STU48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -10107,6 +10179,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "STU48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -10334,6 +10407,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "STU48",
+  "series": "48g",
   "label": "2.5期生",
   "members": [
    {
@@ -10376,6 +10450,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "STU48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -10513,6 +10588,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "STU48",
+  "series": "48g",
   "label": "4期生",
   "members": [
    {
@@ -10681,6 +10757,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "STU48",
+  "series": "48g",
   "label": "选秀3期生",
   "members": [
    {
@@ -10733,6 +10810,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SDN48",
+  "series": "48g",
   "label": "1期生",
   "members": [
    {
@@ -10976,6 +11054,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SDN48",
+  "series": "48g",
   "label": "2期生",
   "members": [
    {
@@ -11128,6 +11207,7 @@ window.AKB_GROUPS = [
  },
  {
   "group": "SDN48",
+  "series": "48g",
   "label": "3期生",
   "members": [
    {
@@ -11203,6 +11283,1986 @@ window.AKB_GROUPS = [
     "nick": "miray将軍",
     "status": "former",
     "end": "2012.03.31",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "乃木坂46",
+  "series": "sakamichi",
+  "label": "1期生",
+  "members": [
+   {
+    "id": "mda9144e280",
+    "name": "秋元真夏",
+    "kana": "あきもと まなつ",
+    "nick": "",
+    "status": "former",
+    "end": "2023.02.26",
+    "img": true
+   },
+   {
+    "id": "mc02705424b",
+    "name": "安藤美雲",
+    "kana": "あんどう みくも",
+    "nick": "",
+    "status": "former",
+    "end": "2013.06.16",
+    "img": true
+   },
+   {
+    "id": "mc3fc78d42d",
+    "name": "生田絵梨花",
+    "kana": "いくた えりか",
+    "nick": "",
+    "status": "former",
+    "end": "2021.12.31",
+    "img": true
+   },
+   {
+    "id": "m1a9960888b",
+    "name": "生駒里奈",
+    "kana": "いこま りな",
+    "nick": "",
+    "status": "former",
+    "end": "2018.05.06",
+    "img": true,
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
+   },
+   {
+    "id": "md3fa08246e",
+    "name": "市來玲奈",
+    "kana": "いちき れな",
+    "nick": "",
+    "status": "former",
+    "end": "2014.07.21",
+    "img": true
+   },
+   {
+    "id": "m21f15ab0a4",
+    "name": "伊藤寧々",
+    "kana": "いとう ねね",
+    "nick": "",
+    "status": "former",
+    "end": "2014.10.19",
+    "img": true
+   },
+   {
+    "id": "m0813ff8387",
+    "name": "伊藤万理華",
+    "kana": "いとう まりか",
+    "nick": "",
+    "status": "former",
+    "end": "2017.12.23",
+    "img": true
+   },
+   {
+    "id": "m03e89599be",
+    "name": "井上小百合",
+    "kana": "いのうえ さゆり",
+    "nick": "",
+    "status": "former",
+    "end": "2020.04.27",
+    "img": true
+   },
+   {
+    "id": "mcacae41ad1",
+    "name": "岩瀬佑美子",
+    "kana": "いわせ ゆみこ",
+    "nick": "",
+    "status": "former",
+    "end": "2012.11.18",
+    "img": true
+   },
+   {
+    "id": "mcd30fafdd0",
+    "name": "衛藤美彩",
+    "kana": "えとう みさ",
+    "nick": "",
+    "status": "former",
+    "end": "2019.03.31",
+    "img": true
+   },
+   {
+    "id": "mdb0402ad27",
+    "name": "柏幸奈",
+    "kana": "かしわ ゆきな",
+    "nick": "",
+    "status": "former",
+    "end": "2013.11.17",
+    "img": true
+   },
+   {
+    "id": "m8a881f2c52",
+    "name": "川後陽菜",
+    "kana": "かわご ひな",
+    "nick": "",
+    "status": "former",
+    "end": "2018.12.20",
+    "img": true
+   },
+   {
+    "id": "mebe976cd6f",
+    "name": "川村真洋",
+    "kana": "かわむら まひろ",
+    "nick": "",
+    "status": "former",
+    "end": "2018.03.31",
+    "img": true
+   },
+   {
+    "id": "m059f98212a",
+    "name": "齋藤飛鳥",
+    "kana": "さいとう あすか",
+    "nick": "",
+    "status": "former",
+    "end": "2023.05.18",
+    "img": true,
+    "leave": "卒業"
+   },
+   {
+    "id": "mbd105cc9dd",
+    "name": "斎藤ちはる",
+    "kana": "さいとう ちはる",
+    "nick": "",
+    "status": "former",
+    "end": "2018.07.16",
+    "img": true
+   },
+   {
+    "id": "mc404ce24a1",
+    "name": "斉藤優里",
+    "kana": "さいとう ゆうり",
+    "nick": "",
+    "status": "former",
+    "end": "2019.06.30",
+    "img": true
+   },
+   {
+    "id": "mbcf91eaede",
+    "name": "桜井玲香",
+    "kana": "さくらい れいか",
+    "nick": "",
+    "status": "former",
+    "end": "2019.09.01",
+    "img": true
+   },
+   {
+    "id": "m1c82bee3c7",
+    "name": "白石麻衣",
+    "kana": "しらいし まい",
+    "nick": "",
+    "status": "former",
+    "end": "2020.10.28",
+    "img": true
+   },
+   {
+    "id": "m8b8d9fc75c",
+    "name": "高山一実",
+    "kana": "たかやま かずみ",
+    "nick": "",
+    "status": "former",
+    "end": "2021.11.21",
+    "img": true
+   },
+   {
+    "id": "m795312d34c",
+    "name": "中田花奈",
+    "kana": "なかだ かな",
+    "nick": "",
+    "status": "former",
+    "end": "2020.10.25",
+    "img": true
+   },
+   {
+    "id": "maccf448853",
+    "name": "中元日芽香",
+    "kana": "なかもと ひめか",
+    "nick": "",
+    "status": "former",
+    "end": "2017.12.31",
+    "img": true
+   },
+   {
+    "id": "m752d6ac7fa",
+    "name": "永島聖羅",
+    "kana": "ながしま せいら",
+    "nick": "",
+    "status": "former",
+    "end": "2016.03.20",
+    "img": true
+   },
+   {
+    "id": "maa0493c31b",
+    "name": "西野七瀬",
+    "kana": "にしの ななせ",
+    "nick": "",
+    "status": "former",
+    "end": "2019.02.24",
+    "img": true,
+    "leave": "卒業"
+   },
+   {
+    "id": "mcc0118d19c",
+    "name": "能條愛未",
+    "kana": "のうじょう あみ",
+    "nick": "",
+    "status": "former",
+    "end": "2018.12.15",
+    "img": true
+   },
+   {
+    "id": "m7a99bc5555",
+    "name": "橋本奈々未",
+    "kana": "はしもと ななみ",
+    "nick": "",
+    "status": "former",
+    "end": "2017.02.20",
+    "img": true
+   },
+   {
+    "id": "mcf4c96c476",
+    "name": "畠中清羅",
+    "kana": "はたなか せいら",
+    "nick": "",
+    "status": "former",
+    "end": "2015.04.04",
+    "img": true
+   },
+   {
+    "id": "m9d6a938565",
+    "name": "樋口日奈",
+    "kana": "ひぐち ひな",
+    "nick": "",
+    "status": "former",
+    "end": "2022.10.31",
+    "img": true
+   },
+   {
+    "id": "mc86e265505",
+    "name": "深川麻衣",
+    "kana": "ふかがわ まい",
+    "nick": "",
+    "status": "former",
+    "end": "2016.06.16",
+    "img": true
+   },
+   {
+    "id": "ma7f17ea6e0",
+    "name": "星野みなみ",
+    "kana": "ほしの みなみ",
+    "nick": "",
+    "status": "former",
+    "end": "2022.02.12",
+    "img": true
+   },
+   {
+    "id": "m0ff87d2978",
+    "name": "松村沙友理",
+    "kana": "まつむら さゆり",
+    "nick": "",
+    "status": "former",
+    "end": "2021.07.13",
+    "img": true
+   },
+   {
+    "id": "m871168411a",
+    "name": "宮澤成良",
+    "kana": "みやざわ せいら",
+    "nick": "",
+    "status": "former",
+    "end": "2013.11.17",
+    "img": true
+   },
+   {
+    "id": "m23722ee626",
+    "name": "大和里菜",
+    "kana": "やまと りな",
+    "nick": "",
+    "status": "former",
+    "end": "2014.12.15",
+    "img": true,
+    "leave": "契約終了"
+   },
+   {
+    "id": "m0cb6fc7311",
+    "name": "山本穂乃香",
+    "kana": "やまもと ほのか",
+    "nick": "",
+    "status": "former",
+    "end": "2011.09.22",
+    "img": true,
+    "leave": "活動辞退"
+   },
+   {
+    "id": "mc7a8553145",
+    "name": "吉本彩華",
+    "kana": "よしもと あやか",
+    "nick": "",
+    "status": "former",
+    "end": "2011.09.22",
+    "img": true,
+    "leave": "活動辞退"
+   },
+   {
+    "id": "mffa145bda4",
+    "name": "若月佑美",
+    "kana": "わかつき ゆみ",
+    "nick": "",
+    "status": "former",
+    "end": "2018.12.04",
+    "img": true,
+    "leave": "卒業"
+   },
+   {
+    "id": "madfec58a6b",
+    "name": "和田まあや",
+    "kana": "わだ まあや",
+    "nick": "",
+    "status": "former",
+    "end": "2022.12.04",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "乃木坂46",
+  "series": "sakamichi",
+  "label": "2期生",
+  "members": [
+   {
+    "id": "m9711a78c35",
+    "name": "伊藤かりん",
+    "kana": "いとう かりん",
+    "nick": "",
+    "status": "former",
+    "end": "2019.05.24",
+    "img": true
+   },
+   {
+    "id": "mdef89e9a3f",
+    "name": "伊藤純奈",
+    "kana": "いとう じゅんな",
+    "nick": "",
+    "status": "former",
+    "end": "2021.08.29",
+    "img": true
+   },
+   {
+    "id": "mddc5a9b3ba",
+    "name": "北野日奈子",
+    "kana": "きたの ひなこ",
+    "nick": "",
+    "status": "former",
+    "end": "2022.04.30",
+    "img": true
+   },
+   {
+    "id": "m3611043f34",
+    "name": "相楽伊織",
+    "kana": "さがら いおり",
+    "nick": "",
+    "status": "former",
+    "end": "2018.07.16",
+    "img": true
+   },
+   {
+    "id": "mc16761108a",
+    "name": "佐々木琴子",
+    "kana": "ささき ことこ",
+    "nick": "",
+    "status": "former",
+    "end": "2020.03.31",
+    "img": true
+   },
+   {
+    "id": "mb38f3dc344",
+    "name": "新内眞衣",
+    "kana": "しんうち まい",
+    "nick": "",
+    "status": "former",
+    "end": "2022.02.10",
+    "img": true
+   },
+   {
+    "id": "m41b70cf72f",
+    "name": "鈴木絢音",
+    "kana": "すずき あやね",
+    "nick": "",
+    "status": "former",
+    "end": "2023.03.28",
+    "img": true
+   },
+   {
+    "id": "m3d0bdf9f0d",
+    "name": "寺田蘭世",
+    "kana": "てらだ らんぜ",
+    "nick": "",
+    "status": "former",
+    "end": "2021.12.12",
+    "img": true
+   },
+   {
+    "id": "m27ef4ccd4f",
+    "name": "西川七海",
+    "kana": "にしかわ ななみ",
+    "nick": "",
+    "status": "former",
+    "end": "2014.03.22",
+    "img": true,
+    "leave": "活動辞退",
+    "extras": [
+     {
+      "group": "AKB48",
+      "current": false
+     }
+    ]
+   },
+   {
+    "id": "m20df11ccc1",
+    "name": "堀未央奈",
+    "kana": "ほり みおな",
+    "nick": "",
+    "status": "former",
+    "end": "2021.03.28",
+    "img": true
+   },
+   {
+    "id": "m5a8d561f05",
+    "name": "矢田里沙子",
+    "kana": "やだ りさこ",
+    "nick": "",
+    "status": "former",
+    "end": "2014.10.18",
+    "img": true,
+    "leave": "活動辞退"
+   },
+   {
+    "id": "m39cad719b7",
+    "name": "山崎怜奈",
+    "kana": "やまざき れな",
+    "nick": "",
+    "status": "former",
+    "end": "2022.07.17",
+    "img": true
+   },
+   {
+    "id": "mc3898164e2",
+    "name": "米徳京花",
+    "kana": "よねとく きょうか",
+    "nick": "",
+    "status": "former",
+    "end": "2014.10.18",
+    "img": true,
+    "leave": "活動辞退"
+   },
+   {
+    "id": "mfc60d196b1",
+    "name": "渡辺みり愛",
+    "kana": "わたなべ みりあ",
+    "nick": "",
+    "status": "former",
+    "end": "2021.08.31",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "乃木坂46",
+  "series": "sakamichi",
+  "label": "3期生",
+  "members": [
+   {
+    "id": "mc09f8cabf0",
+    "name": "伊藤理々杏",
+    "kana": "いとう りりあ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mb4e489c64c",
+    "name": "岩本蓮加",
+    "kana": "いわもと れんか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m17e16a2ad4",
+    "name": "梅澤美波",
+    "kana": "うめざわ みなみ",
+    "nick": "",
+    "status": "former",
+    "end": "2026.05.21",
+    "img": true
+   },
+   {
+    "id": "m1666ee99aa",
+    "name": "大園桃子",
+    "kana": "おおぞの ももこ",
+    "nick": "",
+    "status": "former",
+    "end": "2021.09.04",
+    "img": true
+   },
+   {
+    "id": "m348fba4a8e",
+    "name": "久保史緒里",
+    "kana": "くぼ しおり",
+    "nick": "",
+    "status": "former",
+    "end": "2025.11.27",
+    "img": true
+   },
+   {
+    "id": "m891b96ec33",
+    "name": "阪口珠美",
+    "kana": "さかぐち たまみ",
+    "nick": "",
+    "status": "former",
+    "end": "2024.07.15",
+    "img": true
+   },
+   {
+    "id": "mcd66b5fad0",
+    "name": "佐藤楓",
+    "kana": "さとう かえで",
+    "nick": "",
+    "status": "former",
+    "end": "2025.05.06",
+    "img": true
+   },
+   {
+    "id": "m959026412a",
+    "name": "中村麗乃",
+    "kana": "なかむら れの",
+    "nick": "",
+    "status": "former",
+    "end": "2025.06.26",
+    "img": true
+   },
+   {
+    "id": "mf620085a7a",
+    "name": "向井葉月",
+    "kana": "むかい はづき",
+    "nick": "",
+    "status": "former",
+    "end": "2024.12.31",
+    "img": true
+   },
+   {
+    "id": "m93aeea8d67",
+    "name": "山下美月",
+    "kana": "やました みづき",
+    "nick": "",
+    "status": "former",
+    "end": "2024.05.12",
+    "img": true
+   },
+   {
+    "id": "mb053c2f699",
+    "name": "吉田綾乃クリスティー",
+    "kana": "よしだ あやのクリスティー",
+    "nick": "",
+    "status": "former",
+    "end": "2026.08.09",
+    "img": true
+   },
+   {
+    "id": "m14f44b425b",
+    "name": "与田祐希",
+    "kana": "よだ ゆうき",
+    "nick": "",
+    "status": "former",
+    "end": "2025.02.23",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "乃木坂46",
+  "series": "sakamichi",
+  "label": "4期生",
+  "members": [
+   {
+    "id": "m86612318d7",
+    "name": "遠藤さくら",
+    "kana": "えんどう さくら",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m77d4c4dab5",
+    "name": "賀喜遥香",
+    "kana": "かき はるか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m74b606759b",
+    "name": "金川紗耶",
+    "kana": "かながわ さや",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m21f72372a6",
+    "name": "黒見明香",
+    "kana": "くろみ はるか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m04d41d7815",
+    "name": "柴田柚菜",
+    "kana": "しばた ゆな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m096a5890ca",
+    "name": "田村真佑",
+    "kana": "たむら まゆ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mfea1e1789f",
+    "name": "筒井あやめ",
+    "kana": "つつい あやめ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m0764168f5c",
+    "name": "林瑠奈",
+    "kana": "はやし るな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mf555f01834",
+    "name": "弓木奈於",
+    "kana": "ゆみき なお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "md2320ff78f",
+    "name": "掛橋沙耶香",
+    "kana": "かけはし さやか",
+    "nick": "",
+    "status": "former",
+    "end": "2024.08.19",
+    "img": true
+   },
+   {
+    "id": "m318f6e8a10",
+    "name": "北川悠理",
+    "kana": "きたがわ ゆり",
+    "nick": "",
+    "status": "former",
+    "end": "2023.06.30",
+    "img": true
+   },
+   {
+    "id": "m485135ab87",
+    "name": "佐藤璃果",
+    "kana": "さとう りか",
+    "nick": "",
+    "status": "former",
+    "end": "2026.05.02",
+    "img": true
+   },
+   {
+    "id": "me2a8e59348",
+    "name": "清宮レイ",
+    "kana": "せいみや レイ",
+    "nick": "",
+    "status": "former",
+    "end": "2024.07.17",
+    "img": true
+   },
+   {
+    "id": "m9d2d55642d",
+    "name": "早川聖来",
+    "kana": "はやかわ せいら",
+    "nick": "",
+    "status": "former",
+    "end": "2023.08.24",
+    "img": true
+   },
+   {
+    "id": "mb3b69a3cd5",
+    "name": "松尾美佑",
+    "kana": "まつお みゆ",
+    "nick": "",
+    "status": "former",
+    "end": "2025.12.31",
+    "img": true
+   },
+   {
+    "id": "m106a620199",
+    "name": "矢久保美緒",
+    "kana": "やくぼ みお",
+    "nick": "",
+    "status": "former",
+    "end": "2025.12.31",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "乃木坂46",
+  "series": "sakamichi",
+  "label": "5期生",
+  "members": [
+   {
+    "id": "m08ba39ee3e",
+    "name": "五百城茉央",
+    "kana": "いおき まお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "me810ba36b9",
+    "name": "池田瑛紗",
+    "kana": "いけだ てれさ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m78bf2c764a",
+    "name": "一ノ瀬美空",
+    "kana": "いちのせ みく",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mcaed0870f3",
+    "name": "井上和",
+    "kana": "いのうえ なぎ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m53bd91d4c9",
+    "name": "岡本姫奈",
+    "kana": "おかもと ひな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m9bdc9d7273",
+    "name": "小川彩",
+    "kana": "おがわ あや",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "md45c07127c",
+    "name": "奥田いろは",
+    "kana": "おくだ いろは",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m1cc2bfbe71",
+    "name": "川﨑桜",
+    "kana": "かわさき さくら",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mebe9decdf7",
+    "name": "菅原咲月",
+    "kana": "すがわら さつき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "me470580a13",
+    "name": "冨里奈央",
+    "kana": "とみさと なお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m0338bb4e15",
+    "name": "中西アルノ",
+    "kana": "なかにし アルノ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "乃木坂46",
+  "series": "sakamichi",
+  "label": "6期生",
+  "members": [
+   {
+    "id": "m238dd39ad0",
+    "name": "愛宕心響",
+    "kana": "あたご ここね",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m3e3d6dd32f",
+    "name": "大越ひなの",
+    "kana": "おおこし ひなの",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m0c2a102526",
+    "name": "小津玲奈",
+    "kana": "おづ れいな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "ma7701c3287",
+    "name": "海邉朱莉",
+    "kana": "かいべ あかり",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mac0d0f78c7",
+    "name": "川端晃菜",
+    "kana": "かわばた ひな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "ma0041e34ee",
+    "name": "鈴木佑捺",
+    "kana": "すずき ゆうな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m3566e039b3",
+    "name": "瀬戸口心月",
+    "kana": "せとぐち みつき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m3cf320c9b7",
+    "name": "長嶋凛桜",
+    "kana": "ながしま りお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m274e4d2e28",
+    "name": "増田三莉音",
+    "kana": "ますだ みりね",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mb4cd830ae8",
+    "name": "森平麗心",
+    "kana": "もりひら うるみ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "medcdbfe765",
+    "name": "矢田萌華",
+    "kana": "やだ もえか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "櫻坂46",
+  "series": "sakamichi",
+  "label": "一期生",
+  "members": [
+   {
+    "id": "m6e506eec8e",
+    "name": "石森虹花",
+    "kana": "いしもり にじか",
+    "nick": "",
+    "status": "former",
+    "end": "2020.09.30",
+    "img": true
+   },
+   {
+    "id": "m79e4df6345",
+    "name": "今泉佑唯",
+    "kana": "いまいずみ ゆい",
+    "nick": "",
+    "status": "former",
+    "end": "2018.11.04",
+    "img": true
+   },
+   {
+    "id": "me234b50b33",
+    "name": "上村莉菜",
+    "kana": "うえむら りな",
+    "nick": "",
+    "status": "former",
+    "end": "2025.02.16",
+    "img": true
+   },
+   {
+    "id": "m7311ea0124",
+    "name": "尾関梨香",
+    "kana": "おぜき りか",
+    "nick": "",
+    "status": "former",
+    "end": "2022.09.11",
+    "img": true
+   },
+   {
+    "id": "mcbd32bcd7d",
+    "name": "織田奈那",
+    "kana": "おだ なな",
+    "nick": "",
+    "status": "former",
+    "end": "2020.01.23",
+    "img": true
+   },
+   {
+    "id": "mae85801a24",
+    "name": "小池美波",
+    "kana": "こいけ みなみ",
+    "nick": "",
+    "status": "former",
+    "end": "2025.05.30",
+    "img": true
+   },
+   {
+    "id": "m45427128de",
+    "name": "小林由依",
+    "kana": "こばやし ゆい",
+    "nick": "",
+    "status": "former",
+    "end": "2024.02.01",
+    "img": true
+   },
+   {
+    "id": "m6e80d76542",
+    "name": "齋藤冬優花",
+    "kana": "さいとう ふゆか",
+    "nick": "",
+    "status": "former",
+    "end": "2025.01.13",
+    "img": true
+   },
+   {
+    "id": "md7fd31ac50",
+    "name": "佐藤詩織",
+    "kana": "さとう しおり",
+    "nick": "",
+    "status": "former",
+    "end": "2020.10.13",
+    "img": true
+   },
+   {
+    "id": "m7632ce6d2f",
+    "name": "志田愛佳",
+    "kana": "しだ まなか",
+    "nick": "",
+    "status": "former",
+    "end": "2018.11.16",
+    "img": true
+   },
+   {
+    "id": "ma10b5ce3d4",
+    "name": "菅井友香",
+    "kana": "すがい ゆうか",
+    "nick": "",
+    "status": "former",
+    "end": "2022.11.09",
+    "img": true
+   },
+   {
+    "id": "m48f49d835f",
+    "name": "鈴木泉帆",
+    "kana": "すずき みづほ",
+    "nick": "",
+    "status": "former",
+    "end": "2015.09.30",
+    "img": true,
+    "leave": "活動開始前辞退"
+   },
+   {
+    "id": "m757517ad10",
+    "name": "鈴本美愉",
+    "kana": "すずもと みゆ",
+    "nick": "",
+    "status": "former",
+    "end": "2020.01.23",
+    "img": true
+   },
+   {
+    "id": "m3dcfc58c5a",
+    "name": "長沢菜々香",
+    "kana": "ながさわ ななこ",
+    "nick": "",
+    "status": "former",
+    "end": "2020.03.31",
+    "img": true
+   },
+   {
+    "id": "md4ed8b171a",
+    "name": "土生瑞穂",
+    "kana": "はぶ みづほ",
+    "nick": "",
+    "status": "former",
+    "end": "2023.11.25",
+    "img": true
+   },
+   {
+    "id": "mf9a49bb570",
+    "name": "原田葵",
+    "kana": "はらだ あおい",
+    "nick": "",
+    "status": "former",
+    "end": "2022.08.20",
+    "img": true,
+    "leave": "卒業"
+   },
+   {
+    "id": "m61848a8287",
+    "name": "原田まゆ",
+    "kana": "はらだ まゆ",
+    "nick": "",
+    "status": "former",
+    "end": "2015.11.11",
+    "img": true,
+    "leave": "活動辞退"
+   },
+   {
+    "id": "m6c2d45f02c",
+    "name": "平手友梨奈",
+    "kana": "ひらて ゆりな",
+    "nick": "",
+    "status": "former",
+    "end": "2020.01.23",
+    "img": true,
+    "leave": "脱退"
+   },
+   {
+    "id": "m0f11b00fd8",
+    "name": "守屋茜",
+    "kana": "もりや あかね",
+    "nick": "",
+    "status": "former",
+    "end": "2021.12.19",
+    "img": true
+   },
+   {
+    "id": "m3f5a1f0020",
+    "name": "米谷奈々未",
+    "kana": "よねたに ななみ",
+    "nick": "",
+    "status": "former",
+    "end": "2018.12.22",
+    "img": true
+   },
+   {
+    "id": "m6d7f8d11c8",
+    "name": "渡辺梨加",
+    "kana": "わたなべ りか",
+    "nick": "",
+    "status": "former",
+    "end": "2021.12.19",
+    "img": true
+   },
+   {
+    "id": "m2bdf933869",
+    "name": "渡邉理佐",
+    "kana": "わたなべ りさ",
+    "nick": "",
+    "status": "former",
+    "end": "2022.05.22",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "櫻坂46",
+  "series": "sakamichi",
+  "label": "1.5期生",
+  "members": [
+   {
+    "id": "mac2eea4df1",
+    "name": "長濱ねる",
+    "kana": "ながはま ねる",
+    "nick": "",
+    "status": "former",
+    "end": "2019.07.30",
+    "img": true,
+    "extras": [
+     {
+      "group": "日向坂46",
+      "current": false
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "group": "櫻坂46",
+  "series": "sakamichi",
+  "label": "二期生",
+  "members": [
+   {
+    "id": "m0eb5b281be",
+    "name": "遠藤光莉",
+    "kana": "えんどう ひかり",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4bfeb1580a",
+    "name": "大園玲",
+    "kana": "おおぞの れい",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m16ca77c587",
+    "name": "大沼晶保",
+    "kana": "おおぬま あきほ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m090bb043fa",
+    "name": "幸阪茉里乃",
+    "kana": "こうさか まりの",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4658750504",
+    "name": "田村保乃",
+    "kana": "たむら ほの",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "me5e031d89d",
+    "name": "藤吉夏鈴",
+    "kana": "ふじよし かりん",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m2dc32fca98",
+    "name": "増本綺良",
+    "kana": "ますもと きら",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m1ac412d17e",
+    "name": "松田里奈",
+    "kana": "まつだ りな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4a5fd453a5",
+    "name": "森田ひかる",
+    "kana": "もりた ひかる",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mac5ffa98d2",
+    "name": "守屋麗奈",
+    "kana": "もりや れな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mb8ed95f5cd",
+    "name": "山﨑天",
+    "kana": "やまさき てん",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4cfb602250",
+    "name": "井上梨名",
+    "kana": "いのうえ りな",
+    "nick": "",
+    "status": "former",
+    "end": "2026.02.28",
+    "img": true
+   },
+   {
+    "id": "mcafa09bc86",
+    "name": "関有美子",
+    "kana": "せき ゆみこ",
+    "nick": "",
+    "status": "former",
+    "end": "2023.04.30",
+    "img": true
+   },
+   {
+    "id": "m988ffb4c8c",
+    "name": "武元唯衣",
+    "kana": "たけもと ゆい",
+    "nick": "",
+    "status": "former",
+    "end": "2026.05.31",
+    "img": true
+   },
+   {
+    "id": "mef5946b92b",
+    "name": "松平璃子",
+    "kana": "まつだいら りこ",
+    "nick": "",
+    "status": "former",
+    "end": "2021.03.14",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "櫻坂46",
+  "series": "sakamichi",
+  "label": "三期生",
+  "members": [
+   {
+    "id": "m7e60580755",
+    "name": "石森璃花",
+    "kana": "いしもり りか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mf0ee089fa3",
+    "name": "遠藤理子",
+    "kana": "えんどう りこ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m1adc36f972",
+    "name": "小田倉麗奈",
+    "kana": "おだくら れいな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m6ac7e52717",
+    "name": "小島凪紗",
+    "kana": "こじま なぎさ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "me386d0b461",
+    "name": "谷口愛季",
+    "kana": "たにぐち あいり",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m0b80e29e0a",
+    "name": "中嶋優月",
+    "kana": "なかしま ゆづき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m8eadce44d0",
+    "name": "的野美青",
+    "kana": "まとの みお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m264915e736",
+    "name": "向井純葉",
+    "kana": "むかい いとは",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mbf7877994c",
+    "name": "村井優",
+    "kana": "むらい ゆう",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m657ffdc1b3",
+    "name": "村山美羽",
+    "kana": "むらやま みう",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mf023ced6b1",
+    "name": "山下瞳月",
+    "kana": "やました しづき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "櫻坂46",
+  "series": "sakamichi",
+  "label": "四期生",
+  "members": [
+   {
+    "id": "m88b9421466",
+    "name": "浅井恋乃未",
+    "kana": "あさい このみ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mc544128e80",
+    "name": "稲熊ひな",
+    "kana": "いなぐま ひな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m3eb90c5e14",
+    "name": "勝又春",
+    "kana": "かつまた はる",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mec1a83026e",
+    "name": "佐藤愛桜",
+    "kana": "さとう ねお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m6e8250d16d",
+    "name": "中川智尋",
+    "kana": "なかがわ ちひろ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "me24213175a",
+    "name": "松本和子",
+    "kana": "まつもと わこ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m42c2fa570b",
+    "name": "目黒陽色",
+    "kana": "めぐろ ひいろ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m6e6bfa91dc",
+    "name": "山川宇衣",
+    "kana": "やまかわ うい",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "me9727d809f",
+    "name": "山田桃実",
+    "kana": "やまだ ももみ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "日向坂46",
+  "series": "sakamichi",
+  "label": "一期生",
+  "members": [
+   {
+    "id": "m290ec6fd70",
+    "name": "井口眞緒",
+    "kana": "いぐち まお",
+    "nick": "",
+    "status": "former",
+    "end": "2020.03.02",
+    "img": true
+   },
+   {
+    "id": "m6273a441c6",
+    "name": "潮紗理菜",
+    "kana": "うしお さりな",
+    "nick": "",
+    "status": "former",
+    "end": "2023.12.31",
+    "img": true
+   },
+   {
+    "id": "mf6670d4996",
+    "name": "柿崎芽実",
+    "kana": "かきざき めみ",
+    "nick": "",
+    "status": "former",
+    "end": "2019.08.11",
+    "img": true
+   },
+   {
+    "id": "md7513db303",
+    "name": "影山優佳",
+    "kana": "かげやま ゆうか",
+    "nick": "",
+    "status": "former",
+    "end": "2023.07.19",
+    "img": true
+   },
+   {
+    "id": "ma07f818212",
+    "name": "加藤史帆",
+    "kana": "かとう しほ",
+    "nick": "",
+    "status": "former",
+    "end": "2024.12.25",
+    "img": true
+   },
+   {
+    "id": "mbc6e4e07f1",
+    "name": "齊藤京子",
+    "kana": "さいとう きょうこ",
+    "nick": "",
+    "status": "former",
+    "end": "2024.04.05",
+    "img": true
+   },
+   {
+    "id": "mb242b65223",
+    "name": "佐々木久美",
+    "kana": "ささき くみ",
+    "nick": "",
+    "status": "former",
+    "end": "2025.04.06",
+    "img": true
+   },
+   {
+    "id": "m0aa7006687",
+    "name": "佐々木美玲",
+    "kana": "ささき みれい",
+    "nick": "",
+    "status": "former",
+    "end": "2025.04.05",
+    "img": true
+   },
+   {
+    "id": "mc2f78dbdb3",
+    "name": "高瀬愛奈",
+    "kana": "たかせ まな",
+    "nick": "",
+    "status": "former",
+    "end": "2025.05.01",
+    "img": true
+   },
+   {
+    "id": "m86459a1c78",
+    "name": "高本彩花",
+    "kana": "たかもと あやか",
+    "nick": "",
+    "status": "former",
+    "end": "2024.07.31",
+    "img": true
+   },
+   {
+    "id": "mfd32714123",
+    "name": "東村芽依",
+    "kana": "ひがしむら めい",
+    "nick": "",
+    "status": "former",
+    "end": "2025.02.28",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "日向坂46",
+  "series": "sakamichi",
+  "label": "二期生",
+  "members": [
+   {
+    "id": "m39b9baeff1",
+    "name": "金村美玖",
+    "kana": "かねむら みく",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m16986e0407",
+    "name": "小坂菜緒",
+    "kana": "こさか なお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m2ee17a188d",
+    "name": "河田陽菜",
+    "kana": "かわた ひな",
+    "nick": "",
+    "status": "former",
+    "end": "2025.12.31",
+    "img": true
+   },
+   {
+    "id": "mc92a1f4972",
+    "name": "富田鈴花",
+    "kana": "とみた すずか",
+    "nick": "",
+    "status": "former",
+    "end": "2025.08.05",
+    "img": true
+   },
+   {
+    "id": "me514d1fd00",
+    "name": "丹生明里",
+    "kana": "にぶ あかり",
+    "nick": "",
+    "status": "former",
+    "end": "2025.01.29",
+    "img": true
+   },
+   {
+    "id": "m0aceaa9027",
+    "name": "濱岸ひより",
+    "kana": "はまぎし ひより",
+    "nick": "",
+    "status": "former",
+    "end": "2024.12.27",
+    "img": true
+   },
+   {
+    "id": "mef0e4ead8d",
+    "name": "松田好花",
+    "kana": "まつだ このか",
+    "nick": "",
+    "status": "former",
+    "end": "2026.02.28",
+    "img": true
+   },
+   {
+    "id": "m80e4ea620f",
+    "name": "宮田愛萌",
+    "kana": "みやた まなも",
+    "nick": "",
+    "status": "former",
+    "end": "2022.12.18",
+    "img": true
+   },
+   {
+    "id": "m7c5edfa826",
+    "name": "渡邉美穂",
+    "kana": "わたなべ みほ",
+    "nick": "",
+    "status": "former",
+    "end": "2022.07.31",
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "日向坂46",
+  "series": "sakamichi",
+  "label": "三期生",
+  "members": [
+   {
+    "id": "m45015e4e3c",
+    "name": "上村ひなの",
+    "kana": "かみむら ひなの",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m1204ef48f3",
+    "name": "髙橋未来虹",
+    "kana": "たかはし みくに",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m2afda66828",
+    "name": "森本茉莉",
+    "kana": "もりもと まりぃ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m544ea05403",
+    "name": "山口陽世",
+    "kana": "やまぐち はるよ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   }
+  ]
+ },
+ {
+  "group": "日向坂46",
+  "series": "sakamichi",
+  "label": "四期生",
+  "members": [
+   {
+    "id": "m93ba641b91",
+    "name": "石塚瑶季",
+    "kana": "いしづか たまき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m8d613b5647",
+    "name": "小西夏菜実",
+    "kana": "こにし ななみ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "ma5e9d2457d",
+    "name": "清水理央",
+    "kana": "しみず りお",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m417e2b75a7",
+    "name": "正源司陽子",
+    "kana": "しょうげんじ ようこ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4f425d5780",
+    "name": "竹内希来里",
+    "kana": "たけうち きらり",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m46f79ec7d8",
+    "name": "平尾帆夏",
+    "kana": "ひらお ほのか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m65980323a5",
+    "name": "平岡海月",
+    "kana": "ひらおか みつき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "ma411f894b8",
+    "name": "藤嶌果歩",
+    "kana": "ふじしま かほ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mf8435f82cb",
+    "name": "宮地すみれ",
+    "kana": "みやち すみれ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mc3691b9972",
+    "name": "山下葉留花",
+    "kana": "やました はるか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m8126a01c29",
+    "name": "渡辺莉奈",
+    "kana": "わたなべ りな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mc120c218b2",
+    "name": "岸帆夏",
+    "kana": "きし ほのか",
+    "nick": "",
+    "status": "former",
+    "end": "2023.12.07",
+    "img": true,
+    "leave": "活動辞退"
+   }
+  ]
+ },
+ {
+  "group": "日向坂46",
+  "series": "sakamichi",
+  "label": "五期生",
+  "members": [
+   {
+    "id": "ma58c3a5090",
+    "name": "大田美月",
+    "kana": "おおた みづき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m1924916cf1",
+    "name": "大野愛実",
+    "kana": "おおの まなみ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mf8847d629e",
+    "name": "片山紗希",
+    "kana": "かたやま さき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m5595d59c96",
+    "name": "蔵盛妃那乃",
+    "kana": "くらもり ひなの",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m69dc7a541b",
+    "name": "坂井新奈",
+    "kana": "さかい にいな",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "mb6b7cfd61e",
+    "name": "佐藤優羽",
+    "kana": "さとう ゆう",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m2ff816972d",
+    "name": "下田衣珠季",
+    "kana": "しもだ いずき",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4f49f806aa",
+    "name": "高井俐香",
+    "kana": "たかい りか",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m4fd1c4947f",
+    "name": "鶴崎仁香",
+    "kana": "つるさき にこ",
+    "nick": "",
+    "status": "current",
+    "end": null,
+    "img": true
+   },
+   {
+    "id": "m50ac3285c6",
+    "name": "松尾桜",
+    "kana": "まつお さくら",
+    "nick": "",
+    "status": "current",
+    "end": null,
     "img": true
    }
   ]

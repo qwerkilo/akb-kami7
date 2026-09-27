@@ -11,15 +11,18 @@ function loadGroups() {
   return sandbox.window.AKB_GROUPS;
 }
 
-// 48pedia 2026-09-26 抓取、跨团去重后的快照；上游变化时更新此表
+// 48pedia 2026-09-27 抓取、跨团去重后的快照；上游变化时更新此表
 const GROUP_COUNTS = {
-  AKB48: 342,
+  AKB48: 340,
   SKE48: 233,
   NMB48: 210,
   HKT48: 119,
   NGT48: 90,
   STU48: 96,
   SDN48: 46,
+  乃木坂46: 100,
+  櫻坂46: 58,
+  日向坂46: 46,
 };
 const GROUP_ORDER = [
   "AKB48",
@@ -29,7 +32,32 @@ const GROUP_ORDER = [
   "NGT48",
   "STU48",
   "SDN48",
+  "乃木坂46",
+  "櫻坂46",
+  "日向坂46",
 ];
+const SERIES_OF = {
+  AKB48: "48g",
+  SKE48: "48g",
+  NMB48: "48g",
+  HKT48: "48g",
+  NGT48: "48g",
+  STU48: "48g",
+  SDN48: "48g",
+  乃木坂46: "sakamichi",
+  櫻坂46: "sakamichi",
+  日向坂46: "sakamichi",
+};
+
+function loadSimplified() {
+  const src = fs.readFileSync(
+    path.join(__dirname, "..", "simplified.js"),
+    "utf8"
+  );
+  const sandbox = { window: {} };
+  vm.runInNewContext(src, sandbox);
+  return sandbox.window.AKB_SIMPLIFIED;
+}
 
 test("members.js 暴露非空的成员分组", () => {
   const groups = loadGroups();
@@ -54,12 +82,39 @@ test("每个分组有 label 与 members，成员字段完整且 id 唯一", () =
   }
 });
 
-test("七个团体齐备且首个出现顺序固定", () => {
+test("十个团体齐备且首个出现顺序固定", () => {
   const seen = [];
   for (const section of loadGroups()) {
     if (!seen.includes(section.group)) seen.push(section.group);
   }
   assert.deepEqual(seen, GROUP_ORDER);
+});
+
+test("每个分段带 series 且与团体对应", () => {
+  const seen = new Set();
+  for (const section of loadGroups()) {
+    assert.equal(
+      section.series,
+      SERIES_OF[section.group],
+      `${section.group} 的 series 不符`
+    );
+    seen.add(section.series);
+  }
+  assert.deepEqual([...seen].sort(), ["48g", "sakamichi"]);
+});
+
+test("simplified.js 折叠表结构合法且覆盖常见简体字", () => {
+  const pairs = loadSimplified();
+  assert.ok(pairs && typeof pairs === "object");
+  assert.ok(Object.keys(pairs).length > 100);
+  for (const [sim, forms] of Object.entries(pairs)) {
+    assert.equal(sim.length, 1, `键应为单个汉字: ${sim}`);
+    assert.ok(Array.isArray(forms) && forms.length > 0, `${sim} 缺折叠目标`);
+    for (const form of forms) assert.equal(typeof form, "string");
+  }
+  assert.deepEqual([...pairs["边"]], ["邊", "辺"]);
+  assert.ok(pairs["桥"].includes("橋"));
+  assert.ok(pairs["宫"].includes("宮"));
 });
 
 test("各团人数与快照一致", () => {

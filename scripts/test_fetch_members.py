@@ -551,5 +551,117 @@ class MainIntegrationTests(unittest.TestCase):
                 self.assertEqual(fh.read(), raw)
 
 
+NOGIZAKA_FIXTURE = """== 現役メンバー ==
+{|
+|-
+| {{!チーム|乃木坂}}
+| [[ファイル:2026年乃木坂46プロフィール_愛宕心響 2.jpg|50px]]
+| {{ルビ|[[愛宕心響]]|あたご ここね}}
+| {{生年月日|2005|9|17}}
+| {{出身地|兵庫県}}
+| {{加入期|6期|乃木坂46}}
+|}
+== 元メンバー ==
+{|
+|-
+| {{!チーム|乃木坂}}
+| [[ファイル:2014年乃木坂46プロフィール_松井玲奈.jpg|50px]]
+| {{ルビ|[[松井玲奈]]|まつい れな}}
+| {{生年月日|1991|7|27}}
+| {{出身地|愛知県}}
+| {{加入期|1期|SKE48}}
+| {{年月日|2015|5|14}}<br>（兼任解除）
+|}
+"""
+
+SAKURAZAKA_FIXTURE = """== 元メンバー ==
+{|
+|-
+| {{!チーム|欅坂}}
+| [[ファイル:欅坂46 お披露目 鈴木泉帆.jpg|50px]]
+| {{ルビ|[[鈴木泉帆]]|すずき みづほ}}
+| {{生年月日|2000|10|7}}
+| {{出身地|愛知県}}
+| {{加入期|一期|櫻坂46}}
+| data-sort-value="20150930" |（活動開始前辞退）
+|-
+| {{!チーム|欅坂}}
+| [[ファイル:2018年欅坂46プロフィール 今泉佑唯_2.jpg|50px]]
+| {{ルビ|[[今泉佑唯]]|いまいずみ ゆい}}
+| {{生年月日|1998|9|30}}
+| {{出身地|神奈川県}}
+| {{加入期|一期|櫻坂46}}
+| {{年月日|2018|11|4}}
+|}
+"""
+
+HINATAZAKA_FIXTURE = """== 元メンバー ==
+{|
+|-
+| {{!チーム|けやき坂|けやき坂<br>・欅坂}}
+| [[ファイル:2017年けやき坂46プロフィール_長濱ねる.jpg|50px]]
+| {{ルビ|[[長濱ねる]]|ながはま ねる}}
+| {{生年月日|1998|9|4}}
+| {{出身地|長崎県}}
+| {{加入期|1.5期|欅坂46}}
+| {{年月日|2017|9|25}}<br>（兼任解除）
+|}
+"""
+
+
+class SakamichiTests(unittest.TestCase):
+    def test_kanji_generations_normalize_to_keys(self):
+        self.assertEqual(fetch_members.group_of("四期|櫻坂46", "櫻坂46"), (4.0, "四期生"))
+        self.assertEqual(fetch_members.group_of("一期|日向坂46", "日向坂46"), (1.0, "一期生"))
+        self.assertEqual(fetch_members.group_of("6期|乃木坂46", "乃木坂46"), (6.0, "6期生"))
+
+    def test_historical_suffix_is_a_generation(self):
+        self.assertEqual(fetch_members.group_of("1.5期|欅坂46", "日向坂46"), (1.5, "1.5期生"))
+
+    def test_foreign_join_goes_to_transfer_bucket(self):
+        self.assertEqual(fetch_members.group_of("1期|SKE48", "乃木坂46"), (130, "兼任・移籍加入"))
+        self.assertEqual(fetch_members.note_of("1期|SKE48"), "SKE48 1期")
+
+    def test_nogizaka_page_rows(self):
+        rows = fetch_members.parse_page(NOGIZAKA_FIXTURE, "乃木坂46", "former")
+        self.assertEqual(len(rows), 2)
+        atago, matsui = rows
+        self.assertEqual((atago["name"], atago["status"], atago["series"]), ("愛宕心響", "current", "sakamichi"))
+        self.assertEqual(matsui["name"], "松井玲奈")
+        self.assertEqual((matsui["status"], matsui["end"], matsui["leave"]), ("former", "2015.05.14", "兼任解除"))
+
+    def test_sakurazaka_sortkey_date_and_plain_date(self):
+        rows = fetch_members.parse_page(SAKURAZAKA_FIXTURE, "櫻坂46", "former")
+        self.assertEqual(
+            [(r["name"], r["end"], r["leave"]) for r in rows],
+            [("鈴木泉帆", "2015.09.30", "活動開始前辞退"), ("今泉佑唯", "2018.11.04", None)],
+        )
+
+    def test_hinatazaka_15th_generation_section(self):
+        rows = fetch_members.parse_page(HINATAZAKA_FIXTURE, "日向坂46", "former")
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["join"], "1.5期|欅坂46")
+        self.assertEqual(rows[0]["end"], "2017.09.25")
+        rows[0]["id"] = "n1"
+        rows[0]["img"] = True
+        sections = fetch_members.build_sections(rows)
+        self.assertEqual(sections[0]["group"], "日向坂46")
+        self.assertEqual(sections[0]["series"], "sakamichi")
+        self.assertEqual(sections[0]["label"], "1.5期生")
+
+    def test_build_simplified_folds_chars(self):
+        mapping = {"宮": "宫", "邊": "边", "辺": "边"}
+        pairs = fetch_members.build_simplified(["宮邊辺", "宮崎"], convert=lambda ch: mapping.get(ch, ch))
+        self.assertEqual(pairs, {"宫": ["宮"], "边": ["邊", "辺"]})
+
+    def test_write_simplified_js_round_trip(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "simplified.js")
+            fetch_members.write_simplified_js({"宫": ["宮"]}, path)
+            src = open(path, encoding="utf-8").read()
+            payload = src.split("window.AKB_SIMPLIFIED = ", 1)[1].rstrip(";\n")
+            self.assertEqual(json.loads(payload), {"宫": ["宮"]})
+
+
 if __name__ == "__main__":
     unittest.main()
