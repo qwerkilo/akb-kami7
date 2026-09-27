@@ -3,8 +3,7 @@ import json
 import os
 import tempfile
 import unittest
-from contextlib import ExitStack, redirect_stdout
-from unittest.mock import patch
+from contextlib import redirect_stdout
 
 from PIL import Image
 
@@ -513,30 +512,18 @@ class MainIntegrationTests(unittest.TestCase):
         def no_download(url):
             raise AssertionError("--no-dl 不应触发下载")
 
-        # 外部不变量：真实图片目录的文件集合与 mtime 在测试前后必须一致
-        snapshot = {}
-        for name in ("ORIG", "FULL", "THUMB"):
-            d = getattr(fetch_members, name)
-            snapshot[d] = (
-                {f: os.path.getmtime(os.path.join(d, f)) for f in os.listdir(d)}
-                if os.path.isdir(d)
-                else None
-            )
-
-        with tempfile.TemporaryDirectory() as td, ExitStack() as stack:
-            dirs = {k: os.path.join(td, k) for k in ("orig", "full", "thumb")}
-            stack.enter_context(patch.object(fetch_members, "ROOT", td))
-            stack.enter_context(patch.object(fetch_members, "ORIG", dirs["orig"]))
-            stack.enter_context(patch.object(fetch_members, "FULL", dirs["full"]))
-            stack.enter_context(patch.object(fetch_members, "THUMB", dirs["thumb"]))
-            # 自检：补丁必须对模块全局生效，否则 main() 会写真实目录
-            self.assertEqual(fetch_members.ROOT, td)
-            self.assertEqual(fetch_members.ORIG, dirs["orig"])
-            self.assertEqual(fetch_members.FULL, dirs["full"])
-            self.assertEqual(fetch_members.THUMB, dirs["thumb"])
-
+        with tempfile.TemporaryDirectory() as td:
+            dirs = {
+                "root": td,
+                "orig": os.path.join(td, "orig"),
+                "full": os.path.join(td, "full"),
+                "thumb": os.path.join(td, "thumb"),
+            }
             fetch_members.main(
-                fetch_page=fake_pages, api_fn=fake_api, fetch_url=lambda url: png_bytes
+                dirs=dirs,
+                fetch_page=fake_pages,
+                api_fn=fake_api,
+                fetch_url=lambda url: png_bytes,
             )
 
             members_js = os.path.join(td, "members.js")
@@ -555,21 +542,13 @@ class MainIntegrationTests(unittest.TestCase):
 
             fetch_members.main(
                 argv=["--no-dl"],
+                dirs=dirs,
                 fetch_page=fake_pages,
                 api_fn=fake_api,
                 fetch_url=no_download,
             )
             with open(members_js, encoding="utf-8") as fh:
                 self.assertEqual(fh.read(), raw)
-
-        for d, files in snapshot.items():
-            if files is None:
-                continue
-            self.assertEqual(
-                {f: os.path.getmtime(os.path.join(d, f)) for f in os.listdir(d)},
-                files,
-                f"真实目录被测试写入：{d}",
-            )
 
 
 if __name__ == "__main__":

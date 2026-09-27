@@ -435,9 +435,14 @@ def collect_paths(members, urls, no_dl, fetch_url, orig_dir=ORIG):
     return download_all(jobs, fetch_url, orig_dir)
 
 
-def main(argv=None, fetch_page=wikitext, api_fn=api, fetch_url=get):
+def default_dirs():
+    return {"root": ROOT, "orig": ORIG, "full": FULL, "thumb": THUMB}
+
+
+def main(argv=None, dirs=None, fetch_page=wikitext, api_fn=api, fetch_url=get):
     no_dl, force = parse_args(argv)
-    for d in (ORIG, FULL, THUMB):
+    dirs = dirs or default_dirs()
+    for d in (dirs["orig"], dirs["full"], dirs["thumb"]):
         os.makedirs(d, exist_ok=True)
 
     members = merge_members(load_rows(fetch_page))
@@ -447,13 +452,18 @@ def main(argv=None, fetch_page=wikitext, api_fn=api, fetch_url=get):
     urls = image_urls(member_files(members), api_fn)
     report_missing_info(resolve_missing(members, urls))
 
-    paths = collect_paths(members, urls, no_dl, fetch_url, ORIG)
-    sizes = compress_members(members, paths, force, FULL, THUMB)
+    paths = collect_paths(members, urls, no_dl, fetch_url, dirs["orig"])
+    sizes = compress_members(members, paths, force, dirs["full"], dirs["thumb"])
     warn_missing_images(members)
-    report_removed(prune_unused({m["id"] for m in members}, (ORIG, FULL, THUMB)))
+    report_removed(
+        prune_unused(
+            {m["id"] for m in members},
+            (dirs["orig"], dirs["full"], dirs["thumb"]),
+        )
+    )
 
     sections = build_sections(members)
-    write_members_js(sections, os.path.join(ROOT, "members.js"))
+    write_members_js(sections, os.path.join(dirs["root"], "members.js"))
     report_generation(sections, members, sizes)
 
 
