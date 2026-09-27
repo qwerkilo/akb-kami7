@@ -246,6 +246,15 @@
       return true;
     }
 
+    function clearSelection() {
+      const had = state.selected.length > 0 || state.duel.order.length > 0;
+      if (!had) return false;
+      state.selected = [];
+      state.duel = emptyDuel();
+      save();
+      return true;
+    }
+
     function abandonDuel() {
       if (!state.duel.order.length) return false;
       state.duel = emptyDuel();
@@ -265,6 +274,7 @@
       startDuel,
       answer,
       undo,
+      clearSelection,
       abandonDuel,
     };
   }

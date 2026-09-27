@@ -28,6 +28,8 @@
       search_label: "搜索成员",
       search_ph: "搜索名字（汉字/假名/昵称）",
       tray_hint: "点底部头像即可去掉，再选别人",
+      clear_pick: "清空",
+      clear_confirm: "清空已选？当前系列的对决进度将一并作废。",
       need: (n) => `还差 ${n} 位`,
       start: "开始排序",
       people: (n) => `${n} 人`,
@@ -92,6 +94,9 @@
       search_label: "Search members",
       search_ph: "Search by name (kanji, kana, nickname)",
       tray_hint: "Tap a selected face below to remove her",
+      clear_pick: "Clear",
+      clear_confirm:
+        "Clear all picks? This series' duel progress will be discarded.",
       need: (n) => `${n} more`,
       start: "Start ranking",
       people: (n) => `${n}`,

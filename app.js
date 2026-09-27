@@ -322,6 +322,8 @@
     const btn = $("#start-btn");
     btn.disabled = left > 0;
     btn.textContent = left > 0 ? t("need", left) : t("start");
+    const clearBtn = $("#clear-btn");
+    if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
   }
 
   roster.addEventListener("click", (e) => {
@@ -426,6 +428,13 @@
   $("#start-btn").addEventListener("click", () =>
     beginDuel(CORE.shuffle(snap.selected.slice()))
   );
+
+  $("#clear-btn").addEventListener("click", () => {
+    if (!snap.selected.length) return;
+    if (!window.confirm(t("clear_confirm"))) return;
+    S.clearSelection();
+    syncSelection();
+  });
 
   /* ---------------- duel (replayable merge sort) ---------------- */
   function beginDuel(order) {

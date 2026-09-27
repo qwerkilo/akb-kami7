@@ -131,8 +131,16 @@
         <div class="tray" id="tray">
           <div class="tray-main">
             <ol class="slots" id="slots" aria-label="已选成员"></ol>
-            <p class="tray-hint" data-i18n="tray_hint">
-              点底部头像即可去掉，再选别人
+            <p class="tray-hint">
+              <span data-i18n="tray_hint">点底部头像即可去掉，再选别人</span>
+              <button
+                id="clear-btn"
+                class="ghost"
+                disabled
+                data-i18n="clear_pick"
+              >
+                清空
+              </button>
             </p>
           </div>
           <button id="start-btn" class="primary" disabled>还差 7 位</button>

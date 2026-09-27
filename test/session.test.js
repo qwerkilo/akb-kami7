@@ -250,3 +250,33 @@ test("答案序列一致：同序列还原同一次序", () => {
   assert.deepEqual([...b].sort(), ["a1", "a2", "a3", "a4", "a5"]);
   assert.notDeepEqual(a, b);
 });
+
+test("清空已选：清除当前系列全部已选并作废进行中的对决", () => {
+  const S = make();
+  S.toggleSelect("a1");
+  S.toggleSelect("a2");
+  S.toggleSelect("a3");
+  S.startDuel(["a1", "a2", "a3"]);
+  S.answer(true);
+  assert.equal(S.clearSelection(), true);
+  let s = S.snapshot();
+  assert.deepEqual(s.selected, []);
+  assert.equal(s.phase, "pick");
+  assert.equal(s.duel, null);
+  assert.equal(S.clearSelection(), false);
+});
+
+test("清空只影响当前系列", () => {
+  const storage = memoryStorage();
+  const S = make(storage);
+  S.toggleSelect("a1");
+  S.switchSeries("sakamichi");
+  S.toggleSelect("s1");
+  assert.equal(S.clearSelection(), true);
+  assert.deepEqual(S.snapshot().selected, []);
+  S.switchSeries("48g");
+  assert.deepEqual(S.snapshot().selected, ["a1"]);
+  const again = make(storage);
+  assert.equal(again.snapshot().series, "48g");
+  assert.deepEqual(again.snapshot().selected, ["a1"]);
+});
