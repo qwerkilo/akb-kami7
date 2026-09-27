@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>金字塔原型 D · 宽底快升</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-rows="3,5,7,9,8">
+<header class="bar"><span class="chip">原型 D</span><strong>宽底快升 · 3-5-7-9-8</strong></header>
+<main>
+  <section>
+    <h2>32 人结果海报（金字塔呈现）</h2>
+    <div class="poster">
+      <h1>我的 48 Group 圈内</h1>
+      <p class="date">48 Group 好き顔ソート · 2026.09.27</p>
+      <div class="pyramid" id="pyramid"></div>
+      <div class="tags"><b>#48Group　#好き顔ソート</b><span>写真：48pedia.org</span></div>
+    </div>
+  </section>
+  <section>
+    <h2>交互演示（四版一致，用于评估交互而非版式）</h2>
+    <p class="hint">点头像 = 选中（角标为顺位）；点「i」= 查看简介；托盘「清空」一键清除（带确认）。</p>
+    <div class="pick" id="pick"></div>
+    <div class="tray"><span id="count">已选 0 / 7</span><button id="clear">清空</button></div>
+  </section>
+</main>
+<div class="sheet" id="sheet" hidden></div>
+<script src="../../members.js"></script>
+<script src="pyramid.js"></script>
+</body>
+</html>
