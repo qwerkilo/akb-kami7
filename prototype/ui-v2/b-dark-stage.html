@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>原型 B · 暗色舞台 — 48G × 坂道 排序站</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b0b12;
+        --panel: #15151f;
+        --line: rgba(255, 255, 255, 0.09);
+        --txt: #f2f2f7;
+        --muted: #9a9aae;
+        --vio: #a78bfa;
+        --cyn: #22d3ee;
+        --gold: #f5c518;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background:
+          radial-gradient(
+            60% 40% at 15% 0%,
+            rgba(167, 139, 250, 0.22),
+            transparent 70%
+          ),
+          radial-gradient(
+            50% 35% at 90% 6%,
+            rgba(34, 211, 238, 0.16),
+            transparent 70%
+          ),
+          var(--bg);
+        color: var(--txt);
+        font-family: "Outfit", "Noto Sans SC", sans-serif;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .wrap {
+        max-width: 430px;
+        margin: 0 auto;
+        padding: 20px 16px 48px;
+      }
+      .proto-tag {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--cyn);
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        border-radius: 999px;
+        padding: 3px 10px;
+        display: inline-block;
+        margin-bottom: 18px;
+      }
+      header {
+        padding: 4px 0 18px;
+      }
+      h1 {
+        font-weight: 800;
+        font-size: 36px;
+        line-height: 1.08;
+        letter-spacing: 0.01em;
+      }
+      h1 em {
+        font-style: normal;
+        background: linear-gradient(90deg, var(--vio), var(--cyn));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        margin-top: 8px;
+      }
+      .series-tabs {
+        display: flex;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .series-tabs button {
+        font: inherit;
+        font-weight: 700;
+        padding: 8px 18px;
+        cursor: pointer;
+        border-radius: 999px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+      }
+      .series-tabs button.on {
+        color: #0b0b12;
+        background: linear-gradient(90deg, var(--vio), var(--cyn));
+        border-color: transparent;
+      }
+      .phase {
+        margin-bottom: 44px;
+      }
+      .phase h2 {
+        font-size: 20px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .phase h2 i {
+        font-style: normal;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: var(--cyn);
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        border-radius: 6px;
+        padding: 2px 8px;
+      }
+      .toolbar {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .sizes,
+      .filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .sizes button,
+      .filters button {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 14px;
+        cursor: pointer;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+        color: var(--muted);
+      }
+      .sizes button.on {
+        color: #0b0b12;
+        background: var(--txt);
+        border-color: transparent;
+      }
+      .filters button.on {
+        color: var(--vio);
+        border-color: rgba(167, 139, 250, 0.55);
+      }
+      .search {
+        font: inherit;
+        color: var(--txt);
+        padding: 10px 14px;
+        border-radius: 12px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        outline: none;
+      }
+      .search::placeholder {
+        color: var(--muted);
+      }
+      .tray {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 12px;
+        margin-bottom: 20px;
+      }
+      .tray-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .tray-head b {
+        color: var(--cyn);
+      }
+      .tray ul {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 5px;
+        margin-bottom: 12px;
+      }
+      .slot {
+        aspect-ratio: 3 / 4;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+      }
+      .slot.empty {
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        color: var(--muted);
+        border-style: dashed;
+      }
+      .cta {
+        width: 100%;
+        font: inherit;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        color: #0b0b12;
+        background: linear-gradient(90deg, var(--vio), var(--cyn));
+        border: 0;
+        border-radius: 12px;
+        padding: 13px;
+      }
+      .grp-block {
+        margin-bottom: 24px;
+      }
+      .grp-name {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        display: flex;
+        justify-content: space-between;
+        color: var(--txt);
+        margin-bottom: 10px;
+      }
+      .grp-name span {
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 12px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .card {
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 0 0 8px;
+        display: grid;
+        gap: 4px;
+        transition:
+          box-shadow 0.25s,
+          transform 0.2s;
+      }
+      .card .ph {
+        display: block;
+        aspect-ratio: 3 / 4;
+        overflow: hidden;
+      }
+      .card .ph img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .card[aria-pressed="true"] {
+        border-color: rgba(167, 139, 250, 0.7);
+        box-shadow:
+          0 0 0 1px rgba(167, 139, 250, 0.5),
+          0 8px 24px rgba(167, 139, 250, 0.25);
+      }
+      .card .nm {
+        font-size: 13px;
+        font-weight: 700;
+        padding: 0 8px;
+      }
+      .card .meta {
+        font-size: 10px;
+        color: var(--muted);
+        padding: 0 8px;
+      }
+      .avatar-ph {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+        font-size: 24px;
+        font-weight: 800;
+        color: hsl(var(--h) 70% 78%);
+        background: linear-gradient(
+          160deg,
+          hsl(var(--h) 45% 22%),
+          hsl(var(--h) 50% 12%)
+        );
+      }
+      .duel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 16px;
+      }
+      .duel-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+      .bar {
+        flex: 1;
+        margin-left: 12px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--vio), var(--cyn));
+      }
+      .fighters {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 10px;
+      }
+      .fighter {
+        font: inherit;
+        color: inherit;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 0 0 10px;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .fighter img {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        display: block;
+      }
+      .fighter:hover img {
+        box-shadow: inset 0 0 60px rgba(167, 139, 250, 0.35);
+      }
+      .fighter span {
+        display: block;
+        margin-top: 10px;
+        font-weight: 700;
+      }
+      .vs {
+        font-size: 16px;
+        font-weight: 800;
+        background: linear-gradient(90deg, var(--vio), var(--cyn));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .hint {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .hint .undo {
+        font: inherit;
+        font-size: 12px;
+        color: var(--cyn);
+        background: none;
+        border: 0;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(34, 211, 238, 0.5);
+      }
+      .rank-list {
+        list-style: none;
+        display: grid;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .rank-list li {
+        display: grid;
+        grid-template-columns: 30px 44px 1fr;
+        gap: 12px;
+        align-items: center;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 8px 10px;
+      }
+      .rank-list b {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--muted);
+      }
+      .rank-list li:first-child b {
+        color: var(--gold);
+      }
+      .rank-list img {
+        width: 44px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      .rank-list span {
+        display: grid;
+        font-weight: 700;
+      }
+      .rank-list small {
+        font-weight: 400;
+        color: var(--muted);
+      }
+      .poster-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .badge {
+        font-size: 11px;
+        color: var(--vio);
+        border: 1px solid rgba(167, 139, 250, 0.45);
+        border-radius: 999px;
+        padding: 3px 10px;
+      }
+      .poster {
+        display: grid;
+        grid-template-columns: repeat(var(--cols, 4), 1fr);
+        gap: 4px;
+        padding: 10px;
+        background: #06060a;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+      .poster-cell {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+      .poster-cell .ph {
+        display: block;
+        aspect-ratio: 3 / 4;
+        overflow: hidden;
+      }
+      .poster-cell .ph img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .poster-cell .pnm {
+        display: block;
+        font-size: 9px;
+        text-align: center;
+        padding: 4px 2px;
+        color: var(--txt);
+      }
+      .rank {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--bg);
+        background: var(--muted);
+        border-radius: 6px;
+        padding: 1px 6px;
+      }
+      .rank.r1 {
+        background: var(--gold);
+      }
+      .rank.r2 {
+        background: #d8d8e6;
+      }
+      .rank.r3 {
+        background: #d8a06a;
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .actions .cta {
+        grid-column: span 2;
+      }
+      .actions button:not(.cta) {
+        font: inherit;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 10px;
+        cursor: pointer;
+        color: var(--txt);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+      footer {
+        margin-top: 44px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" id="app">
+      <p class="proto-tag">原型 B · 暗色舞台</p>
+      <header>
+        <h1>48 Group <em>× 坂道</em></h1>
+        <p class="sub">Face Sort · Stage of Faces</p>
+        <div class="series-tabs">
+          <button data-series="48g">48 Group</button>
+          <button data-series="saka">坂道</button>
+        </div>
+      </header>
+
+      <section class="phase">
+        <h2><i>01</i>选人</h2>
+        <div class="toolbar">
+          <div class="sizes">
+            <button data-size="7">神7 / BEST 7</button>
+            <button data-size="16">16 人</button>
+            <button data-size="32">32 人</button>
+          </div>
+          <div class="filters">
+            <button class="on">全部</button><button>现役</button
+            ><button>已毕业</button>
+          </div>
+          <input class="search" placeholder="搜索名字（汉字/假名/昵称）" />
+        </div>
+        <div class="tray">
+          <div class="tray-head">
+            <span>已选</span><b class="tray-count">4 / 7</b>
+          </div>
+          <ul data-mock-tray></ul>
+          <button class="cta">开始对决 →</button>
+        </div>
+        <div data-mock-roster></div>
+      </section>
+
+      <section class="phase">
+        <h2><i>02</i>对决</h2>
+        <div class="duel">
+          <div class="duel-bar">
+            <span>第 12 / 29 题</span>
+            <div class="bar"><i style="width: 41%"></i></div>
+          </div>
+          <div class="fighters">
+            <button class="fighter">
+              <img src="../../img/thumb/m3dbe559b39.webp" alt="" /><span
+                >前田敦子</span
+              >
+            </button>
+            <b class="vs">VS</b>
+            <button class="fighter">
+              <img src="../../img/thumb/m19d40a15c4.webp" alt="" /><span
+                >小栗有以</span
+              >
+            </button>
+          </div>
+          <p class="hint">
+            点击你更喜欢的一张 · <button class="undo">撤回一步</button> ·
+            剩余最少 3 题
+          </p>
+        </div>
+      </section>
+
+      <section class="phase">
+        <h2><i>03</i>结果</h2>
+        <ol class="rank-list">
+          <li>
+            <b>1</b><img src="../../img/thumb/m3dbe559b39.webp" alt="" /><span
+              >前田敦子<small>AKB48 · 1期生 · 2012 毕业</small></span
+            >
+          </li>
+          <li>
+            <b>2</b><img src="../../img/thumb/m19d40a15c4.webp" alt="" /><span
+              >小栗有以<small>AKB48 · Team 8 · 现役</small></span
+            >
+          </li>
+          <li>
+            <b>3</b><img src="../../img/thumb/m2267bb69ab.webp" alt="" /><span
+              >松井珠理奈<small>SKE48 · 1期生 · 2021 毕业</small></span
+            >
+          </li>
+          <li>
+            <b>4</b><img src="../../img/thumb/m6fdb66051f.webp" alt="" /><span
+              >山本彩<small>NMB48 · 1期生 · 2018 毕业</small></span
+            >
+          </li>
+        </ol>
+        <div class="poster-wrap">
+          <div class="poster-head">
+            海报预览 <span class="badge">档位示意</span>
+          </div>
+          <div class="poster" data-mock-poster></div>
+          <div class="actions">
+            <button class="cta">保存图片</button><button>分享到 X</button
+            ><button>重新排序</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>原型示意 · 数据来自 48pedia · #48Group #Sakamichi</footer>
+    </div>
+    <script src="mock.js"></script>
+    <script>
+      initMock(document.getElementById("app"));
+    </script>
+  </body>
+</html>
