@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 import unittest
 
 import love_members
@@ -422,6 +423,77 @@ class ArchivedPhotoPairTests(unittest.TestCase):
             pairs["逢田珠里依"],
             "https://nearly-equal-joy.jp/image/profile/aida_jurii.jpg",
         )
+
+
+EMPTY_WIKI = "== メンバー ==\n{|\n|}"
+
+
+def load_fetcher(fail_detail=None, fail_cdx=False):
+    """按 URL 分派的最小离线抓取器（三官网 + Wikipedia + 空 CDX/Commons）。"""
+
+    def fetch(url):
+        if url.startswith(love_members.WIKI_API):
+            page = urllib.parse.unquote(url)
+            text = WIKI_FIXTURE if "page==LOVE" in page else EMPTY_WIKI
+            return json.dumps({"parse": {"wikitext": {"*": text}}})
+        if "cdx" in url:
+            if fail_cdx:
+                raise OSError("cdx down")
+            return "[]"
+        if "pageimages" in url:
+            return json.dumps({"query": {"pages": {"1": {}}}})
+        if url == "https://equal-love.jp/feature/profile":
+            return LOVE_LIST_FIXTURE
+        if url == "https://not-equal-me.jp/feature/profile":
+            return ME_LIST_FIXTURE
+        if url == "https://nearly-equal-joy.jp/feature/profile":
+            return JOY_LIST_FIXTURE
+        if "/feature/" in url:
+            if fail_detail and fail_detail in url:
+                raise OSError("detail down")
+            return DETAIL_FIXTURE
+        raise AssertionError("unexpected url " + url)
+
+    return fetch
+
+
+class LoadTests(unittest.TestCase):
+    def test_load_assembles_members_and_photo_urls(self):
+        warned = []
+        members, urls = love_members.load(load_fetcher(), warn=warned.append)
+        by_group = {}
+        for m in members:
+            by_group.setdefault(m["group"], []).append(m)
+        self.assertEqual(
+            {g: len(ms) for g, ms in by_group.items()},
+            {"=LOVE": 3, "≠ME": 1, "≒JOY": 1},
+        )
+        merged = next(m for m in members if m["name"] == "大谷 映美里")
+        self.assertEqual(merged["kana"], "おおたに えみり")
+        self.assertEqual(merged["bio"]["romaji"], "OTANI EMIRI")
+        self.assertEqual(merged["bio"]["blood"], "O型")
+        self.assertEqual(
+            urls["love:=LOVE:大谷 映美里"],
+            "https://equal-love.jp/image/profile/otani_emiri.jpg",
+        )
+        self.assertEqual(
+            urls["love:≠ME:櫻井 もも"],
+            "https://not-equal-me.jp/image/profile/sakurai_momo.jpg",
+        )
+        self.assertEqual(
+            urls["love:≒JOY:逢田 珠里依"],
+            "https://nearly-equal-joy.jp/image/profile/aida_jurii.jpg",
+        )
+        self.assertTrue(any("佐竹のん乃" in w for w in warned))
+
+    def test_load_propagates_detail_failure_for_fail_fast(self):
+        with self.assertRaises(OSError):
+            love_members.load(load_fetcher(fail_detail="profile_sakurai_momo"))
+
+    def test_load_survives_archive_failures(self):
+        members, urls = love_members.load(load_fetcher(fail_cdx=True), warn=lambda _: None)
+        self.assertEqual(len(members), 5)
+        self.assertIn("love:=LOVE:大谷 映美里", urls)
 
 
 if __name__ == "__main__":
