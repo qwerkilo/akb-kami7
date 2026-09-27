@@ -109,6 +109,68 @@
     return a;
   }
 
+  // ---- 成员字幕（卡片/对决/结果/海报共用） ----
+  const TRANSFER_GENERATION = "兼任・移籍加入";
+
+  function isTransfer(m) {
+    return m.generation === TRANSFER_GENERATION;
+  }
+
+  function leaveText(reason, t, lang) {
+    return lang === "en" ? t("leave_" + reason) || reason : reason;
+  }
+
+  function yearLeave(m, t, lang) {
+    if (m.leave) {
+      const label = leaveText(m.leave, t, lang);
+      return m.end ? `${m.end.slice(0, 4)} ${label}` : label;
+    }
+    return m.end ? t("grad_year", m.end.slice(0, 4)) : t("graduated");
+  }
+
+  function sourceNote(m, t, lang) {
+    if (m.extras && m.extras.length) {
+      const sep = lang === "en" ? ", " : "、";
+      const groups = m.extras.map((e) => e.group).join(sep);
+      if (m.status === "current" && m.extras.every((e) => e.current))
+        return t("src_concurrent", groups);
+      if (m.status === "current") return t("src_transferred", groups);
+      return t("src_mixed", groups);
+    }
+    return m.note || "";
+  }
+
+  function metaText(m, t, lang) {
+    const src = sourceNote(m, t, lang);
+    const prefix = src ? `${src} · ` : "";
+    if (m.status === "current") return `${prefix}${t("active")}`;
+    if (isTransfer(m)) {
+      const parts = [src, yearLeave(m, t, lang)].filter(Boolean);
+      return parts.join(" · ") || t("transfer");
+    }
+    return `${prefix}${yearLeave(m, t, lang)}`;
+  }
+
+  function fullMeta(m, t, lang) {
+    const parts = [m.group, m.generation];
+    const src = sourceNote(m, t, lang);
+    if (src) parts.push(src);
+    if (m.status === "current") parts.push(t("active"));
+    else parts.push(yearLeave(m, t, lang));
+    return parts.filter(Boolean).join(" · ");
+  }
+
+  function posterSub(m, t, lang) {
+    if (m.status === "current") return m.generation;
+    if (isTransfer(m)) {
+      return m.leave
+        ? `${sourceNote(m, t, lang)} · ${leaveText(m.leave, t, lang)}`
+        : sourceNote(m, t, lang);
+    }
+    if (m.leave) return `${m.generation} · ${yearLeave(m, t, lang)}`;
+    return `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
+  }
+
   return {
     normalizeName,
     haystack,
@@ -119,5 +181,12 @@
     replay,
     worstCase,
     shuffle,
+    isTransfer,
+    leaveText,
+    yearLeave,
+    sourceNote,
+    metaText,
+    fullMeta,
+    posterSub,
   };
 });

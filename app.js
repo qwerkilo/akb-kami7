@@ -64,51 +64,13 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
     );
 
-  const isTransfer = (m) => m.generation === "兼任・移籍加入";
-
-  function sourceNote(m) {
-    if (m.extras && m.extras.length) {
-      const sep = lang === "en" ? ", " : "、";
-      const groups = m.extras.map((e) => e.group).join(sep);
-      if (m.status === "current" && m.extras.every((e) => e.current))
-        return t("src_concurrent", groups);
-      if (m.status === "current") return t("src_transferred", groups);
-      return t("src_mixed", groups);
-    }
-    return m.note || "";
-  }
-
-  function leaveText(reason) {
-    return lang === "en" ? t("leave_" + reason) || reason : reason;
-  }
-  function yearLeave(m) {
-    if (m.leave) {
-      const label = leaveText(m.leave);
-      return m.end ? `${m.end.slice(0, 4)} ${label}` : label;
-    }
-    return m.end ? t("grad_year", m.end.slice(0, 4)) : t("graduated");
-  }
-  function metaText(m) {
-    const src = sourceNote(m);
-    const prefix = src ? `${src} · ` : "";
-    if (m.status === "current") return `${prefix}${t("active")}`;
-    if (isTransfer(m)) {
-      const parts = [src, yearLeave(m)].filter(Boolean);
-      return parts.join(" · ") || t("transfer");
-    }
-    return `${prefix}${yearLeave(m)}`;
-  }
-  function fullMeta(m) {
-    const parts = [m.group, m.generation];
-    const src = sourceNote(m);
-    if (src) parts.push(src);
-    if (m.status === "current") {
-      parts.push(t("active"));
-    } else {
-      parts.push(yearLeave(m));
-    }
-    return parts.filter(Boolean).join(" · ");
-  }
+  const isTransfer = (m) => CORE.isTransfer(m);
+  const sourceNote = (m) => CORE.sourceNote(m, t, lang);
+  const leaveText = (reason) => CORE.leaveText(reason, t, lang);
+  const yearLeave = (m) => CORE.yearLeave(m, t, lang);
+  const metaText = (m) => CORE.metaText(m, t, lang);
+  const fullMeta = (m) => CORE.fullMeta(m, t, lang);
+  const posterSub = (m) => CORE.posterSub(m, t, lang);
 
   const state = {
     selected: [],
@@ -540,21 +502,6 @@
   });
 
   /* ---------------- poster canvas ---------------- */
-  const C = {
-    floor: "#edeff3",
-    card: "#ffffff",
-    ink: "#1c1e2b",
-    muted: "#6b6f80",
-    line: "#d5d9e2",
-    pink: "#e4007f",
-    tape: "#f4c20d",
-  };
-  const UI_FONT =
-    '"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif';
-  const JP_FONT =
-    '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",' + UI_FONT;
-  const DISPLAY = '"Dela Gothic One",' + JP_FONT;
-
   const imgCache = new Map();
   function loadImg(src) {
     if (!imgCache.has(src)) {
@@ -580,247 +527,30 @@
     await Promise.race([wait, new Promise((r) => setTimeout(r, 2500))]);
   }
 
-  function cover(ctx, im, x, y, w, h) {
-    const s = Math.max(w / im.width, h / im.height);
-    const sw = w / s,
-      sh = h / s;
-    const sx = (im.width - sw) / 2;
-    const sy = Math.max(0, Math.min(im.height - sh, (im.height - sh) * 0.28));
-    ctx.drawImage(im, sx, sy, sw, sh, x, y, w, h);
-  }
-
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
-  function fitText(ctx, text, maxW, size, weight, family) {
-    let s = size;
-    do {
-      ctx.font = `${weight} ${s}px ${family}`;
-      if (ctx.measureText(text).width <= maxW) break;
-      s -= 2;
-    } while (s > 12);
-    return s;
-  }
-
-  function tape(ctx, x, y, w, h, color, angle) {
-    ctx.save();
-    ctx.translate(x + w / 2, y + h / 2);
-    ctx.rotate(angle);
-    ctx.fillStyle = color;
-    ctx.fillRect(-w / 2, -h / 2, w, h);
-    ctx.restore();
-  }
-
-  function slot(ctx, im, m, rank, x, y, w, h, big) {
-    ctx.save();
-    ctx.shadowColor = "rgba(28,30,43,.18)";
-    ctx.shadowBlur = 24;
-    ctx.shadowOffsetY = 10;
-    roundRect(ctx, x, y, w, h, 10);
-    ctx.fillStyle = C.card;
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    roundRect(ctx, x, y, w, h, 10);
-    ctx.clip();
-    if (im) {
-      cover(ctx, im, x, y, w, h);
-    } else {
-      ctx.fillStyle = "#e4e7ee";
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = "#9aa0b0";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `700 ${Math.round(h / 3)}px ${JP_FONT}`;
-      ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + h / 2);
-    }
-    ctx.restore();
-
-    const tw = big ? 118 : rank <= 3 ? 76 : 64;
-    const th = big ? 70 : rank <= 3 ? 56 : 48;
-    const tx = x - (big ? 14 : 10),
-      ty = y - (big ? 18 : 14);
-    tape(ctx, tx, ty, tw, th, big ? C.pink : C.tape, -0.06);
-    ctx.save();
-    ctx.translate(tx + tw / 2, ty + th / 2);
-    ctx.rotate(-0.06);
-    ctx.fillStyle = big ? "#fff" : C.ink;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    if (big) {
-      ctx.font = `400 44px ${DISPLAY}`;
-      ctx.fillText("1", -26, 3);
-      ctx.font = `700 15px ${UI_FONT}`;
-      ctx.fillText("CENTER", 22, 2);
-    } else {
-      ctx.font = `400 ${rank <= 3 ? 34 : 28}px ${DISPLAY}`;
-      ctx.fillText(String(rank), 0, 3);
-    }
-    ctx.restore();
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = C.ink;
-    const nameSize = fitText(
-      ctx,
-      m.name,
-      w + 10,
-      big ? 44 : rank <= 3 ? 32 : 26,
-      700,
-      JP_FONT
-    );
-    ctx.fillText(m.name, x + w / 2, y + h + nameSize + 14);
-    const sub =
-      m.status === "current"
-        ? m.generation
-        : isTransfer(m)
-          ? m.leave
-            ? `${sourceNote(m)} · ${leaveText(m.leave)}`
-            : sourceNote(m)
-          : m.leave
-            ? `${m.generation} · ${yearLeave(m)}`
-            : `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
-    const subSize = fitText(ctx, sub, w + 10, big ? 20 : 17, 500, UI_FONT);
-    ctx.fillStyle = C.muted;
-    ctx.fillText(sub, x + w / 2, y + h + nameSize + subSize + 22);
-  }
-
-  function placeRow(ctx, imgs, start, count, y, w, h, gap) {
-    const total = count * w + (count - 1) * gap;
-    let x = (ctx.canvas.width - total) / 2;
-    for (let i = 0; i < count; i++) {
-      const idx = start + i;
-      if (!ranking[idx]) continue;
-      slot(ctx, imgs[idx], ranking[idx], idx + 1, x, y, w, h, false);
-      x += w + gap;
-    }
-  }
-
   async function drawPoster() {
     if (!ranking.length) return;
     const canvas = $("#poster-canvas");
-    const tall = ranking.length > 7;
-    canvas.width = 1080;
-    canvas.height = tall ? 1920 : 1440;
-    $("#poster").classList.toggle("tall", tall);
+    const size = AKB_POSTER.layout(ranking.length);
+    canvas.width = size.width;
+    canvas.height = size.height;
+    $("#poster").classList.toggle("tall", size.height > 1440);
     const ctx = canvas.getContext("2d");
-    const W = canvas.width,
-      H = canvas.height;
     const [imgs] = await Promise.all([
       Promise.all(ranking.map((m) => loadImg(fullSrc(m)))),
       fontsReady(),
     ]);
 
-    ctx.fillStyle = C.floor;
-    ctx.fillRect(0, 0, W, H);
-
     const title = $("#title-input").value.trim() || defaultTitle();
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = C.ink;
-    fitText(ctx, title, W - 144, tall ? 56 : 64, 900, UI_FONT);
-    ctx.fillText(title, 72, tall ? 100 : 118);
-    tape(
-      ctx,
-      72,
-      tall ? 116 : 136,
-      Math.min(ctx.measureText(title).width * 0.72, 520),
-      12,
-      C.pink,
-      -0.012
-    );
-    ctx.font = `500 24px ${UI_FONT}`;
-    ctx.fillStyle = C.muted;
     const d = new Date();
-    ctx.fillText(
-      `48 Group 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      72,
-      tall ? 168 : 190
-    );
-
-    if (!tall) {
-      const fy = 262;
-      const bigW = 392,
-        bigH = 523,
-        sideW = 272,
-        sideH = 363,
-        gap = 22;
-      const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
-      const sideY = fy + bigH - sideH;
-      if (ranking[1])
-        slot(ctx, imgs[1], ranking[1], 2, fx, sideY, sideW, sideH, false);
-      if (ranking[2])
-        slot(
-          ctx,
-          imgs[2],
-          ranking[2],
-          3,
-          fx + sideW + gap + bigW + gap,
-          sideY,
-          sideW,
-          sideH,
-          false
-        );
-      slot(ctx, imgs[0], ranking[0], 1, fx + sideW + gap, fy, bigW, bigH, true);
-      const by = fy + bigH + 150;
-      const backW = 216,
-        backH = 288,
-        bgap = 26;
-      placeRow(ctx, imgs, 3, 4, by, backW, backH, bgap);
-    } else {
-      // 3 / 6 / 7
-      const fy = 210;
-      const bigW = 300,
-        bigH = 400,
-        sideW = 220,
-        sideH = 294,
-        gap = 18;
-      const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
-      const sideY = fy + bigH - sideH;
-      if (ranking[1])
-        slot(ctx, imgs[1], ranking[1], 2, fx, sideY, sideW, sideH, false);
-      if (ranking[2])
-        slot(
-          ctx,
-          imgs[2],
-          ranking[2],
-          3,
-          fx + sideW + gap + bigW + gap,
-          sideY,
-          sideW,
-          sideH,
-          false
-        );
-      slot(ctx, imgs[0], ranking[0], 1, fx + sideW + gap, fy, bigW, bigH, true);
-
-      const midY = fy + bigH + 92;
-      placeRow(ctx, imgs, 3, 6, midY, 148, 198, 14);
-      const backY = midY + 198 + 78;
-      placeRow(ctx, imgs, 9, 7, backY, 128, 170, 12);
-    }
-
-    ctx.strokeStyle = C.line;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(72, H - 84);
-    ctx.lineTo(W - 72, H - 84);
-    ctx.stroke();
-    ctx.font = `700 22px ${UI_FONT}`;
-    ctx.fillStyle = C.ink;
-    ctx.textAlign = "left";
-    ctx.fillText("#48Group  #好き顔ソート", 72, H - 44);
-    ctx.textAlign = "right";
-    ctx.font = `500 18px ${UI_FONT}`;
-    ctx.fillStyle = C.muted;
-    ctx.fillText(t("photo_src"), W - 72, H - 44);
+    AKB_POSTER.draw(ctx, {
+      members: ranking,
+      images: imgs,
+      title,
+      dateText: `48 Group 好き顔ソート · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+      hashtag: "#48Group  #好き顔ソート",
+      photoSrc: t("photo_src"),
+      subOf: posterSub,
+    });
 
     try {
       $("#poster-img").src = canvas.toDataURL("image/png");

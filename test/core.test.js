@@ -191,3 +191,106 @@ test("shuffle 确实会重排元素顺序", () => {
   }
   assert.ok(changed, "30 次洗牌应至少出现一次顺序不同");
 });
+
+// ---- 成员字幕 module ----
+const t = (key, arg) => (arg === undefined ? `[${key}]` : `[${key}:${arg}]`);
+const person = (over = {}) => ({
+  name: "甲",
+  group: "AKB48",
+  generation: "1期生",
+  status: "current",
+  ...over,
+});
+
+test("字幕：现役与毕业的基本形态", () => {
+  assert.equal(core.metaText(person(), t, "zh"), "[active]");
+  assert.equal(
+    core.metaText(person({ status: "former", end: "2012.06.01" }), t, "zh"),
+    "[grad_year:2012]"
+  );
+  assert.equal(core.fullMeta(person(), t, "zh"), "AKB48 · 1期生 · [active]");
+  assert.equal(
+    core.fullMeta(person({ status: "former", end: "2012.06.01" }), t, "zh"),
+    "AKB48 · 1期生 · [grad_year:2012]"
+  );
+});
+
+test("字幕：来源标注走 i18n，英文用逗号连接", () => {
+  const cur = person({ extras: [{ group: "SKE48", current: true }] });
+  assert.equal(
+    core.metaText(cur, t, "zh"),
+    "[src_concurrent:SKE48] · [active]"
+  );
+  assert.equal(
+    core.sourceNote(
+      person({
+        extras: [
+          { group: "A", current: true },
+          { group: "B", current: true },
+        ],
+      }),
+      t,
+      "en"
+    ),
+    "[src_concurrent:A, B]"
+  );
+  const mixed = person({
+    status: "former",
+    end: "2016.01.01",
+    extras: [{ group: "NMB48", current: false }],
+  });
+  assert.equal(
+    core.metaText(mixed, t, "zh"),
+    "[src_mixed:NMB48] · [grad_year:2016]"
+  );
+});
+
+test("字幕：移籍/兼任加入成员的来源与毕业年份", () => {
+  const transfer = person({
+    generation: "兼任・移籍加入",
+    status: "former",
+    leave: "兼任解除",
+    end: "2015.05.14",
+    note: "SKE48 1期",
+  });
+  assert.equal(core.isTransfer(transfer), true);
+  assert.equal(core.metaText(transfer, t, "zh"), "SKE48 1期 · 2015 兼任解除");
+  assert.equal(core.posterSub(transfer, t, "zh"), "SKE48 1期 · 兼任解除");
+  assert.equal(core.leaveText("兼任解除", t, "en"), "[leave_兼任解除]");
+});
+
+test("字幕：海报副标题全分支且不产生 undefined", () => {
+  assert.equal(core.posterSub(person(), t, "zh"), "1期生");
+  assert.equal(
+    core.posterSub(person({ status: "former", end: "2012.06.01" }), t, "zh"),
+    "1期生 · 2012 [grad_short]"
+  );
+  assert.equal(
+    core.posterSub(
+      person({ status: "former", leave: "卒業", end: "2012.06.01" }),
+      t,
+      "zh"
+    ),
+    "1期生 · 2012 卒業"
+  );
+  assert.equal(
+    core.posterSub(person({ status: "former" }), t, "zh"),
+    "1期生 · OG"
+  );
+  assert.equal(
+    core.posterSub(
+      person({ generation: "兼任・移籍加入", status: "former" }),
+      t,
+      "zh"
+    ),
+    ""
+  );
+  assert.equal(
+    core.posterSub(
+      person({ extras: [{ group: "SKE48", current: true }] }),
+      t,
+      "zh"
+    ),
+    "1期生"
+  );
+});
