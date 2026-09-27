@@ -85,7 +85,7 @@ test("成员字段无 wikitext/排序键残留", () => {
       for (const field of ["name", "kana", "nick"]) {
         const v = m[field] || "";
         assert.ok(
-          !/data-sort-value|\[\[|\]\]|\{\{|<[^>]+>/.test(v),
+          !/data-sort-value|[\[\]{}|]|<[^>]+>/.test(v),
           `${m.name} 的 ${field} 有残留: ${v}`
         );
       }

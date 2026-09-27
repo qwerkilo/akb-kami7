@@ -93,7 +93,7 @@
     const prefix = src ? `${src} · ` : "";
     if (m.status === "current") return `${prefix}${t("active")}`;
     if (isTransfer(m)) {
-      const parts = [src, m.leave ? leaveText(m.leave) : ""].filter(Boolean);
+      const parts = [src, yearLeave(m)].filter(Boolean);
       return parts.join(" · ") || t("transfer");
     }
     return `${prefix}${yearLeave(m)}`;
@@ -322,9 +322,12 @@
     const slots = [];
     for (let i = 0; i < pick; i++) {
       const m = BY_ID.get(state.selected[i]);
+      const label = m
+        ? esc(t("slot_remove", m.name, m.group, m.generation))
+        : "";
       slots.push(
         m
-          ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${esc(t("remove", m.name))}（${esc(m.group)} · ${esc(m.generation)}）" title="${esc(t("remove", m.name))}（${esc(m.group)} · ${esc(m.generation)}）"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
+          ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${label}" title="${label}"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
           : `<li class="slot empty-slot" aria-label="${t("empty_slot")}"></li>`
       );
     }

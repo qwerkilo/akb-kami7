@@ -83,8 +83,11 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 | `fetch_members.py` 覆盖率 | 52%                                                                                                                          | **97%**（缺口仅网络/异常/打印分支）             |
 | CRAP > 6 的函数           | 7 个（`main` 1897、`compress` 34.8、`image_urls` 34.3、`parse_rows` 25.1、`load_rows` 14.1、`group_of`/`merge_members` 7.0） | **0 个**（全部 ≤ 6.0）                          |
 | core.js 变异得分          | 76.34%（幸存 31）                                                                                                            | **90.84%（119/131，幸存 12，全部等价/环境类）** |
-| 测试数                    | JS 24 / Python 21                                                                                                            | JS 28 / Python 37                               |
+| 测试数                    | JS 24 / Python 21                                                                                                            | JS 28 / Python 39（勘误见下）                   |
 | 重复率 / TODO / 依赖漏洞  | 0.59% / 0 / 0                                                                                                                | 未变（未处理项）                                |
+
+> 计数勘误（二轮 review）：复检时 Python 实为 38 例（原文 37）；二轮修复补 extras 去重断言 1 例后为 39。
+> 变异复现口径（工具未入仓）：StrykerJS 8.7.1 + `mutate:["core.js"]` + command runner `node --test test/core.test.js`，concurrency 2，killed+timeout 计为检出。
 
 修复摘要：
 

@@ -159,6 +159,17 @@ class MergeMembersTests(unittest.TestCase):
         self.assertNotIn("note", merged[0])
         self.assertNotIn("extras", merged[0])
 
+    def test_same_group_records_collapse_into_one_extra(self):
+        akb = member("兼任子", "けんにん こ", "AKB48", "current", "1期|AKB48")
+        ske_now = member("兼任子", "けんにん こ", "SKE48", "current", "1期|SKE48")
+        ske_old = member(
+            "兼任子", "けんにん こ", "SKE48", "former", "1期|SKE48", end="2020.01.01"
+        )
+        merged = fetch_members.merge_members([akb, ske_now, ske_old])
+        self.assertEqual(len(merged), 1)
+        self.assertEqual(merged[0]["group"], "AKB48")
+        self.assertEqual(merged[0]["extras"], [{"group": "SKE48", "current": True}])
+
 
 AKB_CURRENT_PAGE = """== 現役メンバー ==
 {|

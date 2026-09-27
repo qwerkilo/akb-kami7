@@ -62,6 +62,7 @@
         "图片生成失败：请通过网址（http://）打开本页，而不是直接双击 html 文件。",
       empty_slot: "空位",
       remove: (name) => `点这里去掉 ${name}`,
+      slot_remove: (name, group, gen) => `移除 ${name}（${group} · ${gen}）`,
     },
     en: {
       doc_title: "48 Group Kami 7 Face Sort (all generations)",
@@ -119,6 +120,7 @@
         "Could not generate the image. Open this page via http://, not by double-clicking the HTML file.",
       empty_slot: "Empty",
       remove: (name) => `Remove ${name}`,
+      slot_remove: (name, group, gen) => `Remove ${name} (${group} · ${gen})`,
       leave_移籍: "transferred",
       leave_兼任終了: "kennin ended",
       leave_活動辞退: "withdrew",

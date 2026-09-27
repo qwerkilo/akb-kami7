@@ -221,11 +221,13 @@ def merge_person(records):
     if len(records) == 1:
         return records[0]
     keeper = max(records, key=member_rank)
-    keeper["extras"] = [
-        {"group": r["group"], "current": r["status"] == "current"}
-        for r in records
-        if r is not keeper
-    ]
+    extras = {}
+    for r in records:
+        if r is keeper:
+            continue
+        entry = extras.setdefault(r["group"], {"group": r["group"], "current": False})
+        entry["current"] = entry["current"] or r["status"] == "current"
+    keeper["extras"] = list(extras.values())
     return keeper
 
 

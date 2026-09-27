@@ -4,7 +4,7 @@
 
 **Blocked by:** 07
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [x] 解析器修复 SDN48 4 行 `data-sort-value="…" |` 脏姓名/昵称（`clean_name` 与昵称启发式），补 fixture 测试；产物测试增加字段纯净断言（不得含 `data-sort-value`、`[`、`]`、`{`、`}` 等）；重跑生成
 - [x] 跨团来源标注结构化：`members.js` 不再写死中文（`兼任：`/`移籍自：`），改为结构化字段，由 `i18n.js` 渲染，en 界面不再出现中文
