@@ -233,9 +233,6 @@ class BuildMembersTests(unittest.TestCase):
         self.assertEqual(sections[0]["members"][0]["name"], "逢田珠里依")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 JOY_WIKI_FIXTURE = """
 == メンバー ==
@@ -285,6 +282,7 @@ class WikiTwoLineRowTests(unittest.TestCase):
         f = out["福山萌叶"]
         self.assertTrue(f["former"])
         self.assertEqual(f["grad"], "2023.03.29")
+        self.assertEqual(f["kana"], "ふくやま もえか")
 
     def test_non_member_rows_are_filtered(self):
         out = love_members.parse_wiki_members(BOGUS_TABLE_FIXTURE)
@@ -359,18 +357,15 @@ ARCHIVED_LONG_SNS_FIXTURE = '''<li class="inview">
 
 
 class LooseParseTests(unittest.TestCase):
-    def test_long_sns_list_breaks_strict_but_loose_handles_it(self):
+    def test_long_sns_list_is_handled_by_archived_pairs(self):
         self.assertEqual(love_members.parse_list(ARCHIVED_LONG_SNS_FIXTURE, "me"), [])
-        items = love_members.parse_list_loose(ARCHIVED_LONG_SNS_FIXTURE)
-        self.assertEqual(len(items), 1)
-        self.assertEqual(items[0]["name"], "菅波 美玲")
-        self.assertEqual(items[0]["romaji"], "SUGANAMI MIREI")
+        pairs = love_members.archived_photo_pairs(ARCHIVED_LONG_SNS_FIXTURE)
         self.assertEqual(
-            items[0]["photo"],
+            pairs["菅波美玲"],
             "https://not-equal-me.jp/image/profile/suganami_mirei.jpg",
         )
 
-    def test_archived_list_uses_loose_fallback(self):
+    def test_archived_list_collects_members(self):
         def fetch(url):
             if "cdx" in url:
                 return json.dumps([
@@ -427,3 +422,7 @@ class ArchivedPhotoPairTests(unittest.TestCase):
             pairs["逢田珠里依"],
             "https://nearly-equal-joy.jp/image/profile/aida_jurii.jpg",
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

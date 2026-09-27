@@ -357,6 +357,21 @@
       closeProfile();
   });
 
+  function profileKey(e, open, getId) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const info = e.target.closest(".info");
+    if (!info) return;
+    e.preventDefault();
+    open(getId(info));
+  }
+
+  roster.addEventListener("keydown", (e) =>
+    profileKey(e, openProfile, (info) => {
+      const card = info.closest(".card");
+      return card ? card.dataset.id : "";
+    })
+  );
+
   roster.addEventListener("click", (e) => {
     const grp = e.target.closest(".grp-head");
     if (grp) return toggleGroupNode(grp.parentElement.dataset.group);
@@ -565,6 +580,15 @@
 
   /* ---------------- result ---------------- */
   let ranking = [];
+
+  const rankList = $("#rank-list");
+
+  rankList.addEventListener("keydown", (e) =>
+    profileKey(e, openProfile, (info) => {
+      const idx = [...rankList.children].indexOf(info.closest("li"));
+      return idx >= 0 && ranking[idx] ? ranking[idx].id : "";
+    })
+  );
 
   function renderRankList() {
     $("#rank-list").innerHTML = ranking

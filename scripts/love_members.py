@@ -27,44 +27,10 @@ ME_ITEM = re.compile(
     re.S,
 )
 JOY_ITEM = re.compile(
-    r'<a href="[^"]*?(/feature/profile_[a-z_0-9]+)"[^>]*>\s*<figure class="thumb[^"]*">\s*<img[^>]*?url\(([^)]+)\)[^>]*>\s*</figure>\s*</a>\s*<div class="txt">\s*<p class="name">([^<]+)</p>\s*<p class="yomi">([^<]+)</p>',
+    r'<a href="[^"]*?(/feature/profile_[a-z_0-9]+)"[^>]*>\s*<figure class="thumb[^"]*">\s*<img[^>]*?url\(([^)]+)\)[^>]*>\s*</figure>\s*</a>\s*<div class="txt[^"]*">\s*<p class="name">([^<]+)</p>\s*<p class="yomi">([^<]+)</p>',
     re.S,
 )
 ITEMS = {"love": LOVE_ITEM, "me": ME_ITEM, "joy": JOY_ITEM}
-
-def parse_list_loose(html):
-    """归档页（Wayback 重写、SNS 列表较长、标记更旧）的宽松解析。
-
-    以成员详情链接为锚点，取到下一个锚点前的文本为一块，避免被 SNS 的
-    <li> 拆碎。"""
-    out = []
-    anchors = list(
-        re.finditer(r'href="[^"]*?(/feature/(?:profile_)?[a-z_0-9]+)"', html)
-    )
-    for idx, m in enumerate(anchors):
-        stop = anchors[idx + 1].start() if idx + 1 < len(anchors) else len(html)
-        chunk = html[m.start():stop]
-        img = re.search(r"url\(([^)]+?\.(?:jpe?g|png)[^)]*)\)", chunk)
-        if not img:
-            continue
-        name = re.search(r'<p class="name">\s*([^<\n]+?)\s*(?:<|$)', chunk)
-        yomi = re.search(r'class="yomi[^"]*"[^>]*>([^<]+)<', chunk)
-        if not name:
-            span = re.search(r"<span>([^<]+)</span>", chunk)
-            if not span:
-                continue
-            name_val = span.group(1)
-            yomi = re.search(r'<p class="yomi[^"]*">([^<]+)</p>', chunk)
-        else:
-            name_val = name.group(1)
-        out.append({
-            "path": m.group(1),
-            "name": re.sub(r"\s+", " ", name_val).strip(),
-            "romaji": yomi.group(1).strip() if yomi else "",
-            "photo": strip_thumb(original_url(img.group(1))),
-        })
-    return out
-
 
 DETAIL_MAP = {
     "血液型": "blood",
@@ -144,6 +110,7 @@ def parse_wiki_members(wikitext):
         if not name:
             continue
         nm = (name.group(1) or name.group(2)).strip()
+        kana_cell = re.match(r"\s*([^|\n]+?)\s*(?:\|\||\n)", chunk[name.end():])
         birth = re.search(r"\{\{生年月日と年齢\|(\d+)\|(\d+)\|(\d+)\}\}", chunk)
         if not birth:
             continue
@@ -154,9 +121,8 @@ def parse_wiki_members(wikitext):
         if not re.search(r"[都道府県]$", from_):
             continue
         rec = {"from": from_}
-        kana = re.search(r"\]\]\s*\|\|\s*([^|\n]+?)\s*(?=\n|\|\|)", chunk)
-        if kana:
-            rec["kana"] = kana.group(1).strip()
+        if kana_cell:
+            rec["kana"] = kana_cell.group(1).strip()
         rec["birth"] = "{}.{:02d}.{:02d}".format(
             birth.group(1), int(birth.group(2)), int(birth.group(3))
         )
@@ -274,8 +240,7 @@ def archived_list_photos(group, fetch):
             continue
         for name, photo in archived_photo_pairs(html).items():
             out.setdefault(name, photo)
-        items = parse_list(html, site["kind"]) or parse_list_loose(html)
-        for item in items:
+        for item in parse_list(html, site["kind"]):
             out.setdefault(norm_name(item["name"]), item["photo"])
     return out
 
@@ -290,10 +255,10 @@ def build_members(official, wiki):
         wiki_group = wiki.get(group, {})
         wiki_by_norm = {norm_name(k): (k, v) for k, v in wiki_group.items()}
         keys = list(dict.fromkeys([*by_name.keys(), *wiki_by_norm.keys()]))
-        for key in keys:
-            pair = wiki_by_norm.get(key)
+        for person_key in keys:
+            pair = wiki_by_norm.get(person_key)
             w = pair[1] if pair else {}
-            item = by_name.get(key)
+            item = by_name.get(person_key)
             name = item["name"] if item else pair[0]
             bio = {}
             if item and item.get("detail"):
@@ -392,6 +357,4 @@ def project(m):
     out = {k: m.get(k) for k in keys}
     if m.get("bio"):
         out["bio"] = m["bio"]
-    if m.get("leave"):
-        out["leave"] = m["leave"]
     return out

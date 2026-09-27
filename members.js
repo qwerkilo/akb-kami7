@@ -19085,18 +19085,21 @@ window.AKB_GROUPS = [
     }
    },
    {
-    "id": "m19c7755a67",
-    "name": "大信田美月",
+    "id": "m6d28c625d0",
+    "name": "大信田 美月",
     "kana": "おおしだ みつき",
     "nick": "みっちゃん",
     "status": "current",
     "end": null,
     "img": true,
     "bio": {
+     "nick": "みっちゃん",
+     "blood": "O型",
+     "sign": "てんびん座",
+     "height": "155cm",
      "birth": "2004.09.27",
      "from": "大阪府",
-     "height": "155cm",
-     "blood": "O型"
+     "romaji": "OSHIDA MITSUKI"
     }
    },
    {
@@ -19227,7 +19230,7 @@ window.AKB_GROUPS = [
    {
     "id": "m0ecffd76d7",
     "name": "福山萌叶",
-    "kana": "",
+    "kana": "ふくやま もえか",
     "nick": "もえか",
     "status": "former",
     "end": "2023.03.29",

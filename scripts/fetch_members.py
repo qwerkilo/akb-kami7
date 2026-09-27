@@ -311,7 +311,7 @@ def slug(name):
 def assign_ids(members):
     seen_names = set()
     for m in members:
-        suffix = "" if m["name"] not in seen_names else "#" + m["join"]
+        suffix = "" if m["name"] not in seen_names else "#" + (m.get("join") or "")
         m["id"] = slug(m["name"] + suffix)
         seen_names.add(m["name"])
 
@@ -564,7 +564,10 @@ def main(
                 lambda url: fetch_url(url).decode("utf-8", "replace")
             )
         except Exception as e:
-            print(f"warning: 等爱系列抓取失败，跳过：{e}")
+            raise SystemExit(
+                f"等爱系列抓取失败（{e}）；为避免误删已有数据与图片，本次不写入。"
+                "可重试，或传 love_loader=None 仅更新 48G/坂道。"
+            )
 
     all_members = members + love
     assign_ids(all_members)
@@ -588,7 +591,7 @@ def main(
     simplified = build_simplified([m["name"] for m in all_members])
     if simplified is not None:
         write_simplified_js(simplified, os.path.join(dirs["root"], "simplified.js"))
-    report_generation(sections, members, sizes)
+    report_generation(sections, all_members, sizes)
 
 
 if __name__ == "__main__":
