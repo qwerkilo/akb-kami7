@@ -86,21 +86,7 @@
     ctx.restore();
   }
 
-  function slot(
-    ctx,
-    T,
-    im,
-    m,
-    rank,
-    x,
-    y,
-    w,
-    h,
-    big,
-    compact,
-    subOf,
-    hideText
-  ) {
+  function slotCard(ctx, T, im, m, x, y, w, h, compact) {
     ctx.save();
     ctx.shadowColor = "rgba(28,30,43,.18)";
     ctx.shadowBlur = 24;
@@ -132,24 +118,26 @@
       ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + h / 2);
     }
     ctx.restore();
+  }
 
-    const tw = big
-      ? 118
-      : compact
-        ? rank <= 3
-          ? 52
-          : 44
-        : rank <= 3
-          ? 76
-          : 64;
-    const th = big ? 70 : compact ? (rank <= 3 ? 38 : 32) : rank <= 3 ? 56 : 48;
-    const padX = big ? 14 : compact ? 7 : 10;
-    const padY = big ? 18 : compact ? 10 : 14;
-    const tx = x - padX,
-      ty = y - padY;
-    tape(ctx, tx, ty, tw, th, big ? T.colors.pink : T.colors.tape, -0.06);
+  function tapeGeom(big, compact, rank) {
+    if (big) return { w: 118, h: 70, padX: 14, padY: 18, num: 44 };
+    if (compact)
+      return rank <= 3
+        ? { w: 52, h: 38, padX: 7, padY: 10, num: 22 }
+        : { w: 44, h: 32, padX: 7, padY: 10, num: 19 };
+    return rank <= 3
+      ? { w: 76, h: 56, padX: 10, padY: 14, num: 34 }
+      : { w: 64, h: 48, padX: 10, padY: 14, num: 28 };
+  }
+
+  function rankTape(ctx, T, rank, x, y, big, compact) {
+    const g = tapeGeom(big, compact, rank);
+    const tx = x - g.padX;
+    const ty = y - g.padY;
+    tape(ctx, tx, ty, g.w, g.h, big ? T.colors.pink : T.colors.tape, -0.06);
     ctx.save();
-    ctx.translate(tx + tw / 2, ty + th / 2);
+    ctx.translate(tx + g.w / 2, ty + g.h / 2);
     ctx.rotate(-0.06);
     ctx.fillStyle = big ? "#fff" : T.colors.ink;
     ctx.textAlign = "center";
@@ -160,28 +148,54 @@
       ctx.font = `700 15px ${T.fonts.ui}`;
       ctx.fillText("CENTER", 22, 2);
     } else {
-      const numSize = compact ? (rank <= 3 ? 22 : 19) : rank <= 3 ? 34 : 28;
-      ctx.font = `400 ${numSize}px ${T.fonts.display}`;
+      ctx.font = `400 ${g.num}px ${T.fonts.display}`;
       ctx.fillText(String(rank), 0, 3);
     }
     ctx.restore();
+  }
 
-    if (hideText) return;
+  function labelSizes(big, compact, rank) {
+    if (big) return { name: 44, sub: 20 };
+    if (compact) return { name: 20, sub: 13 };
+    return rank <= 3 ? { name: 32, sub: 17 } : { name: 26, sub: 17 };
+  }
+
+  function slotLabel(ctx, T, m, rank, x, y, w, h, big, compact, subOf) {
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = T.colors.ink;
-    const nameBase = big ? 44 : compact ? 20 : rank <= 3 ? 32 : 26;
-    const nameSize = fitText(ctx, m.name, w + 10, nameBase, 700, T.fonts.jp);
+    const sizes = labelSizes(big, compact, rank);
+    const nameSize = fitText(ctx, m.name, w + 10, sizes.name, 700, T.fonts.jp);
     ctx.fillText(m.name, x + w / 2, y + h + nameSize + 14);
     const sub = String(subOf(m) || "");
-    const subBase = big ? 20 : compact ? 13 : 17;
-    const subSize = fitText(ctx, sub, w + 10, subBase, 500, T.fonts.ui);
+    const subSize = fitText(ctx, sub, w + 10, sizes.sub, 500, T.fonts.ui);
     ctx.fillStyle = T.colors.muted;
     ctx.fillText(
-      compact ? clipText(ctx, sub, w + 10, subBase, 500, T.fonts.ui) : sub,
+      compact ? clipText(ctx, sub, w + 10, sizes.sub, 500, T.fonts.ui) : sub,
       x + w / 2,
       y + h + nameSize + subSize + 22
     );
+  }
+
+  function slot(
+    ctx,
+    T,
+    im,
+    m,
+    rank,
+    x,
+    y,
+    w,
+    h,
+    big,
+    compact,
+    subOf,
+    hideText
+  ) {
+    slotCard(ctx, T, im, m, x, y, w, h, compact);
+    rankTape(ctx, T, rank, x, y, big, compact);
+    if (hideText) return;
+    slotLabel(ctx, T, m, rank, x, y, w, h, big, compact, subOf);
   }
 
   function placeRow(ctx, T, imgs, members, start, count, y, w, h, gap, subOf) {
@@ -209,118 +223,77 @@
     }
   }
 
-  function drawSeven(ctx, T, members, imgs, subOf) {
+  function podium(ctx, T, members, imgs, subOf, geo) {
     const W = ctx.canvas.width;
+    const { fy, bigW, bigH, sideW, sideH, gap } = geo;
+    const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
+    const sideY = fy + bigH - sideH;
+    if (members[1])
+      slot(
+        ctx,
+        T,
+        imgs[1],
+        members[1],
+        2,
+        fx,
+        sideY,
+        sideW,
+        sideH,
+        false,
+        false,
+        subOf
+      );
+    if (members[2])
+      slot(
+        ctx,
+        T,
+        imgs[2],
+        members[2],
+        3,
+        fx + sideW + gap + bigW + gap,
+        sideY,
+        sideW,
+        sideH,
+        false,
+        false,
+        subOf
+      );
+    slot(
+      ctx,
+      T,
+      imgs[0],
+      members[0],
+      1,
+      fx + sideW + gap,
+      fy,
+      bigW,
+      bigH,
+      true,
+      false,
+      subOf
+    );
+  }
+
+  function drawSeven(ctx, T, members, imgs, subOf) {
     const fy = 262;
     const bigW = 392,
       bigH = 523,
       sideW = 272,
       sideH = 363,
       gap = 22;
-    const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
-    const sideY = fy + bigH - sideH;
-    if (members[1])
-      slot(
-        ctx,
-        T,
-        imgs[1],
-        members[1],
-        2,
-        fx,
-        sideY,
-        sideW,
-        sideH,
-        false,
-        false,
-        subOf
-      );
-    if (members[2])
-      slot(
-        ctx,
-        T,
-        imgs[2],
-        members[2],
-        3,
-        fx + sideW + gap + bigW + gap,
-        sideY,
-        sideW,
-        sideH,
-        false,
-        false,
-        subOf
-      );
-    slot(
-      ctx,
-      T,
-      imgs[0],
-      members[0],
-      1,
-      fx + sideW + gap,
-      fy,
-      bigW,
-      bigH,
-      true,
-      false,
-      subOf
-    );
+    podium(ctx, T, members, imgs, subOf, { fy, bigW, bigH, sideW, sideH, gap });
     const by = fy + bigH + 150;
     placeRow(ctx, T, imgs, members, 3, 4, by, 216, 288, 26, subOf);
   }
 
   function drawSixteen(ctx, T, members, imgs, subOf) {
-    const W = ctx.canvas.width;
     const fy = 210;
     const bigW = 300,
       bigH = 400,
       sideW = 220,
       sideH = 294,
       gap = 18;
-    const fx = (W - (bigW + sideW * 2 + gap * 2)) / 2;
-    const sideY = fy + bigH - sideH;
-    if (members[1])
-      slot(
-        ctx,
-        T,
-        imgs[1],
-        members[1],
-        2,
-        fx,
-        sideY,
-        sideW,
-        sideH,
-        false,
-        false,
-        subOf
-      );
-    if (members[2])
-      slot(
-        ctx,
-        T,
-        imgs[2],
-        members[2],
-        3,
-        fx + sideW + gap + bigW + gap,
-        sideY,
-        sideW,
-        sideH,
-        false,
-        false,
-        subOf
-      );
-    slot(
-      ctx,
-      T,
-      imgs[0],
-      members[0],
-      1,
-      fx + sideW + gap,
-      fy,
-      bigW,
-      bigH,
-      true,
-      false,
-      subOf
-    );
+    podium(ctx, T, members, imgs, subOf, { fy, bigW, bigH, sideW, sideH, gap });
     const midY = fy + bigH + 92;
     placeRow(ctx, T, imgs, members, 3, 6, midY, 148, 198, 14, subOf);
     const backY = midY + 198 + 78;
