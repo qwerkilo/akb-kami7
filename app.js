@@ -2,7 +2,10 @@
   "use strict";
 
   const CORE = window.AKB_CORE;
+  const FOLD = CORE.foldIndex(window.AKB_SIMPLIFIED || {});
 
+  const SIZES = [7, 16, 32];
+  let series = "48g";
   let pick = 7;
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map();
@@ -10,6 +13,7 @@
     g.members.forEach((m) => {
       m.group = g.group;
       m.generation = g.label;
+      m.series = g.series;
       BY_ID.set(m.id, m);
     })
   );
@@ -25,10 +29,15 @@
     return typeof v === "function" ? v(...args) : v;
   };
   function kamiName() {
-    return pick === 16 ? t("brand_16") : t("brand_7");
+    if (pick === 32) return t("brand_32");
+    if (pick === 16) return t("brand_16");
+    return series === "sakamichi" ? t("brand_best7") : t("brand_7");
   }
   function defaultTitle() {
-    return pick === 16 ? t("title_16") : t("title_7");
+    const prefix = t(
+      series === "sakamichi" ? "title_prefix_saka" : "title_prefix_48g"
+    );
+    return `${prefix} ${kamiName()}`;
   }
 
   function applyStatic() {
@@ -49,8 +58,22 @@
     const brand = $("#brand");
     if (brand) {
       brand.textContent = kamiName();
-      brand.classList.toggle("long", pick === 16 || lang === "en");
+      brand.classList.toggle("long", pick !== 7 || lang === "en");
     }
+    const eyebrow = $("#eyebrow");
+    if (eyebrow)
+      eyebrow.textContent = `${t(
+        series === "sakamichi" ? "series_saka" : "series_48g"
+      )} 好き顔ソート`;
+    const size7 = $("#size-7");
+    if (size7)
+      size7.textContent =
+        series === "sakamichi" ? t("brand_best7") : t("brand_7");
+    document
+      .querySelectorAll(".seg-series [data-series]")
+      .forEach((b) =>
+        b.setAttribute("aria-checked", b.dataset.series === series)
+      );
     const title = $("#title-input");
     if (title && !title.dataset.dirty) title.value = defaultTitle();
   }
@@ -80,6 +103,41 @@
     open: new Set(),
   };
 
+  /* ---------------- 系列与持久化 ---------------- */
+  const seriesStore = {
+    "48g": { size: 7, selected: [], duel: null },
+    sakamichi: { size: 7, selected: [], duel: null },
+  };
+  const storageKey = (s) => `akb:state:v2:${s}`;
+
+  function saveState() {
+    try {
+      localStorage.setItem(
+        storageKey(series),
+        CORE.serializeState({
+          size: pick,
+          selected: state.selected,
+          duel: null,
+        })
+      );
+    } catch (_) {}
+  }
+
+  function loadState(s) {
+    try {
+      const st = CORE.deserializeState(
+        localStorage.getItem(storageKey(s)) || ""
+      );
+      if (!st) return;
+      const kept = st.selected.filter(
+        (id) => (BY_ID.get(id) || {}).series === s
+      );
+      seriesStore[s] = { size: st.size, selected: kept, duel: st.duel };
+    } catch (_) {}
+  }
+
+  const seriesGroups = () => GROUPS.filter((g) => g.series === series);
+
   /* ---------------- phase switching ---------------- */
   function show(phase) {
     for (const id of ["pick", "duel", "result"]) {
@@ -92,7 +150,7 @@
   const roster = $("#roster");
 
   function visible(m) {
-    return CORE.isVisible(m, state.filter);
+    return m.series === series && CORE.isVisible(m, state.filter);
   }
 
   function cardHTML(m, showGroup) {
@@ -142,7 +200,7 @@
     const q = CORE.normalizeName(state.query);
     if (q) return renderSearch(q);
 
-    const tree = CORE.groupSections(GROUPS, state.group);
+    const tree = CORE.groupSections(seriesGroups(), state.group);
     const twoLevel = state.group === "all";
     const html = [];
     for (const node of tree) {
@@ -176,12 +234,12 @@
   }
 
   BY_ID.forEach((m) => {
-    m.hay = CORE.haystack(m);
+    m.hay = CORE.haystack(m, FOLD);
   });
 
   function renderSearch(q) {
     const hits = [];
-    for (const g of GROUPS) {
+    for (const g of seriesGroups()) {
       if (state.group !== "all" && g.group !== state.group) continue;
       for (const m of g.members) {
         if (visible(m) && m.hay.includes(q)) hits.push(m);
@@ -227,7 +285,7 @@
     const open = !state.open.has(key);
     if (open) {
       state.open.add(key);
-      const node = CORE.groupSections(GROUPS, state.group).find(
+      const node = CORE.groupSections(seriesGroups(), state.group).find(
         (n) => n.group === name
       );
       body.innerHTML = node
@@ -268,7 +326,7 @@
       const n = pickedIn(GROUPS[sec.dataset.gi]);
       sec.querySelector(".gen-picked").textContent = n ? t("picked", n) : "";
     });
-    const tree = CORE.groupSections(GROUPS, state.group);
+    const tree = CORE.groupSections(seriesGroups(), state.group);
     roster.querySelectorAll(".grp").forEach((sec) => {
       const node = tree.find((n) => n.group === sec.dataset.group);
       const picked = node ? pickedInNode(node) : 0;
@@ -278,6 +336,7 @@
     });
     roster.classList.toggle("full", state.selected.length >= pick);
     renderTray();
+    saveState();
   }
 
   function renderTray() {
@@ -294,8 +353,8 @@
       );
     }
     $("#slots").innerHTML = slots.join("");
-    $("#tray").classList.toggle("wide", pick === 16);
-    $("#slots").style.setProperty("--slots", String(pick === 16 ? 8 : 7));
+    $("#tray").classList.toggle("wide", pick !== 7);
+    $("#slots").style.setProperty("--slots", String(pick === 7 ? 7 : 8));
     const left = pick - state.selected.length;
     const btn = $("#start-btn");
     btn.disabled = left > 0;
@@ -317,12 +376,54 @@
   });
 
   const groupSelect = $("#group-filter");
-  for (const name of CORE.groupSections(GROUPS, "all").map((n) => n.group)) {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    groupSelect.appendChild(opt);
+
+  function refreshGroupOptions() {
+    groupSelect.innerHTML = `<option value="all">${t("all_groups")}</option>`;
+    for (const node of CORE.groupSections(seriesGroups(), "all")) {
+      const opt = document.createElement("option");
+      opt.value = node.group;
+      opt.textContent = node.group;
+      groupSelect.appendChild(opt);
+    }
   }
+
+  function paintSizeButtons() {
+    document
+      .querySelectorAll(".seg-size button")
+      .forEach((b) => b.setAttribute("aria-checked", +b.dataset.pick === pick));
+  }
+
+  function switchSeries(next) {
+    if (next === series) return;
+    seriesStore[series] = {
+      size: pick,
+      selected: state.selected.slice(),
+      duel: null,
+    };
+    series = next;
+    const st = seriesStore[series];
+    pick = st.size;
+    state.selected = st.selected.slice();
+    state.filter = "all";
+    state.group = "all";
+    state.query = "";
+    state.open.clear();
+    const search = $("#search");
+    if (search) search.value = "";
+    document
+      .querySelectorAll(".seg-filter button")
+      .forEach((b) =>
+        b.setAttribute("aria-checked", b.dataset.filter === "all")
+      );
+    refreshGroupOptions();
+    paintSizeButtons();
+    applyStatic();
+    const title = $("#title-input");
+    if (title && !title.dataset.dirty) title.value = defaultTitle();
+    renderRoster();
+    syncSelection();
+  }
+
   groupSelect.addEventListener("change", () => {
     state.group = groupSelect.value;
     renderRoster();
@@ -345,15 +446,13 @@
     b.addEventListener("click", () => {
       const next = +b.dataset.pick;
       if (next === pick) return;
-      document
-        .querySelectorAll(".seg-size button")
-        .forEach((x) => x.setAttribute("aria-checked", x === b));
       pick = next;
       if (state.selected.length > pick) state.selected.length = pick;
-      $("#phase-pick").classList.toggle("pick-16", pick === 16);
+      paintSizeButtons();
       applyStatic();
       const title = $("#title-input");
       if (!title.dataset.dirty) title.value = defaultTitle();
+      saveState();
       renderRoster();
       syncSelection();
     });
@@ -601,10 +700,18 @@
 
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-lang]");
-    if (b) setLang(b.dataset.lang);
+    if (b) return setLang(b.dataset.lang);
+    const s = e.target.closest(".seg-series [data-series]");
+    if (s) switchSeries(s.dataset.series);
   });
 
   /* ---------------- boot ---------------- */
+  loadState("48g");
+  loadState("sakamichi");
+  pick = seriesStore[series].size;
+  state.selected = seriesStore[series].selected.slice();
+  refreshGroupOptions();
+  paintSizeButtons();
   applyStatic();
   renderRoster();
   syncSelection();

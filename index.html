@@ -3,27 +3,47 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="doc_title">48 Group 神7 好き顔ソート（历代成员）</title>
+    <title data-i18n="doc_title">
+      48 Group × 坂道 好き顔ソート（历代成员）
+    </title>
     <meta
       name="description"
-      content="从 48 Group 历代成员（含毕业成员）里选出最喜欢的 7 张脸，两两比较排出名次，生成你的神7图片。"
+      content="从 48 Group 与坂道的历代成员（含毕业成员）里选出最喜欢的 7 / 16 / 32 张脸，两两比较排出名次，生成你的神7 / BEST 7 图片。"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Nunito:wght@800;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="masthead">
       <div class="masthead-main">
-        <p class="eyebrow">48 Group 好き顔ソート</p>
+        <p class="eyebrow" id="eyebrow">48 Group 好き顔ソート</p>
         <h1>
           <span class="kami" id="brand">神7</span
           ><span class="sub" data-i18n="subtitle">历代成员版</span>
         </h1>
+        <div class="seg seg-series" role="radiogroup" aria-label="系列">
+          <button
+            type="button"
+            role="radio"
+            aria-checked="true"
+            data-series="48g"
+          >
+            48 Group
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked="false"
+            data-series="sakamichi"
+          >
+            坂道
+          </button>
+        </div>
       </div>
       <div class="seg seg-lang" role="radiogroup" aria-label="Language">
         <button type="button" role="radio" aria-checked="true" data-lang="zh">
@@ -40,12 +60,7 @@
       <section id="phase-pick" class="phase">
         <div class="toolbar">
           <div class="seg seg-size" role="radiogroup" aria-label="人数">
-            <button
-              role="radio"
-              aria-checked="true"
-              data-pick="7"
-              data-i18n="mode_7"
-            >
+            <button role="radio" aria-checked="true" data-pick="7" id="size-7">
               神7
             </button>
             <button
@@ -55,6 +70,14 @@
               data-i18n="mode_16"
             >
               16人版
+            </button>
+            <button
+              role="radio"
+              aria-checked="false"
+              data-pick="32"
+              data-i18n="mode_32"
+            >
+              32人版
             </button>
           </div>
           <div class="seg seg-filter" role="radiogroup" aria-label="成员范围">
@@ -201,6 +224,7 @@
     <script src="poster.js"></script>
     <script src="i18n.js"></script>
     <script src="members.js"></script>
+    <script src="simplified.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
