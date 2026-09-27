@@ -25,6 +25,7 @@
   `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）
 - 测试：`npm test`（node:test 跑 `test/*.test.js` + Python 标准库 unittest 跑 `scripts/test_*.py`，均离线、不联网）。
+- 查看原型：原型文件在 `prototype/*` 分支上，main 工作区里没有属预期。用 `git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再 `python3 -m http.server <端口> --directory /tmp/akb-proto-<名>` 托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
 - 没有 lint / typecheck 脚本。
 
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）
