@@ -614,6 +614,8 @@ class SakamichiTests(unittest.TestCase):
         self.assertEqual(fetch_members.group_of("四期|櫻坂46", "櫻坂46"), (4.0, "四期生"))
         self.assertEqual(fetch_members.group_of("一期|日向坂46", "日向坂46"), (1.0, "一期生"))
         self.assertEqual(fetch_members.group_of("6期|乃木坂46", "乃木坂46"), (6.0, "6期生"))
+        self.assertEqual(fetch_members.group_of("十一期|乃木坂46", "乃木坂46"), (11.0, "十一期生"))
+        self.assertEqual(fetch_members.group_of("二十一期|乃木坂46", "乃木坂46"), (21.0, "二十一期生"))
 
     def test_historical_suffix_is_a_generation(self):
         self.assertEqual(fetch_members.group_of("1.5期|欅坂46", "日向坂46"), (1.5, "1.5期生"))

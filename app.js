@@ -4,7 +4,6 @@
   const CORE = window.AKB_CORE;
   const FOLD = CORE.foldIndex(window.AKB_SIMPLIFIED || {});
 
-  const SIZES = [7, 16, 32];
   let series = "48g";
   let pick = 7;
   const GROUPS = window.AKB_GROUPS || [];
@@ -31,7 +30,7 @@
   function kamiName() {
     if (pick === 32) return t("brand_32");
     if (pick === 16) return t("brand_16");
-    return series === "sakamichi" ? t("brand_best7") : t("brand_7");
+    return series === "sakamichi" ? t("brand_7fukujin") : t("brand_7");
   }
   function defaultTitle() {
     const prefix = t(
@@ -68,12 +67,15 @@
     const size7 = $("#size-7");
     if (size7)
       size7.textContent =
-        series === "sakamichi" ? t("brand_best7") : t("brand_7");
-    document
-      .querySelectorAll(".seg-series [data-series]")
-      .forEach((b) =>
-        b.setAttribute("aria-checked", b.dataset.series === series)
+        series === "sakamichi" ? t("brand_7fukujin") : t("brand_7");
+    document.querySelectorAll(".seg-series [data-series]").forEach((b) => {
+      b.textContent = t(
+        b.dataset.series === "sakamichi" ? "series_saka" : "series_48g"
       );
+      b.setAttribute("aria-checked", b.dataset.series === series);
+    });
+    const seriesSeg = document.querySelector(".seg-series");
+    if (seriesSeg) seriesSeg.setAttribute("aria-label", t("series_label"));
     const title = $("#title-input");
     if (title && !title.dataset.dirty) title.value = defaultTitle();
   }
@@ -87,10 +89,6 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
     );
 
-  const isTransfer = (m) => CORE.isTransfer(m);
-  const sourceNote = (m) => CORE.sourceNote(m, t, lang);
-  const leaveText = (reason) => CORE.leaveText(reason, t, lang);
-  const yearLeave = (m) => CORE.yearLeave(m, t, lang);
   const metaText = (m) => CORE.metaText(m, t, lang);
   const fullMeta = (m) => CORE.fullMeta(m, t, lang);
   const posterSub = (m) => CORE.posterSub(m, t, lang);
@@ -109,6 +107,7 @@
     sakamichi: { size: 7, selected: [], duel: null },
   };
   const storageKey = (s) => `akb:state:v2:${s}`;
+  const SERIES_KEY = "akb:series";
 
   function saveState() {
     try {
@@ -135,7 +134,11 @@
       const kept = st.selected.filter(
         (id) => (BY_ID.get(id) || {}).series === s
       );
-      seriesStore[s] = { size: st.size, selected: kept, duel: st.duel };
+      let duel = st.duel;
+      if (duel && duel.order.some((id) => (BY_ID.get(id) || {}).series !== s)) {
+        duel = null;
+      }
+      seriesStore[s] = { size: st.size, selected: kept, duel };
     } catch (_) {}
   }
 
@@ -166,21 +169,22 @@
     </button>`;
   }
 
-  function pickedIn(g) {
-    return g.members.filter((m) => state.selected.includes(m.id)).length;
-  }
-
   function pickedInNode(node) {
     return node.sections
       .flatMap((s) => s.members)
       .filter((m) => state.selected.includes(m.id)).length;
   }
 
-  function sectionHTML(s) {
+  let secSeq = 0;
+  const SEC_INDEX = new Map();
+
+  function sectionHTML(s, group) {
     const ms = s.members.filter(visible);
     if (!ms.length) return "";
-    const gi = s.index;
-    const open = state.open.has(gi);
+    const secId = `${group}#${s.label}`;
+    SEC_INDEX.set(secId, ms);
+    const secUid = `gen-${++secSeq}`;
+    const open = state.open.has(secId);
     const now = ms.filter((m) => m.status === "current").length;
     const count =
       state.filter === "all" && now
@@ -188,14 +192,14 @@
         : t("people", ms.length);
     const picked = ms.filter((m) => state.selected.includes(m.id)).length;
     const sub = state.group === "all" ? " sub" : "";
-    return `<section class="gen${sub}" data-gi="${gi}">
-      <button class="gen-head" aria-expanded="${open}" aria-controls="gen-${gi}">
+    return `<section class="gen${sub}" data-sec="${esc(secId)}">
+      <button class="gen-head" aria-expanded="${open}" aria-controls="${secUid}">
         <i class="chev" aria-hidden="true"></i>
         <span class="gen-name">${esc(s.label)}</span>
         <span class="gen-count">${count}</span>
         <span class="gen-picked">${picked ? t("picked", picked) : ""}</span>
       </button>
-      <div class="gen-body" id="gen-${gi}" ${open ? "" : "hidden"}>${open ? ms.map((m) => cardHTML(m)).join("") : ""}</div>
+      <div class="gen-body" id="${secUid}" ${open ? "" : "hidden"}>${open ? ms.map((m) => cardHTML(m)).join("") : ""}</div>
     </section>`;
   }
 
@@ -207,7 +211,10 @@
     const twoLevel = state.group === "all";
     const html = [];
     for (const node of tree) {
-      const body = node.sections.map(sectionHTML).filter(Boolean).join("");
+      const body = node.sections
+        .map((s) => sectionHTML(s, node.group))
+        .filter(Boolean)
+        .join("");
       if (!body) continue;
       if (!twoLevel) {
         html.push(body);
@@ -253,20 +260,20 @@
       : `<p class="empty">${t("empty_search", esc(state.query))}</p>`;
   }
 
-  function toggleGroup(gi) {
-    const sec = roster.querySelector(`.gen[data-gi="${gi}"]`);
+  function toggleGroup(secId) {
+    const sec = [...roster.querySelectorAll(".gen")].find(
+      (el) => el.dataset.sec === secId
+    );
+    if (!sec) return;
     const head = sec.querySelector(".gen-head");
     const body = sec.querySelector(".gen-body");
-    const open = !state.open.has(gi);
+    const open = !state.open.has(secId);
     if (open) {
-      state.open.add(gi);
-      body.innerHTML = GROUPS[gi].members
-        .filter(visible)
-        .map(cardHTML)
-        .join("");
+      state.open.add(secId);
+      body.innerHTML = (SEC_INDEX.get(secId) || []).map(cardHTML).join("");
       body.hidden = false;
     } else {
-      state.open.delete(gi);
+      state.open.delete(secId);
       body.hidden = true;
       body.innerHTML = "";
     }
@@ -292,7 +299,10 @@
         (n) => n.group === name
       );
       body.innerHTML = node
-        ? node.sections.map(sectionHTML).filter(Boolean).join("")
+        ? node.sections
+            .map((s) => sectionHTML(s, node.group))
+            .filter(Boolean)
+            .join("")
         : "";
       body.hidden = false;
     } else {
@@ -327,7 +337,8 @@
       el.dataset.order = i + 1;
     });
     roster.querySelectorAll(".gen").forEach((sec) => {
-      const n = pickedIn(GROUPS[sec.dataset.gi]);
+      const members = SEC_INDEX.get(sec.dataset.sec) || [];
+      const n = members.filter((m) => state.selected.includes(m.id)).length;
       sec.querySelector(".gen-picked").textContent = n ? t("picked", n) : "";
     });
     const tree = CORE.groupSections(seriesGroups(), state.group);
@@ -369,7 +380,7 @@
     const grp = e.target.closest(".grp-head");
     if (grp) return toggleGroupNode(grp.parentElement.dataset.group);
     const head = e.target.closest(".gen-head");
-    if (head) return toggleGroup(+head.parentElement.dataset.gi);
+    if (head) return toggleGroup(head.parentElement.dataset.sec);
     const card = e.target.closest(".card");
     if (card) toggleMember(card.dataset.id);
   });
@@ -407,7 +418,13 @@
           ? { order: duel.order.slice(), answers: duel.answers.slice() }
           : null,
     };
+    duel.order = [];
+    duel.answers = [];
+    duel.pair = null;
     series = next;
+    try {
+      localStorage.setItem(SERIES_KEY, series);
+    } catch (_) {}
     const st = seriesStore[series];
     pick = st.size;
     state.selected = st.selected.slice();
@@ -564,10 +581,12 @@
   function answer(leftWins) {
     if (answering || $("#phase-duel").hidden) return;
     answering = true;
+    const forSeries = series;
     (leftWins ? $("#fighter-a") : $("#fighter-b")).classList.add("picked");
     setTimeout(() => {
-      duel.answers.push(leftWins);
       answering = false;
+      if (forSeries !== series) return;
+      duel.answers.push(leftWins);
       saveState();
       advance();
     }, 160);
@@ -600,6 +619,8 @@
   });
 
   function backToPick() {
+    invalidateDuel();
+    saveState();
     show("pick");
     renderRoster();
     syncSelection();
@@ -721,7 +742,7 @@
   function posterFileName() {
     const prefix = series === "sakamichi" ? "sakamichi" : "48group";
     if (pick === 7)
-      return `${prefix}_${series === "sakamichi" ? "best7" : "kami7"}.png`;
+      return `${prefix}_${series === "sakamichi" ? "7fukujin" : "kami7"}.png`;
     return `${prefix}_${pick}.png`;
   }
 
@@ -772,6 +793,10 @@
   });
 
   /* ---------------- boot ---------------- */
+  try {
+    const saved = localStorage.getItem(SERIES_KEY);
+    if (saved === "48g" || saved === "sakamichi") series = saved;
+  } catch (_) {}
   loadState("48g");
   loadState("sakamichi");
   pick = seriesStore[series].size;

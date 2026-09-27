@@ -95,7 +95,11 @@ test("draw：32 人海报 8×4 网格，32 人全部在列", () => {
     assert.ok(calls.texts.includes(m.name), `缺名字 ${m.name}`);
     assert.ok(calls.texts.includes(m.subtitle), `缺副标题 ${m.subtitle}`);
   }
-  assert.ok(calls.texts.includes("32"));
   assert.equal(calls.texts.filter((x) => x === "CENTER").length, 0);
+  const nums = calls.texts.filter((x) => /^\d{1,2}$/.test(x));
+  assert.deepEqual(
+    [...new Set(nums)].sort((a, b) => a - b),
+    Array.from({ length: 32 }, (_, i) => String(i + 1))
+  );
   assert.ok(!calls.texts.some((x) => x.includes("undefined")));
 });

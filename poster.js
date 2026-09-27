@@ -161,13 +161,15 @@
     let x = (ctx.canvas.width - total) / 2;
     for (let i = 0; i < count; i++) {
       const idx = start + i;
+      const colX = x;
+      x += w + gap;
       if (!members[idx]) continue;
       slot(
         ctx,
         imgs[idx],
         members[idx],
         idx + 1,
-        x,
+        colX,
         y,
         w,
         h,
@@ -175,7 +177,6 @@
         false,
         subOf
       );
-      x += w + gap;
     }
   }
 

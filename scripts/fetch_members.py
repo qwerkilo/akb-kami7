@@ -191,10 +191,17 @@ KANJI_DIGITS = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七
 HISTORICAL_SUFFIX = {"日向坂46": {"欅坂46"}}
 
 
+def kanji_to_int(s):
+    if "十" not in s:
+        return KANJI_DIGITS[s]
+    tens, _, ones = s.partition("十")
+    return (KANJI_DIGITS[tens] if tens else 1) * 10 + (KANJI_DIGITS[ones] if ones else 0)
+
+
 def generation_key(label):
     if re.fullmatch(r"[\d.]+", label):
         return float(label)
-    return float(sum(KANJI_DIGITS[c] for c in label))
+    return float(kanji_to_int(label))
 
 
 def generation_section(join, group):

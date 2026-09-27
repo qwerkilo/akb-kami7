@@ -3,3 +3,4 @@ scripts/_*.wiki
 __pycache__/
 node_modules/
 .codegraph/
+.coverage

@@ -193,7 +193,8 @@ test("shuffle 确实会重排元素顺序", () => {
 });
 
 // ---- 成员字幕 module ----
-const t = (key, arg) => (arg === undefined ? `[${key}]` : `[${key}:${arg}]`);
+const t = (key, ...args) =>
+  args.length ? `[${key}:${args.join(",")}]` : `[${key}]`;
 const person = (over = {}) => ({
   name: "甲",
   group: "AKB48",
