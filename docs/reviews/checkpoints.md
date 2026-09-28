@@ -178,4 +178,4 @@
   - **评估并记录（Standards 建议）**：不给 `members-artifact.test.js` 加 `flattenMembers` 不变量——本次回归是 app 接线错误，产物与 core 未被改坏，产物侧断言在坏版与好版都绿；要抓必须执行 `app.js` + DOM，等于把 E2E 缝搬进单测。维持 E2E 兜底。
   - 验证：`npm test` JS **108** + Python **83**；E2E 回归 **75/75**、v5 44/44；首屏冒烟 16 卡 / 7 组。
 - 遗留：LOW——对决切皮肤的断言只比对题号 + 相位，未比对 pair/order（「重置到同题号」理论可漏，有「无 JS 报错」兜底）；`flattenMembers` 对含 `null` 的分段会抛（与旧实现相同）。
-- 下次基点：`cb85e7f`
+- 下次基点：`3234d8d`（`cb85e7f` 为本轮代码收口，检查点文档为其后一笔）

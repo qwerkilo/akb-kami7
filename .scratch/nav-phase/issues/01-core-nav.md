@@ -10,8 +10,8 @@
 ## Acceptance
 
 - [x] `test/core.test.js` 全表覆盖：12 个 intent × 相位/视图组合、`steps` 的 active/enabled/badge、缺省字段与非法 intent（先红后绿）
-- [ ] `npm test` 全绿（JS 计数增加；Python 不变）
-- [ ] app 未接线，无用户可见变化
+- [x] `npm test` 全绿（JS 计数增加；Python 不变）
+- [x] app 未接线，无用户可见变化
 
 ## Comments
 

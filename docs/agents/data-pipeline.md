@@ -1,6 +1,6 @@
 # 数据与图片生成
 
-`members.js`、`img/full`（720×960 WebP）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成：
+`members.js`、`img/full`（长边 ≤720×960 等比 WebP，不放大原图）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成：
 
 - **48G / 坂道**：48pedia 的 11 个来源页（`SOURCES`）；跨团按姓名+假名去重归口，跨系列兼任由 keeper+extras 合并；bio 取表内 `生年月日`/`出身地`。
 - **等爱三团**：`scripts/love_members.py` 抓官网（列表+详情：血型/星座/身长/趣味/特技/罗马字）+ 日文 Wikipedia（假名/生年月日/出身地/元成员/毕业日）；毕业成员照片走回退链 **Web Archive 列表快照 → 图片快照 → Wikipedia/Commons → 占位**；`main` 的 `love_loader` 可注入（测试离线）。

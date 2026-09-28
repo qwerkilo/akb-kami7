@@ -24,7 +24,7 @@
 ## Implementation Decisions
 
 - **皮肤状态**：`session.js` 新增 `skin`（`"classic"|"sticker"`，默认 `"classic"`），键 `akb:skin`；`setSkin(next)` 校验并持久化；`snapshot().skin`。
-- **主题层**：`style.css` 顶部两套令牌（`:root,[data-skin=classic]` 与 `[data-skin=sticker]`），组件样式消费令牌；`app.js` 在 boot 与切换时设置 `document.documentElement.dataset.skin`。
+- **主题层**：`style.css` 顶部两套令牌（`:root,[data-skin=sticker]` 与 `[data-skin=classic]`），组件样式消费令牌；`app.js` 在 boot 与切换时设置 `document.documentElement.dataset.skin`。
 - **切换器**：`index.html` 页头 `.masthead-side` 内新增 `.seg.seg-skin`（radiogroup，两个按钮，44px 触摸目标、`aria-checked`、方向键导航）；文案键 `skin_label` / `skin_classic` / `skin_sticker`（zh/en）。
 - **海报**：`poster.js` 令牌新增 `cardStroke`；`slotCard` 的 `lineWidth` 用 `T.cardStroke`，为 0 时跳过 `stroke()`；`app.js` 的 `posterTokens()` 按皮肤返回两套令牌（classic 取上游 `11fa090` 的七色；sticker 为现行默认）。
 - **不变**：布局（7/16/32 与金字塔）、题量、交互流程、导出尺寸均不变。

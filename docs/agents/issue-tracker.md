@@ -18,6 +18,8 @@ Create a new file under `.scratch/<feature-slug>/` (creating the directory if ne
 
 Read the file at the referenced path. The user will normally pass the path or the issue number directly.
 
+- **Spec 状态**：`spec.md` 的 `Status: ready-for-agent` 只表示「可开工」；批次交付后 spec 不回流——以 `issues/*.md` 的 `Status` 为交付事实。
+
 ## Wayfinding operations
 
 Used by `/wayfinder`. The **map** is a file with one **child** file per ticket.

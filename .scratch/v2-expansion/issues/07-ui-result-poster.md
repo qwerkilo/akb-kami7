@@ -13,4 +13,4 @@
 
 ## Comments
 
-2026-09-27：`drawPoster` 文案按系列（`坂道 好き顔ソート` / `#Sakamichi` vs `48 Group 好き顔ソート` / `#48Group`）；下载文件名 `48group_kami7.png` / `48group_16.png` / `48group_32.png` / `sakamichi_best7.png`；分享文案标签随系列；`poster.js` 调色板换贴纸系（奶油底 + 墨色描边 + 柠檬胶带），槽位加墨色描边。E2E +4（坂道流程到结果、结果 meta、BEST 7 标题、sakamichi_best7.png），40/40 绿；截图核对 32 格海报与坂道海报（生駒里奈 显示「兼任・移籍：AKB48 · 2018 毕业」）。
+2026-09-27：`drawPoster` 文案按系列（`坂道 好き顔ソート` / `#Sakamichi` vs `48 Group 好き顔ソート` / `#48Group`）；下载文件名 `48group_kami7.png` / `48group_16.png` / `48group_32.png` / `sakamichi_best7.png`（后随命名决策改为 `sakamichi_7fukujin`）；分享文案标签随系列；`poster.js` 调色板换贴纸系（奶油底 + 墨色描边 + 柠檬胶带），槽位加墨色描边。E2E +4（坂道流程到结果、结果 meta、BEST 7 标题、sakamichi_best7.png），40/40 绿；截图核对 32 格海报与坂道海报（生駒里奈 显示「兼任・移籍：AKB48 · 2018 毕业」）。

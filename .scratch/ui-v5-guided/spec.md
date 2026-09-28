@@ -26,7 +26,7 @@
 ## Implementation Decisions
 
 - **视图状态**：`app.js` 新增本地 `view`（`"pick" | "duel" | "result"`），boot 时按 session 相位初始化；`show(view)` 负责切段。与 `session` 相位解耦的关键：从对决回挑人不再 `abandonDuel()`，只有续玩卡的「放弃」与结果页的「重新选人」才丢弃。
-- **步骤条**：`index.html` 新增 `nav.steps`（三个 button，`aria-current` 标记当前，sticky 顶部），`app.js` 渲染计数徽章（① `selected/size`、② 进行中显示 `第 N 题`）与 disabled 规则（② = 有对决或已选满；③ = 相位为 result）。
+- **步骤条**：`index.html` 新增 `nav.steps`（三个 button，`aria-current` 标记当前，sticky 顶部），`app.js` 渲染计数徽章（① `selected/size`、② 进行中显示 `第 N 题`）与 disabled 规则（② = 有对决或已选满，**结果相位恒禁用**；③ = 相位为 result）。
 - **首屏见脸**：`renderRoster()` 前若 `snap.open` 为空且无搜索词且 `group === "all"`，自动 `toggleOpen` 第一团体 + 其第一期生（无新状态，不覆盖用户已折叠状态）。
 - **引导卡 / 说明卡**：`localStorage` 键 `akb:coach:v1`、`akb:duelintro:v1`（try/catch 包裹，仿 `akb-lang` 先例）；说明卡只在 `beginDuel()` 新开时出现。
 - **进度环 / 覆盖 chips**：`app.js` 以 inline SVG 渲染（与原型一致），数据由 `snapshot().selected` + `BY_ID` 派生，不进 core。

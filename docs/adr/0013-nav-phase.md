@@ -16,6 +16,6 @@ ADR-0012 定了向导模式的导航语义（① 从对决返回不丢进度、�
 
 ## 后果
 
-- `core.js` 新增两个导出；`app.js` 的 13 处赋值收成 `navigate(intent)` + `paint()`。
+- `core.js` 新增两个导出；`app.js` 的 11 处赋值（+1 处声明）收成 `navigate(intent)` + `paint()`。
 - 转移表与步骤条状态在 `test/core.test.js` 全表覆盖（node:test）；E2E 退回行为回归。
 - 候选 ②（对决交互门控）与 ③（重绘扇出）将以本表为前置，后续单独评审。
