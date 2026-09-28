@@ -196,3 +196,46 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 - **P2 已修**（`4a58ad6`）：`poster.js` `slot` 拆为 `slotCard`/`rankTape`/`slotLabel` + `tapeGeom`/`labelSizes` 尺寸表（CCN 30→2，全部助手 ≤5），`drawSeven`/`drawSixteen` 共用 `podium`，48 行克隆消除（jscpd 最大 JS 克隆降至 8 行测试样板）；行为不变由**绘制调用序列快照**验证（7/16/32 共 3301 条调用，重构前后 diff 为空），E2E 55/55。
 - **P3 已修**（`b490870`）：`love_members.load` 补 3 项注入式测试（装配断言、详情失败即抛的快速中止契约、存档失败可存活）；新增 `scripts/test_wiki.py` 3 项（重试后成功、耗尽抛出、首次成功不 sleep）。覆盖率：`love_members.py` 87%→**96%**、`wiki.py` 54%→**89%**；`npm test` JS 80 + Python 77。
 - **P3 草稿处置**：`scripts/scan-secrets.py` 草稿移至 `/tmp/opencode/scan-secrets.py.draft`（密钥扫描按用户要求跳过，仓库不留半成品）。
+
+## 全量质检（第八轮，2026-09-28，基线 `0fa2d2d`）
+
+### 覆盖率（行 / 分支 / 函数）
+
+| 文件       | 第 7 轮（行/分支/函数） | 第 8 轮                 | 未覆盖行            |
+| ---------- | ----------------------- | ----------------------- | ------------------- |
+| core.js    | 99.78 / 92.04 / 100     | **99.64 / 94.83 / 100** | 4, 485              |
+| session.js | 98.94 / 89.25 / 90.91   | **98.99 / 89.80 / 91.18** | 9, 22-23            |
+| poster.js  | 99.09 / 92.73 / 100     | **99.29 / 93.62 / 100** | 5, 79, 82           |
+| i18n.js    | 99.64 / 60.00 / 6.25    | **99.70 / 77.78 / 14.29** | 4                 |
+| JS 合计（含 test） | —                | **99.76 / 95.90 / 88.98** | —                 |
+
+Python：`fetch_members` 96.01、`love_members` 95.69、`wiki` 89.29、`roster.py`（新增）**100**，scripts 合计 97%。测试计数：JS **98** + Python **83**（第 7 轮收尾 80 / 77）。
+
+### CRAP / 复杂度（文件级覆盖近似）
+
+- **新热点**：`core.js nav` **CCN 32 / CRAP 32**（本批 ① 新增，全仓最大单函数）；`steps` CCN 10。
+- 与上轮持平：`core.js names`14 / `deserializeState`13 / `genText`10；`love_members parse_wiki_members`22 / `build_members`21；`fetch_members` 四个函数 CCN 9。
+- 已消：`poster.js slot`30（上轮拆平，本轮 `draw` CCN 7）；`wiki.py get` CRAP 7.4→5.0（覆盖率 54→89 的滞后收益）。
+- `app.js applyStatic`9 / 匿名 7：仅 E2E 无单测上界，维持。
+- **口径勘误**：第 7 轮「fetch_members 全部 ≤6」在文件级近似下不成立（`parse_chunk/merge_person/main/build_simplified` 自基线即 CCN 9）。本轮起以「CCN > 10 或 CRAP > 10 才列修」为口径。
+
+### 变异测试（StrykerJS 8.7.1，1610 变异）
+
+| 文件       | 第 7 轮 | 第 8 轮    | 幸存 | 说明 |
+| ---------- | ------- | ---------- | ---- | ---- |
+| core.js    | 91.98%  | **90.93%** | 86   | **28 个落在新增 nav/steps/milestone**（非法 view/phase 回退、size=0、selected=0、step=null），可杀 |
+| session.js | 79.78%  | **80.21%** | 57   | 等价/防御拷贝/UMD（既有论证） |
+| poster.js  | 37.50%  | **40.64%** | 222  | 假 ctx 不可观测的绘制参数，接受 |
+| 整体       | 74.3%   | **77.33%** | 365  | no-coverage 0 |
+
+### 其他指标
+
+- 重复率（jscpd）：行 **1.11%**（80/7203）、token 1.15%、克隆 9（上轮 6）；生产代码仅 2 处——`core.js nav/steps` 前导派生段 8 行（新）、`app.js` 卡片模板 7 行；其余为测试样板（≤13 行，可接受）。
+- `npm audit`（官方源）0 漏洞；TODO/FIXME 0；Node v20.19.2；无生产依赖。
+
+### 建议（按优先级）
+
+1. **P1**：`core.js nav` CCN 32 与其 8 行克隆同源——抽 `navState()` 共用派生 + 转移表改为规则函数表（顺带补边界断言：非法 view/phase 回退、`size=0`、`selected<0`、`step=null`），预计 CRAP 32→≈5、去一处生产克隆、杀 28 个幸存变异。
+2. **P2**（维持）：poster.js 222 幸存是假 ctx 的观测极限，接受；若要提分优先「几何断言」（行分布/居中/字号），不要为样式参数补测。
+3. **P3**：测试样板克隆 3 处（≤13 行）不修，保持测试可读性优先。
+4. 维持 checklist（`npm test` → 手动 lint-staged → `graph:sync`；UI 改动跑 E2E；review 后记检查点）。
