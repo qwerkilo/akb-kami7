@@ -30,6 +30,7 @@ test("初始会话：48g / 7 档 / 空已选 / pick 相位", () => {
     selected: [],
     filter: "all",
     group: "all",
+    generation: "all",
     query: "",
     open: [],
     phase: "pick",
@@ -378,4 +379,13 @@ test("会话：旧 32 档存档迁移为 40 档并保留已选", () => {
   const s = make(storage).snapshot();
   assert.equal(s.size, 40);
   assert.deepEqual(s.selected, ["a1", "a2"]);
+});
+
+test("会话：期生筛选可设、切换系列复位（易失）", () => {
+  const S = make();
+  assert.equal(S.setGeneration("1期生"), true);
+  assert.equal(S.snapshot().generation, "1期生");
+  assert.equal(S.setGeneration("1期生"), false);
+  S.switchSeries("sakamichi");
+  assert.equal(S.snapshot().generation, "all");
 });

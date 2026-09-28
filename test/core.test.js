@@ -1214,3 +1214,53 @@ test("names：40 档品牌与文件名（圈内 / 48group_40）", () => {
   assert.equal(n.brand, "圈内");
   assert.equal(n.fileBase, "48group_40");
 });
+
+test("genKey：汉字期生归一为阿拉伯（用于筛选）", () => {
+  assert.equal(core.genKey("一期生"), "1期生");
+  assert.equal(core.genKey("二期生"), "2期生");
+  assert.equal(core.genKey("五期生"), "5期生");
+  assert.equal(core.genKey("十期生"), "10期生");
+  assert.equal(core.genKey("十一期生"), "11期生");
+  assert.equal(core.genKey("二十一期生"), "21期生");
+  assert.equal(core.genKey("1期生"), "1期生");
+  assert.equal(core.genKey("1.5期生"), "1.5期生");
+  assert.equal(core.genKey("选秀1期生"), "选秀1期生");
+  assert.equal(core.genKey("兼任・移籍加入"), "兼任・移籍加入");
+  assert.equal(core.genKey(""), "");
+});
+
+test("generationOptions：按出现顺序去重、汉字归一、排除兼任・移籍加入", () => {
+  const sections = [
+    { label: "1期生" },
+    { label: "一期生" },
+    { label: "兼任・移籍加入" },
+    { label: "2期生" },
+    { label: "二期生" },
+    { label: "1期生" },
+  ];
+  assert.deepEqual(core.generationOptions(sections), ["1期生", "2期生"]);
+});
+
+test("groupSections：期生筛选与团体筛选叠加（汉字期生同组）", () => {
+  const sections = [
+    { group: "AKB48", label: "1期生", members: [] },
+    { group: "AKB48", label: "2期生", members: [] },
+    { group: "SKE48", label: "1期生", members: [] },
+    { group: "櫻坂46", label: "一期生", members: [] },
+  ];
+  assert.deepEqual(
+    core
+      .groupSections(sections, "all", "1期生")
+      .map((n) => [n.group, n.sections.map((s) => s.label)]),
+    [
+      ["AKB48", ["1期生"]],
+      ["SKE48", ["1期生"]],
+      ["櫻坂46", ["一期生"]],
+    ]
+  );
+  assert.deepEqual(
+    core.groupSections(sections, "AKB48", "2期生").map((n) => n.group),
+    ["AKB48"]
+  );
+  assert.equal(core.groupSections(sections, "all", "all").length, 3);
+});

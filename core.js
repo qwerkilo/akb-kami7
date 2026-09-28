@@ -290,11 +290,47 @@
       : placeholderSrc(member.name);
   }
 
-  function groupSections(sections, groupFilter) {
+  function kanjiNumber(s) {
+    const d = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+    if (s === "十") return 10;
+    let m = /^十(.)$/.exec(s);
+    if (m) return 10 + (d[m[1]] || 0);
+    m = /^(.)十$/.exec(s);
+    if (m) return (d[m[1]] || 1) * 10;
+    m = /^(.)十(.)$/.exec(s);
+    if (m) return (d[m[1]] || 1) * 10 + (d[m[2]] || 0);
+    return d[s] || 0;
+  }
+
+  // 期生筛选键：汉字期生归一为阿拉伯（櫻坂/日向坂的「一期生」与乃木坂的「1期生」同组）
+  function genKey(label) {
+    const v = String(label == null ? "" : label);
+    const m = /^([一二三四五六七八九十]+)期生$/.exec(v);
+    if (!m) return v;
+    return `${kanjiNumber(m[1])}期生`;
+  }
+
+  // 筛选下拉的期生选项：按数据出现顺序去重；「兼任・移籍加入」不是期生，不列
+  function generationOptions(sections) {
+    const out = [];
+    const seen = new Set();
+    for (const s of sections) {
+      if (s.label === TRANSFER_GENERATION) continue;
+      const key = genKey(s.label);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      out.push(key);
+    }
+    return out;
+  }
+
+  function groupSections(sections, groupFilter, genFilter) {
+    const wantGen = genFilter && genFilter !== "all" ? genFilter : null;
     const groups = [];
     const byGroup = new Map();
     sections.forEach((s, index) => {
       if (groupFilter !== "all" && s.group !== groupFilter) return;
+      if (wantGen && genKey(s.label) !== wantGen) return;
       if (!byGroup.has(s.group)) {
         const node = { group: s.group, sections: [] };
         byGroup.set(s.group, node);
@@ -781,6 +817,8 @@
     placeholderSrc,
     photoSrc,
     groupSections,
+    genKey,
+    generationOptions,
     replay,
     worstCase,
     shuffle,

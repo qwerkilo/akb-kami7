@@ -35,6 +35,7 @@
       open: new Set(),
       duel: emptyDuel(),
       skin: "classic",
+      generation: "all",
     };
 
     function emptyDuel() {
@@ -158,6 +159,7 @@
         selected: state.selected.slice(),
         filter: state.filter,
         group: state.group,
+        generation: state.generation,
         query: state.query,
         open: [...state.open],
         phase,
@@ -185,9 +187,17 @@
       state.selected = st.selected.slice();
       state.filter = "all";
       state.group = "all";
+      state.generation = "all";
       state.query = "";
       state.open = new Set();
       setDuel(st.duel);
+      return true;
+    }
+
+    function setGeneration(v) {
+      const next = typeof v === "string" && v ? v : "all";
+      if (next === state.generation) return false;
+      state.generation = next;
       return true;
     }
 
@@ -279,6 +289,7 @@
       snapshot,
       switchSeries,
       setSize,
+      setGeneration,
       toggleSelect,
       setFilter,
       setGroup,

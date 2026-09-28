@@ -196,7 +196,11 @@
     const q = CORE.normalizeName(snap.query);
     if (q) return renderSearch(q);
 
-    const tree = CORE.groupSections(seriesGroups(), snap.group);
+    const tree = CORE.groupSections(
+      seriesGroups(),
+      snap.group,
+      snap.generation
+    );
     const twoLevel = snap.group === "all";
     const html = [];
     for (const node of tree) {
@@ -240,6 +244,8 @@
     const hits = [];
     for (const g of seriesGroups()) {
       if (snap.group !== "all" && g.group !== snap.group) continue;
+      if (snap.generation !== "all" && CORE.genKey(g.label) !== snap.generation)
+        continue;
       for (const m of g.members) {
         if (visible(m) && m.hay.includes(q)) hits.push(m);
       }
@@ -281,9 +287,11 @@
     const key = "g:" + name;
     const open = S.toggleOpen(key);
     if (open) {
-      const node = CORE.groupSections(seriesGroups(), snap.group).find(
-        (n) => n.group === name
-      );
+      const node = CORE.groupSections(
+        seriesGroups(),
+        snap.group,
+        snap.generation
+      ).find((n) => n.group === name);
       body.innerHTML = node
         ? node.sections
             .map((s) => sectionHTML(s, node.group))
@@ -445,6 +453,22 @@
     }
   }
 
+  const genSelect = $("#gen-filter");
+
+  function refreshGenOptions() {
+    const want = snap.generation;
+    const opts = CORE.generationOptions(seriesGroups());
+    genSelect.innerHTML = `<option value="all">${t("gen_all")}</option>`;
+    for (const key of opts) {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = CORE.genText(key, lang);
+      genSelect.appendChild(opt);
+    }
+    if (want !== "all" && !opts.includes(want)) S.setGeneration("all");
+    genSelect.value = snap.generation;
+  }
+
   function paintSizeButtons() {
     document
       .querySelectorAll(".seg-size button")
@@ -468,6 +492,7 @@
 
   function renderChrome() {
     refreshGroupOptions();
+    refreshGenOptions();
     paintSizeButtons();
     paintFilters();
     applyStatic();
@@ -491,6 +516,11 @@
 
   groupSelect.addEventListener("change", () => {
     S.setGroup(groupSelect.value);
+    renderPick({ resetScroll: true });
+  });
+
+  genSelect.addEventListener("change", () => {
+    S.setGeneration(genSelect.value);
     renderPick({ resetScroll: true });
   });
 
