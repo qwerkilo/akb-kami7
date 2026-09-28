@@ -69,12 +69,18 @@ test("manifest 声明的图标都在盘上，像素尺寸与声明一致", () =>
   }
 });
 
-test("apple-touch-icon 与 favicon 存在", () => {
-  assert.ok(
-    fs.existsSync(rel("icons/apple-touch-icon.png")),
-    "缺 apple-touch-icon"
-  );
-  assert.ok(fs.existsSync(rel("favicon-32.png")), "缺 favicon");
+test("apple-touch-icon 与 favicon 存在且尺寸正确", () => {
+  // iOS 对 apple-touch-icon 有尺寸要求，所以这两个也要钉住（不在 manifest.icons 里，
+  // 上面那例覆盖不到）
+  for (const [f, n] of [
+    ["icons/apple-touch-icon.png", 180],
+    ["favicon-32.png", 32],
+  ]) {
+    const p = rel(f);
+    assert.ok(fs.existsSync(p), `缺 ${f}`);
+    const size = pngSize(p);
+    assert.deepEqual([size.w, size.h], [n, n], `${f} 尺寸应为 ${n}x${n}`);
+  }
 });
 
 test("sw.js 的 SHELL_FILES 与盘上壳文件双向一致", () => {
@@ -110,9 +116,8 @@ test("sw.js 语法可编译，且图片封顶与消息协议在位", () => {
   assert.ok(cap && Number(cap[1]) > 0, "sw.js 缺图片封顶条数");
   assert.ok(
     src.includes("skipWaiting"),
-    "sw.js 缺 skipWaiting（更新横幅要靠它）"
+    "sw.js 缺 skipWaiting（新版本要能立即激活，页面只负责决定何时刷新）"
   );
-  assert.ok(src.includes("skip-waiting"), "sw.js 未处理 skip-waiting 消息");
   assert.ok(
     /mode\s*===\s*["']navigate["']/.test(src),
     "sw.js 缺导航请求的 network-first 分支"

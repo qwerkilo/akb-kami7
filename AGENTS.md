@@ -36,7 +36,8 @@
 - **图片 cache-first + FIFO 封顶 600 条**（thumb 约 12KB/张），**不预缓存**；没浏览过的成员离线显示占位图。
 - **改了壳文件必须同步 `sw.js` 的 `SHELL_FILES`**：新增/删除根目录 `.js`、`style.css`、`index.html`、图标后，`test/pwa-artifact.test.js` 会红（清单与盘上文件双向比对）。
 - **更新不自动刷新**：新 SW 进 waiting 后显示顶部横幅，用户点「刷新」才 `skipWaiting` + reload（自动 reload 会打断进行中的对决）。
-- 手动验离线：本地起 `python3 -m http.server`（`127.0.0.1` 是安全上下文）→ DevTools Application 里看 SW 与缓存；或跑 `/tmp/opencode/e2e-pwa.cjs`（19 项，第二版 sw.js 跑在 `/tmp` 副本里，不污染仓库）。
+- **选中成员时预热 `img/full`**（`warmPhotos`）与**接管后重取字体 CSS/woff2**（`warmFonts`）：名册只用 thumb、海报用 full，首访的字体请求又发生在接管之前，不预热就会出现「离线海报没脸 / 离线字形变样」。
+- 手动验离线：本地起 `python3 -m http.server`（`127.0.0.1` 是安全上下文）→ DevTools Application 里看 SW 与缓存；黑盒验收脚本是本机临时脚本 `/tmp/opencode/e2e-pwa.cjs`（30 项，第二版 sw.js 跑在 `/tmp` 副本里，不污染仓库）——**/tmp 不持久，可能已不存在**，要复跑就按它的结构重建：临时副本 + `context.setOffline(true)` 重载 + 合成 `beforeinstallprompt` + 换 `VERSION` 的 sw.js 触发更新。
 - `file://` 下不注册 SW（本来也打不开海报导出）；iOS 不触发安装事件，走页脚的「iOS 怎么装？」指引。
 
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）

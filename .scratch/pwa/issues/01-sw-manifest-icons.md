@@ -24,4 +24,4 @@
 - 预缓存清单实测 14 条（`./` + 页面 + 样式 + 7 个根 JS + manifest + 3 个图标）。
 - maskable 图标一并进壳：清单不变式要求「manifest 每个图标都要在预缓存里」（差 4KB）。
 - `make_icons.py` 两次运行 md5 一致（幂等）。
-- 顺带修 `meta description` 的「7 / 16 / 40」→ 32。
+- `meta description` 与 manifest 描述补等爱系列与「推し7」（档位保持 7/16/40；交付后复审发现此批一度把它误改成 32，已回滚并订正本文与 ADR-0016 的前提）。

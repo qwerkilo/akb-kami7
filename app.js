@@ -20,10 +20,29 @@
   let view = "pick";
   let duel50 = false;
   let introOpen = false;
+  let sheetOpen = false; // iOS 安装指引浮层打开
+  let sheetOpener = null; // 浮层打开前的焦点，关闭时还回去
+  const warmed = new Set();
+  function warmPhotos() {
+    // 对决卡与海报读 img/full，名册只用到 img/thumb：选中的成员顺手把 full 预热，
+    // 这样离线时那张海报才真的有脸（请求走 SW 的 image cache-first，命中即缓存）。
+    if (!navigator.onLine) return;
+    for (const id of snap.selected) {
+      if (warmed.has(id)) continue;
+      warmed.add(id);
+      const m = BY_ID.get(id);
+      if (!m || !m.img) continue;
+      const img = new Image();
+      img.decoding = "async";
+      img.src = "img/full/" + id + ".webp";
+    }
+  }
+
   function sync() {
     snap = S.snapshot();
     series = snap.series;
     pick = snap.size;
+    warmPhotos(); // 恢复存档回来时也要把已选成员的 full 预热
   }
 
   const I18N = window.AKB_I18N;
@@ -743,10 +762,13 @@
 
   async function fontsReady() {
     if (!document.fonts) return;
+    // 字体加载失败要吞掉：document.fonts.load() 在取不到字体时会 reject，
+    // 一路冒泡会让 drawPoster 整条断掉——断网时正是这种情况（字体子集没缓存到），
+    // 结果是海报画布一直空白、用户只看到一张空图。
     const wait = Promise.all([
       document.fonts.load(`64px "Dela Gothic One"`),
       document.fonts.load(`700 40px "Zen Kaku Gothic New"`, "渡辺麻友"),
-    ]);
+    ]).catch(() => {});
     await Promise.race([wait, new Promise((r) => setTimeout(r, 2500))]);
   }
 
@@ -1067,11 +1089,8 @@
   });
 
   /* ---------------- PWA（可安装 / 离线 / 更新，见 docs/adr/0016-pwa.md） ---------------- */
-  let sheetOpen = false;
   let installEvent = null; // beforeinstallprompt 捕获到的安装事件
   let swReg = null;
-  let pendingReload = false; // 用户点了「刷新」才允许 reload
-  let reloading = false; // controllerchange 可能连着触发，刷新只做一次
 
   const swOK = "serviceWorker" in navigator;
   const secureCtx =
@@ -1098,7 +1117,10 @@
     if (!row) return;
     row.querySelectorAll("button").forEach((b) => b.remove());
     const txt = row.querySelector(".pwa-install-txt");
-    if (txt) txt.textContent = t("pwa_installed");
+    if (txt) {
+      txt.textContent = t("pwa_installed");
+      txt.dataset.i18n = "pwa_installed"; // 不换键的话 applyStatic 会打回默认文案
+    }
     row.hidden = false;
   }
   function showUpdateBanner() {
@@ -1109,6 +1131,7 @@
     const el = $("#pwa-sheet");
     if (!el) return;
     sheetOpen = true;
+    sheetOpener = document.activeElement;
     el.hidden = false;
     const scrim = $("#pwa-scrim");
     if (scrim) scrim.hidden = false;
@@ -1121,21 +1144,25 @@
     el.hidden = true;
     const scrim = $("#pwa-scrim");
     if (scrim) scrim.hidden = true;
-    $('#pwa-install [data-act="pwa-ios"]')?.focus();
+    // 还给真正的触发者（iOS 上是「安装」，桌面事件捕获后可能是「iOS 怎么装？」）
+    if (sheetOpener && sheetOpener.isConnected) sheetOpener.focus();
+    sheetOpener = null;
   }
   async function doInstall() {
     if (!installEvent) return openSheet(); // iOS / 不支持安装事件 → 给指引
-    installEvent.prompt();
-    const choice = await installEvent.userChoice;
-    installEvent = null;
+    const e = installEvent;
+    installEvent = null; // 一次安装事件只能消费一次，先置空防双击重复 prompt
+    e.prompt();
+    const choice = await e.userChoice;
     paintInstall();
     if (choice.outcome === "accepted") markInstalled();
   }
   function applyUpdate() {
-    if (swReg && swReg.waiting) {
-      pendingReload = true;
-      swReg.waiting.postMessage({ type: "skip-waiting" });
-    }
+    // 新 SW 在 install 里就 skipWaiting 了（消息唤醒 waiting 不可靠），所以这里
+    // 只需要刷新页面；横幅先收掉，免得刷新失败时它还杵在屏幕上。
+    const el = $("#pwa-update");
+    if (el) el.hidden = true;
+    location.reload();
   }
   function watchUpdate(reg) {
     swReg = reg;
@@ -1150,6 +1177,34 @@
       });
     });
   }
+  async function warmFonts() {
+    if (!navigator.onLine) return;
+    const links = [
+      ...document.querySelectorAll(
+        'link[rel="stylesheet"][href*="fonts.googleapis.com"]'
+      ),
+    ];
+    for (const link of links) {
+      try {
+        const css = await (
+          await fetch(link.href, { credentials: "omit" })
+        ).text();
+        const urls = Array.from(
+          new Set(
+            Array.from(css.matchAll(/url\((https:\/\/[^)]+\.woff2)\)/g)).map(
+              (m) => m[1]
+            )
+          )
+        );
+        // 页面被切走/隐藏就停：否则导航会中断这一两百个请求并刷一串资源错误
+        for (const u of urls) {
+          if (document.hidden) return;
+          await fetch(u, { credentials: "omit" }).catch(() => {});
+        }
+      } catch (_) {}
+    }
+  }
+
   function initPWA() {
     paintOffline();
     paintInstall();
@@ -1171,12 +1226,13 @@
       .then((reg) => {
         watchUpdate(reg);
         navigator.serviceWorker.addEventListener("controllerchange", () => {
-          // 首次接管（activate 里的 clients.claim）也会触发 controllerchange，
-          // 那种情况页面本来就能用，不该刷新——只有用户点了「刷新」才 reload。
-          if (!pendingReload || reloading) return;
-          reloading = true;
-          location.reload();
+          // 首次访问的字体请求发生在接管之前，没有进缓存 → 断网后字形变样。
+          // 接管之后重新请求一遍（CSS 可跨域读，woff2 从 CSS 里解析出来一并预热）。
+          // 这里绝不 reload：首次接管、新版本激活都会触发它，而自动刷新会打断
+          // 进行中的对决——刷新只由用户点横幅上的「刷新」发起。
+          void warmFonts();
         });
+        if (navigator.serviceWorker.controller) void warmFonts();
       })
       .catch(() => {});
   }

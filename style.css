@@ -1338,7 +1338,7 @@ main {
   min-width: 160px;
 }
 .pwa-install .btn {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 14px;
   font-size: 13px;
 }
@@ -1367,9 +1367,7 @@ main {
 }
 /* 更新横幅：顶部非阻塞，绝不自动 reload（会打断进行中的对决） */
 .pwa-update {
-  position: sticky;
-  top: 0;
-  z-index: 150;
+  /* 用 static：步骤条本身是 sticky top:0，横幅若也 sticky 就会盖住它并让导航点不到 */
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1390,7 +1388,7 @@ main {
   min-width: 0;
 }
 .pwa-update .btn {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 14px;
   font-size: 13px;
 }
