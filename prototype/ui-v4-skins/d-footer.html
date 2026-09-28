@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>皮肤原型 · D · 页脚设置行</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="switch.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-main">
+    <p class="eyebrow">48 Group 好き顔ソート</p>
+    <h1><span class="kami">神7</span><span class="sub">历代成员版</span></h1>
+  </div>
+  <div class="masthead-side">
+    <div class="seg seg-lang" role="radiogroup" aria-label="语言">
+      <button type="button" role="radio" aria-checked="true">中</button>
+      <button type="button" role="radio" aria-checked="false">EN</button>
+    </div>
+
+  </div>
+</header>
+
+<main>
+  <div class="seg seg-series" role="radiogroup" aria-label="系列">
+    <button type="button" role="radio" aria-checked="true">48 Group</button>
+    <button type="button" role="radio" aria-checked="false">坂道</button>
+    <button type="button" role="radio" aria-checked="false">等爱</button>
+  </div>
+  <div class="toolbar">
+    <div class="seg seg-size" role="radiogroup" aria-label="人数">
+      <button type="button" role="radio" aria-checked="true">神7</button>
+      <button type="button" role="radio" aria-checked="false">16人版</button>
+      <button type="button" role="radio" aria-checked="false">圈内 32</button>
+    </div>
+    <div class="seg seg-filter" role="radiogroup" aria-label="成员范围">
+      <button type="button" role="radio" aria-checked="true">全部</button>
+      <button type="button" role="radio" aria-checked="false">现役</button>
+      <button type="button" role="radio" aria-checked="false">已毕业</button>
+    </div>
+    <label class="search"><input type="search" placeholder="搜索名字（汉字/假名/昵称）"></label>
+
+  </div>
+  <div id="roster" class="roster"></div>
+
+  <section class="result-preview">
+    <h2>结果页（预览）</h2>
+    <figure class="poster-frame">
+      <span class="ph">海报不受皮肤影响</span>
+      <figcaption>导出图固定为当前正式风格（Q4：海报不跟随）</figcaption>
+    </figure>
+    <ol class="rank-list" id="rank-list"></ol>
+  </section>
+</main>
+
+<section class="skin-row" aria-label="外观">
+  <h2>外观</h2>
+  <div class="skin-cards" role="group">
+    <button class="skin-card" type="button" data-skin-choice="classic" aria-pressed="true">
+      <span class="preview classic" aria-hidden="true"></span>
+      <span class="label">原版</span>
+      <span class="desc">浅灰底 · 白卡 · 细边（默认）</span>
+    </button>
+    <button class="skin-card" type="button" data-skin-choice="sticker" aria-pressed="false">
+      <span class="preview sticker" aria-hidden="true"></span>
+      <span class="label">贴纸</span>
+      <span class="desc">奶油底 · 粗描边 · 硬阴影</span>
+    </button>
+  </div>
+</section>
+<footer class="colophon">成员名单与照片来自 エケペディア（48pedia），版权归原权利人所有。</footer>
+
+<div class="tray">
+  <div class="tray-main">
+    <ol class="slots" id="slots" aria-label="已选成员"></ol>
+    <p class="tray-hint"><span>点底部头像即可去掉，再选别人</span><button class="ghost small" type="button">清空</button></p>
+  </div>
+  <button class="primary" disabled>还差 4 位</button>
+</div>
+<script src="mock.js"></script>
+<script src="skin.js"></script>
+</body>
+</html>

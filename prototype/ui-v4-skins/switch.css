@@ -1,0 +1,175 @@
+/* 四个切换器变体：① 页头 seg ② 工具行 seg ③ 浮动按钮 + 弹出层 ④ 页脚设置行 */
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(28, 30, 43, 0.35);
+  vertical-align: -1px;
+  margin-right: 6px;
+}
+
+.swatch.classic {
+  background: linear-gradient(135deg, #edeff3 0 50%, #e4007f 50% 100%);
+}
+
+.swatch.sticker {
+  background: linear-gradient(135deg, #f5f1e6 0 50%, #ffe08a 50% 100%);
+}
+
+/* ③ 浮动按钮 */
+.fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(124px + env(safe-area-inset-bottom));
+  z-index: 8;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: #fff;
+  border: var(--btn-ghost-border);
+  box-shadow: var(--btn-shadow);
+}
+
+.fab svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fab:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+.skin-pop {
+  position: fixed;
+  right: 16px;
+  bottom: calc(184px + env(safe-area-inset-bottom));
+  z-index: 9;
+  width: 224px;
+  background: #fff;
+  border: var(--card-border, 0);
+  border-radius: var(--radius);
+  box-shadow: var(--btn-shadow, 0 8px 24px rgba(28, 30, 43, 0.18));
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+[data-skin="classic"] .skin-pop {
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 28px rgba(28, 30, 43, 0.16);
+}
+
+.skin-pop[hidden] {
+  display: none;
+}
+
+.skin-pop h3 {
+  margin: 2px 4px 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.skin-pop button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: left;
+}
+
+.skin-pop button[aria-checked="true"] {
+  background: var(--pink-soft);
+}
+
+.skin-pop button:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+/* ④ 页脚设置行 */
+.skin-row {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 8px 16px 4px;
+}
+
+.skin-row h2 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.skin-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.skin-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  background: #fff;
+  border: var(--btn-ghost-border);
+  border-radius: var(--radius);
+  box-shadow: var(--btn-shadow);
+}
+
+.skin-card[aria-pressed="true"] {
+  outline: 2px solid var(--pink);
+  outline-offset: 1px;
+}
+
+.skin-card:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+.skin-card .preview {
+  height: 56px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.skin-card .preview.classic {
+  background:
+    linear-gradient(90deg, #edeff3 0 62%, #ffffff 62% 100%),
+    #edeff3;
+  box-shadow: inset -14px 0 0 #e4007f;
+}
+
+.skin-card .preview.sticker {
+  background:
+    linear-gradient(90deg, #f5f1e6 0 62%, #ffffff 62% 100%),
+    #f5f1e6;
+  box-shadow: inset -14px 0 0 #ffe08a;
+}
+
+.skin-card .label {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.skin-card .desc {
+  font-size: 12px;
+  color: var(--muted);
+}
