@@ -734,3 +734,206 @@ test("字幕：移籍来源（现役但非全现役）、zh 分隔符与无 extr
   );
   assert.equal(core.sourceNote(person({ note: "旧备注" }), t, "zh"), "旧备注");
 });
+
+/* ---------------- 导航相位（view）转移表 ---------------- */
+
+const navCtx = (over = {}) => ({
+  view: "pick",
+  phase: "pick",
+  selected: 0,
+  size: 7,
+  step: null,
+  ...over,
+});
+
+test("nav：boot 由相位恢复视图", () => {
+  assert.deepEqual(core.nav(navCtx({ phase: "pick" }), "boot"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "boot"), {
+    view: "duel",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "result" }), "boot"), {
+    view: "result",
+    effect: "none",
+  });
+});
+
+test("nav：sync（切换系列）能停住就停住，否则回挑人", () => {
+  assert.deepEqual(core.nav(navCtx({ view: "duel", phase: "duel" }), "sync"), {
+    view: "duel",
+    effect: "none",
+  });
+  assert.deepEqual(
+    core.nav(navCtx({ view: "result", phase: "result" }), "sync"),
+    { view: "result", effect: "none" }
+  );
+  for (const [view, phase] of [
+    ["duel", "pick"],
+    ["duel", "result"],
+    ["result", "pick"],
+    ["result", "duel"],
+    ["pick", "duel"],
+    ["pick", "result"],
+  ])
+    assert.deepEqual(
+      core.nav(navCtx({ view, phase }), "sync"),
+      { view: "pick", effect: "none" },
+      `${view}/${phase}`
+    );
+});
+
+test("nav：① 从对决保留进度、从结果丢弃", () => {
+  assert.deepEqual(core.nav(navCtx({ view: "duel", phase: "duel" }), "pick"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ view: "pick", phase: "duel" }), "pick"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(
+    core.nav(navCtx({ view: "result", phase: "result" }), "pick"),
+    { view: "pick", effect: "abandon" }
+  );
+});
+
+test("nav：② 回续 / 开局 / 不可用", () => {
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "duel"), {
+    view: "duel",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 7 }), "duel"), {
+    view: "duel",
+    effect: "start",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 6 }), "duel"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(
+    core.nav(navCtx({ view: "result", phase: "result" }), "duel"),
+    { view: "result", effect: "none" }
+  );
+});
+
+test("nav：③ 仅结果相位可去", () => {
+  assert.deepEqual(
+    core.nav(navCtx({ view: "result", phase: "result" }), "result"),
+    { view: "result", effect: "none" }
+  );
+  assert.deepEqual(core.nav(navCtx({ phase: "pick" }), "result"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "result"), {
+    view: "pick",
+    effect: "none",
+  });
+});
+
+test("nav：start 在有对决时回续（不再静默重开）", () => {
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "start"), {
+    view: "duel",
+    effect: "resume",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 7 }), "start"), {
+    view: "duel",
+    effect: "start",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 3 }), "start"), {
+    view: "pick",
+    effect: "none",
+  });
+});
+
+test("nav：resume / drop / restart / leave / resort / advance", () => {
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "resume"), {
+    view: "duel",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "pick" }), "resume"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "drop"), {
+    view: "pick",
+    effect: "abandon",
+  });
+  assert.deepEqual(
+    core.nav(navCtx({ view: "result", phase: "result" }), "restart"),
+    { view: "pick", effect: "abandon" }
+  );
+  assert.deepEqual(core.nav(navCtx({ phase: "pick" }), "restart"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ view: "duel", phase: "duel" }), "leave"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(
+    core.nav(navCtx({ view: "result", phase: "result" }), "resort"),
+    { view: "duel", effect: "start" }
+  );
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "resort"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "advance"), {
+    view: "duel",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav(navCtx({ phase: "result" }), "advance"), {
+    view: "result",
+    effect: "none",
+  });
+});
+
+test("nav：缺省字段与非法 intent 保守返回", () => {
+  assert.deepEqual(core.nav(undefined, "boot"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav({}, "pick"), { view: "pick", effect: "none" });
+  assert.deepEqual(core.nav(navCtx({ phase: "duel" }), "nope"), {
+    view: "pick",
+    effect: "none",
+  });
+});
+
+test("steps：三步的 active / enabled / badge", () => {
+  assert.deepEqual(core.steps(navCtx()), [
+    { key: "pick", active: true, enabled: true, badge: "0/7" },
+    { key: "duel", active: false, enabled: false, badge: null },
+    { key: "result", active: false, enabled: false, badge: null },
+  ]);
+  assert.deepEqual(
+    core.steps(navCtx({ view: "pick", phase: "duel", selected: 7, step: 3 })),
+    [
+      { key: "pick", active: true, enabled: true, badge: "7/7" },
+      { key: "duel", active: false, enabled: true, badge: 3 },
+      { key: "result", active: false, enabled: false, badge: null },
+    ]
+  );
+  assert.deepEqual(
+    core.steps(navCtx({ view: "duel", phase: "duel", selected: 7, step: 2 })),
+    [
+      { key: "pick", active: false, enabled: true, badge: "7/7" },
+      { key: "duel", active: true, enabled: true, badge: 2 },
+      { key: "result", active: false, enabled: false, badge: null },
+    ]
+  );
+  assert.deepEqual(core.steps(navCtx({ view: "result", phase: "result" })), [
+    { key: "pick", active: false, enabled: true, badge: "0/7" },
+    { key: "duel", active: false, enabled: false, badge: null },
+    { key: "result", active: true, enabled: true, badge: null },
+  ]);
+  assert.deepEqual(core.steps(navCtx({ phase: "pick", selected: 7 })), [
+    { key: "pick", active: true, enabled: true, badge: "7/7" },
+    { key: "duel", active: false, enabled: true, badge: null },
+    { key: "result", active: false, enabled: false, badge: null },
+  ]);
+});

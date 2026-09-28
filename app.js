@@ -334,7 +334,11 @@
     const btn = $("#start-btn");
     btn.disabled = left > 0;
     btn.textContent =
-      left > 0 ? t("need", left) : t("start_est", CORE.worstCase(pick));
+      left > 0
+        ? t("need", left)
+        : snap.phase === "duel"
+          ? t("resume_go")
+          : t("start_est", CORE.worstCase(pick));
     btn.classList.toggle("emphasis", left === 0);
     const clearBtn = $("#clear-btn");
     if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
@@ -437,16 +441,7 @@
     applyStatic();
     const title = $("#title-input");
     if (title && !title.dataset.dirty) title.value = names().title;
-    if (view === "duel" && snap.phase === "duel") {
-      show("duel");
-      renderDuel();
-    } else if (view === "result" && snap.phase === "result") {
-      renderResult();
-    } else {
-      view = "pick";
-      show("pick");
-      renderPick();
-    }
+    navigate("sync");
   }
 
   groupSelect.addEventListener("change", () => {
@@ -490,9 +485,7 @@
     }, 120);
   });
 
-  $("#start-btn").addEventListener("click", () =>
-    beginDuel(CORE.shuffle(snap.selected.slice()))
-  );
+  $("#start-btn").addEventListener("click", () => navigate("start"));
 
   $("#clear-btn").addEventListener("click", () => {
     if (!snap.selected.length) return;
@@ -505,7 +498,6 @@
   function beginDuel(order) {
     if (!S.startDuel(order)) return false;
     duel50 = false;
-    view = "duel";
     order.forEach((id) => {
       new Image().src = fullSrc(BY_ID.get(id));
     });
@@ -517,7 +509,7 @@
 
   function renderDuel() {
     sync();
-    if (snap.phase === "result") return renderResult();
+    if (snap.phase === "result") return navigate("advance");
     if (snap.phase !== "duel") return;
     $("#duel-max").textContent = snap.duel.max;
     $("#duel-step").textContent = snap.duel.step;
@@ -562,24 +554,21 @@
         duel50 = true;
         toast(t("halfway"));
       }
-      if (snap.phase === "result") renderResult();
-      else renderDuel();
+      navigate("advance");
     }, 160);
   }
 
   function undo() {
     if ($("#phase-duel").hidden) return;
     if (!S.undo()) return;
-    renderDuel();
+    navigate("advance");
   }
 
   $("#fighter-a").addEventListener("click", () => answer(true));
   $("#fighter-b").addEventListener("click", () => answer(false));
   $("#undo-btn").addEventListener("click", undo);
   $("#back-pick-btn").addEventListener("click", () => {
-    view = "pick";
-    show("pick");
-    renderPick();
+    navigate("leave");
     toast(t("duel_saved"));
   });
 
@@ -622,14 +611,6 @@
     else if (e.key === "z" || e.key === "Z" || e.key === "Backspace") undo();
   });
 
-  function backToPick() {
-    S.abandonDuel();
-    view = "pick";
-    sync();
-    show("pick");
-    renderPick();
-  }
-
   /* ---------------- result ---------------- */
   let ranking = [];
 
@@ -666,7 +647,6 @@
   function renderResult() {
     sync();
     if (snap.phase !== "result") return;
-    view = "result";
     ranking = snap.ranking.map((id) => BY_ID.get(id));
     renderRankList();
     show("result");
@@ -680,9 +660,9 @@
     drawTimer = setTimeout(drawPoster, 200);
   });
   $("#resort-btn").addEventListener("click", () =>
-    beginDuel(CORE.shuffle(ranking.map((m) => m.id)))
+    navigate("resort", CORE.shuffle(ranking.map((m) => m.id)))
   );
-  $("#restart-btn").addEventListener("click", backToPick);
+  $("#restart-btn").addEventListener("click", () => navigate("restart"));
   $("#save-btn").addEventListener("click", savePoster);
   $("#share-btn").addEventListener("click", () => {
     const text =
@@ -932,27 +912,60 @@
     }
   }
 
+  function navCtx() {
+    sync();
+    return {
+      view,
+      phase: snap.phase,
+      selected: snap.selected.length,
+      size: snap.size,
+      step: snap.duel ? snap.duel.step : null,
+    };
+  }
+
+  function paint() {
+    sync();
+    if (view === "duel" && snap.phase === "duel") {
+      show("duel");
+      renderDuel();
+      return;
+    }
+    if (view === "result" && snap.phase === "result") {
+      renderResult();
+      return;
+    }
+    view = "pick";
+    show("pick");
+    renderPick();
+  }
+
+  function navigate(intent, order) {
+    const out = CORE.nav(navCtx(), intent);
+    if (out.effect === "abandon") S.abandonDuel();
+    view = out.view;
+    if (out.effect === "start")
+      return beginDuel(order || CORE.shuffle(snap.selected.slice()));
+    paint();
+    return true;
+  }
+
   function renderSteps() {
     sync();
-    const pickBtn = $('#steps [data-step="pick"]');
-    if (!pickBtn) return;
-    const duelBtn = $('#steps [data-step="duel"]');
-    const resBtn = $('#steps [data-step="result"]');
-    pickBtn.setAttribute("aria-current", view === "pick" ? "step" : "false");
-    duelBtn.setAttribute("aria-current", view === "duel" ? "step" : "false");
-    resBtn.setAttribute("aria-current", view === "result" ? "step" : "false");
-    $("#step-pick-n").textContent = `${snap.selected.length}/${snap.size}`;
-    const dn = $("#step-duel-n");
-    if (snap.duel) {
-      dn.hidden = false;
-      dn.textContent = t("step_duel_n", snap.duel.step);
-    } else {
-      dn.hidden = true;
+    const bar = $("#steps");
+    if (!bar) return;
+    for (const s of CORE.steps(navCtx())) {
+      const btn = bar.querySelector(`[data-step="${s.key}"]`);
+      if (!btn) continue;
+      btn.disabled = !s.enabled;
+      btn.setAttribute("aria-current", s.active ? "step" : "false");
+      if (s.key === "pick") {
+        $("#step-pick-n").textContent = s.badge;
+      } else if (s.key === "duel") {
+        const b = $("#step-duel-n");
+        b.hidden = s.badge == null;
+        if (s.badge != null) b.textContent = t("step_duel_n", s.badge);
+      }
     }
-    duelBtn.disabled =
-      snap.phase === "result" ||
-      !(snap.duel || snap.selected.length >= snap.size);
-    resBtn.disabled = snap.phase !== "result";
   }
 
   function paintIntro() {
@@ -986,26 +999,7 @@
   document.addEventListener("click", (e) => {
     const step = e.target.closest("#steps [data-step]");
     if (step && !step.disabled) {
-      sync();
-      const id = step.dataset.step;
-      if (id === "pick") {
-        if (view === "result") S.abandonDuel();
-        view = "pick";
-        sync();
-        show("pick");
-        renderPick();
-      } else if (id === "duel") {
-        if (snap.duel) {
-          view = "duel";
-          show("duel");
-          renderDuel();
-        } else {
-          beginDuel(CORE.shuffle(snap.selected.slice()));
-        }
-      } else if (id === "result") {
-        view = "result";
-        renderResult();
-      }
+      navigate(step.dataset.step);
       return;
     }
     if (e.target.closest('[data-act="coach-ok"]')) {
@@ -1013,17 +1007,8 @@
       $("#coach").hidden = true;
       return;
     }
-    if (e.target.closest('[data-act="resume-go"]')) {
-      view = "duel";
-      show("duel");
-      renderDuel();
-      return;
-    }
-    if (e.target.closest('[data-act="resume-drop"]')) {
-      S.abandonDuel();
-      renderPick();
-      return;
-    }
+    if (e.target.closest('[data-act="resume-go"]')) return navigate("resume");
+    if (e.target.closest('[data-act="resume-drop"]')) return navigate("drop");
     if (
       e.target.closest('[data-act="intro-go"]') ||
       e.target.closest('[data-act="intro-skip"]')
@@ -1037,14 +1022,5 @@
   refreshGroupOptions();
   paintSizeButtons();
   applyStatic();
-  view = snap.phase;
-  if (view === "duel") {
-    show("duel");
-    renderDuel();
-  } else if (view === "result") {
-    renderResult();
-  } else {
-    view = "pick";
-    renderPick();
-  }
+  navigate("boot");
 })();

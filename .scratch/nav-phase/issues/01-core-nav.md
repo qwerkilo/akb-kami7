@@ -1,6 +1,6 @@
 # 01 core 转移表 nav / steps
 
-**Status:** ready-for-agent
+**Status:** resolved
 **Blocked by:** 无
 
 ## What to build
@@ -9,8 +9,10 @@
 
 ## Acceptance
 
-- [ ] `test/core.test.js` 全表覆盖：12 个 intent × 相位/视图组合、`steps` 的 active/enabled/badge、缺省字段与非法 intent（先红后绿）
+- [x] `test/core.test.js` 全表覆盖：12 个 intent × 相位/视图组合、`steps` 的 active/enabled/badge、缺省字段与非法 intent（先红后绿）
 - [ ] `npm test` 全绿（JS 计数增加；Python 不变）
 - [ ] app 未接线，无用户可见变化
 
 ## Comments
+
+2026-09-28：`core.js` 新增 `nav(ctx,intent)` / `steps(ctx)` 并导出；`test/core.test.js` +9 例（全表 12 intent × 相位/视图、steps 三态、缺省/非法），JS 92 全绿。

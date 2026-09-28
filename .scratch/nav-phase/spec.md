@@ -36,7 +36,7 @@ ADR-0012 的导航语义没有实现归属：`view` 的合法转移散在 `app.j
   - `drop` / `restart`：相位 pick 不变；否则 view=pick + effect `abandon`。
   - `leave`：view=pick、effect none（保留对决）。
   - `resort`：相位 result → view=duel + effect `start`；否则不变。
-  - `advance`：相位 result → view=result；否则 view=duel。
+  - `advance`：相位 result → view=result；相位 duel → view=duel；否则不变（保守）。
 - **`steps(ctx)`**：`pick` 恒可点（badge `已选/档位`）；`duel` 可点条件 = 相位 duel 或（相位 pick 且已选满），badge = 相位 duel 时的题号；`result` 可点条件 = 相位 result。
 - **`app.js`**：`navigate(intent, order?)`（执行 effect：`abandon` → `S.abandonDuel()`；`start` → `beginDuel(order | 打乱已选)`；随后 `paint()`）与 `paint()`（按 view/相位分派 show + render，带纠正）。13 处赋值替换；`renderSteps` 消费 `steps()`；托盘按钮文案：还有空位 →「还差 N 位」、有对决 →「继续对决」（`resume_go`）、否则「开始排序（约 N 题）」。
 - **不改**：ADR-0012 语义、session 接口、持久化格式、对决算法、E2E 断言（除第 8 条新增一条）。

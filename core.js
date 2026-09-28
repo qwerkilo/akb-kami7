@@ -428,6 +428,86 @@
     };
   }
 
+  // ---- 导航相位（view 转移表；view 不持久化，刷新由相位恢复。ADR-0013） ----
+  const NAV_VIEWS = ["pick", "duel", "result"];
+
+  function nav(ctx, intent) {
+    const c = ctx || {};
+    const view = NAV_VIEWS.includes(c.view) ? c.view : "pick";
+    const phase = NAV_VIEWS.includes(c.phase) ? c.phase : "pick";
+    const size = c.size > 0 ? c.size : 7;
+    const selected = c.selected > 0 ? c.selected : 0;
+    const full = selected >= size;
+    const stay = { view, effect: "none" };
+    switch (intent) {
+      case "boot":
+        return { view: phase, effect: "none" };
+      case "sync":
+        return view === phase && view !== "pick"
+          ? stay
+          : { view: "pick", effect: "none" };
+      case "pick":
+        return phase === "result"
+          ? { view: "pick", effect: "abandon" }
+          : { view: "pick", effect: "none" };
+      case "duel":
+        if (phase === "duel") return { view: "duel", effect: "none" };
+        if (phase === "pick" && full) return { view: "duel", effect: "start" };
+        return stay;
+      case "result":
+        return phase === "result" ? { view: "result", effect: "none" } : stay;
+      case "start":
+        if (phase === "duel") return { view: "duel", effect: "resume" };
+        if (full) return { view: "duel", effect: "start" };
+        return stay;
+      case "resume":
+        return phase === "duel" ? { view: "duel", effect: "none" } : stay;
+      case "drop":
+      case "restart":
+        return phase === "pick" ? stay : { view: "pick", effect: "abandon" };
+      case "leave":
+        return { view: "pick", effect: "none" };
+      case "resort":
+        return phase === "result" ? { view: "duel", effect: "start" } : stay;
+      case "advance":
+        if (phase === "result") return { view: "result", effect: "none" };
+        if (phase === "duel") return { view: "duel", effect: "none" };
+        return stay;
+      default:
+        return stay;
+    }
+  }
+
+  function steps(ctx) {
+    const c = ctx || {};
+    const view = NAV_VIEWS.includes(c.view) ? c.view : "pick";
+    const phase = NAV_VIEWS.includes(c.phase) ? c.phase : "pick";
+    const size = c.size > 0 ? c.size : 7;
+    const selected = c.selected > 0 ? c.selected : 0;
+    const full = selected >= size;
+    const duelBadge = phase === "duel" && c.step != null ? c.step : null;
+    return [
+      {
+        key: "pick",
+        active: view === "pick",
+        enabled: true,
+        badge: `${selected}/${size}`,
+      },
+      {
+        key: "duel",
+        active: view === "duel",
+        enabled: phase === "duel" || (phase === "pick" && full),
+        badge: duelBadge,
+      },
+      {
+        key: "result",
+        active: view === "result",
+        enabled: phase === "result",
+        badge: null,
+      },
+    ];
+  }
+
   return {
     normalizeName,
     haystack,
@@ -439,6 +519,8 @@
     replay,
     worstCase,
     shuffle,
+    nav,
+    steps,
     serializeState,
     deserializeState,
     duelProgress,
