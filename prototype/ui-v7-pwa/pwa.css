@@ -1,0 +1,617 @@
+/* ui-v7-pwa 原型样式：令牌取自主站 style.css（sticker / classic 两套），只做原型需要的部分 */
+:root {
+  --font-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+  --font-jp: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", var(--font-ui);
+  --font-display: "Dela Gothic One", "Zen Kaku Gothic New", var(--font-ui);
+  --font-round: "Nunito", var(--font-jp);
+}
+:root,
+[data-skin="sticker"] {
+  --floor: #f5f1e6;
+  --card: #ffffff;
+  --ink: #20242e;
+  --muted: #6f6a60;
+  --line: #cfc7b8;
+  --peach: #ffb4a2;
+  --mint: #a7e8c8;
+  --lemon: #ffe08a;
+  --pink: #e4007f;
+  --pink-soft: #ffe1ef;
+  --ok: #0e9f6e;
+  --placeholder: #e4e7ee;
+  --radius: 16px;
+  --border: 2px solid var(--ink);
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-sm: 2px 2px 0 var(--ink);
+  --on-primary: var(--ink);
+}
+[data-skin="classic"] {
+  --floor: #edeff3;
+  --card: #ffffff;
+  --ink: #1c1e2b;
+  --muted: #6b6f80;
+  --line: #dfe2ea;
+  --peach: #ffe1ef;
+  --mint: #e6f7f1;
+  --lemon: #f4c20d;
+  --pink: #e4007f;
+  --pink-soft: #ffe1ef;
+  --ok: #0e9f6e;
+  --placeholder: #e4e7ee;
+  --radius: 10px;
+  --border: 1px solid var(--line);
+  --shadow: 0 2px 8px rgba(28, 30, 43, 0.08);
+  --shadow-sm: 0 1px 4px rgba(28, 30, 43, 0.08);
+  --on-primary: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0 16px 96px;
+  background: var(--floor);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---------- 页头（照抄主站结构与样式语言） ---------- */
+/* 照抄主站：masthead 左右两栏，右侧控件竖排右对齐（.masthead-side 是 column） */
+.masthead {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 0 12px;
+}
+.masthead-main {
+  min-width: 0;
+}
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+h1 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.1;
+}
+h1 .kami {
+  color: var(--pink);
+}
+h1 .sub {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.masthead-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex: none;
+}
+.seg {
+  display: inline-flex;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  overflow: hidden;
+}
+.seg button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.seg button[aria-checked="true"] {
+  background: var(--pink-soft);
+  font-weight: 700;
+}
+[data-skin="classic"] .seg button[aria-checked="true"] {
+  background: var(--pink);
+  color: var(--on-primary);
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+.swatch.classic {
+  background: #edeff3;
+  border: 1px solid #c9ccd6;
+}
+.swatch.sticker {
+  background: var(--peach);
+  border: 1.5px solid var(--ink);
+}
+
+/* ---------- 步骤条 + 搜索 + 筛选（缩略） ---------- */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+.steps button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+}
+.steps button[aria-current="step"] {
+  background: var(--pink-soft);
+  font-weight: 700;
+}
+.steps button:disabled {
+  opacity: 0.45;
+}
+.step-no {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #fff;
+  font-size: 11px;
+}
+.steps-sep {
+  color: var(--muted);
+}
+.search {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  margin-bottom: 10px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font: inherit;
+  color: var(--ink);
+}
+
+/* ---------- 名册（真实卡片 + 真实照片） ---------- */
+.group-label {
+  margin: 18px 0 8px;
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 12px;
+}
+.card {
+  position: relative;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+  padding: 6px 6px 8px;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+.card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: calc(var(--radius) - 6px);
+  background: var(--placeholder);
+}
+.card .nm {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card.picked {
+  outline: 3px solid var(--pink);
+}
+.card .tick {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--pink);
+  color: #fff;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- 托盘（sticky 底部，安装条必须与它错位） ---------- */
+.tray {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: 16px -16px 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  border-top: var(--border);
+  background: var(--card);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.tray-slots {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.slot {
+  width: 34px;
+  height: 34px;
+  border: var(--border);
+  border-radius: 50%;
+  background: var(--placeholder);
+  overflow: hidden;
+  flex: none;
+}
+.slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn.primary {
+  background: var(--peach);
+  box-shadow: var(--shadow-sm);
+}
+[data-skin="classic"] .btn.primary {
+  background: var(--pink);
+  color: var(--on-primary);
+  box-shadow: none;
+}
+.btn.ghost {
+  background: transparent;
+}
+.btn[disabled] {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ---------- 页脚 ---------- */
+.colophon {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+.colophon a {
+  color: var(--pink);
+}
+
+/* ================= PWA 表面 ================= */
+
+/* 离线胶囊（页头） */
+.pwa-chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 12px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--lemon);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pwa-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+[data-state="offline"] .pwa-chip {
+  display: inline-flex;
+}
+.pwa-chip.installed {
+  background: var(--mint);
+}
+
+/* 更新横幅（顶部、非阻塞） */
+.pwa-update {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -16px 12px;
+  padding: 10px 16px;
+  border-bottom: var(--border);
+  background: var(--mint);
+  font-size: 13px;
+}
+[data-state="update"] .pwa-update {
+  display: flex;
+}
+.pwa-update b {
+  flex: 1;
+  min-width: 0;
+}
+.pwa-update .btn {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+/* A · 页头安装按钮 */
+.pwa-install-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--lemon);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+[data-skin="classic"] .pwa-install-btn {
+  background: var(--pink);
+  color: var(--on-primary);
+}
+.variant-a[data-state="installable"] .pwa-install-btn,
+.variant-a[data-state="installed"] .pwa-install-btn {
+  display: inline-flex;
+}
+.variant-a[data-state="installed"] .pwa-install-btn {
+  background: var(--mint);
+  cursor: default;
+}
+[data-skin="classic"]
+  .variant-a[data-state="installed"]
+  .pwa-install-btn {
+  background: var(--ok);
+}
+.pwa-install-btn .ic {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* B · 底部安装条（必须错开托盘） */
+.pwa-bar {
+  display: none;
+  position: sticky;
+  bottom: 74px;
+  z-index: 6;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -16px 12px;
+  padding: 10px 16px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--lemon);
+  box-shadow: var(--shadow-sm);
+}
+.variant-b[data-state="installable"] .pwa-bar {
+  display: flex;
+}
+.variant-b[data-state="offline"] .pwa-bar,
+.variant-b[data-state="update"] .pwa-bar,
+body.variant-b[data-bar="closed"] .pwa-bar {
+  display: none;
+}
+.pwa-bar p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.pwa-bar p b {
+  display: block;
+  font-size: 13px;
+}
+.pwa-bar .btn {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+.pwa-bar .x {
+  min-height: 38px;
+  padding: 0 10px;
+}
+
+/* C · 流程内引导卡（与 resume 卡同一视觉家族） */
+.pwa-card {
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--lemon);
+  box-shadow: var(--shadow-sm);
+}
+.variant-c[data-state="installable"] .pwa-card {
+  display: flex;
+}
+.pwa-card .txt {
+  flex: 1;
+  min-width: 0;
+}
+.pwa-card .txt b {
+  display: block;
+  font-size: 14px;
+}
+.pwa-card .txt p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pwa-card .acts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pwa-card .btn {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+/* D · 页脚入口 */
+.pwa-foot {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--muted);
+}
+.variant-d[data-state="installable"] .pwa-foot,
+.variant-d[data-state="installed"] .pwa-foot {
+  display: flex;
+}
+.pwa-foot .btn {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+.pwa-foot .txt {
+  flex: 1;
+  min-width: 0;
+}
+
+/* iOS 指引浮层 */
+.pwa-sheet {
+  display: none;
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 40;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  border-top: var(--border);
+  border-radius: 20px 20px 0 0;
+  background: var(--card);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.18);
+}
+.pwa-sheet.open {
+  display: block;
+}
+.pwa-sheet h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+.pwa-sheet ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+}
+.pwa-sheet li {
+  margin-bottom: 6px;
+}
+.pwa-sheet .btn {
+  margin-top: 12px;
+  width: 100%;
+}
+
+/* 原型切换器（不属于产品） */
+.proto-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(20, 22, 30, 0.92);
+  color: #fff;
+  font-size: 12px;
+}
+.proto-bar button {
+  min-width: 34px;
+  min-height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.proto-bar .lbl {
+  min-width: 118px;
+  text-align: center;
+  font-weight: 700;
+}
+.proto-bar .sep {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.28);
+}
+.proto-bar select {
+  min-height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font: inherit;
+  padding: 0 8px;
+}
+.proto-bar .hint {
+  opacity: 0.75;
+}
+@media (max-width: 720px) {
+  .proto-bar .hint {
+    display: none;
+  }
+}
