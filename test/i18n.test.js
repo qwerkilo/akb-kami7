@@ -39,7 +39,7 @@ test("index.html 引用的 i18n 键都存在", () => {
 test("app.js 中静态引用的文案键都存在", () => {
   const src = fs.readFileSync(path.join(root, "app.js"), "utf8");
   const keys = new Set(
-    [...src.matchAll(/\bt\("([A-Za-z0-9_]+)"(?!\s*\+)/g)].map((m) => m[1])
+    [...src.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g)].map((m) => m[1])
   );
   assert.ok(keys.size > 0);
   for (const key of keys) {
@@ -118,5 +118,75 @@ test("简介自由文本对照表：结构合法且覆盖产物中的趣味/特�
   }
   for (const v of texts) {
     assert.ok(I18N.values[v], `缺译文: ${v}`);
+  }
+});
+
+test("core.js 中静态引用的文案键都存在", () => {
+  const src = fs.readFileSync(path.join(root, "core.js"), "utf8");
+  const keys = new Set(
+    [...src.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g)].map((m) => m[1])
+  );
+  assert.ok(keys.size > 0);
+  for (const key of keys) {
+    assert.ok(I18N.zh[key] != null, `zh 缺: ${key}`);
+    assert.ok(I18N.en[key] != null, `en 缺: ${key}`);
+  }
+});
+
+test("无引用的键只允许动态家族（死键守卫）", () => {
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  const sources = [
+    html,
+    fs.readFileSync(path.join(root, "app.js"), "utf8"),
+    fs.readFileSync(path.join(root, "core.js"), "utf8"),
+  ].join("\n");
+  const refs = new Set(
+    [...html.matchAll(/data-i18n(?:-placeholder|-alt|-aria-label)?="([^"]+)"/g)].map(
+      (m) => m[1]
+    )
+  );
+  for (const m of sources.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g))
+    refs.add(m[1]);
+  const dynamic = /^(bio_|series_|title_prefix_|photo_src|leave_)/;
+  const unreferenced = Object.keys(I18N.zh).filter(
+    (k) => !refs.has(k) && !dynamic.test(k)
+  );
+  assert.deepEqual(unreferenced, []);
+});
+
+test("真实字典驱动真实字幕/简介：无 undefined、无缺键", () => {
+  const core = require("../core.js");
+  const memberSrc = fs.readFileSync(path.join(root, "members.js"), "utf8");
+  const sandbox = { window: {} };
+  vm.runInNewContext(memberSrc, sandbox);
+  const members = [];
+  for (const sec of sandbox.window.AKB_GROUPS) {
+    for (const m of sec.members) {
+      m.group = sec.group;
+      m.generation = sec.label;
+      m.series = sec.series;
+      members.push(m);
+    }
+  }
+  assert.ok(members.length > 1000, String(members.length));
+  for (const lang of ["zh", "en"]) {
+    const t = (k, ...args) => {
+      const v = I18N[lang][k];
+      return typeof v === "function" ? v(...args) : v;
+    };
+    for (const m of members) {
+      const outs = [
+        core.metaText(m, t, lang),
+        core.fullMeta(m, t, lang),
+        core.posterSub(m, t, lang),
+        ...core.profileRows(m, t, lang, I18N.values).flat(),
+      ];
+      for (const v of outs) {
+        assert.equal(typeof v, "string", `${m.name}/${lang}`);
+        assert.ok(v.length > 0, `${m.name}/${lang} 空值`);
+        assert.ok(!v.includes("undefined"), `${m.name}/${lang}: ${v}`);
+        assert.ok(!v.includes("[object"), `${m.name}/${lang}: ${v}`);
+      }
+    }
   }
 });
