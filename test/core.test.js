@@ -1137,3 +1137,30 @@ test("haystack：罗马字与简体折叠共存", () => {
   for (const q of ["渡辺", "渡边", "わたなべ", "watanabe"])
     assert.ok(hay.includes(q), q);
 });
+
+test("indexMembers：摊平分段并注入 group/generation/series", () => {
+  const groups = [
+    {
+      group: "AKB48",
+      series: "48g",
+      label: "1期生",
+      members: [{ id: "a" }, { id: "b" }],
+    },
+    { group: "SKE48", series: "48g", label: "2期生", members: [{ id: "c" }] },
+  ];
+  const list = core.indexMembers(groups);
+  assert.deepEqual(
+    list.map((m) => m.id),
+    ["a", "b", "c"]
+  );
+  assert.deepEqual(
+    list.map((m) => [m.group, m.generation, m.series]),
+    [
+      ["AKB48", "1期生", "48g"],
+      ["AKB48", "1期生", "48g"],
+      ["SKE48", "2期生", "48g"],
+    ]
+  );
+  assert.deepEqual(core.indexMembers(), []);
+  assert.deepEqual(core.indexMembers([{ group: "X" }]), []);
+});

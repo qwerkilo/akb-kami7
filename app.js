@@ -4,16 +4,8 @@
   const CORE = window.AKB_CORE;
   const FOLD = CORE.foldIndex(window.AKB_SIMPLIFIED || {});
 
-  const GROUPS = window.AKB_GROUPS || [];
-  const BY_ID = new Map();
-  GROUPS.forEach((g) =>
-    g.members.forEach((m) => {
-      m.group = g.group;
-      m.generation = g.label;
-      m.series = g.series;
-      BY_ID.set(m.id, m);
-    })
-  );
+  const GROUPS = CORE.indexMembers(window.AKB_GROUPS || []);
+  const BY_ID = new Map(GROUPS.map((m) => [m.id, m]));
 
   const S = window.AKB_SESSION.create({
     storage: {

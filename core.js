@@ -254,6 +254,19 @@
     return out;
   }
 
+  function indexMembers(groups) {
+    const list = [];
+    for (const g of groups || []) {
+      for (const m of g.members || []) {
+        m.group = g.group;
+        m.generation = g.label;
+        m.series = g.series;
+        list.push(m);
+      }
+    }
+    return list;
+  }
+
   function isVisible(member, filter) {
     return filter === "all" || member.status === filter;
   }
@@ -747,6 +760,7 @@
     normalizeName,
     haystack,
     romanize,
+    indexMembers,
     foldIndex,
     isVisible,
     placeholderSrc,
