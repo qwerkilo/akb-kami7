@@ -1,6 +1,6 @@
 # 03 选人进度环、团体覆盖与里程碑
 
-**Status:** ready-for-agent
+**Status:** resolved
 **Blocked by:** 无
 
 ## What to build
@@ -12,7 +12,11 @@
 
 ## Acceptance
 
-- [ ] E2E：选 3 位后进度环文本为 `3/7`，覆盖 chips 含对应团体与计数
-- [ ] E2E：选满后 toast 出现、开始按钮文案含「约 14 题」
-- [ ] E2E：搜索无结果时出现提示行
-- [ ] `npm test` 全绿
+- [x] E2E：选 3 位后进度环文本为 `3/7`，覆盖 chips 含对应团体与计数
+- [x] E2E：选满后 toast 出现、开始按钮文案含「约 14 题」
+- [x] E2E：搜索无结果时出现提示行
+- [x] `npm test` 全绿
+
+## Comments
+
+2026-09-28：进度环（`#pick-ring` inline SVG）+ 团体覆盖 chips + 选满 toast + `start_est`（约 N 题）+ 空搜索提示行；E2E 断言 3/7、覆盖 AKB48 3、约 14 题、提示行。
