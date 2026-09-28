@@ -272,3 +272,18 @@
   - 验证：`npm test` JS **130** + Python **83**；E2E 回归 **86/86**、v5 **49/49**；浏览器四路径实测 + 名册点击不误触放选。
 - 遗留：LOW——名册卡片 ⓘ 的键盘可达性（需卡片结构改造或快捷键，属既有结构限制）；`--placeholder-ink` 目前仅海报消费（CSS 侧保留给未来皮肤调色）。
 - 下次基点：`37cc19b`
+
+## 2026-09-28 · 深化⑮ 分段控件/导出装配/日期格式（第二十一轮）
+
+- 基点：`37cc19b`（第二十轮检查点）
+- 范围：`git diff 37cc19b..acaab61`，2 个提交（收口、审查修复）；两轴子代理审查
+- 结论：
+  - **做法**：`paintSeg(sel, attr, value)` 统一六处分段控件 `aria-checked`（全仓写入点只剩一处）；`resultExport()` 收拢结果页导出装配（标题回退、日期、分享串、分享 URL 资格、文件名；删 `posterFileName`）；`roster.ymd(y, mo, d)` 收拢 6 处日期格式串（两个生成器共用）。
+  - **行为等价**：Spec 轴用旧版（`git archive 37cc19b` + 独立端口）跑 **22 步 × 6 控件**的 `aria-checked` 快照对拍 **0 差异**；海报五项入参、下载文件名（`48group_kami7.png`）、分享串归一化后逐字相同、画布四点像素一致；`roster.ymd` 6 调用点 211 组输入 0 差异。
+  - **过程事故（已回退）**：走代理真实重跑 `fetch_members.py --no-dl` 时，一位**等爱毕业成员**（每次不同：本次菅波美玲）因「Web Archive → 图片快照 → Commons」回退链全部落空被写成 `img: false`；逐行 diff 显示**全产物只有这 1 行差异**（日期字符串逐字不变，ymd 中性得证）。已 `git checkout members.js`，**未提交任何数据变更**。审查同时指出**这里没有产物级安全网**（`members-artifact.test.js` 只断言 `typeof m.img === "boolean"`）——记录已改写，不再暗示有网兜着。
+  - **审查实缺**：新增的公共纯函数 `roster.ymd` **无单测**（连带 `qa-baseline.md` 的 roster.py 100% 声明失效）→ 补 6 断言直测（int/str/已补零/缺月日三种形态），覆盖回到 100%。
+  - **判断项已处置**：`paintSeg` 用 `b.dataset[attr]` 只对单词 data 属性有效（仓库内存在 `data-i18n-aria-label` 这类多词属性，六个调用点当前无害）→ 改 `getAttribute`；`roster.py` docstring 与 `docs/agents/data-pipeline.md` 的函数清单补 `ymd`；记录订正「5 个解析点」为 6 处。
+  - 验证：`npm test` JS **130** + Python **84**；E2E 回归 **86/86**、v5 **49/49**；`roster.py` 覆盖 100%。
+- 遗留：候选（下一轮单独处理）——**等爱毕业成员图片回退链 fail-open**：解析不到只 `warn` 就放行 → `img` 静默降级（其兄弟路径是 fail-closed：等爱抓取失败直接 `SystemExit`、48G/坂道异常直接抛出不写盘）。影响面：仅官网列表页已无照片的等爱毕业成员（`need` 集约 4 人）；`prune_unused` 保留全部 id，图片文件不会被删，损害是「图在仓库里却渲染占位图」且过全套测试。最小修法：任一 `need` 成员解析不到即中止写盘，并给产物测试补「有图成员不得静默降级」的红回路。
+- 其他遗留：LOW——分段控件的方向键导航（扫描 G 的另一半）本批明确不做；名册卡片 ⓘ 的键盘可达性（既有结构限制，见第二十轮）。
+- 下次基点：`acaab61`
