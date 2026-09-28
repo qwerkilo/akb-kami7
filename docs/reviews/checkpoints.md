@@ -117,3 +117,14 @@
   - 验证：`npm test` JS 83 + Python 77；E2E 回归 **62/62**、v5 脚本 **40/40**（含结果态导航、改选清空、刷新持久化）；无 JS 报错。
 - 遗留：LOW——说明浮层未做完整 focus trap（Esc + 初始焦点已够用）；卡片「i」26px 触控目标（spec Out of Scope/遗留）；toast 与浮层同屏时 toast 压在浮层下（有意）。
 - 下次基点：`850f36b`
+
+## 2026-09-28 · 架构深化批次（第九轮）
+
+- 基点：`65a34fb`（第八轮检查点）
+- 范围：`git diff 65a34fb..0fa5c4e`，10 个提交（①–⑥ 六项深化 + 记录/格式化/审查修复）；设计记录：ADR-0013、`.scratch/nav-phase/`、`.scratch/deepening/06–10`
+- 结论：
+  - **Standards**：1 项实缺——`nav("pick")` 判的是相位（`phase === "result"`）而 spec 与旧实现判视图：系列 A 对决页切到「有已完成对决」的系列 B 后 view 落回 pick、phase 仍 result，此时点 ① 会静默丢弃 B 的完整名次（旧代码不丢弃）→ 改为 `view === "result"` 并补分歧格单测；判断项——`roster.project` 统一 `.get()` 后缺基础字段静默 None（产物测试只兜 id/name/status/img）→ 补 `kana/nick/end` 类型断言；i18n 死键白名单按前缀放行（边界已注明）；`undo` 不过 `answering`（既有行为，记录）；吹毛求疵——`duel50` 命名、切皮肤会重建挑人 DOM（滚动复位无断言）、aria-label 双写——均记录不修。
+  - **Spec**：① 九条 user story 全部兑现、两张工单 acceptance 逐条对账（01/02 同落 `a223fa4`，工单已注明粒度合并）；②–⑥ 记录属实（⑤ 16 人 1920 有单测 + 实拍截图；⑥ 字节不变有 git 佐证、真实 1375 人/114 段/1375 图）；口径修正三处——「13 处 view」→「11 处（+1 声明）」、note 06「4 处 aria-label」→「6 处」、② 的资料卡门控更正为「防御项、当前不可达、无 E2E」。
+  - 验证：`npm test` JS **98** + Python **82**；E2E v5 **44/44**、回归 **62/62**；六项 deepen 的验证声明与实测一致。
+- 遗留：LOW——切皮肤重建挑人 DOM 的滚动位置无 E2E；i18n 白名单前缀边界（`bio_*` 内新增死键抓不到）；`undo` × `answering` 交错为既有行为。另：③ 的接线物理落在 ⑤ 的提交 `b17d82a`（已在 `61b8723` 补记，提交归属不独立）。
+- 下次基点：`0fa5c4e`
