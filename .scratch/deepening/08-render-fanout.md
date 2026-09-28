@@ -11,7 +11,7 @@
 1. **区域绘制助手**：`paintFilters()`（筛选 chip 的 aria 由 `snap.filter` 派生，替换两处手写循环）、`paintTitle()`（标题随系列/档位的命名，`dataset.dirty` 守卫保留）。
 2. **`renderChrome()`**：refreshGroupOptions → paintSizeButtons → paintFilters → applyStatic → paintTitle（全局性重绘）。
 3. **`renderAll()`**：`renderChrome() + renderPick() + (view !== "pick" ? paint() : ——)`——当前视图不是挑人时再补一次视图重绘；可见性全部由 `view`/相位派生，不再探测 DOM。
-4. 接线：`setLang`（7 调用 + 4 探测 → `renderAll()` + 资料卡/intro 两处补绘）、尺寸切换（4 调用 → `renderAll()`）、`switchSkin`（+`renderAll()`）、`switchSeries`（6 绘制 → `renderChrome()` + `navigate("sync")`）、boot（4 调用 → `paintSkin(); renderChrome(); navigate("boot")`）。
+4. 接线：`setLang`（7 调用 + 4 探测 → `renderAll()` + 资料卡/intro 两处补绘）、尺寸切换（4 调用 → `renderAll()`）、`switchSeries`（6 绘制 → `renderChrome()` + `navigate("sync")`）、boot（4 调用 → `paintSkin(); renderChrome(); navigate("boot")`）。`switchSkin` 最初也走 `renderAll()`，后于 `73bb036` 改回定向路径（`paintSkin` + 按需 `drawPoster`）——换肤是纯 CSS 变化，重建挑人 DOM 只会白费并夹回滚动。
 5. `renderPick` 去掉重复的 `renderGuide()`（`syncSelection` 已覆盖）。
 
 ## 边界（有意保留）

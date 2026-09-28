@@ -930,8 +930,8 @@ main {
 .card .info,
 .rank-list .info {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: -4px;
+  right: -4px;
   z-index: 2;
   width: 44px;
   height: 44px;
