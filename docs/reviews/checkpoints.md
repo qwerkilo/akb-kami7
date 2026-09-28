@@ -166,3 +166,16 @@
   - 验证：`npm test` JS **107** + Python **83**；E2E 回归 **74/74**（+6 罗马字断言）、v5 44/44。
 - 遗留：LOW——`ー` 一律丢弃（`クリスティー` 搜 `kurisutii` 不中，spec 明示接受）；异形 `siniti` 型在本数据集无靶子（仅单测覆盖）；v5 仍 44（本轮把提示断言改宽而非新增站点）。
 - 下次基点：`164ad13`
+
+## 2026-09-28 · 深化⑪ 成员索引 + 遗留闭环（第十三轮）
+
+- 基点：`649e3c2`（第十二轮检查点）
+- 范围：`git diff 649e3c2..cb85e7f`，3 个提交（`25848fd` 深化、`1c30514` 首屏崩溃修复、`cb85e7f` 审查修复）；两轴子代理审查
+- 结论：
+  - **实缺（审查，已修）**：`.scratch/deepening/11-members-index.md` 停留在中间态——正文描述的是被修掉的崩溃版接线、未披露「`GROUPS` 被换成扁平列表 → 首屏崩溃（单测抓不到、E2E 当场抓到）与回滚」、也未记 E2E 滚动断言两次修正 → 已补「事故与修正」并改写正文；教训入文：碰 `app.js` 装配**先跑 E2E 再提交**。
+  - **判断项已处置**：`indexMembers` 更名 **`flattenMembers`**（返回列表且原地注入，原名不副实）；core 测试补 `strictEqual(list[0], groups[0].members[0])` 钉住身份契约；E2E 补「对决中切皮肤不打断对决」+ 滚动断言改页面滚动（原 `#roster.scrollTop` 因 `scrollHeight === clientHeight` 恒 0、无判别力）、DOM click 规避 Playwright 自动滚回、容忍换肤布局位移（400→386）。
+  - **通过项**：摊平知识现仅 `core.js` 一处（app 与 i18n 测试共用同一实现）；`GROUPS` 全部消费点仍是分段语义；`BY_ID` 1375 人无重复；无越界（5 文件）；测试落 core / i18n / E2E 三缝。
+  - **评估并记录（Standards 建议）**：不给 `members-artifact.test.js` 加 `flattenMembers` 不变量——本次回归是 app 接线错误，产物与 core 未被改坏，产物侧断言在坏版与好版都绿；要抓必须执行 `app.js` + DOM，等于把 E2E 缝搬进单测。维持 E2E 兜底。
+  - 验证：`npm test` JS **108** + Python **83**；E2E 回归 **75/75**、v5 44/44；首屏冒烟 16 卡 / 7 组。
+- 遗留：LOW——对决切皮肤的断言只比对题号 + 相位，未比对 pair/order（「重置到同题号」理论可漏，有「无 JS 报错」兜底）；`flattenMembers` 对含 `null` 的分段会抛（与旧实现相同）。
+- 下次基点：`cb85e7f`
