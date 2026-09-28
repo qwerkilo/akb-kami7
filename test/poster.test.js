@@ -10,6 +10,7 @@ function fakeCtx() {
     images: [],
     fills: [],
     fonts: [],
+    strokes: [],
   };
   const ctx = {
     canvas: { width: 1080, height: 1440 },
@@ -23,7 +24,9 @@ function fakeCtx() {
     clip() {},
     fill() {},
     fillRect() {},
-    stroke() {},
+    stroke() {
+      calls.strokes.push(ctx.lineWidth);
+    },
     translate() {},
     rotate() {},
     drawImage(...args) {
@@ -322,4 +325,25 @@ test("draw：短标题用最大字号 64px 绘制", () => {
     titleFont && titleFont[1].includes("64px"),
     titleFont && titleFont[1]
   );
+});
+
+test("draw：cardStroke 0 不描卡片边（原版），默认 3px（贴纸）", () => {
+  assert.equal(poster.defaultTokens().cardStroke, 3);
+  const sticker = drawWith(7);
+  assert.ok(sticker.calls.strokes.includes(3), "贴纸应有 3px 卡片描边");
+  const members = people(7);
+  members.forEach((m, i) => (m.subtitle = `副${i + 1}`));
+  const { ctx, calls } = fakeCtx();
+  poster.draw(ctx, {
+    members,
+    images: members.map(() => null),
+    title: "x",
+    dateText: "y",
+    hashtag: "z",
+    photoSrc: "w",
+    subOf: (m) => m.subtitle,
+    tokens: { cardStroke: 0 },
+  });
+  assert.ok(!calls.strokes.includes(3), "原版不应有 3px 卡片描边");
+  assert.ok(calls.strokes.includes(2), "页脚分隔线仍描边");
 });

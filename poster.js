@@ -22,6 +22,7 @@
         tape: "#ffe08a",
       },
       fonts: { ui, jp, display: '"Dela Gothic One",' + jp },
+      cardStroke: 3,
     };
   }
 
@@ -31,6 +32,10 @@
     return {
       colors: { ...d.colors, ...(tokens.colors || {}) },
       fonts: { ...d.fonts, ...(tokens.fonts || {}) },
+      cardStroke:
+        typeof tokens.cardStroke === "number"
+          ? tokens.cardStroke
+          : d.cardStroke,
     };
   }
 
@@ -96,12 +101,14 @@
     ctx.fill();
     ctx.restore();
 
-    ctx.save();
-    roundRect(ctx, x, y, w, h, 10);
-    ctx.lineWidth = compact ? 2 : 3;
-    ctx.strokeStyle = T.colors.ink;
-    ctx.stroke();
-    ctx.restore();
+    if (T.cardStroke > 0) {
+      ctx.save();
+      roundRect(ctx, x, y, w, h, 10);
+      ctx.lineWidth = compact ? Math.min(2, T.cardStroke) : T.cardStroke;
+      ctx.strokeStyle = T.colors.ink;
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.save();
     roundRect(ctx, x, y, w, h, 10);

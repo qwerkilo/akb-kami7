@@ -715,6 +715,7 @@
         jp: v("--font-jp", d.fonts.jp),
         display: v("--font-display", d.fonts.display),
       },
+      cardStroke: parseFloat(v("--poster-card-stroke", "3px")) || 0,
     };
   }
 
@@ -804,6 +805,7 @@
     if (!S.setSkin(next)) return;
     sync();
     paintSkin();
+    if (snap.phase === "result" && ranking.length) drawPoster();
   }
 
   /* ---------------- boot ---------------- */

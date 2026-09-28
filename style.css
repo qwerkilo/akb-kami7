@@ -42,6 +42,7 @@
   --slot-radius: 10px;
   --tray-bg: var(--floor);
   --tray-border-top: 2px solid var(--ink);
+  --poster-card-stroke: 3px;
 }
 
 /* 原版（上游 11fa090 的视觉语言） */
@@ -76,6 +77,7 @@
   --slot-radius: 6px;
   --tray-bg: rgba(237, 239, 243, 0.94);
   --tray-border-top: 0;
+  --poster-card-stroke: 0px;
 }
 
 * {
