@@ -202,3 +202,12 @@ test("真实字典驱动真实字幕/简介：无 undefined、无缺键", () => 
     }
   }
 });
+
+test("档位芯片与品牌字面值：40 档 = 圈内 40 / 圈内（三语）", () => {
+  assert.equal(I18N.zh.mode_40, "圈内 40");
+  assert.equal(I18N.zh.brand_40, "圈内");
+  assert.equal(I18N.en.mode_40, "Ranked 40");
+  assert.equal(I18N.en.brand_40, "Ranked");
+  assert.equal(I18N.ja.mode_40, "圏内 40");
+  assert.equal(I18N.ja.brand_40, "圏内");
+});

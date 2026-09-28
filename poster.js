@@ -91,7 +91,20 @@
     ctx.restore();
   }
 
-  function slotCard(ctx, T, im, m, x, y, w, h, compact) {
+  function topRoundedRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h);
+    ctx.lineTo(x, y + h);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+  }
+
+  function slotCard(ctx, T, im, m, x, y, w, h, compact, photoH) {
+    const ph = photoH || h;
     ctx.save();
     ctx.shadowColor = "rgba(28,30,43,.18)";
     ctx.shadowBlur = 24;
@@ -111,18 +124,19 @@
     }
 
     ctx.save();
-    roundRect(ctx, x, y, w, h, 10);
+    if (ph < h) topRoundedRect(ctx, x, y, w, ph, 10);
+    else roundRect(ctx, x, y, w, h, 10);
     ctx.clip();
     if (im) {
-      cover(ctx, im, x, y, w, h);
+      cover(ctx, im, x, y, w, ph);
     } else {
       ctx.fillStyle = "#e4e7ee";
-      ctx.fillRect(x, y, w, h);
+      ctx.fillRect(x, y, w, ph);
       ctx.fillStyle = "#9aa0b0";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = `700 ${Math.round(h / 3)}px ${T.fonts.jp}`;
-      ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + h / 2);
+      ctx.font = `700 ${Math.round(ph / 3)}px ${T.fonts.jp}`;
+      ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + ph / 2);
     }
     ctx.restore();
   }
@@ -314,7 +328,7 @@
     },
     40: {
       rows: [1, 3, 5, 7, 9, 11, 4],
-      weights: [1.5, 1.4, 1.3, 1.2, 1.1, 1.0, 0.9, 0.8],
+      weights: [1.5, 1.4, 1.3, 1.2, 1.1, 1.0, 0.9],
     },
   };
   const PYRAMID_NAMED_ROWS = 4;
@@ -349,21 +363,22 @@
       const total = n * cw + (n - 1) * gap;
       let x = (W - total) / 2;
       for (let i = 0; i < n; i++) {
-        slot(
-          ctx,
-          T,
-          imgs[idx],
-          members[idx],
-          idx + 1,
-          x,
-          y,
-          cw,
-          ch,
-          false,
-          true,
-          subOf,
-          r >= PYRAMID_NAMED_ROWS
-        );
+        if (members[idx])
+          slot(
+            ctx,
+            T,
+            imgs[idx],
+            members[idx],
+            idx + 1,
+            x,
+            y,
+            cw,
+            ch,
+            false,
+            true,
+            subOf,
+            r >= PYRAMID_NAMED_ROWS
+          );
         x += cw + gap;
         idx++;
       }
@@ -643,58 +658,34 @@
       for (let i = 3; i < n; i++) {
         const k2 = i - 3;
         const x = x0 + k2 * (cardW + gap2);
-        ctx.save();
-        ctx.shadowColor = "rgba(28,30,43,.16)";
-        ctx.shadowBlur = 18;
-        ctx.shadowOffsetY = 8;
-        roundRect(ctx, x, y, cardW, cardH2, 14);
-        ctx.fillStyle = T.colors.card;
-        ctx.fill();
-        ctx.restore();
-        if (T.cardStroke > 0) {
-          ctx.save();
-          roundRect(ctx, x, y, cardW, cardH2, 14);
-          ctx.lineWidth = T.cardStroke;
-          ctx.strokeStyle = T.colors.ink;
-          ctx.stroke();
-          ctx.restore();
-        }
-        const pad2 = 10;
-        ctx.save();
-        roundRect(
+        slotCard(
           ctx,
-          x + pad2,
-          y + pad2,
-          cardW - pad2 * 2,
-          photoH2 - pad2 * 2,
-          8
+          T,
+          images[i],
+          members[i],
+          x,
+          y,
+          cardW,
+          cardH2,
+          false,
+          photoH2
         );
-        ctx.clip();
-        if (images[i])
-          cover(
-            ctx,
-            images[i],
-            x + pad2,
-            y + pad2,
-            cardW - pad2 * 2,
-            photoH2 - pad2 * 2
-          );
-        ctx.restore();
         ctx.textAlign = "center";
         ctx.fillStyle = i < 7 ? T.colors.pink : T.colors.ink;
         ctx.font = `400 34px ${T.fonts.display}`;
         ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
+        ctx.textAlign = "left";
         ctx.fillStyle = T.colors.ink;
         const ns2 = fitText(
           ctx,
           members[i].name,
-          cardW - 78,
+          cardW - 74,
           24,
           700,
           T.fonts.jp
         );
         ctx.font = `700 ${ns2}px ${T.fonts.jp}`;
-        ctx.fillText(members[i].name, x + cardW / 2 + 18, y + cardH2 - 16);
+        ctx.fillText(members[i].name, x + 62, y + cardH2 - 16);
       }
       ctx.textAlign = "left";
       posterFooter(ctx, T, W, H, hashtag, photoSrc);
@@ -733,30 +724,35 @@
       );
       ctx.font = `400 ${rs}px ${T.fonts.display}`;
       ctx.fillText(String(i + 1), x + 34 * k, y + rowH / 2 + 10 * k);
-      ctx.textAlign = "left";
-      ctx.fillStyle = T.colors.ink;
-      const ns = fitText(
+      const subMax = colW * 0.34;
+      const sub = clipText(
+        ctx,
+        String(subOf(members[i]) || ""),
+        subMax,
+        20 * k,
+        500,
+        T.fonts.ui
+      );
+      ctx.font = `500 ${20 * k}px ${T.fonts.ui}`;
+      const subW = Math.min(ctx.measureText(sub).width, subMax);
+      const nameX = x + 46 * k + tw + 12 * k;
+      const nameMax = Math.max(20, x + colW - subW - 12 - nameX);
+      const name = clipText(
         ctx,
         members[i].name,
-        colW - 200 * k,
+        nameMax,
         24 * k,
         700,
         T.fonts.jp
       );
-      ctx.font = `700 ${ns}px ${T.fonts.jp}`;
-      ctx.fillText(
-        members[i].name,
-        x + 46 * k + tw + 12 * k,
-        y + rowH / 2 + 9 * k
-      );
+      ctx.textAlign = "left";
+      ctx.fillStyle = T.colors.ink;
+      ctx.font = `700 ${24 * k}px ${T.fonts.jp}`;
+      ctx.fillText(name, nameX, y + rowH / 2 + 9 * k);
       ctx.textAlign = "right";
       ctx.font = `500 ${20 * k}px ${T.fonts.ui}`;
       ctx.fillStyle = T.colors.muted;
-      ctx.fillText(
-        String(subOf(members[i]) || ""),
-        x + colW,
-        y + rowH / 2 + 8 * k
-      );
+      ctx.fillText(sub, x + colW, y + rowH / 2 + 8 * k);
     }
     ctx.textAlign = "left";
     posterFooter(ctx, T, W, H, hashtag, photoSrc);

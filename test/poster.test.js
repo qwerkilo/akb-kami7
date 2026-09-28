@@ -409,7 +409,7 @@ test("默认样式 = a：省略 style 与 style:'a' 的调用序列完全一致"
   assert.deepEqual(runStyle(undefined, 32).calls, runStyle("a", 32).calls);
 });
 
-test("四样式 × 7/16/32：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
+test("四样式 × 7/16/32/40：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
   for (const style of poster.styles) {
     for (const n of [7, 16, 32, 40]) {
       const { calls, ctx } = runStyle(style, n);
@@ -532,4 +532,20 @@ test("C 领奖台：前三张照片互不重叠且整体居中（7/16/32）", ()
       `c/${n} 未居中: ${(left + right) / 2}`
     );
   }
+});
+
+test("A 40 档金字塔：行分布 1-3-5-7-9-11-4、前 4 行带名字", () => {
+  const { members, calls } = runStyle("a", 40);
+  const rowsMap = new Map();
+  for (let i = 0; i < 40; i++) {
+    const y = calls.images[i][6];
+    rowsMap.set(y, (rowsMap.get(y) || 0) + 1);
+  }
+  const counts = [...rowsMap.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, c]) => c);
+  assert.deepEqual(counts, [1, 3, 5, 7, 9, 11, 4]);
+  members.forEach((m, i) =>
+    assert.equal(calls.texts.includes(m.name), i < 16, `名字可见性 ${m.name}`)
+  );
 });
