@@ -31,7 +31,7 @@
 - **引导卡 / 说明卡**：`localStorage` 键 `akb:coach:v1`、`akb:duelintro:v1`（try/catch 包裹，仿 `akb-lang` 先例）；说明卡只在 `beginDuel()` 新开时出现。
 - **进度环 / 覆盖 chips**：`app.js` 以 inline SVG 渲染（与原型一致），数据由 `snapshot().selected` + `BY_ID` 派生，不进 core。
 - **里程碑**：选满 → toast「选满啦！…」+ 开始按钮 `emphasis` 类；对决到 50% → toast「已完成一半，保持节奏」（各只提示一次）。
-- **toast**：`app.js` 新增轻量 toast（`#toast` 复用，无新模块）；样式消费两套皮肤令牌。
+- **toast**：`app.js` 新增轻量 toast（新增 `#toast` 元素，无新模块）；样式消费两套皮肤令牌（新增 `--ok`）。
 - **文案**：`i18n.js` 新键（zh/en 成对）：`step_pick`、`step_duel`、`step_result`、`coach_title`、`coach_body`、`coach_ok`、`picked_of`、`picked_full`、`halfway`、`duel_saved`、`duel_intro_title`、`duel_intro_1..3`、`duel_intro_go`、`duel_intro_skip`、`resume_title`、`resume_body`、`resume_go`、`resume_drop`、`start_est`、`empty_search_hint`。
 - **不变**：对决算法、题量、海报、皮肤系统、会话持久化格式、`session.js` 接口。
 
