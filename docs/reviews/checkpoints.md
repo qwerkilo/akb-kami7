@@ -246,3 +246,17 @@
   - 验证：`npm test` JS **128** + Python **83**；E2E 回归 **86/86**（+1）、v5 **49/49**；真实数据投影耗时 0.55ms/次（每帧 3 次，~1.7ms，可接受）。
 - 遗留：LOW——选人页的 DOM 接线与副作用仍由 E2E 守（投影已落 core 缝）；`refreshGroupOptions` 保留 `groupSections` 属正确归属（下拉需全量团体清单）。
 - 下次基点：`704a065`
+
+## 2026-09-28 · 深化⑬ 海报页框/卡片面板收口（第十九轮）
+
+- 基点：`8afa804`（第十八轮检查点）
+- 范围：`git diff 8afa804..4675cce`，2 个提交（收口、审查修复）；两轴子代理审查
+- 结论：
+  - **做法**：`frame(W,H)`（边距 72 / 内容界线 `H-84`，12 个调用点）、`panel(ctx,T,…,{color,blur,dy,stroke})`（阴影+卡片底+`cardStroke` 描边单点，四处消费）、`rankColor(rank,T)`（前 7 名品牌粉，杂志/榜单×2/拼贴四处）、`normalizeName` 变体正则由 `VARIANTS` 生成、`fetch_members.orig_path` 缓存路径收口。
+  - **有意修复**：拼贴拍立得此前不消费 `cardStroke` → 贴纸皮肤补 3px 墨描边（原版 `cardStroke=0` 不变）；新增回归断言（3px 描边数 ≥ 人数；此前 `thick>thin` 断言抓不到）。
+  - **等价性证明**：自建记录型 ctx 对拍 16 组（4 样式 × 7/16/32/40）——**a/b/c 逐字节一致**；d 差异仅「拍立得新增描边（3px 描边 1→8/17/33/41）」与「`shadowColor=transparent` 手工复位 → `save/restore`（像素等价，Spec 轴真实 Chromium 逐像素对拍确认）」。
+  - **过程实缺（两轴独立抓到）**：首次提交 `frame` 只定义未接线（记录/commit 对 B1 的完成声明不实；a/b/c 一致恰因常量没换）→ 补线 12 处并复测；记录另订正 d-40 描边数（40 条，非 33）与 B3 措辞。
+  - **D/E 无行为变化**：变体字符集 BMP 全码位 0 差异（转义 `\ ^ ] [ -` 正确；`replace` 会重置 `lastIndex`，无状态泄漏）；`orig_path` 与旧表达式逐字符等价（6 组边界 URL 对拍）。
+  - 验证：`npm test` JS **129** + Python **83**；E2E 回归 **86/86**、v5 **49/49**。
+- 遗留：LOW——`panel` 的 `opts||{}`/`if(o.color)` 分支当前调用点均传全参（防御性，保留）；扫描剩余候选 F/C/G/H/I/J 未动（下批 F+C）。
+- 下次基点：`4675cce`
