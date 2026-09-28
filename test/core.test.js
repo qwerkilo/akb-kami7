@@ -69,7 +69,9 @@ test("haystack 覆盖名字、假名与昵称", () => {
   for (const q of ["指原", "さしはら", "サシハラ", "さっしー", "サッシー"]) {
     assert.ok(hay.includes(core.normalizeName(q)), `应命中: ${q}`);
   }
-  assert.equal(core.haystack({ name: "前田敦子" }), "前田敦子");
+  const maeda = core.haystack({ name: "前田敦子", kana: "まえだ あつこ" });
+  assert.ok(maeda.startsWith("前田敦子まえだあつこ"), maeda);
+  assert.ok(maeda.includes("maedaatsuko"), maeda);
 });
 
 test("photoSrc 对有图成员给出图片路径，对无图成员给出占位图", () => {
@@ -96,11 +98,16 @@ test("normalizeName 去掉连续空白", () => {
 });
 
 test("haystack 合并多个字段并忽略空字段", () => {
-  assert.equal(
-    core.haystack({ name: " 前田 敦子 ", kana: "まえだ あつこ", nick: "" }),
-    "前田敦子まえだあつこ"
-  );
-  assert.equal(core.haystack({ name: "KONAN", kana: "コナン" }), "konanこなん");
+  const hay = core.haystack({
+    name: " 前田 敦子 ",
+    kana: "まえだ あつこ",
+    nick: "",
+  });
+  assert.ok(hay.startsWith("前田敦子まえだあつこ"), hay);
+  assert.ok(hay.includes("maedaatsuko"), hay);
+  const konan = core.haystack({ name: "KONAN", kana: "コナン" });
+  assert.ok(konan.startsWith("konanこなん"), konan);
+  assert.ok(konan.includes("konan"), konan);
 });
 
 test("placeholderSrc 只取名字首字符", () => {
@@ -305,11 +312,10 @@ test("foldIndex 反转折叠表，haystack 支持简体输入", () => {
   assert.ok(hay.includes("渡边麻友"));
 });
 
-test("haystack 无折叠表时行为不变", () => {
-  assert.equal(
-    core.haystack({ name: "高橋みなみ", kana: "たかはし みなみ" }),
-    core.normalizeName("高橋みなみ たかはし みなみ")
-  );
+test("haystack：无折叠表时仍追加罗马字", () => {
+  const hay = core.haystack({ name: "高橋みなみ", kana: "たかはし みなみ" });
+  assert.ok(hay.startsWith(core.normalizeName("高橋みなみ たかはし みなみ")));
+  assert.ok(hay.includes("takahashiminami"), hay);
 });
 
 test("持久化：序列化往返与损坏数据安全丢弃", () => {
@@ -1050,4 +1056,61 @@ test("replay：多余答案被忽略（完成态仍返回完整名次）", () =>
   const r = core.replay(order, Array(core.worstCase(5)).fill(true));
   assert.equal(r.done, true);
   assert.deepEqual(r.order, order);
+});
+
+/* ---------------- 罗马字检索 ---------------- */
+
+test("romanize：主形（Hepburn）、长音/促音/ん/拗音", () => {
+  assert.equal(core.romanize("まえだ あつこ"), "maedaatsuko");
+  assert.equal(core.romanize("さとう"), "satou");
+  assert.equal(core.romanize("しんいち"), "shinichi");
+  assert.equal(core.romanize("まっち"), "matchi");
+  assert.equal(core.romanize("トモミー"), "tomomi");
+  assert.equal(core.romanize("ともちん"), "tomochin");
+  assert.equal(core.romanize("きょうこ"), "kyouko");
+  assert.equal(core.romanize("ふみか"), "fumika");
+  assert.equal(core.romanize("前田まえだ"), "maeda");
+  assert.equal(core.romanize(""), "");
+  assert.equal(core.romanize(null), "");
+  assert.equal(core.romanize("Atsuko!"), "");
+});
+
+test("romanize：异形（Kunrei 式）", () => {
+  assert.equal(core.romanize("しんいち", true), "siniti");
+  assert.equal(core.romanize("ふみか", true), "humika");
+  assert.equal(core.romanize("ちさと", true), "tisato");
+  assert.equal(core.romanize("つばさ", true), "tubasa");
+  assert.equal(core.romanize("まっち", true), "matti");
+  assert.equal(core.romanize("じゃん", true), "zyan");
+});
+
+test("haystack：并入罗马字变体（长音折叠 / nn 展开 / 异形）", () => {
+  const watanabe = core.haystack({
+    name: "渡邊麻友",
+    kana: "わたなべ まゆ",
+    nick: "まゆゆ",
+  });
+  for (const q of ["watanabe", "watannabe", "mayu", "mayuyu", "watana"])
+    assert.ok(watanabe.includes(q), q);
+  assert.ok(!watanabe.includes("maeda"));
+
+  const satou = core.haystack({ name: "佐藤", kana: "さとう" });
+  assert.ok(satou.includes("satou") && satou.includes("sato"), satou);
+
+  const shin = core.haystack({ name: "新一", kana: "しんいち" });
+  assert.ok(
+    shin.includes("shinichi") &&
+      shin.includes("siniti") &&
+      shin.includes("shinnichi"),
+    shin
+  );
+});
+
+test("haystack：罗马字与简体折叠共存", () => {
+  const hay = core.haystack(
+    { name: "渡辺麻友", kana: "わたなべ まゆ", nick: "まゆゆ" },
+    core.foldIndex({ 边: ["邉", "邊", "辺"] })
+  );
+  for (const q of ["渡辺", "渡边", "わたなべ", "watanabe"])
+    assert.ok(hay.includes(q), q);
 });

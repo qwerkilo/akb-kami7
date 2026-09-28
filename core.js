@@ -27,13 +27,221 @@
       .replace(/[﨑髙邉邊濵德瀨]/g, (c) => VARIANTS[c]);
   }
 
+  // ---- 罗马字检索（假名 → 罗马字：Hepburn 主形 + 常见异形；长音/促音/ん 变体） ----
+  const ROMAJI = {
+    ぁ: "a",
+    あ: "a",
+    ぃ: "i",
+    い: "i",
+    ぅ: "u",
+    う: "u",
+    ぇ: "e",
+    え: "e",
+    ぉ: "o",
+    お: "o",
+    か: "ka",
+    き: "ki",
+    く: "ku",
+    け: "ke",
+    こ: "ko",
+    が: "ga",
+    ぎ: "gi",
+    ぐ: "gu",
+    げ: "ge",
+    ご: "go",
+    さ: "sa",
+    し: "shi",
+    す: "su",
+    せ: "se",
+    そ: "so",
+    ざ: "za",
+    じ: "ji",
+    ず: "zu",
+    ぜ: "ze",
+    ぞ: "zo",
+    た: "ta",
+    ち: "chi",
+    つ: "tsu",
+    て: "te",
+    と: "to",
+    だ: "da",
+    ぢ: "ji",
+    づ: "zu",
+    で: "de",
+    ど: "do",
+    な: "na",
+    に: "ni",
+    ぬ: "nu",
+    ね: "ne",
+    の: "no",
+    は: "ha",
+    ひ: "hi",
+    ふ: "fu",
+    へ: "he",
+    ほ: "ho",
+    ば: "ba",
+    び: "bi",
+    ぶ: "bu",
+    べ: "be",
+    ぼ: "bo",
+    ぱ: "pa",
+    ぴ: "pi",
+    ぷ: "pu",
+    ぺ: "pe",
+    ぽ: "po",
+    ま: "ma",
+    み: "mi",
+    む: "mu",
+    め: "me",
+    も: "mo",
+    ゃ: "ya",
+    や: "ya",
+    ゅ: "yu",
+    ゆ: "yu",
+    ょ: "yo",
+    よ: "yo",
+    ら: "ra",
+    り: "ri",
+    る: "ru",
+    れ: "re",
+    ろ: "ro",
+    ゎ: "wa",
+    わ: "wa",
+    ゐ: "i",
+    ゑ: "e",
+    を: "o",
+    ん: "n",
+    ゔ: "vu",
+    きゃ: "kya",
+    きゅ: "kyu",
+    きょ: "kyo",
+    ぎゃ: "gya",
+    ぎゅ: "gyu",
+    ぎょ: "gyo",
+    しゃ: "sha",
+    しゅ: "shu",
+    しょ: "sho",
+    しぇ: "she",
+    じゃ: "ja",
+    じゅ: "ju",
+    じょ: "jo",
+    じぇ: "je",
+    ちゃ: "cha",
+    ちゅ: "chu",
+    ちょ: "cho",
+    ちぇ: "che",
+    ぢゃ: "ja",
+    ぢゅ: "ju",
+    ぢょ: "jo",
+    にゃ: "nya",
+    にゅ: "nyu",
+    にょ: "nyo",
+    ひゃ: "hya",
+    ひゅ: "hyu",
+    ひょ: "hyo",
+    びゃ: "bya",
+    びゅ: "byu",
+    びょ: "byo",
+    ぴゃ: "pya",
+    ぴゅ: "pyu",
+    ぴょ: "pyo",
+    みゃ: "mya",
+    みゅ: "myu",
+    みょ: "myo",
+    りゃ: "rya",
+    りゅ: "ryu",
+    りょ: "ryo",
+    ふぁ: "fa",
+    ふぃ: "fi",
+    ふぇ: "fe",
+    ふぉ: "fo",
+    てぃ: "ti",
+    でぃ: "di",
+    とぅ: "tu",
+    どぅ: "du",
+    うぃ: "wi",
+    うぇ: "we",
+    うぉ: "wo",
+    ゔぁ: "va",
+    ゔぃ: "vi",
+    ゔぇ: "ve",
+    ゔぉ: "vo",
+  };
+  const ROMAJI_ALT = {
+    し: "si",
+    ち: "ti",
+    つ: "tu",
+    ふ: "hu",
+    じ: "zi",
+    ぢ: "di",
+    づ: "du",
+    を: "wo",
+    しゃ: "sya",
+    しゅ: "syu",
+    しょ: "syo",
+    しぇ: "sye",
+    じゃ: "zya",
+    じゅ: "zyu",
+    じょ: "zyo",
+    じぇ: "zye",
+    ちゃ: "tya",
+    ちゅ: "tyu",
+    ちょ: "tyo",
+    ちぇ: "tye",
+  };
+  const ROMAJI_ALT_TABLE = { ...ROMAJI, ...ROMAJI_ALT };
+
+  function romanize(s, alt) {
+    const table = alt ? ROMAJI_ALT_TABLE : ROMAJI;
+    const src = String(s == null ? "" : s)
+      .toLowerCase()
+      .replace(/[\u30A1-\u30F6]/g, (c) =>
+        String.fromCharCode(c.charCodeAt(0) - 0x60)
+      )
+      .replace(/[^ぁ-ゖー]/g, "");
+    let out = "";
+    for (let i = 0; i < src.length; i++) {
+      const c = src[i];
+      if (c === "ー") continue;
+      if (c === "っ") {
+        const next =
+          ROMAJI_ALT_TABLE[src.slice(i + 1, i + 3)] ||
+          ROMAJI_ALT_TABLE[src[i + 1]] ||
+          "";
+        out += next[0] || "";
+        continue;
+      }
+      const pair = table[src.slice(i, i + 2)];
+      if (pair) {
+        out += pair;
+        i++;
+        continue;
+      }
+      out += table[c] || "";
+    }
+    return out;
+  }
+
+  function romajiForms(s) {
+    const base = [romanize(s), romanize(s, true)];
+    const forms = [...base];
+    for (const f of base) {
+      forms.push(
+        f.replace(/ou/g, "o").replace(/oo/g, "o").replace(/uu/g, "u"),
+        f.replace(/n(?=[aiueoy])/g, "nn")
+      );
+    }
+    return [...new Set(forms)].filter(Boolean);
+  }
+
   function haystack(member, fold) {
     const base = normalizeName(
       [member.name, member.kana, member.nick].filter(Boolean).join(" ")
     );
-    if (!fold) return base;
+    const romaji = romajiForms(base).join(" ");
+    if (!fold) return `${base} ${romaji}`;
     const folded = [...base].map((c) => fold[c] || c).join("");
-    return `${base} ${folded}`;
+    return `${base} ${folded} ${romaji}`;
   }
 
   function foldIndex(simpMap) {
@@ -536,6 +744,7 @@
   return {
     normalizeName,
     haystack,
+    romanize,
     foldIndex,
     isVisible,
     placeholderSrc,
