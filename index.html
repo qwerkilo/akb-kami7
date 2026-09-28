@@ -8,8 +8,12 @@
     </title>
     <meta
       name="description"
-      content="从 48 Group 与坂道的历代成员（含毕业成员）里选出最喜欢的 7 / 16 / 40 张脸，两两比较排出名次，生成你的神7 / 7福神图片。"
+      content="从 48 Group、坂道与等爱三团的历代成员（含毕业成员）里选出最喜欢的 7 / 16 / 32 张脸，两两比较排出名次，生成你的神7 / 7福神 / 推し7 图片。可安装到桌面，离线也能用。"
     />
+    <meta name="theme-color" content="#e4007f" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -64,6 +68,10 @@
         </div>
       </div>
       <div class="masthead-side">
+        <span class="pwa-chip" id="pwa-chip" role="status" hidden>
+          <span class="pwa-dot" aria-hidden="true"></span>
+          <span data-i18n="pwa_offline">离线中</span>
+        </span>
         <div
           class="seg seg-lang"
           role="radiogroup"
@@ -115,6 +123,18 @@
         </div>
       </div>
     </header>
+
+    <div class="pwa-update" id="pwa-update" role="status" hidden>
+      <b data-i18n="pwa_update">有新版本可用，刷新后生效</b>
+      <button
+        type="button"
+        class="btn primary"
+        data-act="pwa-reload"
+        data-i18n="pwa_update_go"
+      >
+        刷新
+      </button>
+    </div>
 
     <nav class="steps" id="steps" data-i18n-aria-label="steps_label">
       <button type="button" data-step="pick" aria-current="step">
@@ -437,7 +457,54 @@
         rel="noopener"
         >AKB48 神7 好き顔ソート</a
       >。
+      <div class="pwa-install" id="pwa-install" hidden>
+        <span class="pwa-install-txt" data-i18n="pwa_install"
+          >离线可用？把本站装到桌面</span
+        >
+        <button
+          type="button"
+          class="btn primary"
+          data-act="pwa-install"
+          data-i18n="pwa_install_go"
+        >
+          安装
+        </button>
+        <button
+          type="button"
+          class="btn ghost"
+          data-act="pwa-ios"
+          data-i18n="pwa_ios_go"
+        >
+          iOS 怎么装？
+        </button>
+      </div>
     </footer>
+
+    <div class="pwa-scrim" id="pwa-scrim" hidden></div>
+    <div
+      class="pwa-sheet"
+      id="pwa-sheet"
+      role="dialog"
+      aria-modal="true"
+      data-i18n-aria-label="pwa_ios_title"
+      hidden
+    >
+      <h3 data-i18n="pwa_ios_title">iPhone / iPad 添加到主屏幕</h3>
+      <ol>
+        <li data-i18n="pwa_ios_s1">用 Safari 打开本站</li>
+        <li data-i18n="pwa_ios_s2">点底部工具条的「分享」按钮</li>
+        <li data-i18n="pwa_ios_s3">下滑选「添加到主屏幕」</li>
+        <li data-i18n="pwa_ios_s4">点右上角「添加」</li>
+      </ol>
+      <button
+        type="button"
+        class="btn primary"
+        data-act="pwa-ios-close"
+        data-i18n="pwa_ios_ok"
+      >
+        知道了
+      </button>
+    </div>
 
     <div class="duel-intro" id="duel-intro" hidden>
       <div

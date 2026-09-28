@@ -588,7 +588,13 @@
   }
 
   function canDuelInput() {
-    return view === "duel" && snap.phase === "duel" && !introOpen && !profileId;
+    return (
+      view === "duel" &&
+      snap.phase === "duel" &&
+      !introOpen &&
+      !profileId &&
+      !sheetOpen
+    );
   }
 
   let answering = false;
@@ -628,6 +634,7 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
+    if (sheetOpen) return closeSheet();
     if (introOpen) return closeIntro();
     if (profileId) return closeProfile();
   });
@@ -1059,8 +1066,135 @@
     }
   });
 
+  /* ---------------- PWA（可安装 / 离线 / 更新，见 docs/adr/0016-pwa.md） ---------------- */
+  let sheetOpen = false;
+  let installEvent = null; // beforeinstallprompt 捕获到的安装事件
+  let swReg = null;
+  let pendingReload = false; // 用户点了「刷新」才允许 reload
+  let reloading = false; // controllerchange 可能连着触发，刷新只做一次
+
+  const swOK = "serviceWorker" in navigator;
+  const secureCtx =
+    location.protocol === "https:" ||
+    ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+  const standalone =
+    matchMedia("(display-mode: standalone)").matches ||
+    navigator.standalone === true;
+  const isIOS =
+    /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  function paintInstall() {
+    const row = $("#pwa-install");
+    if (!row) return;
+    row.hidden = standalone || !(installEvent || isIOS);
+  }
+  function paintOffline() {
+    const chip = $("#pwa-chip");
+    if (chip) chip.hidden = navigator.onLine;
+  }
+  function markInstalled() {
+    const row = $("#pwa-install");
+    if (!row) return;
+    row.querySelectorAll("button").forEach((b) => b.remove());
+    const txt = row.querySelector(".pwa-install-txt");
+    if (txt) txt.textContent = t("pwa_installed");
+    row.hidden = false;
+  }
+  function showUpdateBanner() {
+    const el = $("#pwa-update");
+    if (el) el.hidden = false;
+  }
+  function openSheet() {
+    const el = $("#pwa-sheet");
+    if (!el) return;
+    sheetOpen = true;
+    el.hidden = false;
+    const scrim = $("#pwa-scrim");
+    if (scrim) scrim.hidden = false;
+    el.querySelector("button")?.focus();
+  }
+  function closeSheet() {
+    const el = $("#pwa-sheet");
+    if (!el) return;
+    sheetOpen = false;
+    el.hidden = true;
+    const scrim = $("#pwa-scrim");
+    if (scrim) scrim.hidden = true;
+    $('#pwa-install [data-act="pwa-ios"]')?.focus();
+  }
+  async function doInstall() {
+    if (!installEvent) return openSheet(); // iOS / 不支持安装事件 → 给指引
+    installEvent.prompt();
+    const choice = await installEvent.userChoice;
+    installEvent = null;
+    paintInstall();
+    if (choice.outcome === "accepted") markInstalled();
+  }
+  function applyUpdate() {
+    if (swReg && swReg.waiting) {
+      pendingReload = true;
+      swReg.waiting.postMessage({ type: "skip-waiting" });
+    }
+  }
+  function watchUpdate(reg) {
+    swReg = reg;
+    if (reg.waiting && navigator.serviceWorker.controller) showUpdateBanner();
+    reg.addEventListener("updatefound", () => {
+      const w = reg.installing;
+      if (!w) return;
+      w.addEventListener("statechange", () => {
+        if (w.state === "installed" && navigator.serviceWorker.controller) {
+          showUpdateBanner();
+        }
+      });
+    });
+  }
+  function initPWA() {
+    paintOffline();
+    paintInstall();
+    window.addEventListener("online", paintOffline);
+    window.addEventListener("offline", paintOffline);
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      installEvent = e;
+      paintInstall();
+    });
+    window.addEventListener("appinstalled", () => {
+      installEvent = null;
+      markInstalled();
+    });
+    // file:// 与非安全上下文不注册 SW；注册失败也不打扰用户（站点照常可用）
+    if (!swOK || !secureCtx) return;
+    navigator.serviceWorker
+      .register("sw.js", { updateViaCache: "none" })
+      .then((reg) => {
+        watchUpdate(reg);
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          // 首次接管（activate 里的 clients.claim）也会触发 controllerchange，
+          // 那种情况页面本来就能用，不该刷新——只有用户点了「刷新」才 reload。
+          if (!pendingReload || reloading) return;
+          reloading = true;
+          location.reload();
+        });
+      })
+      .catch(() => {});
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest('[data-act="pwa-install"]')) return void doInstall();
+    if (e.target.closest('[data-act="pwa-ios"]')) return void openSheet();
+    if (
+      e.target.closest('[data-act="pwa-ios-close"]') ||
+      e.target.id === "pwa-scrim"
+    )
+      return void closeSheet();
+    if (e.target.closest('[data-act="pwa-reload"]')) return void applyUpdate();
+  });
+
   /* ---------------- boot ---------------- */
   paintSkin();
   renderChrome();
   navigate("boot");
+  initPWA();
 })();

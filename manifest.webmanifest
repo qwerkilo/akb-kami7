@@ -1,0 +1,33 @@
+{
+  "name": "48 Group / 坂道 / 等爱 喜欢脸排序",
+  "short_name": "喜欢脸排序",
+  "description": "从 48 Group、坂道与等爱三团的历代成员（含毕业成员）里选出最喜欢的 7 / 16 / 32 张脸，两两比较排出名次，生成你的神7 / 7福神 / 推し7 图片。可安装到桌面，离线也能用。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#e4007f",
+  "background_color": "#f5f1e6",
+  "categories": ["entertainment", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

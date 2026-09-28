@@ -1315,3 +1315,129 @@ main {
     transition: none;
   }
 }
+
+/* ---------------- PWA：安装入口 / 离线胶囊 / 更新横幅 / iOS 指引 ---------------- */
+/* 页脚安装行：colophon 里一条虚线框，不新增常驻表面（ADR-0016 选型 D） */
+.pwa-install {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--muted);
+}
+.pwa-install[hidden] {
+  display: none;
+}
+.pwa-install-txt {
+  flex: 1;
+  min-width: 160px;
+}
+.pwa-install .btn {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+/* 离线胶囊：页头右栏，只在断网时出现 */
+.pwa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: var(--border);
+  border-radius: 999px;
+  background: var(--lemon);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pwa-chip[hidden] {
+  display: none;
+}
+.pwa-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+/* 更新横幅：顶部非阻塞，绝不自动 reload（会打断进行中的对决） */
+.pwa-update {
+  position: sticky;
+  top: 0;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--mint);
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+}
+.pwa-update[hidden] {
+  display: none;
+}
+.pwa-update b {
+  flex: 1;
+  min-width: 0;
+}
+.pwa-update .btn {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+/* iOS 指引浮层：iOS Safari 不触发安装事件，给四步说明 */
+.pwa-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 200;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px 18px calc(20px + env(safe-area-inset-bottom));
+  border: var(--border);
+  border-radius: 20px 20px 0 0;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.pwa-sheet[hidden] {
+  display: none;
+}
+.pwa-sheet h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+.pwa-sheet ol {
+  margin: 0 0 4px;
+  padding-left: 20px;
+  font-size: 14px;
+}
+.pwa-sheet li {
+  margin-bottom: 6px;
+}
+.pwa-sheet .btn {
+  width: 100%;
+  min-height: 44px;
+}
+[data-skin="classic"] .pwa-chip,
+[data-skin="classic"] .pwa-update {
+  box-shadow: var(--shadow-sm);
+}
+/* iOS 指引的遮罩：挡住浮层背后的点击（box-shadow 挡不住指针，故用真元素） */
+.pwa-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: rgba(32, 36, 46, 0.45);
+}
+.pwa-scrim[hidden] {
+  display: none;
+}

@@ -28,6 +28,17 @@
 - 查看原型：原型文件在 `prototype/*` 分支上，main 工作区里没有属预期。用 `git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再 `python3 -m http.server <端口> --directory /tmp/akb-proto-<名>` 托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
 - 没有 lint / typecheck 脚本。
 
+## PWA（可安装 + 离线）
+
+`manifest.webmanifest` + `sw.js` + `icons/`（图标由 `python3 scripts/make_icons.py` 生成，产物提交）。策略与选型见 `docs/adr/0016-pwa.md`。
+
+- **壳走 network-first，离线回落缓存**：不设需要人工改的版本号。在线永远拿最新，离线秒开。
+- **图片 cache-first + FIFO 封顶 600 条**（thumb 约 12KB/张），**不预缓存**；没浏览过的成员离线显示占位图。
+- **改了壳文件必须同步 `sw.js` 的 `SHELL_FILES`**：新增/删除根目录 `.js`、`style.css`、`index.html`、图标后，`test/pwa-artifact.test.js` 会红（清单与盘上文件双向比对）。
+- **更新不自动刷新**：新 SW 进 waiting 后显示顶部横幅，用户点「刷新」才 `skipWaiting` + reload（自动 reload 会打断进行中的对决）。
+- 手动验离线：本地起 `python3 -m http.server`（`127.0.0.1` 是安全上下文）→ DevTools Application 里看 SW 与缓存；或跑 `/tmp/opencode/e2e-pwa.cjs`（19 项，第二版 sw.js 跑在 `/tmp` 副本里，不污染仓库）。
+- `file://` 下不注册 SW（本来也打不开海报导出）；iOS 不触发安装事件，走页脚的「iOS 怎么装？」指引。
+
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）
 
 - 不支持符号链接和可执行位：`npm install` 必须加 `--bin-links=false --ignore-scripts`；husky 钩子在本机无法执行（git 会跳过），所以提交前要手动跑上面的 lint-staged 命令。
