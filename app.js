@@ -28,14 +28,14 @@
 
   const I18N = window.AKB_I18N;
 
-  let lang = "zh";
+  const preferLang = () => {
+    const nav = (navigator.language || "").toLowerCase();
+    return nav.startsWith("ja") ? "ja" : nav.startsWith("zh") ? "zh" : "en";
+  };
+  let lang = preferLang();
   try {
     const saved = localStorage.getItem("akb-lang");
     if (saved === "en" || saved === "zh" || saved === "ja") lang = saved;
-    else {
-      const nav = (navigator.language || "").toLowerCase();
-      lang = nav.startsWith("ja") ? "ja" : nav.startsWith("zh") ? "zh" : "en";
-    }
   } catch (_) {}
   const t = (key, ...args) => {
     const v = I18N[lang][key];
@@ -317,7 +317,9 @@
     for (let i = 0; i < pick; i++) {
       const m = BY_ID.get(snap.selected[i]);
       const label = m
-        ? esc(t("slot_remove", m.name, m.group, m.generation))
+        ? esc(
+            t("slot_remove", m.name, m.group, CORE.genText(m.generation, lang))
+          )
         : "";
       slots.push(
         m
@@ -354,7 +356,7 @@
     $("#pf-name").textContent = m.name;
     $("#pf-kana").textContent = m.kana || "";
     $("#pf-badge").textContent =
-      m.group + (m.generation ? " · " + m.generation : "");
+      m.group + (m.generation ? " · " + CORE.genText(m.generation, lang) : "");
     $("#pf-close").setAttribute("aria-label", t("bio_close"));
     $("#pf-fields").innerHTML = rows
       .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)

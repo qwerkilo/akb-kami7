@@ -23,10 +23,15 @@ UI 只有 zh/en 两种文案，而站点数据本身是日文（48pedia 名字/�
 ## Implementation Decisions
 
 - **数据字段**：`core.js` 的 `localized()` 对 `ja` 直接返回原文；`bioDate()` 加 ja 格式（`1998年3月15日`）；`bloodText`/`genText`/`leaveText` 原有非 en 直通逻辑天然覆盖 ja。
-- **文案**：`i18n.js` 新增 110 键，术语沿用日文原生词（神7 / 7福神 / 圏内 / 推し7；系列 = 48グループ / 坂道 / イコノイジョイ），按钮名词形、说明「〜ます」体。
-- **切换器**：`.seg-lang` 加第三键「日」（沿用 44px radiogroup 模式）。
+- **文案**：`i18n.js` 新增 110 键，术语沿用日文原生词（神7 / 7福神 / 圏内 / 推し7；系列 = 48グループ / 坂道 / イコノイジョイ）；按钮/动作词用名词或动词终止形（選ぶ・開始・保存），说明文「〜ます」体。
+- **切换器**：`.seg-lang` 加第三键「日」（沿用既有语言切换器的 radiogroup 样式与尺寸，未另加 44px 规则）。
 - **默认语言**：`app.js` 启动时读 `akb-lang`；无存档则按 `navigator.language`（ja*→ja、zh*→zh、其他→en）；`setLang` 接受三值。
-- **测试**：i18n parity 扩到三语（ja 与 zh 同集合；en 允许 `leave_*`）；`names` 组合与真实字典驱动两处循环扩到 ja 并补 ja 品牌期望表。
+- **测试**：i18n parity 扩到三语（ja 与 zh 同集合；仅 en 允许 `leave_*`）；`names` 组合与真实字典驱动两处循环扩到 ja 并补 ja 品牌期望表；`genText`/`fullMeta`/`posterSub`/`profileRows` 的 ja 直出与日期格式各有值断言（审查补）。
+- **选秀期生标签**：48pedia 有 96 人的期生标签是简体中文「选秀N期生」——`genText()` 现对 ja 译「ドラフトN期生」、en 译「Draft Nth gen」（zh 保留原文），`fullMeta`/`posterSub`/资料卡徽章/托盘提示统一走它（审查发现并修复）。
+
+## 迁移说明
+
+无 `akb-lang` 存档的老用户：默认语言从「恒 zh」变为跟随浏览器语言——zh 浏览器无感，en/ja 浏览器会切换到自己语言的界面（本批明写的意图）。
 
 ## Testing Decisions
 

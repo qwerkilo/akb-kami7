@@ -389,7 +389,7 @@
   }
 
   function fullMeta(m, t, lang) {
-    const parts = [m.group, m.generation];
+    const parts = [m.group, genText(m.generation, lang)];
     const src = sourceNote(m, t, lang);
     if (src) parts.push(src);
     if (m.status === "current") parts.push(t("active"));
@@ -398,14 +398,15 @@
   }
 
   function posterSub(m, t, lang) {
-    if (m.status === "current") return m.generation;
+    const gen = genText(m.generation, lang);
+    if (m.status === "current") return gen;
     if (isTransfer(m)) {
       return m.leave
         ? `${sourceNote(m, t, lang)} · ${leaveText(m.leave, t, lang)}`
         : sourceNote(m, t, lang);
     }
-    if (m.leave) return `${m.generation} · ${yearLeave(m, t, lang)}`;
-    return `${m.generation} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
+    if (m.leave) return `${gen} · ${yearLeave(m, t, lang)}`;
+    return `${gen} · ${m.end ? m.end.slice(0, 4) + " " + t("grad_short") : "OG"}`;
   }
 
   // ---- 命名（随系列/档位变化的品牌、标题、标签与文件名；文案仍来自 i18n） ----
@@ -562,14 +563,23 @@
     return v.replace(/^([ABO]+)型$/, "Type $1");
   }
 
+  function ordinal(n) {
+    return n === "1" ? "st" : n === "2" ? "nd" : n === "3" ? "rd" : "th";
+  }
+
   function genText(v, lang) {
-    if (!v || lang !== "en") return v;
+    if (!v) return v;
+    const draft = /^选秀(\d+)期生$/.exec(v);
+    if (draft) {
+      if (lang === "ja") return `ドラフト${draft[1]}期生`;
+      if (lang === "en") return `Draft ${draft[1]}${ordinal(draft[1])} gen`;
+      return v;
+    }
+    if (lang !== "en") return v;
     const m = /^(\d+)(?:\.(\d))?期生$/.exec(v);
     if (!m) return v;
     if (m[2]) return `${m[1]}.${m[2]} gen`;
-    const suffix =
-      m[1] === "1" ? "st" : m[1] === "2" ? "nd" : m[1] === "3" ? "rd" : "th";
-    return `${m[1]}${suffix} gen`;
+    return `${m[1]}${ordinal(m[1])} gen`;
   }
 
   function profileRows(m, t, lang, values, now) {
@@ -762,6 +772,7 @@
     haystack,
     romanize,
     flattenMembers,
+    genText,
     foldIndex,
     isVisible,
     placeholderSrc,

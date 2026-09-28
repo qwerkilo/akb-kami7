@@ -11,8 +11,9 @@ test("zh/en/ja 键集合一致（en 允许额外的 leave_* 直译）", () => {
   const zh = Object.keys(I18N.zh).sort();
   for (const lang of ["en", "ja"]) {
     const keys = Object.keys(I18N[lang]).sort();
+    const allowed = lang === "en" ? (k) => k.startsWith("leave_") : () => false;
     assert.deepEqual(
-      keys.filter((k) => !zh.includes(k) && !k.startsWith("leave_")),
+      keys.filter((k) => !zh.includes(k) && !allowed(k)),
       [],
       lang
     );

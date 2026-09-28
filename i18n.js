@@ -381,7 +381,7 @@
       clear_pick: "クリア",
       clear_confirm:
         "選択をクリアしますか？現在のシリーズの対決は破棄されます。",
-      need: (n) => `あと ${n} 人`,
+      need: (n) => `あと${n}人`,
       steps_label: "流れ",
       step_pick: "選ぶ",
       step_duel: "対決",
@@ -391,7 +391,7 @@
       coach_body: (n) =>
         `① 下から ${n} 人を選ぶ ② 1対1で順番を決める ③ ポスターを生成。選び終わるとボタンが光ります。進行状況は自動保存。`,
       coach_ok: "了解",
-      picked_of: (n, m) => `${n} / ${m} 人選択中`,
+      picked_of: (n, m) => `${n}/${m}人選択中`,
       picked_full: "選び終わりました！「並べ替え開始」で対決へ",
       start_est: (n) => `並べ替え開始（約${n}問）`,
       empty_search_hint:
@@ -400,7 +400,7 @@
       duel_intro_title: "1対1の対決",
       duel_intro_1: "2枚の顔から好きな方をタップ",
       duel_intro_2: (n, m) => `最大${n}問（約${m}分）`,
-      duel_intro_3: "進行状況は自動保存。いつでも離れて戻れます",
+      duel_intro_3: "進行状況は自動保存。いつでも中断して再開できます",
       duel_intro_go: "開始",
       duel_intro_skip: "説明をスキップ",
       duel_leave: "保存して戻る",
@@ -417,9 +417,9 @@
       empty_search: (q) =>
         `「${q}」は見つかりませんでした。漢字・かな・ニックネームで試すか、「すべて」に切り替えてください。`,
       active: "現役",
-      grad_year: (y) => `${y}年 卒業`,
+      grad_year: (y) => `${y}年卒業`,
       graduated: "卒業",
-      transfer: "兼任／移籍",
+      transfer: "兼任・移籍",
       src_concurrent: (g) => `兼任：${g}`,
       src_transferred: (g) => `移籍：${g}`,
       src_mixed: (g) => `兼任・移籍：${g}`,
@@ -447,7 +447,7 @@
       poster_fail:
         "画像を生成できませんでした。html ファイルを直接開かず、http:// で開いてください。",
       empty_slot: "空き",
-      slot_remove: (name, group, gen) => `${name}を外す（${group} · ${gen}）`,
+      slot_remove: (name, group, gen) => `${name}を外す（${group}・${gen}）`,
     },
     values,
   };

@@ -1165,3 +1165,30 @@ test("flattenMembers：摊平分段并注入 group/generation/series", () => {
   assert.deepEqual(core.flattenMembers(), []);
   assert.deepEqual(core.flattenMembers([{ group: "X" }]), []);
 });
+
+test("genText：选秀期生标签在 ja/en 下翻译（zh 保留原文）", () => {
+  assert.equal(core.genText("选秀1期生", "zh"), "选秀1期生");
+  assert.equal(core.genText("选秀1期生", "en"), "Draft 1st gen");
+  assert.equal(core.genText("选秀2期生", "en"), "Draft 2nd gen");
+  assert.equal(core.genText("选秀3期生", "ja"), "ドラフト3期生");
+  assert.equal(core.genText("1期生", "ja"), "1期生");
+  assert.equal(core.genText("1.5期生", "ja"), "1.5期生");
+});
+
+test("fullMeta/posterSub/profileRows：期生走 genText（不再直出中文标签）", () => {
+  const t = (k) => k;
+  const draft = {
+    group: "AKB48",
+    generation: "选秀1期生",
+    status: "current",
+  };
+  const full = core.fullMeta(draft, t, "en");
+  assert.ok(full.includes("Draft 1st gen") && !full.includes("选秀"), full);
+  const sub = core.posterSub(draft, t, "ja");
+  assert.equal(sub, "ドラフト1期生");
+  const rows = core.profileRows(draft, t, "ja", {}, new Date(2026, 0, 1));
+  assert.ok(
+    rows.some(([k, v]) => k === "bio_gen" && v === "ドラフト1期生"),
+    JSON.stringify(rows)
+  );
+});
