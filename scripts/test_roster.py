@@ -18,6 +18,15 @@ def member(name, kana="", status="current", **kw):
 
 
 class RosterTest(unittest.TestCase):
+    def test_ymd(self):
+        # 统一日期格式 YYYY.MM.DD；缺月日时只给年份
+        self.assertEqual(roster.ymd("1998", 3, 5), "1998.03.05")
+        self.assertEqual(roster.ymd("1998", "3", "5"), "1998.03.05")
+        self.assertEqual(roster.ymd("1998", "03", "05"), "1998.03.05")
+        self.assertEqual(roster.ymd(2016), "2016")
+        self.assertEqual(roster.ymd(2016, "", ""), "2016")
+        self.assertEqual(roster.ymd("2016", None, None), "2016")
+
     def test_sort_current_first_then_kana_then_name(self):
         ms = [
             member("C", "う", "former"),

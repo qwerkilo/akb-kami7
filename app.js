@@ -55,8 +55,9 @@
   // 分段控件选中态统一绘制：aria-checked = 按钮属性值 === 当前值（值一律按字符串比）
   function paintSeg(sel, attr, value) {
     const want = String(value);
-    document.querySelectorAll(`${sel} [data-${attr}]`).forEach((b) => {
-      b.setAttribute("aria-checked", b.dataset[attr] === want);
+    const key = `data-${attr}`;
+    document.querySelectorAll(`${sel} [${key}]`).forEach((b) => {
+      b.setAttribute("aria-checked", b.getAttribute(key) === want);
     });
   }
 

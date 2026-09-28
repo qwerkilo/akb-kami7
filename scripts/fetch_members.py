@@ -136,7 +136,7 @@ def end_leave_from_chunk(chunk):
     dates = re.findall(r"\{\{年月日\|(\d{4})\|(\d*)\|(\d*)\}\}", chunk)
     if dates:
         y, mo, d = dates[-1]
-        end = roster.ymd(y, mo, d) if mo else roster.ymd(y)
+        end = roster.ymd(y, mo, d)
     else:
         m = re.search(r'data-sort-value="(\d{4})(\d{2})(\d{2})"', chunk)
         if m:
