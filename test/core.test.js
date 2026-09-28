@@ -1138,7 +1138,7 @@ test("haystack：罗马字与简体折叠共存", () => {
     assert.ok(hay.includes(q), q);
 });
 
-test("indexMembers：摊平分段并注入 group/generation/series", () => {
+test("flattenMembers：摊平分段并注入 group/generation/series", () => {
   const groups = [
     {
       group: "AKB48",
@@ -1148,7 +1148,7 @@ test("indexMembers：摊平分段并注入 group/generation/series", () => {
     },
     { group: "SKE48", series: "48g", label: "2期生", members: [{ id: "c" }] },
   ];
-  const list = core.indexMembers(groups);
+  const list = core.flattenMembers(groups);
   assert.deepEqual(
     list.map((m) => m.id),
     ["a", "b", "c"]
@@ -1161,6 +1161,7 @@ test("indexMembers：摊平分段并注入 group/generation/series", () => {
       ["SKE48", "2期生", "48g"],
     ]
   );
-  assert.deepEqual(core.indexMembers(), []);
-  assert.deepEqual(core.indexMembers([{ group: "X" }]), []);
+  assert.strictEqual(list[0], groups[0].members[0]); // 原地注入：身份不变
+  assert.deepEqual(core.flattenMembers(), []);
+  assert.deepEqual(core.flattenMembers([{ group: "X" }]), []);
 });

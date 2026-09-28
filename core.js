@@ -254,7 +254,7 @@
     return out;
   }
 
-  function indexMembers(groups) {
+  function flattenMembers(groups) {
     const list = [];
     for (const g of groups || []) {
       for (const m of g.members || []) {
@@ -760,7 +760,7 @@
     normalizeName,
     haystack,
     romanize,
-    indexMembers,
+    flattenMembers,
     foldIndex,
     isVisible,
     placeholderSrc,

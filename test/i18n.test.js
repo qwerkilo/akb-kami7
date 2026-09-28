@@ -161,7 +161,7 @@ test("真实字典驱动真实字幕/简介：无 undefined、无缺键", () => 
   const memberSrc = fs.readFileSync(path.join(root, "members.js"), "utf8");
   const sandbox = { window: {} };
   vm.runInNewContext(memberSrc, sandbox);
-  const members = core.indexMembers(sandbox.window.AKB_GROUPS);
+  const members = core.flattenMembers(sandbox.window.AKB_GROUPS);
   assert.ok(members.length > 1000, String(members.length));
   for (const lang of ["zh", "en"]) {
     const t = (k, ...args) => {
