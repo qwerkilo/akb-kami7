@@ -8,29 +8,52 @@ function fakeCtx() {
     textPos: [],
     textFonts: [],
     images: [],
+    imagesM: [],
     fills: [],
     fonts: [],
     strokes: [],
   };
+  const stack = [];
+  let m = [1, 0, 0, 1, 0, 0]; // a b c d e f
   const ctx = {
     canvas: { width: 1080, height: 1440 },
-    save() {},
-    restore() {},
+    save() {
+      stack.push(m.slice());
+    },
+    restore() {
+      m = stack.pop() || m;
+    },
+    toWorld(x, y) {
+      return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+    },
     beginPath() {},
     closePath() {},
     moveTo() {},
     lineTo() {},
     arcTo() {},
+    arc() {},
     clip() {},
     fill() {},
     fillRect() {},
     stroke() {
       calls.strokes.push(ctx.lineWidth);
     },
-    translate() {},
-    rotate() {},
+    translate(x = 0, y = 0) {
+      m[4] += m[0] * x + m[2] * y;
+      m[5] += m[1] * x + m[3] * y;
+    },
+    rotate(a = 0) {
+      const [a1, b1, c1, d1] = m;
+      const cs = Math.cos(a);
+      const sn = Math.sin(a);
+      m[0] = a1 * cs + c1 * sn;
+      m[1] = b1 * cs + d1 * sn;
+      m[2] = a1 * -sn + c1 * cs;
+      m[3] = b1 * -sn + d1 * cs;
+    },
     drawImage(...args) {
       calls.images.push(args);
+      calls.imagesM.push(m.slice());
     },
     fillText(text, x, y) {
       calls.texts.push(String(text));
@@ -72,6 +95,7 @@ function fakeCtx() {
 function people(n) {
   return Array.from({ length: n }, (_, i) => ({
     name: `成员${i + 1}`,
+    group: "AKB48",
     generation: "1期生",
     status: "current",
   }));
@@ -360,5 +384,90 @@ test("draw 自行声明画布尺寸：7/16/32 由成员数决定", () => {
     const { ctx } = drawWith(n);
     assert.equal(ctx.canvas.width, 1080, `${n} 宽`);
     assert.equal(ctx.canvas.height, h, `${n} 高`);
+  }
+});
+
+function fakeImgs(n) {
+  return Array.from({ length: n }, () => ({ width: 720, height: 960 }));
+}
+
+function runStyle(style, n) {
+  const members = people(n);
+  members.forEach((m, i) => (m.subtitle = `副标题${i + 1}`));
+  const { ctx, calls } = fakeCtx();
+  const opts = {
+    members,
+    images: fakeImgs(n),
+    title: "我的 48 Group 圈内",
+    dateText: "48 Group 好き顔ソート · 2026.09.28",
+    hashtag: "#48Group",
+    photoSrc: "写真：48pedia",
+    subOf: (m) => m.subtitle,
+  };
+  poster.draw(ctx, style ? { ...opts, style } : opts);
+  return { members, calls, ctx };
+}
+
+test("默认样式 = a：省略 style 与 style:'a' 的调用序列完全一致", () => {
+  assert.deepEqual(runStyle(undefined, 32).calls, runStyle("a", 32).calls);
+});
+
+test("四样式 × 7/16/32：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
+  for (const style of poster.styles) {
+    for (const n of [7, 16, 32]) {
+      const { calls, ctx } = runStyle(style, n);
+      const want = poster.layout(n);
+      assert.equal(ctx.canvas.width, want.width, `${style}/${n} 宽`);
+      assert.equal(ctx.canvas.height, want.height, `${style}/${n} 高`);
+      assert.ok(
+        calls.images.length >= n,
+        `${style}/${n} 只画了 ${calls.images.length} 张图`
+      );
+      for (let ii = 0; ii < calls.images.length; ii++) {
+        const [, , , , , x, y, w, h] = calls.images[ii];
+        const mat = calls.imagesM[ii];
+        const world = (px, py) => [
+          mat[0] * px + mat[2] * py + mat[4],
+          mat[1] * px + mat[3] * py + mat[5],
+        ];
+        const corners = [
+          world(x, y),
+          world(x + w, y),
+          world(x, y + h),
+          world(x + w, y + h),
+        ];
+        for (const [cx, cy] of corners) {
+          assert.ok(
+            cx >= -0.5 &&
+              cy >= -0.5 &&
+              cx <= want.width + 0.5 &&
+              cy <= want.height + 0.5,
+            `${style}/${n} 越界: (${Math.round(cx)},${Math.round(cy)})`
+          );
+        }
+      }
+      assert.ok(
+        !calls.texts.some((x) => x.includes("undefined")),
+        `${style}/${n} 文案含 undefined`
+      );
+    }
+  }
+});
+
+test("B/C/D：全员名字与名次都落笔（对比 a 只画前 16 名）", () => {
+  for (const style of ["b", "c", "d"]) {
+    for (const n of [7, 32]) {
+      const { members, calls } = runStyle(style, n);
+      for (const m of members)
+        assert.ok(
+          calls.texts.includes(m.name),
+          `${style}/${n} 缺名字 ${m.name}`
+        );
+      const nums = new Set(
+        calls.texts.filter((x) => /^\d{1,2}$/.test(x)).map(Number)
+      );
+      for (let i = 1; i <= n; i++)
+        assert.ok(nums.has(i), `${style}/${n} 缺名次 ${i}`);
+    }
   }
 });

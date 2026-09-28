@@ -45,6 +45,31 @@
     return CORE.names(series, pick, t);
   }
 
+  const POSTER_STYLE_KEY = "akb:poster-style";
+  let posterStyle = "a";
+  try {
+    const saved = localStorage.getItem(POSTER_STYLE_KEY);
+    if (AKB_POSTER.styles.includes(saved)) posterStyle = saved;
+  } catch (_) {}
+
+  function renderStyleSeg() {
+    document
+      .querySelectorAll(".seg-style [data-style]")
+      .forEach((b) =>
+        b.setAttribute("aria-checked", String(b.dataset.style === posterStyle))
+      );
+  }
+
+  function setPosterStyle(next) {
+    if (!AKB_POSTER.styles.includes(next) || next === posterStyle) return;
+    posterStyle = next;
+    try {
+      localStorage.setItem(POSTER_STYLE_KEY, next);
+    } catch (_) {}
+    renderStyleSeg();
+    drawPoster();
+  }
+
   function applyStatic() {
     document.documentElement.lang =
       lang === "en" ? "en" : lang === "ja" ? "ja" : "zh-CN";
@@ -669,6 +694,7 @@
     renderRankList();
     show("result");
     renderSteps();
+    renderStyleSeg();
     drawPoster();
   }
 
@@ -770,6 +796,7 @@
       photoSrc: t(series === "love" ? "photo_src_love" : "photo_src"),
       subOf: posterSub,
       tokens: posterTokens(),
+      style: posterStyle,
     });
 
     try {
@@ -812,6 +839,8 @@
     if (b) return setLang(b.dataset.lang);
     const s = e.target.closest(".seg-series [data-series]");
     if (s) switchSeries(s.dataset.series);
+    const st = e.target.closest(".seg-style [data-style]");
+    if (st) return setPosterStyle(st.dataset.style);
     const k = e.target.closest(".seg-skin [data-skin]");
     if (k) switchSkin(k.dataset.skin);
   });
