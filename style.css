@@ -24,7 +24,7 @@
   --pink: #e4007f;
   --pink-soft: #ffe1ef;
   --radius: 16px;
-  --border: var(--border);
+  --border: 2px solid var(--ink);
   --shadow: 4px 4px 0 var(--ink);
   --shadow-soft: 3px 3px 0 rgba(32, 36, 46, 0.22);
   --shadow-sm: 2px 2px 0 var(--ink);
@@ -38,8 +38,9 @@
   --card-pad: 6px;
   --card-align: left;
   --thumb-radius: 10px;
-  --thumb-border: var(--border);
+  --thumb-border: 2px solid var(--ink);
   --slot-radius: 10px;
+  --row-radius: 14px;
   --tray-bg: var(--floor);
   --tray-border-top: 2px solid var(--ink);
   --poster-card-stroke: 3px;
@@ -75,6 +76,7 @@
   --thumb-radius: 8px;
   --thumb-border: 0;
   --slot-radius: 6px;
+  --row-radius: 10px;
   --tray-bg: rgba(237, 239, 243, 0.94);
   --tray-border-top: 0;
   --poster-card-stroke: 0px;
@@ -769,7 +771,7 @@ main {
   align-items: center;
   background: var(--card);
   border: var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--row-radius);
   box-shadow: var(--shadow-soft);
   padding: 8px 12px;
 }
@@ -948,11 +950,24 @@ main {
   color: var(--muted);
 }
 [data-skin="classic"] .kami {
+  position: relative;
   background: none;
   border: 0;
   box-shadow: none;
   border-radius: 0;
-  padding: 0;
+  padding: 0 0 6px;
+  font-size: clamp(44px, 10vw, 72px);
+}
+[data-skin="classic"] .kami::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 34%;
+  bottom: 0;
+  height: 8px;
+  background: var(--pink);
+  transform: rotate(-1deg);
+  opacity: 0.9;
 }
 [data-skin="classic"] .seg-lang button[aria-checked="true"],
 [data-skin="classic"] .seg-series button[aria-checked="true"],
@@ -968,10 +983,36 @@ main {
 [data-skin="classic"] .grp-head[aria-expanded="true"] {
   background: #e7eaef;
 }
+[data-skin="classic"] .card {
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
 [data-skin="classic"] .card[aria-pressed="true"] {
-  background: var(--picked-bg);
+  background: none;
   box-shadow: none;
   transform: none;
+}
+[data-skin="classic"] .card[aria-pressed="true"] .ph {
+  outline: 3px solid var(--pink);
+  outline-offset: 1px;
+}
+[data-skin="classic"] .card .meta.now {
+  color: var(--pink);
+  font-weight: 700;
+}
+[data-skin="classic"] .gen-picked,
+[data-skin="classic"] .grp-picked {
+  background: var(--pink);
+  color: #fff;
+  border: 0;
+}
+[data-skin="classic"] .primary {
+  border: 0;
+  border-radius: 999px;
+}
+[data-skin="classic"] .ghost {
+  border-radius: 999px;
 }
 [data-skin="classic"] .card[aria-pressed="true"]::after {
   background: var(--pink);
@@ -986,16 +1027,16 @@ main {
     linear-gradient(
         45deg,
         transparent 45%,
-        var(--line) 45%,
-        var(--line) 55%,
+        var(--lemon) 45%,
+        var(--lemon) 55%,
         transparent 55%
       )
       center / 46% 46% no-repeat,
     linear-gradient(
         -45deg,
         transparent 45%,
-        var(--line) 45%,
-        var(--line) 55%,
+        var(--lemon) 45%,
+        var(--lemon) 55%,
         transparent 55%
       )
       center / 46% 46% no-repeat,

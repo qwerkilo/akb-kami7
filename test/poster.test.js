@@ -344,6 +344,9 @@ test("draw：cardStroke 0 不描卡片边（原版），默认 3px（贴纸）",
     subOf: (m) => m.subtitle,
     tokens: { cardStroke: 0 },
   });
-  assert.ok(!calls.strokes.includes(3), "原版不应有 3px 卡片描边");
+  assert.ok(
+    calls.strokes.every((w) => w <= 2),
+    "原版不应有卡片描边（只余页脚 2px）"
+  );
   assert.ok(calls.strokes.includes(2), "页脚分隔线仍描边");
 });
