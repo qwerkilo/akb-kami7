@@ -533,10 +533,7 @@
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
-    if (!duel50 && snap.duel.percent >= 50) {
-      duel50 = true;
-      toast(t("halfway"));
-    }
+    if (snap.duel.percent >= 50) duel50 = true;
     renderSteps();
   }
 
@@ -559,7 +556,12 @@
       answering = false;
       if (S.snapshot().series !== forSeries) return;
       if (!S.answer(leftWins)) return;
+      if (view !== "duel") return;
       sync();
+      if (snap.duel && !duel50 && snap.duel.percent >= 50) {
+        duel50 = true;
+        toast(t("halfway"));
+      }
       if (snap.phase === "result") renderResult();
       else renderDuel();
     }, 160);
@@ -582,7 +584,9 @@
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !$("#profile").hidden) closeProfile();
+    if (e.key !== "Escape") return;
+    if (!$("#duel-intro").hidden) return closeIntro();
+    if (!$("#profile").hidden) closeProfile();
   });
 
   document.addEventListener("keydown", (e) => {
@@ -606,6 +610,7 @@
     }
     if (
       $("#phase-duel").hidden ||
+      !$("#duel-intro").hidden ||
       e.target.closest?.("input, textarea") ||
       e.ctrlKey ||
       e.metaKey ||
@@ -842,14 +847,15 @@
   const COACH_KEY = "akb:coach:v1";
   const INTRO_KEY = "akb:duelintro:v1";
 
+  const memFlags = new Set();
   function storedFlag(key) {
     try {
-      return localStorage.getItem(key) === "1";
-    } catch (_) {
-      return false;
-    }
+      if (localStorage.getItem(key) === "1") return true;
+    } catch (_) {}
+    return memFlags.has(key);
   }
   function rememberFlag(key) {
+    memFlags.add(key);
     try {
       localStorage.setItem(key, "1");
     } catch (_) {}
@@ -932,9 +938,9 @@
     if (!pickBtn) return;
     const duelBtn = $('#steps [data-step="duel"]');
     const resBtn = $('#steps [data-step="result"]');
-    pickBtn.setAttribute("aria-current", String(view === "pick"));
-    duelBtn.setAttribute("aria-current", String(view === "duel"));
-    resBtn.setAttribute("aria-current", String(view === "result"));
+    pickBtn.setAttribute("aria-current", view === "pick" ? "step" : "false");
+    duelBtn.setAttribute("aria-current", view === "duel" ? "step" : "false");
+    resBtn.setAttribute("aria-current", view === "result" ? "step" : "false");
     $("#step-pick-n").textContent = `${snap.selected.length}/${snap.size}`;
     const dn = $("#step-duel-n");
     if (snap.duel) {
@@ -967,10 +973,14 @@
     }
     paintIntro();
     el.hidden = false;
+    const go = el.querySelector('[data-act="intro-go"]');
+    if (go) go.focus();
   }
   function closeIntro() {
     rememberFlag(INTRO_KEY);
     $("#duel-intro").hidden = true;
+    const f = $("#fighter-a");
+    if (f) f.focus();
   }
 
   document.addEventListener("click", (e) => {

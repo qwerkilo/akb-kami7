@@ -24,7 +24,9 @@ test("zh/en 键集合一致（en 允许额外的 leave_* 直译）", () => {
 test("index.html 引用的 i18n 键都存在", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const keys = new Set();
-  for (const m of html.matchAll(/data-i18n(?:-placeholder|-alt)?="([^"]+)"/g)) {
+  for (const m of html.matchAll(
+    /data-i18n(?:-placeholder|-alt|-aria-label)?="([^"]+)"/g
+  )) {
     keys.add(m[1]);
   }
   assert.ok(keys.size > 0);

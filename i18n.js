@@ -133,7 +133,6 @@
       clear_pick: "清空",
       clear_confirm: "清空已选？当前系列的对决进度将一并作废。",
       need: (n) => `还差 ${n} 位`,
-      start: "开始排序",
       steps_label: "流程",
       step_pick: "挑人",
       step_duel: "对决",
@@ -251,7 +250,6 @@
       clear_confirm:
         "Clear all picks? This series' duel progress will be discarded.",
       need: (n) => `${n} more`,
-      start: "Start ranking",
       steps_label: "Flow",
       step_pick: "Pick",
       step_duel: "Duel",
