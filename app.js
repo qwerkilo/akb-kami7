@@ -409,11 +409,8 @@
     if (grp) return toggleGroupNode(grp.parentElement.dataset.group);
     const head = e.target.closest(".gen-head");
     if (head) return toggleGroup(head.parentElement.dataset.sec);
-    const info = e.target.closest(".info");
-    if (info) {
-      const id = info.dataset.profile;
-      if (id) return openProfile(id);
-    }
+    const pid = profileIdOf(e);
+    if (pid) return openProfile(pid);
     const card = e.target.closest(".card");
     if (card) toggleMember(card.dataset.id);
   });
@@ -684,7 +681,7 @@
       <span class="no">${i + 1}</span>
       <img src="${thumbSrc(m)}" alt="">
       <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
-      <span class="info" role="button" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
+      <span class="info" role="button" tabindex="0" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
     </li>`
       )
       .join("");
