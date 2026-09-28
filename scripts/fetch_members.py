@@ -559,7 +559,7 @@ def main(
         except Exception as e:
             raise SystemExit(
                 f"等爱系列抓取失败（{e}）；为避免误删已有数据与图片，本次不写入。"
-                "可重试，或传 love_loader=None 仅更新 48G/坂道。"
+                "网络恢复后重试即可；本脚本不会在等爱失败时降级只写 48G/坂道。"
             )
 
     all_members = members + love

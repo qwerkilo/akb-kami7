@@ -601,6 +601,36 @@ class MainIntegrationTests(unittest.TestCase):
             with open(members_js, encoding="utf-8") as fh:
                 self.assertEqual(fh.read(), raw)
 
+    def test_love_failure_aborts_before_writing(self):
+        """等爱抓取失败 → SystemExit 且不写入；错误文案不得建议会丢数据的做法。"""
+
+        def failing_loader(fetch):
+            raise RuntimeError("boom")
+
+        with tempfile.TemporaryDirectory() as td:
+            dirs = {
+                "root": td,
+                "orig": os.path.join(td, "orig"),
+                "full": os.path.join(td, "full"),
+                "thumb": os.path.join(td, "thumb"),
+            }
+            members_js = os.path.join(td, "members.js")
+            with open(members_js, "w", encoding="utf-8") as fh:
+                fh.write("// 旧产物\n")
+            with self.assertRaises(SystemExit) as ctx:
+                fetch_members.main(
+                    dirs=dirs,
+                    fetch_page=lambda page: "{|\n|}",
+                    api_fn=lambda **params: {"query": {"pages": {}}},
+                    fetch_url=lambda url: b"",
+                    love_loader=failing_loader,
+                )
+            msg = str(ctx.exception)
+            self.assertIn("等爱系列抓取失败", msg)
+            self.assertNotIn("love_loader=None", msg)
+            with open(members_js, encoding="utf-8") as fh:
+                self.assertEqual(fh.read(), "// 旧产物\n")
+
 
 class LoveIntegrationTests(unittest.TestCase):
     def test_love_members_flow_into_members_js(self):
