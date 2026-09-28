@@ -1331,7 +1331,6 @@ test("rosterView：树模式——分组、计数、已选、空段剔除", () =
   assert.equal(akb.count, 3);
   assert.equal(akb.current, 2);
   assert.equal(akb.picked, 1);
-  assert.equal(view.pickedTotal, 2);
   assert.deepEqual(view.hits, []);
 });
 
@@ -1409,4 +1408,58 @@ test("rosterView：搜索模式——命中顺序、过滤叠加、查询归一"
     hit.hits.map((m) => m.id),
     ["s1"]
   );
+  // 过滤在搜索态同样生效：团体/期生/状态各排除一批
+  const cross = rosterFixture();
+  cross[0].members[1].hay = "a2 まつい";
+  cross[2].members[0].hay = "s1 まつい";
+  assert.deepEqual(
+    core
+      .rosterView(cross, {
+        group: "AKB48",
+        generation: "1期生",
+        status: "former",
+        query: "まつい",
+        selected: [],
+      })
+      .hits.map((m) => m.id),
+    ["a2"]
+  );
+  assert.deepEqual(
+    core
+      .rosterView(cross, {
+        group: "SKE48",
+        generation: "all",
+        status: "current",
+        query: "まつい",
+        selected: [],
+      })
+      .hits.map((m) => m.id),
+    ["s1"]
+  );
+  // 查询归一：片假名输入命中平假名 hay
+  assert.deepEqual(
+    core
+      .rosterView(rosterFixture(), {
+        group: "all",
+        generation: "all",
+        status: "all",
+        query: "マエダ",
+        selected: [],
+      })
+      .hits.map((m) => m.id),
+    ["a1"]
+  );
+});
+
+test("rosterView：已选计数只含可见成员（状态过滤下组/段口径一致）", () => {
+  const view = core.rosterView(rosterFixture(), {
+    group: "all",
+    generation: "all",
+    status: "former",
+    query: "",
+    selected: ["a1", "a2"],
+  });
+  assert.equal(view.nodes.length, 1);
+  assert.equal(view.nodes[0].picked, 1);
+  assert.equal(view.nodes[0].sections[0].picked, 1);
 });

@@ -360,7 +360,7 @@
           if (isVisible(m, status) && (m.hay || "").includes(q)) hits.push(m);
         }
       }
-      return { mode: "search", nodes: [], hits, pickedTotal: selected.length };
+      return { mode: "search", nodes: [], hits };
     }
     const selSet = new Set(selected);
     const nodes = [];
@@ -400,12 +400,7 @@
         picked,
       });
     }
-    return {
-      mode: group === "all" ? "tree" : "flat",
-      nodes,
-      hits: [],
-      pickedTotal: selected.length,
-    };
+    return { mode: group === "all" ? "tree" : "flat", nodes, hits: [] };
   }
 
   function* mergeSort(a) {
