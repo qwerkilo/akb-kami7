@@ -76,7 +76,7 @@ test("档位：切换与缩小时截断已选", () => {
   assert.equal(S.setSize(7), true);
   assert.equal(S.snapshot().size, 7);
   assert.equal(S.snapshot().selected.length, 7);
-  assert.equal(S.setSize(32), true);
+  assert.equal(S.setSize(40), true);
   assert.equal(S.setSize(9), false);
 });
 
@@ -367,4 +367,15 @@ test("恢复：答案数多于排序实际消耗时不崩，快照仍给完整�
   const s = make(storage).snapshot();
   assert.equal(s.phase, "result");
   assert.deepEqual(s.ranking, ids);
+});
+
+test("会话：旧 32 档存档迁移为 40 档并保留已选", () => {
+  const storage = memoryStorage();
+  storage.setItem(
+    "akb:state:v2:48g",
+    JSON.stringify({ v: 1, size: 32, selected: ["a1", "a2"], duel: null })
+  );
+  const s = make(storage).snapshot();
+  assert.equal(s.size, 40);
+  assert.deepEqual(s.selected, ["a1", "a2"]);
 });

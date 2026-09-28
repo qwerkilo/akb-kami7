@@ -62,39 +62,39 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
       "sakamichi-7": "7福神",
       "48g-16": "选拔组",
       "sakamichi-16": "选拔组",
-      "48g-32": "圈内",
-      "sakamichi-32": "圈内",
+      "48g-40": "圈内",
+      "sakamichi-40": "圈内",
       "love-7": "推し 7",
       "love-16": "选拔组",
-      "love-32": "圈内",
+      "love-40": "圈内",
     },
     en: {
       "48g-7": "Kami 7",
       "sakamichi-7": "7 Fukujin",
       "48g-16": "Senbatsu",
       "sakamichi-16": "Senbatsu",
-      "48g-32": "Ranked",
-      "sakamichi-32": "Ranked",
+      "48g-40": "Ranked",
+      "sakamichi-40": "Ranked",
       "love-7": "Oshi 7",
       "love-16": "Senbatsu",
-      "love-32": "Ranked",
+      "love-40": "Ranked",
     },
     ja: {
       "48g-7": "神7",
       "sakamichi-7": "7福神",
       "48g-16": "選抜",
       "sakamichi-16": "選抜",
-      "48g-32": "圏内",
-      "sakamichi-32": "圏内",
+      "48g-40": "圏内",
+      "sakamichi-40": "圏内",
       "love-7": "推し7",
       "love-16": "選抜",
-      "love-32": "圏内",
+      "love-40": "圏内",
     },
   };
   for (const lang of ["zh", "en", "ja"]) {
     const t = (k) => I18N[lang][k];
     for (const series of ["48g", "sakamichi", "love"]) {
-      for (const size of [7, 16, 32]) {
+      for (const size of [7, 16, 40]) {
         const n = core.names(series, size, t);
         const where = `${lang}/${series}/${size}`;
         for (const [field, v] of Object.entries(n)) {
@@ -108,7 +108,7 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
         assert.ok(n.title.endsWith(n.brand), `${where}/title=${n.title}`);
         assert.match(
           n.fileBase,
-          /^(48group|sakamichi|love)_(kami7|7fukujin|16|32|7)$/
+          /^(48group|sakamichi|love)_(kami7|7fukujin|16|40|7)$/
         );
       }
     }

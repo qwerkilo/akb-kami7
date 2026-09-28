@@ -414,8 +414,8 @@
     const saka = series === "sakamichi";
     const love = series === "love";
     const brand =
-      size === 32
-        ? t("brand_32")
+      size === 40
+        ? t("brand_40")
         : size === 16
           ? t("brand_16")
           : love
@@ -613,7 +613,7 @@
 
   // ---- 持久化（localStorage 序列化；损坏/过期数据安全丢弃） ----
   const STATE_VERSION = 1;
-  const SIZES = [7, 16, 32];
+  const SIZES = [7, 16, 40];
 
   function serializeState(state) {
     return JSON.stringify({
@@ -627,9 +627,12 @@
   function deserializeState(raw) {
     try {
       const s = JSON.parse(raw);
-      if (!s || s.v !== STATE_VERSION || !SIZES.includes(s.size)) return null;
+      if (!s || s.v !== STATE_VERSION) return null;
+      // 旧 32 档存档迁移为 40 档（已选与对决保留）
+      const size = s.size === 32 ? 40 : s.size;
+      if (!SIZES.includes(size)) return null;
       const selected = Array.isArray(s.selected)
-        ? s.selected.filter((x) => typeof x === "string").slice(0, s.size)
+        ? s.selected.filter((x) => typeof x === "string").slice(0, size)
         : [];
       let duel = null;
       if (
@@ -643,7 +646,7 @@
       ) {
         duel = { order: s.duel.order, answers: s.duel.answers };
       }
-      return { size: s.size, selected, duel };
+      return { size, selected, duel };
     } catch (err) {
       return null;
     }

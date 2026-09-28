@@ -307,11 +307,22 @@
     placeRow(ctx, T, imgs, members, 9, 7, backY, 128, 170, 12, subOf);
   }
 
-  const PYRAMID_ROWS = [1, 3, 5, 7, 9, 7];
-  const PYRAMID_WEIGHTS = [1.45, 1.33, 1.21, 1.09, 0.97, 0.85];
+  const PYRAMIDS = {
+    32: {
+      rows: [1, 3, 5, 7, 9, 7],
+      weights: [1.45, 1.33, 1.21, 1.09, 0.97, 0.85],
+    },
+    40: {
+      rows: [1, 3, 5, 7, 9, 11, 4],
+      weights: [1.5, 1.4, 1.3, 1.2, 1.1, 1.0, 0.9, 0.8],
+    },
+  };
   const PYRAMID_NAMED_ROWS = 4;
 
-  function drawThirtyTwo(ctx, T, members, imgs, subOf) {
+  function drawPyramid(ctx, T, members, imgs, subOf) {
+    const P = PYRAMIDS[members.length] || PYRAMIDS[32];
+    const rows = P.rows;
+    const weights = P.weights;
     const W = ctx.canvas.width;
     const H = ctx.canvas.height;
     const top = 200;
@@ -319,16 +330,11 @@
     const U = bottom - top;
     const margin = 56;
     const gap = 10;
-    const wSum = PYRAMID_WEIGHTS.reduce((a, b) => a + b, 0);
-    const textZone = PYRAMID_ROWS.map((_, i) =>
-      i < PYRAMID_NAMED_ROWS ? 42 : 8
-    );
+    const wSum = weights.reduce((a, b) => a + b, 0);
+    const textZone = rows.map((_, i) => (i < PYRAMID_NAMED_ROWS ? 42 : 8));
     const avail = W - margin * 2;
-    const raw = PYRAMID_ROWS.map((n, i) =>
-      Math.min(
-        (avail - gap * (n - 1)) / n,
-        ((U * PYRAMID_WEIGHTS[i]) / wSum) * 0.86
-      )
+    const raw = rows.map((n, i) =>
+      Math.min((avail - gap * (n - 1)) / n, ((U * weights[i]) / wSum) * 0.86)
     );
     for (let i = 1; i < raw.length; i++) raw[i] = Math.min(raw[i], raw[i - 1]);
     const heightSum = raw.reduce((a, w) => a + (w * 4) / 3, 0);
@@ -336,8 +342,8 @@
     const f = (U - textSum) / heightSum;
     let y = top;
     let idx = 0;
-    for (let r = 0; r < PYRAMID_ROWS.length; r++) {
-      const n = PYRAMID_ROWS[r];
+    for (let r = 0; r < rows.length; r++) {
+      const n = rows[r];
       const cw = raw[r] * f;
       const ch = (cw * 4) / 3;
       const total = n * cw + (n - 1) * gap;
@@ -411,7 +417,7 @@
 
     if (n <= 7) drawSeven(ctx, T, members, images, subOf);
     else if (n <= 16) drawSixteen(ctx, T, members, images, subOf);
-    else drawThirtyTwo(ctx, T, members, images, subOf);
+    else drawPyramid(ctx, T, members, images, subOf);
 
     posterFooter(ctx, T, W, H, hashtag, photoSrc);
   }
@@ -623,17 +629,88 @@
       ctx.fillText(members[p.i].name, p.x + p.w / 2, p.y + p.h - 14 * kx);
     }
 
-    const listTop = 268 * k + podH + 80 * k;
-    const listH = H - 84 - listTop;
+    const listTop = 268 + podH + 80;
     const count = n - 3;
-    const rows = Math.max(1, Math.ceil(count / 2));
+    if (count <= 4) {
+      // 余人少（7 档）：一行大字卡，与领奖台共同纵向居中分布
+      const gap2 = 24;
+      const cardW = Math.min(300, (W - M * 2 - gap2 * (count - 1)) / count);
+      const photoH2 = cardW * 1.34;
+      const cardH2 = photoH2 + 44;
+      const rowW = count * cardW + (count - 1) * gap2;
+      const x0 = (W - rowW) / 2;
+      const y = listTop + Math.max(0, (H - 84 - listTop - cardH2) / 2);
+      for (let i = 3; i < n; i++) {
+        const k2 = i - 3;
+        const x = x0 + k2 * (cardW + gap2);
+        ctx.save();
+        ctx.shadowColor = "rgba(28,30,43,.16)";
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 8;
+        roundRect(ctx, x, y, cardW, cardH2, 14);
+        ctx.fillStyle = T.colors.card;
+        ctx.fill();
+        ctx.restore();
+        if (T.cardStroke > 0) {
+          ctx.save();
+          roundRect(ctx, x, y, cardW, cardH2, 14);
+          ctx.lineWidth = T.cardStroke;
+          ctx.strokeStyle = T.colors.ink;
+          ctx.stroke();
+          ctx.restore();
+        }
+        const pad2 = 10;
+        ctx.save();
+        roundRect(
+          ctx,
+          x + pad2,
+          y + pad2,
+          cardW - pad2 * 2,
+          photoH2 - pad2 * 2,
+          8
+        );
+        ctx.clip();
+        if (images[i])
+          cover(
+            ctx,
+            images[i],
+            x + pad2,
+            y + pad2,
+            cardW - pad2 * 2,
+            photoH2 - pad2 * 2
+          );
+        ctx.restore();
+        ctx.textAlign = "center";
+        ctx.fillStyle = i < 7 ? T.colors.pink : T.colors.ink;
+        ctx.font = `400 34px ${T.fonts.display}`;
+        ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
+        ctx.fillStyle = T.colors.ink;
+        const ns2 = fitText(
+          ctx,
+          members[i].name,
+          cardW - 78,
+          24,
+          700,
+          T.fonts.jp
+        );
+        ctx.font = `700 ${ns2}px ${T.fonts.jp}`;
+        ctx.fillText(members[i].name, x + cardW / 2 + 18, y + cardH2 - 16);
+      }
+      ctx.textAlign = "left";
+      posterFooter(ctx, T, W, H, hashtag, photoSrc);
+      return;
+    }
+    const cols = count > 30 ? 3 : 2;
+    const rows = Math.max(1, Math.ceil(count / cols));
+    const listH = H - 84 - listTop;
     const rowH = listH / rows;
-    const colW = (W - M * 2 - 24) / 2;
+    const colGap = 24;
+    const colW = (W - M * 2 - colGap * (cols - 1)) / cols;
     for (let i = 3; i < n; i++) {
       const idx = i - 3;
       const col = Math.floor(idx / rows);
       const row = idx % rows;
-      const x = M + col * (colW + 24);
+      const x = M + col * (colW + colGap);
       const y = listTop + row * rowH;
       const th = Math.min(rowH - 8, 44 * k);
       const tw = th * 0.79;
@@ -743,7 +820,14 @@
     ctx.fillText(String(n), 85, 28);
     ctx.restore();
 
-    const rows = n <= 7 ? [4, 3] : n <= 16 ? [6, 5, 5] : [7, 7, 6, 6, 6];
+    const rows =
+      n <= 7
+        ? [4, 3]
+        : n <= 16
+          ? [6, 5, 5]
+          : n <= 32
+            ? [7, 7, 6, 6, 6]
+            : [8, 8, 8, 8, 8];
     const perRow = Math.max(...rows);
     const gap = 18;
     const cw = (W - 80 - gap * (perRow - 1)) / perRow;
@@ -751,10 +835,13 @@
     const cardH = photoH + 52;
     const top = 300;
     const avail = H - 84 - top;
+    const step = cardH + 26;
+    const blockH = rows.length * cardH + (rows.length - 1) * 26;
+    const y0 = top + Math.max(0, (avail - blockH) / 2);
     const jitter = [0, 14, -10, 18, -6, 10, -14];
     let idx = 0;
     for (let r = 0; r < rows.length; r++) {
-      const y = top + (r * (avail - cardH)) / (rows.length - 1);
+      const y = y0 + r * step;
       const rowN = rows[r];
       const rowW = rowN * cw + (rowN - 1) * gap;
       const x0 = (W - rowW) / 2;

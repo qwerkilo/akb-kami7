@@ -11,7 +11,7 @@
   "use strict";
 
   const SERIES = ["48g", "sakamichi", "love"];
-  const SIZES = [7, 16, 32];
+  const SIZES = [7, 16, 40];
   const SKINS = ["classic", "sticker"];
   const SERIES_KEY = "akb:series";
   const SKIN_KEY = "akb:skin";

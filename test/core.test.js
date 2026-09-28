@@ -344,14 +344,14 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
   assert.equal(badDuel.duel, null);
 });
 
-test("对决进度：32 档最坏 129 与百分比/预计时长", () => {
-  assert.equal(core.worstCase(32), 129);
-  assert.deepEqual(core.duelProgress(32, 0), {
+test("对决进度：40 档最坏 177 与百分比/预计时长", () => {
+  assert.equal(core.worstCase(40), 177);
+  assert.deepEqual(core.duelProgress(40, 0), {
     answered: 0,
-    max: 129,
+    max: 177,
     percent: 0,
-    remaining: 129,
-    etaSeconds: 645,
+    remaining: 177,
+    etaSeconds: 885,
   });
   assert.deepEqual(core.duelProgress(7, 14), {
     answered: 14,
@@ -362,22 +362,22 @@ test("对决进度：32 档最坏 129 与百分比/预计时长", () => {
   });
 });
 
-test("持久化：32 档对决进度（129 答）可恢复，超出最坏题数丢弃", () => {
-  const order = Array.from({ length: 32 }, (_, i) => `id${i}`);
-  const answers = [...Array(129)].map(() => true);
+test("持久化：40 档对决进度（177 答）可恢复，超出最坏题数丢弃", () => {
+  const order = Array.from({ length: 40 }, (_, i) => `id${i}`);
+  const answers = [...Array(177)].map(() => true);
   const st = core.deserializeState(
     JSON.stringify({
       v: 1,
-      size: 32,
+      size: 40,
       selected: order,
       duel: { order, answers },
     })
   );
-  assert.equal(st.duel.answers.length, 129);
+  assert.equal(st.duel.answers.length, 177);
   const tooMany = core.deserializeState(
     JSON.stringify({
       v: 1,
-      size: 32,
+      size: 40,
       selected: order,
       duel: { order, answers: [...answers, true] },
     })
@@ -390,7 +390,7 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
     brand_7: "神7",
     brand_7fukujin: "7福神",
     brand_16: "选拔组",
-    brand_32: "圈内",
+    brand_40: "圈内",
     title_prefix_48g: "我的 48 Group",
     title_prefix_saka: "我的坂道",
     series_48g: "48 Group",
@@ -409,8 +409,8 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
   assert.equal(core.names("sakamichi", 7, t).brand, "7福神");
   assert.equal(core.names("sakamichi", 7, t).fileBase, "sakamichi_7fukujin");
   assert.equal(core.names("sakamichi", 16, t).fileBase, "sakamichi_16");
-  assert.equal(core.names("48g", 32, t).brand, "圈内");
-  assert.equal(core.names("48g", 32, t).fileBase, "48group_32");
+  assert.equal(core.names("48g", 40, t).brand, "圈内");
+  assert.equal(core.names("48g", 40, t).fileBase, "48group_40");
   const LOVE_DICT = {
     ...DICT,
     brand_7oshi: "推し 7",
@@ -425,7 +425,7 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
   assert.equal(love7.fileBase, "love_7");
   assert.equal(love7.shareTags, "#イコノイジョイ #好き顔ソート");
   assert.equal(love7.posterTags, "#イコノイジョイ  #好き顔ソート");
-  assert.equal(core.names("love", 32, tl).fileBase, "love_32");
+  assert.equal(core.names("love", 40, tl).fileBase, "love_40");
 });
 
 function bioDict(lang) {
@@ -1020,13 +1020,13 @@ test("nav/steps：上下文字段非法时保守回退（边界）", () => {
     core.steps({ phase: "duel", size: 7, selected: 7, step: null })[1].badge,
     null
   );
-  // 16/32 档（size > 7）参与满员判断
+  // 16/40 档（size > 7）参与满员判断
   assert.deepEqual(
     core.nav({ size: 16, selected: 10, phase: "pick" }, "start"),
     { view: "pick", effect: "none" }
   );
   assert.deepEqual(
-    core.nav({ size: 32, selected: 32, phase: "pick" }, "start"),
+    core.nav({ size: 40, selected: 40, phase: "pick" }, "start"),
     { view: "duel", effect: "start" }
   );
   // 相位有结果、人却在挑人页时，③ 仍指向结果
@@ -1191,4 +1191,26 @@ test("fullMeta/posterSub/profileRows：期生走 genText（不再直出中文标
     rows.some(([k, v]) => k === "bio_gen" && v === "ドラフト1期生"),
     JSON.stringify(rows)
   );
+});
+
+test("deserializeState：旧 32 档存档迁移为 40 档（已选与对决保留）", () => {
+  const raw = JSON.stringify({
+    v: 1,
+    size: 32,
+    selected: ["a", "b", "c"],
+    duel: { order: ["a", "b"], answers: [true] },
+  });
+  const st = core.deserializeState(raw);
+  assert.ok(st, "旧存档不应被丢弃");
+  assert.equal(st.size, 40);
+  assert.deepEqual(st.selected, ["a", "b", "c"]);
+  assert.deepEqual(st.duel.order, ["a", "b"]);
+  assert.deepEqual(st.duel.answers, [true]);
+});
+
+test("names：40 档品牌与文件名（圈内 / 48group_40）", () => {
+  const t = (k) => require("../i18n.js").zh[k];
+  const n = core.names("48g", 40, t);
+  assert.equal(n.brand, "圈内");
+  assert.equal(n.fileBase, "48group_40");
 });

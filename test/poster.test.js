@@ -411,7 +411,7 @@ test("默认样式 = a：省略 style 与 style:'a' 的调用序列完全一致"
 
 test("四样式 × 7/16/32：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
   for (const style of poster.styles) {
-    for (const n of [7, 16, 32]) {
+    for (const n of [7, 16, 32, 40]) {
       const { calls, ctx } = runStyle(style, n);
       const want = poster.layout(n);
       assert.equal(ctx.canvas.width, want.width, `${style}/${n} 宽`);
@@ -453,7 +453,7 @@ test("四样式 × 7/16/32：画布尺寸正确、全员上图、所有绘制都
 
 test("B/C/D：全员名字与名次都落笔（对比 a 只画前 16 名）", () => {
   for (const style of ["b", "c", "d"]) {
-    for (const n of [7, 16, 32]) {
+    for (const n of [7, 16, 32, 40]) {
       const { members, calls } = runStyle(style, n);
       for (const m of members)
         assert.ok(
@@ -501,7 +501,7 @@ test("四样式都消费注入令牌：ink 随 tokens 变、cardStroke=0 不描�
 });
 
 test("C 领奖台：前三张照片互不重叠且整体居中（7/16/32）", () => {
-  for (const n of [7, 16, 32]) {
+  for (const n of [7, 16, 32, 40]) {
     const { calls } = runStyle("c", n);
     const rects = calls.images.slice(0, 3).map((args, i) => {
       const [, , , , , x, y, w, h] = args;
