@@ -100,9 +100,69 @@
       </div>
     </header>
 
+    <nav class="steps" id="steps" data-i18n-aria-label="steps_label">
+      <button type="button" data-step="pick" aria-current="true">
+        <span class="step-no" aria-hidden="true">1</span
+        ><span data-i18n="step_pick">挑人</span>
+        <b id="step-pick-n">0/7</b>
+      </button>
+      <span class="steps-sep" aria-hidden="true">›</span>
+      <button type="button" data-step="duel" disabled>
+        <span class="step-no" aria-hidden="true">2</span
+        ><span data-i18n="step_duel">对决</span>
+        <b id="step-duel-n" hidden></b>
+      </button>
+      <span class="steps-sep" aria-hidden="true">›</span>
+      <button type="button" data-step="result" disabled>
+        <span class="step-no" aria-hidden="true">3</span
+        ><span data-i18n="step_result">出图</span>
+      </button>
+    </nav>
+
     <main>
       <!-- 1. pick -->
       <section id="phase-pick" class="phase">
+        <div class="coach" id="coach" hidden>
+          <div class="coach-txt">
+            <b id="coach-title"></b>
+            <p id="coach-body"></p>
+          </div>
+          <button
+            type="button"
+            class="ghost"
+            data-act="coach-ok"
+            data-i18n="coach_ok"
+          >
+            知道了
+          </button>
+        </div>
+        <div class="resume" id="resume-card" hidden>
+          <div class="coach-txt">
+            <b data-i18n="resume_title">有一场进行中的对决</b>
+            <p id="resume-body"></p>
+          </div>
+          <div class="resume-acts">
+            <button
+              type="button"
+              class="primary"
+              data-act="resume-go"
+              data-i18n="resume_go"
+            >
+              继续对决</button
+            ><button
+              type="button"
+              class="ghost"
+              data-act="resume-drop"
+              data-i18n="resume_drop"
+            >
+              放弃
+            </button>
+          </div>
+        </div>
+        <div class="pick-progress" id="pick-progress">
+          <span class="ring-wrap" id="pick-ring" aria-hidden="true"></span>
+          <div class="pick-cov" id="pick-cov"></div>
+        </div>
         <div class="toolbar">
           <div class="seg seg-size" role="radiogroup" aria-label="人数">
             <button role="radio" aria-checked="true" data-pick="7" id="size-7">
@@ -203,6 +263,10 @@
             <span class="duel-extra" id="duel-extra"></span>
           </p>
           <div class="bar"><i id="duel-bar"></i></div>
+          <p class="duel-saved" id="duel-saved">
+            <i aria-hidden="true"></i
+            ><span data-i18n="duel_saved">进度已自动保存</span>
+          </p>
         </div>
         <div class="duel">
           <button class="fighter" id="fighter-a" data-side="0"></button>
@@ -213,8 +277,8 @@
           <button id="undo-btn" class="ghost" disabled data-i18n="undo">
             撤回上一题
           </button>
-          <button id="back-pick-btn" class="ghost" data-i18n="reselect">
-            重新选人
+          <button id="back-pick-btn" class="ghost" data-i18n="duel_leave">
+            保存并返回
           </button>
         </div>
         <p class="hint" data-i18n="keys">键盘可用 ← → 选择，Z 撤回</p>
@@ -296,6 +360,40 @@
         >AKB48 神7 好き顔ソート</a
       >。
     </footer>
+
+    <div class="duel-intro" id="duel-intro" hidden>
+      <div
+        class="di-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="di-title"
+      >
+        <h2 id="di-title" data-i18n="duel_intro_title">开始两两对决</h2>
+        <ol class="di-list">
+          <li data-i18n="duel_intro_1"></li>
+          <li id="di-line2"></li>
+          <li data-i18n="duel_intro_3"></li>
+        </ol>
+        <div class="di-acts">
+          <button
+            type="button"
+            class="primary"
+            data-act="intro-go"
+            data-i18n="duel_intro_go"
+          >
+            开始</button
+          ><button
+            type="button"
+            class="ghost"
+            data-act="intro-skip"
+            data-i18n="duel_intro_skip"
+          >
+            跳过说明
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <canvas id="poster-canvas" width="1080" height="1440" hidden></canvas>
     <script src="core.js"></script>

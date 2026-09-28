@@ -25,6 +25,8 @@
   let snap = S.snapshot();
   let series = snap.series;
   let pick = snap.size;
+  let view = "pick";
+  let duel50 = false;
   function sync() {
     snap = S.snapshot();
     series = snap.series;
@@ -159,8 +161,10 @@
   }
 
   function renderPick(opts = {}) {
+    ensureOpen();
     renderRoster();
     syncSelection();
+    renderGuide();
     if (opts.resetScroll) roster.scrollTop = 0;
   }
 
@@ -219,7 +223,7 @@
     }
     roster.innerHTML = hits.length
       ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map((m) => cardHTML(m, true)).join("")}</div>`
-      : `<p class="empty">${t("empty_search", esc(snap.query))}</p>`;
+      : `<p class="empty">${t("empty_search", esc(snap.query))}</p><p class="hint">${t("empty_search_hint")}</p>`;
   }
 
   function toggleGroup(secId) {
@@ -279,6 +283,8 @@
       tray.classList.add("shake");
       return;
     }
+    sync();
+    if (snap.selected.length === snap.size) toast(t("picked_full"));
     syncSelection();
   }
 
@@ -304,6 +310,8 @@
     });
     roster.classList.toggle("full", snap.selected.length >= pick);
     renderTray();
+    renderSteps();
+    renderGuide();
   }
 
   function renderTray() {
@@ -325,7 +333,9 @@
     const left = pick - snap.selected.length;
     const btn = $("#start-btn");
     btn.disabled = left > 0;
-    btn.textContent = left > 0 ? t("need", left) : t("start");
+    btn.textContent =
+      left > 0 ? t("need", left) : t("start_est", CORE.worstCase(pick));
+    btn.classList.toggle("emphasis", left === 0);
     const clearBtn = $("#clear-btn");
     if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
   }
@@ -427,12 +437,13 @@
     applyStatic();
     const title = $("#title-input");
     if (title && !title.dataset.dirty) title.value = names().title;
-    if (snap.phase === "duel") {
+    if (view === "duel" && snap.phase === "duel") {
       show("duel");
       renderDuel();
-    } else if (snap.phase === "result") {
+    } else if (view === "result" && snap.phase === "result") {
       renderResult();
     } else {
+      view = "pick";
       show("pick");
       renderPick();
     }
@@ -492,12 +503,16 @@
 
   /* ---------------- duel (replayable merge sort) ---------------- */
   function beginDuel(order) {
-    if (!S.startDuel(order)) return;
+    if (!S.startDuel(order)) return false;
+    duel50 = false;
+    view = "duel";
     order.forEach((id) => {
       new Image().src = fullSrc(BY_ID.get(id));
     });
     show("duel");
     renderDuel();
+    maybeIntro();
+    return true;
   }
 
   function renderDuel() {
@@ -518,6 +533,11 @@
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
+    if (!duel50 && snap.duel.percent >= 50) {
+      duel50 = true;
+      toast(t("halfway"));
+    }
+    renderSteps();
   }
 
   function fillFighter(el, m) {
@@ -554,7 +574,12 @@
   $("#fighter-a").addEventListener("click", () => answer(true));
   $("#fighter-b").addEventListener("click", () => answer(false));
   $("#undo-btn").addEventListener("click", undo);
-  $("#back-pick-btn").addEventListener("click", backToPick);
+  $("#back-pick-btn").addEventListener("click", () => {
+    view = "pick";
+    show("pick");
+    renderPick();
+    toast(t("duel_saved"));
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !$("#profile").hidden) closeProfile();
@@ -594,6 +619,7 @@
 
   function backToPick() {
     S.abandonDuel();
+    view = "pick";
     sync();
     show("pick");
     renderPick();
@@ -635,9 +661,11 @@
   function renderResult() {
     sync();
     if (snap.phase !== "result") return;
+    view = "result";
     ranking = snap.ranking.map((id) => BY_ID.get(id));
     renderRankList();
     show("result");
+    renderSteps();
     drawPoster();
   }
 
@@ -776,6 +804,8 @@
       localStorage.setItem("akb-lang", lang);
     } catch (_) {}
     applyStatic();
+    renderSteps();
+    if (!$("#duel-intro").hidden) paintIntro();
     renderPick();
     if (profileId && !$("#profile").hidden) openProfile(profileId);
     if (!$("#phase-duel").hidden) renderDuel();
@@ -808,17 +838,203 @@
     if (snap.phase === "result" && ranking.length) drawPoster();
   }
 
+  /* ---------------- 向导模式（v5 A） ---------------- */
+  const COACH_KEY = "akb:coach:v1";
+  const INTRO_KEY = "akb:duelintro:v1";
+
+  function storedFlag(key) {
+    try {
+      return localStorage.getItem(key) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+  function rememberFlag(key) {
+    try {
+      localStorage.setItem(key, "1");
+    } catch (_) {}
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = $("#toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
+  }
+
+  function ringSVG(n, m) {
+    const pct = m ? Math.min(1, n / m) : 0;
+    const c = 2 * Math.PI * 26;
+    return `<svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+      <circle cx="32" cy="32" r="26" fill="none" style="stroke: var(--line)" stroke-width="7"></circle>
+      <circle cx="32" cy="32" r="26" fill="none" style="stroke: var(--pink)" stroke-width="7" stroke-linecap="round"
+        stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (1 - pct)).toFixed(1)}" transform="rotate(-90 32 32)"></circle>
+      <text class="ring-t" x="32" y="37" text-anchor="middle">${n}/${m}</text>
+    </svg>`;
+  }
+
+  function ensureOpen() {
+    sync();
+    if (snap.open.length || snap.query || snap.group !== "all") return;
+    const tree = CORE.groupSections(seriesGroups(), "all");
+    const first = tree[0];
+    if (!first) return;
+    S.toggleOpen("g:" + first.group);
+    const sec = first.sections[0];
+    if (sec) S.toggleOpen(first.group + "#" + sec.label);
+  }
+
+  function renderGuide() {
+    sync();
+    const coach = $("#coach");
+    if (coach) {
+      coach.hidden = storedFlag(COACH_KEY);
+      if (!coach.hidden) {
+        $("#coach-title").textContent = t("coach_title", names().brand);
+        $("#coach-body").textContent = t("coach_body", snap.size);
+      }
+    }
+    const ring = $("#pick-ring");
+    if (ring) {
+      ring.innerHTML = ringSVG(snap.selected.length, snap.size);
+      const byGroup = new Map();
+      snap.selected.forEach((id) => {
+        const m = BY_ID.get(id);
+        if (m) byGroup.set(m.group, (byGroup.get(m.group) || 0) + 1);
+      });
+      $("#pick-cov").innerHTML =
+        `<b class="cov-sum">${esc(t("picked_of", snap.selected.length, snap.size))}</b>` +
+        [...byGroup.entries()]
+          .map(
+            ([g, n]) => `<span class="cov-chip">${esc(g)} <b>${n}</b></span>`
+          )
+          .join("");
+    }
+    const res = $("#resume-card");
+    if (res) {
+      res.hidden = !snap.duel;
+      if (snap.duel)
+        $("#resume-body").textContent = t(
+          "resume_body",
+          snap.duel.step,
+          snap.duel.max,
+          snap.duel.percent
+        );
+    }
+  }
+
+  function renderSteps() {
+    sync();
+    const pickBtn = $('#steps [data-step="pick"]');
+    if (!pickBtn) return;
+    const duelBtn = $('#steps [data-step="duel"]');
+    const resBtn = $('#steps [data-step="result"]');
+    pickBtn.setAttribute("aria-current", String(view === "pick"));
+    duelBtn.setAttribute("aria-current", String(view === "duel"));
+    resBtn.setAttribute("aria-current", String(view === "result"));
+    $("#step-pick-n").textContent = `${snap.selected.length}/${snap.size}`;
+    const dn = $("#step-duel-n");
+    if (snap.duel) {
+      dn.hidden = false;
+      dn.textContent = t("step_duel_n", snap.duel.step);
+    } else {
+      dn.hidden = true;
+    }
+    duelBtn.disabled =
+      snap.phase === "result" ||
+      !(snap.duel || snap.selected.length >= snap.size);
+    resBtn.disabled = snap.phase !== "result";
+  }
+
+  function paintIntro() {
+    sync();
+    if (!snap.duel) return;
+    $("#di-line2").textContent = t(
+      "duel_intro_2",
+      snap.duel.max,
+      Math.max(1, Math.ceil(snap.duel.etaSeconds / 60))
+    );
+  }
+  function maybeIntro() {
+    const el = $("#duel-intro");
+    if (!el) return;
+    if (storedFlag(INTRO_KEY)) {
+      el.hidden = true;
+      return;
+    }
+    paintIntro();
+    el.hidden = false;
+  }
+  function closeIntro() {
+    rememberFlag(INTRO_KEY);
+    $("#duel-intro").hidden = true;
+  }
+
+  document.addEventListener("click", (e) => {
+    const step = e.target.closest("#steps [data-step]");
+    if (step && !step.disabled) {
+      sync();
+      const id = step.dataset.step;
+      if (id === "pick") {
+        if (view === "result") S.abandonDuel();
+        view = "pick";
+        sync();
+        show("pick");
+        renderPick();
+      } else if (id === "duel") {
+        if (snap.duel) {
+          view = "duel";
+          show("duel");
+          renderDuel();
+        } else {
+          beginDuel(CORE.shuffle(snap.selected.slice()));
+        }
+      } else if (id === "result") {
+        view = "result";
+        renderResult();
+      }
+      return;
+    }
+    if (e.target.closest('[data-act="coach-ok"]')) {
+      rememberFlag(COACH_KEY);
+      $("#coach").hidden = true;
+      return;
+    }
+    if (e.target.closest('[data-act="resume-go"]')) {
+      view = "duel";
+      show("duel");
+      renderDuel();
+      return;
+    }
+    if (e.target.closest('[data-act="resume-drop"]')) {
+      S.abandonDuel();
+      renderPick();
+      return;
+    }
+    if (
+      e.target.closest('[data-act="intro-go"]') ||
+      e.target.closest('[data-act="intro-skip"]')
+    ) {
+      closeIntro();
+    }
+  });
+
   /* ---------------- boot ---------------- */
   paintSkin();
   refreshGroupOptions();
   paintSizeButtons();
   applyStatic();
-  if (snap.phase === "duel") {
+  view = snap.phase;
+  if (view === "duel") {
     show("duel");
     renderDuel();
-  } else if (snap.phase === "result") {
+  } else if (view === "result") {
     renderResult();
   } else {
+    view = "pick";
     renderPick();
   }
 })();
