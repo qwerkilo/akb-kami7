@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>交互 / UX 原型 v5 · 四方案（抛掷用）</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Nunito:wght@800;900&display=swap"
+    />
+    <link rel="stylesheet" href="proto.css" />
+  </head>
+  <body>
+    <div id="proto-root" class="proto-app"></div>
+
+    <div class="proto-switch" role="group" aria-label="原型切换">
+      <button type="button" data-go="-1" aria-label="上一个方案">‹</button>
+      <button
+        type="button"
+        class="ps-label"
+        id="ps-label"
+        aria-haspopup="menu"
+        title="点击查看四个方案（快捷键 [ ] 切换）"
+      ></button>
+      <button type="button" data-go="1" aria-label="下一个方案">›</button>
+    </div>
+    <div class="proto-menu" id="proto-menu" role="menu" hidden></div>
+
+    <script src="../../core.js"></script>
+    <script src="../../session.js"></script>
+    <script src="../../poster.js"></script>
+    <script src="../../i18n.js"></script>
+    <script src="../../members.js"></script>
+    <script src="../../simplified.js"></script>
+    <script src="proto-shared.js"></script>
+    <script src="variant-a.js"></script>
+    <script src="variant-b.js"></script>
+    <script src="variant-c.js"></script>
+    <script src="variant-d.js"></script>
+  </body>
+</html>
