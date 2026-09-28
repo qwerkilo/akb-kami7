@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>40 档金字塔行分布候选 · akb-kami7</title>
+    <style>
+      :root {
+        --ink: #20242e;
+        --muted: #6b7280;
+        --bg: #ecebe6;
+        --pink: #e4007f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          500 15px/1.5 "Zen Kaku Gothic New",
+          system-ui,
+          sans-serif;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      .grid-wrap {
+        display: grid;
+        gap: 22px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      @media (max-width: 900px) {
+        .grid-wrap {
+          grid-template-columns: 1fr;
+        }
+      }
+      .cand {
+        background: #fff;
+        border: 2px solid var(--ink);
+        border-radius: 14px;
+        padding: 12px;
+      }
+      .cand h2 {
+        font-size: 15px;
+        margin: 0 0 8px;
+      }
+      .cand h2 b {
+        color: var(--pink);
+      }
+      .pyramid {
+        display: grid;
+        gap: 6px;
+      }
+      .row {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+      }
+      .cell {
+        position: relative;
+        border: 2px solid var(--ink);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #eee;
+      }
+      .cell img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .cell i {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: var(--ink);
+        color: #fff;
+        font-style: normal;
+        font-weight: 800;
+        font-size: 11px;
+        line-height: 1;
+        padding: 3px 5px;
+        border-bottom-right-radius: 6px;
+      }
+      .cell.top i {
+        background: var(--pink);
+      }
+      .note {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>40 档「圈内」金字塔行分布候选（真实 40 人，仅示意行形状）</h1>
+    <div class="grid-wrap" id="wrap"></div>
+    <script src="../../core.js"></script>
+    <script src="../../members.js"></script>
+    <script>
+      const cands = [
+        { id: "A", rows: [1, 3, 5, 7, 9, 7, 5, 3], note: "8 行，收尾渐窄（与 32 档现行形状同语言）" },
+        { id: "B", rows: [2, 4, 6, 8, 10, 10], note: "6 行，双人塔尖、底部最宽" },
+        { id: "C", rows: [1, 3, 5, 7, 9, 11, 4], note: "7 行，奇数塔到底 + 4 人收尾" },
+        { id: "D", rows: [4, 8, 12, 16], note: "4 行，等差扩展'人墙'，行高最大" },
+      ];
+      const all = window.AKB_CORE.flattenMembers(window.AKB_GROUPS);
+      const ms = all
+        .filter((m) => m.series === "48g")
+        .slice(0, 40);
+      const wrap = document.getElementById("wrap");
+      const maxRow = 16;
+      const cellW = Math.floor(880 / maxRow) - 8;
+      const cellH = Math.round(cellW * 1.333);
+      for (const c of cands) {
+        const box = document.createElement("div");
+        box.className = "cand";
+        box.innerHTML = `<h2>${c.id} · ${c.rows.join("-")} <b>（共 ${c.rows.reduce((a, b) => a + b, 0)} 人）</b></h2>`;
+        const py = document.createElement("div");
+        py.className = "pyramid";
+        let idx = 0;
+        for (const n of c.rows) {
+          const row = document.createElement("div");
+          row.className = "row";
+          for (let i = 0; i < n; i++, idx++) {
+            const m = ms[idx];
+            const cell = document.createElement("div");
+            cell.className = "cell" + (idx < 7 ? " top" : "");
+            cell.style.width = cellW + "px";
+            cell.style.height = cellH + "px";
+            cell.innerHTML = `<img src="../../img/thumb/${m.id}.webp" alt="${m.name}" loading="lazy"><i>${idx + 1}</i>`;
+            row.appendChild(cell);
+          }
+          py.appendChild(row);
+        }
+        box.appendChild(py);
+        const note = document.createElement("p");
+        note.className = "note";
+        note.textContent = c.note;
+        box.appendChild(note);
+        wrap.appendChild(box);
+      }
+    </script>
+  </body>
+</html>
