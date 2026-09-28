@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>海报样式原型 · akb-kami7</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Nunito:wght@800;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #20242e;
+        --muted: #6b7280;
+        --bg: #ecebe6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 18px;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          500 15px/1.5 "Zen Kaku Gothic New",
+          system-ui,
+          sans-serif;
+        display: grid;
+        gap: 14px;
+        justify-items: center;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+      .bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        padding: 8px 0;
+        z-index: 2;
+      }
+      .bar button {
+        min-height: 44px;
+        padding: 0 16px;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .bar button[aria-pressed="true"] {
+        background: var(--ink);
+        color: #fff;
+      }
+      .bar a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 16px;
+        border: 2px solid var(--ink);
+        border-radius: 999px;
+        background: #fff;
+        color: inherit;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      canvas {
+        width: min(480px, 92vw);
+        height: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        background: #fff;
+      }
+      .note {
+        max-width: 640px;
+        font-size: 13px;
+        color: var(--muted);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>海报样式原型 · 32 人「圈内」（真实数据与照片）</h1>
+    <div class="bar" role="group" aria-label="样式">
+      <button type="button" data-v="a" aria-pressed="true">A 现行金字塔</button>
+      <button type="button" data-v="b" aria-pressed="false">B 杂志封面</button>
+      <button type="button" data-v="c" aria-pressed="false">C 榜单领奖台</button>
+      <button type="button" data-v="d" aria-pressed="false">D 贴纸拼贴</button>
+      <a id="dl" download="poster-prototype.png">下载 PNG</a>
+    </div>
+    <canvas id="cv" width="1080" height="1440"></canvas>
+    <p class="note">
+      四种样式都用同一份真实 32 人排名与真实照片渲染（1080×1440）。贴纸皮肤下的现行款见
+      A；B/C/D 为新增方向。选出你喜欢的，我再按所选落地。
+    </p>
+    <script src="../../members.js"></script>
+    <script src="../../core.js"></script>
+    <script src="../../poster.js"></script>
+    <script src="v6.js"></script>
+    <script>
+      (async () => {
+        const names = [
+          "前田敦子",
+          "大島優子",
+          "渡辺麻友",
+          "指原莉乃",
+          "高橋みなみ",
+          "小嶋陽菜",
+          "板野友美",
+          "篠田麻里子",
+          "柏木由紀",
+          "松井珠理奈",
+          "松井玲奈",
+          "宮脇咲良",
+          "山本彩",
+          "宮澤佐江",
+          "須田亜香里",
+          "横山由依",
+          "島崎遥香",
+          "高柳明音",
+          "古畑奈和",
+          "白間美瑠",
+          "吉田朱里",
+          "渋谷凪咲",
+          "田中美久",
+          "矢吹奈子",
+          "本間日陽",
+          "荻野由佳",
+          "岡田奈々",
+          "小栗有以",
+          "村山彩希",
+          "向井地美音",
+          "込山榛香",
+          "武藤十夢",
+        ];
+        const all = window.AKB_CORE.flattenMembers(window.AKB_GROUPS);
+        const ms = names.map((n) => all.find((m) => m.name === n)).filter(Boolean);
+        const imgs = await Promise.all(
+          ms.map(
+            (m) =>
+              new Promise((res) => {
+                const img = new Image();
+                img.onload = () => res(img);
+                img.onerror = () => res(null);
+                const src = window.AKB_CORE.photoSrc(m, "full");
+                img.src = src.startsWith("img/") ? "../../" + src : src;
+              })
+          )
+        );
+        const cv = document.getElementById("cv");
+        const button = (v) => {
+          cv.getContext("2d").clearRect(0, 0, cv.width, cv.height);
+          window.V6.draw(cv.getContext("2d"), v, ms, imgs, {
+            title: "私の48グループ 圏内",
+            sub: "歴代メンバー版",
+            date: "2026.09.28",
+            hashtag: "#48Group",
+            credit: "写真：48pedia.org",
+          });
+          document.getElementById("dl").href = cv.toDataURL("image/png");
+          document.querySelectorAll(".bar [data-v]").forEach((b) =>
+            b.setAttribute("aria-pressed", String(b.dataset.v === v))
+          );
+        };
+        document.querySelectorAll(".bar [data-v]").forEach((b) =>
+          b.addEventListener("click", () => button(b.dataset.v))
+        );
+        button(new URLSearchParams(location.search).get("v") || "a");
+      })();
+    </script>
+  </body>
+</html>
