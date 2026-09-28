@@ -504,16 +504,21 @@ def report_generation(sections, members, sizes):
 
 
 def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
+    """压缩原图并标记 img。
+
+    img 的真值来源是**站内图片文件**而不是远端 URL 是否解析成功：等爱毕业成员的
+    照片要走「Web Archive → 图片快照 → Commons」回退链，上游波动时解析不到，
+    但仓库里已有的头像不该因此消失（渲染器也只认本地文件）。
+    """
     sizes = []
     for m in members:
         p = paths.get(m["id"])
-        m["img"] = bool(p)
         if p:
             try:
                 sizes.append(compress(m["id"], p, force, full_dir, thumb_dir)[0])
             except Exception as e:
                 print("compress failed", m["name"], e)
-                m["img"] = False
+        m["img"] = os.path.exists(os.path.join(full_dir, m["id"] + ".webp"))
     return sizes
 
 

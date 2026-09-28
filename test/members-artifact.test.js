@@ -236,3 +236,17 @@ test("成员 bio：生年月日基本齐全、出身地多数、字段合法", (
     assert.ok(m.bio.from, `等爱成员缺出身地 ${m.name}`);
   }
 });
+
+test("img 标志与站内图片文件一致（有文件必为 true）", () => {
+  const bogus = [];
+  for (const g of loadGroups()) {
+    for (const m of g.members) {
+      if (m.img) continue;
+      const has = ["full", "thumb"].every((dir) =>
+        fs.existsSync(path.join(__dirname, "..", "img", dir, `${m.id}.webp`))
+      );
+      if (has) bogus.push(`${m.name}(${m.id})`);
+    }
+  }
+  assert.deepEqual(bogus, [], `本地有图却标记 img:false：${bogus.join("、")}`);
+});

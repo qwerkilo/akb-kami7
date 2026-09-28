@@ -801,3 +801,44 @@ class SakamichiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CompressMembersTests(unittest.TestCase):
+    """img 标志的真值来源：站内图片文件（不是远端 URL 是否解析成功）"""
+
+    def test_existing_local_file_keeps_img_true(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            full = os.path.join(tmp, "full")
+            thumb = os.path.join(tmp, "thumb")
+            os.makedirs(full)
+            os.makedirs(thumb)
+            with open(os.path.join(full, "m1.webp"), "wb") as fh:
+                fh.write(b"")
+            members = [{"id": "m1", "name": "既有头像"}, {"id": "m2", "name": "无图"}]
+            with redirect_stdout(io.StringIO()):
+                fetch_members.compress_members(members, {}, False, full, thumb)
+            self.assertTrue(members[0]["img"], "本地已有图片时 img 不得降级为 false")
+            self.assertFalse(members[1]["img"], "本地无图时 img 应为 false")
+
+    def test_resolved_url_without_output_still_reports_truthfully(self):
+        """远端解析成功但压缩失败、仓库里也没有文件 → img 必须为 false"""
+        with tempfile.TemporaryDirectory() as tmp:
+            full = os.path.join(tmp, "full")
+            thumb = os.path.join(tmp, "thumb")
+            os.makedirs(full)
+            os.makedirs(thumb)
+            members = [{"id": "m1", "name": "压缩失败"}]
+
+            def boom(mid, path, force=False, full_dir=None, thumb_dir=None):
+                raise OSError("压缩失败")
+
+            with redirect_stdout(io.StringIO()):
+                original = fetch_members.compress
+                fetch_members.compress = boom
+                try:
+                    fetch_members.compress_members(
+                        members, {"m1": "orig.jpg"}, False, full, thumb
+                    )
+                finally:
+                    fetch_members.compress = original
+            self.assertFalse(members[0]["img"], "仓库里没有文件时 img 必须是 false")
