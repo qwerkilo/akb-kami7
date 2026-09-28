@@ -975,3 +975,72 @@ test("nav：① 由当前视图决定——相位有结果但人在挑人页时�
     { view: "pick", effect: "none" }
   );
 });
+
+test("nav/steps：上下文字段非法时保守回退（边界）", () => {
+  // 非法/缺省 view、phase → 回退 pick（含 sync 的同相比较）
+  assert.deepEqual(core.nav({ view: "", phase: "" }, "sync"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav({ view: "bogus", phase: "bogus" }, "sync"), {
+    view: "pick",
+    effect: "none",
+  });
+  // size 非法不视为满员
+  assert.deepEqual(core.nav({ size: 0, selected: 3, phase: "pick" }, "start"), {
+    view: "pick",
+    effect: "none",
+  });
+  assert.deepEqual(core.nav({ size: 0, selected: 3, phase: "pick" }, "duel"), {
+    view: "pick",
+    effect: "none",
+  });
+  // 相位 result 且满员时 ② 仍不动
+  assert.deepEqual(
+    core.nav({ view: "result", phase: "result", size: 7, selected: 7 }, "duel"),
+    { view: "result", effect: "none" }
+  );
+  // selected 负值按 0
+  assert.deepEqual(
+    core.steps({ view: "pick", phase: "pick", size: 7, selected: -1 })[0],
+    { key: "pick", active: true, enabled: true, badge: "0/7" }
+  );
+  // 非 duel 相位不显示题号；duel 相位缺 step 也不显示
+  assert.equal(
+    core.steps({ phase: "pick", size: 7, selected: 7, step: 5 })[1].badge,
+    null
+  );
+  assert.equal(
+    core.steps({ phase: "duel", size: 7, selected: 7, step: null })[1].badge,
+    null
+  );
+  // 16/32 档（size > 7）参与满员判断
+  assert.deepEqual(
+    core.nav({ size: 16, selected: 10, phase: "pick" }, "start"),
+    { view: "pick", effect: "none" }
+  );
+  assert.deepEqual(
+    core.nav({ size: 32, selected: 32, phase: "pick" }, "start"),
+    { view: "duel", effect: "start" }
+  );
+  // 相位有结果、人却在挑人页时，③ 仍指向结果
+  assert.deepEqual(core.nav({ view: "pick", phase: "result" }, "result"), {
+    view: "result",
+    effect: "none",
+  });
+  // 相位不是对决时 advance 不变
+  assert.deepEqual(core.nav({ view: "pick", phase: "pick" }, "advance"), {
+    view: "pick",
+    effect: "none",
+  });
+  // 结果相位下 ② 恒不可点（即使满员）；非法视图按 pick 处理
+  assert.equal(
+    core.steps({ view: "result", phase: "result", size: 7, selected: 7 })[1]
+      .enabled,
+    false
+  );
+  assert.equal(
+    core.steps({ view: "", phase: "pick", size: 7, selected: 0 })[0].active,
+    true
+  );
+});
