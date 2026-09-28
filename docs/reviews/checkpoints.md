@@ -95,3 +95,14 @@
 - 结论：质检建议按优先级全部落地——P2 结构性热点（`slot` CCN 30）拆分并经 3301 条绘制调用快照证明行为不变、48 行克隆消除；P3 两处低覆盖（`love_members.load` 编排、`wiki.get` 重试）补齐注入式测试，覆盖率 96%/89%；`scan-secrets.py` 草稿移出仓库。验证：`npm test` JS 80 + Python 77、E2E 55/55、`--no-dl` 幂等。
 - 遗留：LOW——`members-artifact.test.js` bio 阈值偏松；poster.js 变异幸存仍以假 ctx 无法覆盖的几何/样式为主（视觉 + E2E 兜底，接受）。
 - 下次基点：`b490870153ca18a438c6fb7ea1bca6a64d147851`（含全部质检修复；文档收口为其后一笔）
+
+## 2026-09-27 · 皮肤系统批次（第七轮）
+
+- 基点：`d8a003c`（文档修剪收口）
+- 范围：`git diff d8a003c...HEAD`，6 个提交（CONTEXT/ADR-0011/spec/5 工单、01 session.skin、02 CSS 两套令牌、03 页头切换器、04 海报跟随、审查修复）
+- 结论：
+  - **Standards**：1 项实缺——令牌化脚本把 `--border` 的定义行也替换成 `var(--border)` 形成自引用，**贴纸皮肤全部 `var(--border)` 边框失效**（roster/card/seg/slot/按钮），而 E2E 只探海报 canvas 漏过（已修为 `2px solid var(--ink)`，并新增 E2E 容器边框断言：classic `1px solid` / sticker `2px solid`）；判断项——预 JS 无 `data-skin` 首屏闪烁（已加 head 内联预置）、classic 与上游差异（裸卡无边框/选中粉描边/`現役` 粉字/粉色品牌下划线带/空槽黄叉/主按钮无边框 999px 圆角/`rank-list` 半径令牌化）均已对齐。
+  - **Spec**：逐条通过——默认 classic、页头切换器（原型 A）、持久化、键盘、海报跟随（像素扫描：classic 底 `#edeff3` + `#f4c20d` 带 + 粉，sticker 反之）、资料卡/界面跟随、zh/en 标签；Out of Scope 遵守（无第三款/无自定义配色）。
+  - 验证：`npm test` JS 83 + Python 77、E2E **62/62**、海报调用序列快照 3301 条 diff 为空（贴纸绘制不变）。
+- 遗留：LOW——classic 下 16/32 海报与资料卡/对决页未逐屏截图对照；`.gen-head` 展开底色为自定义灰（上游无此控件）。
+- 下次基点：`ceb0a99`（审查修复提交；文档收口为其后一笔）

@@ -1,6 +1,6 @@
 # 01 皮肤状态（session）
 
-**Status:** ready-for-agent
+**Status:** resolved
 **Blocked by:** 无
 
 ## What to build
@@ -9,6 +9,10 @@
 
 ## Acceptance
 
-- [ ] `test/session.test.js` 覆盖：默认 classic、切换与持久化（重建实例后保持）、非法值拒绝、同值 no-op 返回 false、快照暴露
-- [ ] `npm test` 全绿（JS 80 + Python 77）
-- [ ] 无用户可见变化（app 尚未消费）
+- [x] `test/session.test.js` 覆盖：默认 classic、切换与持久化（重建实例后保持）、非法值拒绝、同值 no-op 返回 false、快照暴露
+- [x] `npm test` 全绿（JS 80 + Python 77）
+- [x] 无用户可见变化（app 尚未消费）
+
+## Comments
+
+2026-09-27：session.skin 落地（默认 classic、白名单校验、`akb:skin` 持久化、同值 false）；测试 2 项 + 快照形状更新；`npm test` JS 83 + Python 77。
