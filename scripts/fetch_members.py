@@ -16,6 +16,7 @@ from functools import partial
 from PIL import Image, ImageOps
 
 import love_members
+import roster
 from wiki import api, get, wikitext
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -323,16 +324,6 @@ def section_key(m):
     return (GROUP_ORDER.index(m["group"]), key, label)
 
 
-def project_member(m):
-    return (
-        {k: m[k] for k in ("id", "name", "kana", "nick", "status", "end", "img")}
-        | ({"bio": m["bio"]} if m.get("bio") else {})
-        | ({"leave": m["leave"]} if m.get("leave") else {})
-        | ({"note": m["note"]} if m.get("note") else {})
-        | ({"extras": m["extras"]} if m.get("extras") else {})
-    )
-
-
 def build_sections(members):
     grouped = {}
     for m in members:
@@ -340,13 +331,15 @@ def build_sections(members):
 
     out = []
     for (gi, key, label), ms in sorted(grouped.items()):
-        ms.sort(key=lambda m: (m["status"] != "current", m["kana"] or m["name"]))
-        out.append({
-            "group": GROUP_ORDER[gi],
-            "series": SERIES_OF[GROUP_ORDER[gi]],
-            "label": label,
-            "members": [project_member(m) for m in ms],
-        })
+        out.append(
+            roster.section(
+                GROUP_ORDER[gi],
+                SERIES_OF[GROUP_ORDER[gi]],
+                label,
+                ms,
+                optional=("bio", "leave", "note", "extras"),
+            )
+        )
     return out
 
 

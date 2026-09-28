@@ -6,6 +6,8 @@ import json
 import re
 import urllib.parse
 
+import roster
+
 SERIES = "love"
 GROUP_ORDER = ["=LOVE", "≠ME", "≒JOY"]
 GENERATION = "1期生"
@@ -342,19 +344,5 @@ def build_sections(members):
         ms = grouped.get(group)
         if not ms:
             continue
-        ms.sort(key=lambda m: (m["status"] != "current", m["kana"] or m["name"]))
-        out.append({
-            "group": group,
-            "series": SERIES,
-            "label": GENERATION,
-            "members": [project(m) for m in ms],
-        })
-    return out
-
-
-def project(m):
-    keys = ("id", "name", "kana", "nick", "status", "end", "img")
-    out = {k: m.get(k) for k in keys}
-    if m.get("bio"):
-        out["bio"] = m["bio"]
+        out.append(roster.section(group, SERIES, GENERATION, ms))
     return out

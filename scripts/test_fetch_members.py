@@ -313,11 +313,15 @@ class BioTests(unittest.TestCase):
         merged = fetch_members.merge_person([a, b])
         self.assertEqual(merged["bio"], {"birth": "2000.01.02", "from": "東京都"})
 
-    def test_project_member_keeps_bio_only_when_present(self):
-        base = {"id": "m1", "name": "山田", "kana": "やまだ", "nick": "", "status": "current", "end": None, "img": True}
-        self.assertNotIn("bio", fetch_members.project_member(dict(base)))
+    def test_section_projection_keeps_bio_only_when_present(self):
+        base = {"id": "m1", "name": "山田", "kana": "やまだ", "nick": "", "status": "current", "end": None, "img": True, "join": "1期|AKB48", "group": "AKB48", "source": "x"}
+        sections = fetch_members.build_sections([dict(base)])
+        self.assertNotIn("bio", sections[0]["members"][0])
         with_bio = dict(base, bio={"birth": "1994.10.04"})
-        self.assertEqual(fetch_members.project_member(with_bio)["bio"], {"birth": "1994.10.04"})
+        sections = fetch_members.build_sections([with_bio])
+        self.assertEqual(
+            sections[0]["members"][0]["bio"], {"birth": "1994.10.04"}
+        )
 
 
 class SortKeyCellTests(unittest.TestCase):
