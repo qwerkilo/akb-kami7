@@ -1270,3 +1270,143 @@ test("groupSections：期生筛选与团体筛选叠加（汉字期生同组）"
   );
   assert.equal(core.groupSections(sections, "all", "all").length, 3);
 });
+
+function rosterFixture() {
+  const mk = (id, group, status, hay) => ({
+    id,
+    group,
+    status,
+    series: "48g",
+    name: id,
+    hay: hay || `${id} ${id}`,
+  });
+  return [
+    {
+      group: "AKB48",
+      label: "1期生",
+      members: [
+        mk("a1", "AKB48", "current", "a1 まえだ"),
+        mk("a2", "AKB48", "former", "a2 おおしま"),
+      ],
+    },
+    {
+      group: "AKB48",
+      label: "2期生",
+      members: [mk("a3", "AKB48", "current", "a3 こじはる")],
+    },
+    {
+      group: "SKE48",
+      label: "1期生",
+      members: [mk("s1", "SKE48", "current", "s1 まつい")],
+    },
+    {
+      group: "櫻坂46",
+      label: "一期生",
+      members: [mk("b1", "櫻坂46", "current", "b1 こばやし")],
+    },
+  ];
+}
+
+test("rosterView：树模式——分组、计数、已选、空段剔除", () => {
+  const view = core.rosterView(rosterFixture(), {
+    group: "all",
+    generation: "all",
+    status: "all",
+    query: "",
+    selected: ["a1", "s1"],
+  });
+  assert.equal(view.mode, "tree");
+  assert.deepEqual(
+    view.nodes.map((n) => n.group),
+    ["AKB48", "SKE48", "櫻坂46"]
+  );
+  const akb = view.nodes[0];
+  assert.deepEqual(
+    akb.sections.map((s) => [s.id, s.label, s.count, s.current, s.picked]),
+    [
+      ["AKB48#1期生", "1期生", 2, 1, 1],
+      ["AKB48#2期生", "2期生", 1, 1, 0],
+    ]
+  );
+  assert.equal(akb.count, 3);
+  assert.equal(akb.current, 2);
+  assert.equal(akb.picked, 1);
+  assert.equal(view.pickedTotal, 2);
+  assert.deepEqual(view.hits, []);
+});
+
+test("rosterView：状态/期生过滤与单团 flat", () => {
+  const former = core.rosterView(rosterFixture(), {
+    group: "all",
+    generation: "all",
+    status: "former",
+    query: "",
+    selected: [],
+  });
+  assert.deepEqual(
+    former.nodes.map((n) => n.group),
+    ["AKB48"]
+  );
+  assert.deepEqual(
+    former.nodes[0].sections.map((s) => s.label),
+    ["1期生"]
+  );
+  const saka = core.rosterView(rosterFixture(), {
+    group: "all",
+    generation: "1期生",
+    status: "all",
+    query: "",
+    selected: [],
+  });
+  assert.deepEqual(
+    saka.nodes.map((n) => n.group),
+    ["AKB48", "SKE48", "櫻坂46"]
+  );
+  const flat = core.rosterView(rosterFixture(), {
+    group: "AKB48",
+    generation: "all",
+    status: "all",
+    query: "",
+    selected: [],
+  });
+  assert.equal(flat.mode, "flat");
+  assert.equal(flat.nodes.length, 1);
+});
+
+test("rosterView：搜索模式——命中顺序、过滤叠加、查询归一", () => {
+  const view = core.rosterView(rosterFixture(), {
+    group: "all",
+    generation: "all",
+    status: "all",
+    query: "まえだ",
+    selected: [],
+  });
+  assert.equal(view.mode, "search");
+  assert.deepEqual(
+    view.hits.map((m) => m.id),
+    ["a1"]
+  );
+  const none = core.rosterView(rosterFixture(), {
+    group: "all",
+    generation: "1期生",
+    status: "former",
+    query: "",
+    selected: [],
+  });
+  assert.deepEqual(none.hits, []);
+  assert.deepEqual(
+    none.nodes.map((n) => [n.group, n.sections.map((s) => s.label)]),
+    [["AKB48", ["1期生"]]]
+  );
+  const hit = core.rosterView(rosterFixture(), {
+    group: "SKE48",
+    generation: "all",
+    status: "all",
+    query: "まつい",
+    selected: [],
+  });
+  assert.deepEqual(
+    hit.hits.map((m) => m.id),
+    ["s1"]
+  );
+});

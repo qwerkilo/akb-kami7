@@ -343,6 +343,71 @@
     return groups;
   }
 
+  // ---- 名册投影：过滤/计数/已选一次算清（纯数据；m.hay 由 app 预计算） ----
+  function rosterView(sections, opts) {
+    const o = opts || {};
+    const group = o.group || "all";
+    const generation = o.generation || "all";
+    const status = o.status || "all";
+    const selected = Array.isArray(o.selected) ? o.selected : [];
+    const q = normalizeName(o.query || "");
+    if (q) {
+      const hits = [];
+      for (const s of sections) {
+        if (group !== "all" && s.group !== group) continue;
+        if (generation !== "all" && genKey(s.label) !== generation) continue;
+        for (const m of s.members) {
+          if (isVisible(m, status) && (m.hay || "").includes(q)) hits.push(m);
+        }
+      }
+      return { mode: "search", nodes: [], hits, pickedTotal: selected.length };
+    }
+    const selSet = new Set(selected);
+    const nodes = [];
+    for (const node of groupSections(sections, group, generation)) {
+      const secs = [];
+      let count = 0;
+      let current = 0;
+      let picked = 0;
+      for (const s of node.sections) {
+        const members = s.members.filter((m) => isVisible(m, status));
+        if (!members.length) continue;
+        let secCurrent = 0;
+        let secPicked = 0;
+        for (const m of members) {
+          if (m.status === "current") secCurrent++;
+          if (selSet.has(m.id)) secPicked++;
+        }
+        secs.push({
+          id: `${node.group}#${s.label}`,
+          label: s.label,
+          members,
+          count: members.length,
+          current: secCurrent,
+          picked: secPicked,
+        });
+        count += members.length;
+        current += secCurrent;
+        picked += secPicked;
+      }
+      if (!secs.length) continue;
+      nodes.push({
+        id: `g:${node.group}`,
+        group: node.group,
+        sections: secs,
+        count,
+        current,
+        picked,
+      });
+    }
+    return {
+      mode: group === "all" ? "tree" : "flat",
+      nodes,
+      hits: [],
+      pickedTotal: selected.length,
+    };
+  }
+
   function* mergeSort(a) {
     if (a.length <= 1) return a;
     const mid = a.length >> 1;
@@ -818,6 +883,7 @@
     groupSections,
     genKey,
     generationOptions,
+    rosterView,
     replay,
     worstCase,
     shuffle,

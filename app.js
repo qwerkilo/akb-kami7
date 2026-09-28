@@ -135,8 +135,23 @@
   /* ---------------- pick ---------------- */
   const roster = $("#roster");
 
-  function visible(m) {
-    return m.series === series && CORE.isVisible(m, snap.filter);
+  function viewOpts() {
+    return {
+      group: snap.group,
+      generation: snap.generation,
+      status: snap.filter,
+      query: snap.query,
+      selected: snap.selected,
+    };
+  }
+
+  const rosterView = () => CORE.rosterView(seriesGroups(), viewOpts());
+
+  // 计数文案单一出处（数字来自投影，i18n 留在 DOM 层）
+  function countText(node) {
+    return snap.filter === "all" && node.current
+      ? t("people_now", node.count, node.current)
+      : t("people", node.count);
   }
 
   function cardHTML(m, showGroup) {
@@ -150,38 +165,29 @@
     </button>`;
   }
 
-  function pickedInNode(node) {
-    return node.sections
-      .flatMap((s) => s.members)
-      .filter((m) => snap.selected.includes(m.id)).length;
-  }
-
   let secSeq = 0;
-  const SEC_INDEX = new Map();
 
-  function sectionHTML(s, group) {
-    const ms = s.members.filter(visible);
-    if (!ms.length) return "";
-    const secId = `${group}#${s.label}`;
-    SEC_INDEX.set(secId, ms);
+  function sectionHTML(sec) {
     const secUid = `gen-${++secSeq}`;
-    const open = snap.open.includes(secId);
-    const now = ms.filter((m) => m.status === "current").length;
-    const count =
-      snap.filter === "all" && now
-        ? t("people_now", ms.length, now)
-        : t("people", ms.length);
-    const picked = ms.filter((m) => snap.selected.includes(m.id)).length;
+    const open = snap.open.includes(sec.id);
     const sub = snap.group === "all" ? " sub" : "";
-    return `<section class="gen${sub}" data-sec="${esc(secId)}">
+    return `<section class="gen${sub}" data-sec="${esc(sec.id)}">
       <button class="gen-head" aria-expanded="${open}" aria-controls="${secUid}">
         <i class="chev" aria-hidden="true"></i>
-        <span class="gen-name">${esc(s.label)}</span>
-        <span class="gen-count">${count}</span>
-        <span class="gen-picked">${picked ? t("picked", picked) : ""}</span>
+        <span class="gen-name">${esc(sec.label)}</span>
+        <span class="gen-count">${countText(sec)}</span>
+        <span class="gen-picked">${sec.picked ? t("picked", sec.picked) : ""}</span>
       </button>
-      <div class="gen-body" id="${secUid}" ${open ? "" : "hidden"}>${open ? ms.map((m) => cardHTML(m)).join("") : ""}</div>
+      <div class="gen-body" id="${secUid}" ${open ? "" : "hidden"}>${open ? sec.members.map((m) => cardHTML(m)).join("") : ""}</div>
     </section>`;
+  }
+
+  function viewSection(id) {
+    for (const node of rosterView().nodes) {
+      const sec = node.sections.find((s) => s.id === id);
+      if (sec) return sec;
+    }
+    return null;
   }
 
   function renderPick(opts = {}) {
@@ -193,41 +199,24 @@
 
   function renderRoster() {
     sync();
-    const q = CORE.normalizeName(snap.query);
-    if (q) return renderSearch(q);
+    const view = rosterView();
+    if (view.mode === "search") return renderSearch(view);
 
-    const tree = CORE.groupSections(
-      seriesGroups(),
-      snap.group,
-      snap.generation
-    );
-    const twoLevel = snap.group === "all";
+    const twoLevel = view.mode === "tree";
     const html = [];
-    for (const node of tree) {
-      const body = node.sections
-        .map((s) => sectionHTML(s, node.group))
-        .filter(Boolean)
-        .join("");
-      if (!body) continue;
+    for (const node of view.nodes) {
+      const body = node.sections.map(sectionHTML).join("");
       if (!twoLevel) {
         html.push(body);
         continue;
       }
-      const ms = node.sections.flatMap((s) => s.members).filter(visible);
-      const now = ms.filter((m) => m.status === "current").length;
-      const count =
-        snap.filter === "all" && now
-          ? t("people_now", ms.length, now)
-          : t("people", ms.length);
-      const picked = pickedInNode(node);
-      const key = "g:" + node.group;
-      const open = snap.open.includes(key);
+      const open = snap.open.includes(node.id);
       html.push(`<section class="grp" data-group="${esc(node.group)}">
         <button class="grp-head" aria-expanded="${open}" aria-controls="grp-${esc(node.group)}">
           <i class="chev" aria-hidden="true"></i>
           <span class="grp-name">${esc(node.group)}</span>
-          <span class="grp-count">${count}</span>
-          <span class="grp-picked">${picked ? t("picked", picked) : ""}</span>
+          <span class="grp-count">${countText(node)}</span>
+          <span class="grp-picked">${node.picked ? t("picked", node.picked) : ""}</span>
         </button>
         <div class="grp-body" id="grp-${esc(node.group)}" ${open ? "" : "hidden"}>${open ? body : ""}</div>
       </section>`);
@@ -240,16 +229,8 @@
     m.hay = CORE.haystack(m, FOLD);
   });
 
-  function renderSearch(q) {
-    const hits = [];
-    for (const g of seriesGroups()) {
-      if (snap.group !== "all" && g.group !== snap.group) continue;
-      if (snap.generation !== "all" && CORE.genKey(g.label) !== snap.generation)
-        continue;
-      for (const m of g.members) {
-        if (visible(m) && m.hay.includes(q)) hits.push(m);
-      }
-    }
+  function renderSearch(view) {
+    const hits = view.hits;
     roster.innerHTML = hits.length
       ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map((m) => cardHTML(m, true)).join("")}</div>`
       : `<p class="empty">${t("empty_search", esc(snap.query))}</p><p class="hint">${t("empty_search_hint")}</p>`;
@@ -264,7 +245,9 @@
     const body = sec.querySelector(".gen-body");
     const open = S.toggleOpen(secId);
     if (open) {
-      body.innerHTML = (SEC_INDEX.get(secId) || []).map(cardHTML).join("");
+      body.innerHTML = (viewSection(secId)?.members || [])
+        .map(cardHTML)
+        .join("");
       body.hidden = false;
     } else {
       body.hidden = true;
@@ -287,17 +270,8 @@
     const key = "g:" + name;
     const open = S.toggleOpen(key);
     if (open) {
-      const node = CORE.groupSections(
-        seriesGroups(),
-        snap.group,
-        snap.generation
-      ).find((n) => n.group === name);
-      body.innerHTML = node
-        ? node.sections
-            .map((s) => sectionHTML(s, node.group))
-            .filter(Boolean)
-            .join("")
-        : "";
+      const node = rosterView().nodes.find((n) => n.group === name);
+      body.innerHTML = node ? node.sections.map(sectionHTML).join("") : "";
       body.hidden = false;
     } else {
       body.hidden = true;
@@ -326,18 +300,20 @@
       el.setAttribute("aria-pressed", i >= 0);
       el.dataset.order = i + 1;
     });
+    const view = rosterView();
+    const secPicked = new Map();
+    const grpPicked = new Map();
+    for (const node of view.nodes) {
+      grpPicked.set(node.group, node.picked);
+      for (const sec of node.sections) secPicked.set(sec.id, sec.picked);
+    }
     roster.querySelectorAll(".gen").forEach((sec) => {
-      const members = SEC_INDEX.get(sec.dataset.sec) || [];
-      const n = members.filter((m) => snap.selected.includes(m.id)).length;
+      const n = secPicked.get(sec.dataset.sec) || 0;
       sec.querySelector(".gen-picked").textContent = n ? t("picked", n) : "";
     });
-    const tree = CORE.groupSections(seriesGroups(), snap.group);
     roster.querySelectorAll(".grp").forEach((sec) => {
-      const node = tree.find((n) => n.group === sec.dataset.group);
-      const picked = node ? pickedInNode(node) : 0;
-      sec.querySelector(".grp-picked").textContent = picked
-        ? t("picked", picked)
-        : "";
+      const n = grpPicked.get(sec.dataset.group) || 0;
+      sec.querySelector(".grp-picked").textContent = n ? t("picked", n) : "";
     });
     roster.classList.toggle("full", snap.selected.length >= pick);
     renderTray();
@@ -935,12 +911,11 @@
   function ensureOpen() {
     sync();
     if (snap.open.length || snap.query || snap.group !== "all") return;
-    const tree = CORE.groupSections(seriesGroups(), "all", snap.generation);
-    const first = tree[0];
+    const first = rosterView().nodes[0];
     if (!first) return;
-    S.toggleOpen("g:" + first.group);
+    S.toggleOpen(first.id);
     const sec = first.sections[0];
-    if (sec) S.toggleOpen(first.group + "#" + sec.label);
+    if (sec) S.toggleOpen(sec.id);
   }
 
   function renderGuide() {
