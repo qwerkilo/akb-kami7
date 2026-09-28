@@ -23,9 +23,6 @@ function fakeCtx() {
     restore() {
       m = stack.pop() || m;
     },
-    toWorld(x, y) {
-      return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
-    },
     beginPath() {},
     closePath() {},
     moveTo() {},
@@ -456,7 +453,7 @@ test("四样式 × 7/16/32：画布尺寸正确、全员上图、所有绘制都
 
 test("B/C/D：全员名字与名次都落笔（对比 a 只画前 16 名）", () => {
   for (const style of ["b", "c", "d"]) {
-    for (const n of [7, 32]) {
+    for (const n of [7, 16, 32]) {
       const { members, calls } = runStyle(style, n);
       for (const m of members)
         assert.ok(
@@ -469,5 +466,70 @@ test("B/C/D：全员名字与名次都落笔（对比 a 只画前 16 名）", ()
       for (let i = 1; i <= n; i++)
         assert.ok(nums.has(i), `${style}/${n} 缺名次 ${i}`);
     }
+  }
+});
+
+test("四样式都消费注入令牌：ink 随 tokens 变、cardStroke=0 不描边、=3 描边", () => {
+  const run = (style, tokens) => {
+    const members = people(16);
+    const { ctx, calls } = fakeCtx();
+    poster.draw(ctx, {
+      members,
+      images: fakeImgs(16),
+      title: "T",
+      dateText: "D",
+      hashtag: "#H",
+      photoSrc: "P",
+      subOf: () => "s",
+      style,
+      tokens,
+    });
+    return calls;
+  };
+  for (const style of poster.styles) {
+    const thin = run(style, { colors: { ink: "#123456" }, cardStroke: 0 });
+    const thick = run(style, { colors: { ink: "#654321" }, cardStroke: 3 });
+    assert.ok(thin.fills.includes("#123456"), `${style} 未用注入 ink`);
+    assert.ok(thick.fills.includes("#654321"), `${style} 未用注入 ink`);
+    assert.ok(thick.fonts.length > 0, style);
+    assert.ok(
+      thick.strokes.length > thin.strokes.length,
+      `${style} cardStroke=3 未描边（thin=${thin.strokes.length} thick=${thick.strokes.length}）`
+    );
+    assert.ok(!thin.strokes.includes(3), `${style} cardStroke=0 仍描边 3px`);
+  }
+});
+
+test("C 领奖台：前三张照片互不重叠且整体居中（7/16/32）", () => {
+  for (const n of [7, 16, 32]) {
+    const { calls } = runStyle("c", n);
+    const rects = calls.images.slice(0, 3).map((args, i) => {
+      const [, , , , , x, y, w, h] = args;
+      const mat = calls.imagesM[i];
+      const x0 = mat[0] * x + mat[2] * y + mat[4];
+      const y0 = mat[1] * x + mat[3] * y + mat[5];
+      return { x0, y0, x1: x0 + w, y1: y0 + h };
+    });
+    for (let i = 0; i < rects.length; i++) {
+      for (let j = i + 1; j < rects.length; j++) {
+        const ox = Math.max(
+          0,
+          Math.min(rects[i].x1, rects[j].x1) -
+            Math.max(rects[i].x0, rects[j].x0)
+        );
+        const oy = Math.max(
+          0,
+          Math.min(rects[i].y1, rects[j].y1) -
+            Math.max(rects[i].y0, rects[j].y0)
+        );
+        assert.equal(ox * oy, 0, `c/${n} 第 ${i + 1} 与 ${j + 1} 张重叠`);
+      }
+    }
+    const left = Math.min(...rects.map((r) => r.x0));
+    const right = Math.max(...rects.map((r) => r.x1));
+    assert.ok(
+      Math.abs((left + right) / 2 - 540) < 12,
+      `c/${n} 未居中: ${(left + right) / 2}`
+    );
   }
 });

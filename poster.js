@@ -527,31 +527,32 @@
     ctx.fillRect(0, 0, W, H);
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    const ts = fitText(
-      ctx,
-      title,
-      W - M * 2 - 210,
-      58 * k,
-      900,
-      T.fonts.display
-    );
+    const ts = fitText(ctx, title, W - M * 2, 58 * k, 900, T.fonts.display);
     ctx.fillStyle = T.colors.ink;
     ctx.fillText(title, M, 108 * k);
     ctx.font = `500 24px ${T.fonts.ui}`;
     ctx.fillStyle = T.colors.muted;
     ctx.fillText(dateText, M, ts + 152 * k);
 
-    const podH = 452 * k;
+    // 领奖台横向几何按「可用宽度预算」缩放（kx），与画布高度解耦：
+    // 16 档高版（H=1920）不再横向重叠，且整体保持居中
+    const kx = Math.min(1.02, (W - 156) / 924);
+    const wSide = 250 * kx;
+    const wBig = 336 * kx;
+    const gapP = 44 * kx;
+    const podH = 452 * kx;
+    const x2 = 78;
+    const x1 = x2 + wSide + gapP;
     const pod = [
-      { i: 1, x: 78, y: 268 * k + 72 * k, w: 250 * k, h: 380 * k, bar: 74 * k },
-      { i: 0, x: 372, y: 268 * k, w: 336 * k, h: podH, bar: 92 * k },
+      { i: 1, x: x2, y: 340, w: wSide, h: 380 * kx, bar: 74 * kx },
+      { i: 0, x: x1, y: 268, w: wBig, h: podH, bar: 92 * kx },
       {
         i: 2,
-        x: W - 78 - 250 * k,
-        y: 356 * k,
-        w: 250 * k,
-        h: 364 * k,
-        bar: 74 * k,
+        x: x1 + wBig + gapP,
+        y: 356,
+        w: wSide,
+        h: 364 * kx,
+        bar: 74 * kx,
       },
     ];
     for (const p of pod) {
@@ -564,6 +565,14 @@
       ctx.fillStyle = T.colors.card;
       ctx.fill();
       ctx.restore();
+      if (T.cardStroke > 0) {
+        ctx.save();
+        roundRect(ctx, p.x, p.y, p.w, p.h, 18);
+        ctx.lineWidth = T.cardStroke;
+        ctx.strokeStyle = T.colors.ink;
+        ctx.stroke();
+        ctx.restore();
+      }
       const pad = 12 * k;
       ctx.save();
       roundRect(
@@ -598,7 +607,7 @@
       ctx.fillStyle = "#fff";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = `400 ${40 * k}px ${T.fonts.display}`;
+      ctx.font = `400 ${40 * kx}px ${T.fonts.display}`;
       ctx.fillText(String(p.i + 1), p.x + p.w / 2, p.y + p.h - p.bar / 2);
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = T.colors.ink;
@@ -611,7 +620,7 @@
         T.fonts.jp
       );
       ctx.font = `700 ${ns}px ${T.fonts.jp}`;
-      ctx.fillText(members[p.i].name, p.x + p.w / 2, p.y + p.h - 14 * k);
+      ctx.fillText(members[p.i].name, p.x + p.w / 2, p.y + p.h - 14 * kx);
     }
 
     const listTop = 268 * k + podH + 80 * k;
@@ -706,9 +715,11 @@
     ctx.fillStyle = T.colors.card;
     ctx.fill();
     ctx.shadowColor = "transparent";
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = T.colors.ink;
-    ctx.stroke();
+    if (T.cardStroke > 0) {
+      ctx.lineWidth = T.cardStroke;
+      ctx.strokeStyle = T.colors.ink;
+      ctx.stroke();
+    }
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     const ts = fitText(ctx, title, tw - 52, 46, 900, T.fonts.display);
@@ -743,10 +754,7 @@
     const jitter = [0, 14, -10, 18, -6, 10, -14];
     let idx = 0;
     for (let r = 0; r < rows.length; r++) {
-      const y =
-        rows.length === 1
-          ? top
-          : top + (r * (avail - cardH)) / (rows.length - 1);
+      const y = top + (r * (avail - cardH)) / (rows.length - 1);
       const rowN = rows[r];
       const rowW = rowN * cw + (rowN - 1) * gap;
       const x0 = (W - rowW) / 2;

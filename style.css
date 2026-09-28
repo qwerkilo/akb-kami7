@@ -243,6 +243,12 @@ main {
 .seg-filter button[aria-checked="true"] {
   background: var(--lemon);
 }
+.seg-style button {
+  min-height: 44px;
+}
+.seg-style button[aria-checked="true"] {
+  background: var(--mint);
+}
 .seg button:active {
   transform: translate(2px, 2px);
   box-shadow: var(--shadow-xs);
@@ -985,6 +991,7 @@ main {
 [data-skin="classic"] .seg-series button[aria-checked="true"],
 [data-skin="classic"] .seg-size button[aria-checked="true"],
 [data-skin="classic"] .seg-filter button[aria-checked="true"],
+[data-skin="classic"] .seg-style button[aria-checked="true"],
 [data-skin="classic"] .seg-skin button[aria-checked="true"] {
   background: var(--ink);
   color: #fff;

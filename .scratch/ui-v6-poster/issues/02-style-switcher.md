@@ -17,4 +17,6 @@
 
 ## Comments
 
-2026-09-28：`app.js` 加 `POSTER_STYLE_KEY`/`posterStyle`/`renderStyleSeg`/`setPosterStyle`（事件委托），`renderResult` 同步 chips，`drawPoster` 传 `style`；E2E 回归 **80/80**（+5），v5 44/44；32 人实拍四样式无 JS 报错。
+2026-09-28（审查修复）：`.seg-style` 补 CSS（选中底色、44px、classic 反色）——此前默认皮肤下选中 chip 白字白底不可见；工单详见 01 的 Comments。
+
+2026-09-28：`app.js` 加 `POSTER_STYLE_KEY`/`posterStyle`/`renderStyleSeg`/`setPosterStyle`（事件委托），`renderResult` 同步 chips，`drawPoster` 传 `style`；E2E 回归 **80/80**（+5），v5 49/49；32 人实拍四样式无 JS 报错。
