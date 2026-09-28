@@ -128,3 +128,16 @@
   - 验证：`npm test` JS **98** + Python **82**；E2E v5 **44/44**、回归 **62/62**；六项 deepen 的验证声明与实测一致。
 - 遗留：LOW——切皮肤重建挑人 DOM 的滚动位置无 E2E；i18n 白名单前缀边界（`bio_*` 内新增死键抓不到）；`undo` × `answering` 交错为既有行为。另：③ 的接线物理落在 ⑤ 的提交 `b17d82a`（已在 `61b8723` 补记，提交归属不独立）。
 - 下次基点：`0fa5c4e`
+
+## 2026-09-28 · 第八轮质检与 P1 修复（第十轮）
+
+- 基点：`0fa5c4e`（第九轮检查点）
+- 范围：`git diff 0fa5c4e..dbde119`，3 个提交（等爱失败分支修复、第八轮质检报告、P1 修复）；取证产物在 `/tmp/opencode/qa8/`
+- 结论：
+  - 第八轮全量数字入 `docs/reviews/qa-baseline.md`：覆盖率 JS 行 99.76%（core 99.64 / session 98.99 / poster 99.29 / i18n 99.70）、Python scripts 97%（roster 100）；测试 JS 98 + Python 83；变异整体 77.33%（core 90.93 / session 80.21 / poster 40.64，无覆盖 0）；重复率行 1.11% / 克隆 9；audit 0 漏洞、TODO 0。
+  - **P1 已修**：nav/steps 抽 `navState()`（消 8 行生产克隆）+ 规则函数表——`nav` CCN 32→3、`steps` 10→5；补边界断言后 core 变异 90.93→**93.26%**（nav 段幸存 28→4，全部论证为等价）。
+  - **口径勘误**：第 7 轮「fetch_members 全部 ≤6」在文件级近似下不成立（4 个 CCN 9 自基线即存在）；本轮起以「CCN > 10 或 CRAP > 10 才列修」为口径。
+  - 另修：等爱抓取失败分支补测试（SystemExit 且不覆盖旧产物），错误文案不再建议会丢数据的 `love_loader=None`（`0fa2d2d`）。
+  - 验证：`npm test` JS 99 + Python 83；E2E v5 44/44、回归 62/62。
+- 遗留：LOW——poster.js 222 幸存属假 ctx 观测极限（接受）；i18n.js 函数覆盖率低（键多为数据非代码）；`app.js` 仍仅 E2E 黑盒。
+- 下次基点：`dbde119`
