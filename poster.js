@@ -368,14 +368,18 @@
   function draw(ctx, opts) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
     const T = resolveTokens(opts.tokens);
-    const W = ctx.canvas.width,
-      H = ctx.canvas.height;
     const n = members.length;
+    // 几何单一出处：draw 声明画布尺寸并消费它（7/16 高版 = 1920）
+    const size = layout(n);
+    ctx.canvas.width = size.width;
+    ctx.canvas.height = size.height;
+    const W = size.width,
+      H = size.height;
 
     ctx.fillStyle = T.colors.floor;
     ctx.fillRect(0, 0, W, H);
 
-    const tall = n > 7 && n <= 16;
+    const tall = H > 1440;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = T.colors.ink;

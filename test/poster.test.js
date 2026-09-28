@@ -91,7 +91,7 @@ function drawWith(n) {
     subOf: (m) => m.subtitle,
   };
   poster.draw(ctx, opts);
-  return { members, calls };
+  return { members, calls, ctx };
 }
 
 test("layout：7/16/32 的画布尺寸", () => {
@@ -349,4 +349,16 @@ test("draw：cardStroke 0 不描卡片边（原版），默认 3px（贴纸）",
     "原版不应有卡片描边（只余页脚 2px）"
   );
   assert.ok(calls.strokes.includes(2), "页脚分隔线仍描边");
+});
+
+test("draw 自行声明画布尺寸：7/16/32 由成员数决定", () => {
+  for (const [n, h] of [
+    [7, 1440],
+    [16, 1920],
+    [32, 1440],
+  ]) {
+    const { ctx } = drawWith(n);
+    assert.equal(ctx.canvas.width, 1080, `${n} 宽`);
+    assert.equal(ctx.canvas.height, h, `${n} 高`);
+  }
 });

@@ -165,7 +165,6 @@
     ensureOpen();
     renderRoster();
     syncSelection();
-    renderGuide();
     if (opts.resetScroll) roster.scrollTop = 0;
   }
 
@@ -427,21 +426,41 @@
       .forEach((b) => b.setAttribute("aria-checked", +b.dataset.pick === pick));
   }
 
+  function paintFilters() {
+    sync();
+    document
+      .querySelectorAll(".seg-filter button")
+      .forEach((b) =>
+        b.setAttribute("aria-checked", String(b.dataset.filter === snap.filter))
+      );
+  }
+
+  function paintTitle() {
+    sync();
+    const title = $("#title-input");
+    if (title && !title.dataset.dirty) title.value = names().title;
+  }
+
+  function renderChrome() {
+    refreshGroupOptions();
+    paintSizeButtons();
+    paintFilters();
+    applyStatic();
+    paintTitle();
+  }
+
+  function renderAll() {
+    renderChrome();
+    renderPick();
+    if (view !== "pick") paint();
+  }
+
   function switchSeries(next) {
     if (!S.switchSeries(next)) return;
     sync();
     const search = $("#search");
     if (search) search.value = "";
-    document
-      .querySelectorAll(".seg-filter button")
-      .forEach((b) =>
-        b.setAttribute("aria-checked", b.dataset.filter === "all")
-      );
-    refreshGroupOptions();
-    paintSizeButtons();
-    applyStatic();
-    const title = $("#title-input");
-    if (title && !title.dataset.dirty) title.value = names().title;
+    renderChrome();
     navigate("sync");
   }
 
@@ -452,10 +471,8 @@
 
   document.querySelectorAll(".seg-filter button").forEach((b) => {
     b.addEventListener("click", () => {
-      document
-        .querySelectorAll(".seg-filter button")
-        .forEach((x) => x.setAttribute("aria-checked", x === b));
       S.setFilter(b.dataset.filter);
+      paintFilters();
       renderPick();
     });
   });
@@ -465,11 +482,7 @@
       const next = +b.dataset.pick;
       if (!S.setSize(next)) return;
       sync();
-      paintSizeButtons();
-      applyStatic();
-      const title = $("#title-input");
-      if (!title.dataset.dirty) title.value = names().title;
-      renderPick();
+      renderAll();
     });
   });
 
@@ -740,10 +753,6 @@
   async function drawPoster() {
     if (!ranking.length) return;
     const canvas = $("#poster-canvas");
-    const size = AKB_POSTER.layout(ranking.length);
-    canvas.width = size.width;
-    canvas.height = size.height;
-    $("#poster").classList.toggle("tall", size.height > 1440);
     const ctx = canvas.getContext("2d");
     const [imgs] = await Promise.all([
       Promise.all(ranking.map((m) => loadImg(fullSrc(m)))),
@@ -793,16 +802,9 @@
     try {
       localStorage.setItem("akb-lang", lang);
     } catch (_) {}
-    applyStatic();
-    renderSteps();
-    if (introOpen) paintIntro();
-    renderPick();
+    renderAll();
     if (profileId) openProfile(profileId);
-    if (!$("#phase-duel").hidden) renderDuel();
-    if (!$("#phase-result").hidden && ranking.length) {
-      renderRankList();
-      drawPoster();
-    }
+    if (introOpen) paintIntro();
   }
 
   document.addEventListener("click", (e) => {
@@ -825,7 +827,7 @@
     if (!S.setSkin(next)) return;
     sync();
     paintSkin();
-    if (snap.phase === "result" && ranking.length) drawPoster();
+    renderAll();
   }
 
   /* ---------------- 向导模式（v5 A） ---------------- */
@@ -1027,8 +1029,6 @@
 
   /* ---------------- boot ---------------- */
   paintSkin();
-  refreshGroupOptions();
-  paintSizeButtons();
-  applyStatic();
+  renderChrome();
   navigate("boot");
 })();
