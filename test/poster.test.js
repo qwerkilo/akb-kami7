@@ -549,3 +549,24 @@ test("A 40 档金字塔：行分布 1-3-5-7-9-11-4、前 4 行带名字", () => 
     assert.equal(calls.texts.includes(m.name), i < 16, `名字可见性 ${m.name}`)
   );
 });
+
+test("D 拼贴：拍立得消费 cardStroke（贴纸 ≥ 人数条 3px 墨描边；原版 0）", () => {
+  const run = (n, cs) => {
+    const { ctx, calls } = fakeCtx();
+    poster.draw(ctx, {
+      members: people(n),
+      images: fakeImgs(n),
+      title: "T",
+      dateText: "D",
+      hashtag: "#H",
+      photoSrc: "P",
+      subOf: () => "s",
+      style: "d",
+      tokens: { cardStroke: cs },
+    });
+    return calls.strokes.filter((w) => w === 3).length;
+  };
+  assert.equal(run(7, 0), 0);
+  assert.ok(run(7, 3) >= 7, `7 人贴纸应有 ≥7 条 3px 描边，实际 ${run(7, 3)}`);
+  assert.ok(run(32, 3) >= 32, `32 人贴纸应有 ≥32 条 3px 描边`);
+});

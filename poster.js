@@ -358,7 +358,7 @@
     const W = ctx.canvas.width;
     const H = ctx.canvas.height;
     const top = 200;
-    const bottom = H - 84;
+    const bottom = frame(W, H).footerTop;
     const U = bottom - top;
     const margin = 56;
     const gap = 10;
@@ -405,21 +405,22 @@
   }
 
   function posterFooter(ctx, T, W, H, hashtag, photoSrc) {
+    const fr = frame(W, H);
     ctx.strokeStyle = T.colors.line;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(72, H - 84);
-    ctx.lineTo(W - 72, H - 84);
+    ctx.moveTo(fr.margin, fr.footerTop);
+    ctx.lineTo(fr.right, fr.footerTop);
     ctx.stroke();
     ctx.font = `700 22px ${T.fonts.ui}`;
     ctx.fillStyle = T.colors.ink;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(hashtag, 72, H - 44);
+    ctx.fillText(hashtag, fr.margin, H - 44);
     ctx.textAlign = "right";
     ctx.font = `500 18px ${T.fonts.ui}`;
     ctx.fillStyle = T.colors.muted;
-    ctx.fillText(photoSrc, W - 72, H - 44);
+    ctx.fillText(photoSrc, fr.right, H - 44);
   }
 
   function drawClassic(ctx, T, opts, W, H) {
@@ -430,14 +431,15 @@
     ctx.fillRect(0, 0, W, H);
 
     const tall = H > 1440;
+    const fr = frame(W, H);
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = T.colors.ink;
-    fitText(ctx, title, W - 144, tall ? 56 : 64, 900, T.fonts.ui);
-    ctx.fillText(title, 72, tall ? 100 : 118);
+    fitText(ctx, title, W - fr.margin * 2, tall ? 56 : 64, 900, T.fonts.ui);
+    ctx.fillText(title, fr.margin, tall ? 100 : 118);
     tape(
       ctx,
-      72,
+      fr.margin,
       tall ? 116 : 136,
       Math.min(ctx.measureText(title).width * 0.72, 520),
       12,
@@ -446,7 +448,7 @@
     );
     ctx.font = `500 24px ${T.fonts.ui}`;
     ctx.fillStyle = T.colors.muted;
-    ctx.fillText(dateText, 72, tall ? 168 : 190);
+    ctx.fillText(dateText, fr.margin, tall ? 168 : 190);
 
     if (n <= 7) drawSeven(ctx, T, members, images, subOf);
     else if (n <= 16) drawSixteen(ctx, T, members, images, subOf);
@@ -459,7 +461,8 @@
   function drawMagazine(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
     const n = members.length;
-    const M = 72;
+    const fr = frame(W, H);
+    const M = fr.margin;
     const tall = H > 1440;
     ctx.fillStyle = T.colors.card;
     ctx.fillRect(0, 0, W, H);
@@ -490,7 +493,7 @@
     const cw = (W - M * 2 - gap * (cols - 1)) / cols;
     const ch = cw * 1.333;
     const gridH = rows * (ch + labelH) + (rows - 1) * 12;
-    const heroH = Math.max(220, H - 84 - heroY - gridH - 48);
+    const heroH = Math.max(220, fr.footerTop - heroY - gridH - 48);
 
     ctx.save();
     roundRect(ctx, M, heroY, W - M * 2, heroH, 8);
@@ -565,7 +568,8 @@
   function drawChart(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
     const n = members.length;
-    const M = 72;
+    const fr = frame(W, H);
+    const M = fr.margin;
     const k = H / 1440;
     ctx.fillStyle = T.colors.floor;
     ctx.fillRect(0, 0, W, H);
@@ -666,7 +670,7 @@
       const cardH2 = photoH2 + 44;
       const rowW = count * cardW + (count - 1) * gap2;
       const x0 = (W - rowW) / 2;
-      const y = listTop + Math.max(0, (H - 84 - listTop - cardH2) / 2);
+      const y = listTop + Math.max(0, (fr.footerTop - listTop - cardH2) / 2);
       for (let i = 3; i < n; i++) {
         const k2 = i - 3;
         const x = x0 + k2 * (cardW + gap2);
@@ -705,7 +709,7 @@
     }
     const cols = count > 30 ? 3 : 2;
     const rows = Math.max(1, Math.ceil(count / cols));
-    const listH = H - 84 - listTop;
+    const listH = fr.footerTop - listTop;
     const rowH = listH / rows;
     const colGap = 24;
     const colW = (W - M * 2 - colGap * (cols - 1)) / cols;
@@ -774,6 +778,7 @@
   function drawCollage(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
     const n = members.length;
+    const fr = frame(W, H);
     ctx.fillStyle = T.colors.floor;
     ctx.fillRect(0, 0, W, H);
     ctx.save();
@@ -791,7 +796,7 @@
     // 贴纸标题
     const tw = Math.min(W - 144, 480);
     ctx.save();
-    ctx.translate(72, 72);
+    ctx.translate(fr.margin, fr.margin);
     ctx.rotate(-0.05);
     panel(ctx, T, 0, 0, tw, 132, 14, {
       color: "rgba(28,30,43,.22)",
@@ -809,7 +814,7 @@
     ctx.fillText(dateText, 28, 102);
     ctx.restore();
     ctx.save();
-    ctx.translate(W - 72 - 170, 96);
+    ctx.translate(fr.right - 170, 96);
     ctx.rotate(0.03);
     roundRect(ctx, 0, 0, 170, 54, 27);
     ctx.fillStyle = T.colors.pink;
@@ -835,7 +840,7 @@
     const photoH = (cw - 24) * 1.333;
     const cardH = photoH + 52;
     const top = 300;
-    const avail = H - 84 - top;
+    const avail = fr.footerTop - top;
     const step = cardH + 26;
     const blockH = rows.length * cardH + (rows.length - 1) * 26;
     const y0 = top + Math.max(0, (avail - blockH) / 2);
