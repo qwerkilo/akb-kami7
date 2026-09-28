@@ -937,3 +937,30 @@ test("steps：三步的 active / enabled / badge", () => {
     { key: "result", active: false, enabled: false, badge: null },
   ]);
 });
+
+test("milestone：50% 里程碑只庆祝一次，刷新进入已越过只标记", () => {
+  assert.deepEqual(core.milestone(0, false), {
+    shown: false,
+    celebrate: false,
+  });
+  assert.deepEqual(core.milestone(49, false), {
+    shown: false,
+    celebrate: false,
+  });
+  assert.deepEqual(core.milestone(50, false), {
+    shown: true,
+    celebrate: true,
+  });
+  assert.deepEqual(core.milestone(90, false), {
+    shown: true,
+    celebrate: true,
+  });
+  assert.deepEqual(core.milestone(50, true), {
+    shown: true,
+    celebrate: false,
+  });
+  assert.deepEqual(core.milestone(undefined, false), {
+    shown: false,
+    celebrate: false,
+  });
+});

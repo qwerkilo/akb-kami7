@@ -428,6 +428,16 @@
     };
   }
 
+  // ---- 对决里程碑（50% 只庆祝一次；刷新进入已越过的对决只标记不庆祝） ----
+  const HALFWAY_PERCENT = 50;
+
+  function milestone(percent, shown) {
+    if (shown) return { shown: true, celebrate: false };
+    if (!(percent >= HALFWAY_PERCENT))
+      return { shown: false, celebrate: false };
+    return { shown: true, celebrate: true };
+  }
+
   // ---- 导航相位（view 转移表；view 不持久化，刷新由相位恢复。ADR-0013） ----
   const NAV_VIEWS = ["pick", "duel", "result"];
 
@@ -519,6 +529,7 @@
     replay,
     worstCase,
     shuffle,
+    milestone,
     nav,
     steps,
     serializeState,

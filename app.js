@@ -27,6 +27,7 @@
   let pick = snap.size;
   let view = "pick";
   let duel50 = false;
+  let introOpen = false;
   function sync() {
     snap = S.snapshot();
     series = snap.series;
@@ -525,7 +526,7 @@
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
-    if (snap.duel.percent >= 50) duel50 = true;
+    duel50 = CORE.milestone(snap.duel.percent, duel50).shown;
     renderSteps();
   }
 
@@ -538,28 +539,33 @@
     el.setAttribute("aria-label", t("pick_who", m.name));
   }
 
+  function canDuelInput() {
+    return view === "duel" && snap.phase === "duel" && !introOpen && !profileId;
+  }
+
   let answering = false;
   function answer(leftWins) {
-    if (answering || $("#phase-duel").hidden) return;
+    if (answering || !canDuelInput()) return;
     answering = true;
     const forSeries = series;
     (leftWins ? $("#fighter-a") : $("#fighter-b")).classList.add("picked");
     setTimeout(() => {
       answering = false;
       if (S.snapshot().series !== forSeries) return;
+      if (!canDuelInput()) return;
       if (!S.answer(leftWins)) return;
-      if (view !== "duel") return;
       sync();
-      if (snap.duel && !duel50 && snap.duel.percent >= 50) {
-        duel50 = true;
-        toast(t("halfway"));
+      if (snap.duel) {
+        const ms = CORE.milestone(snap.duel.percent, duel50);
+        duel50 = ms.shown;
+        if (ms.celebrate) toast(t("halfway"));
       }
       navigate("advance");
     }, 160);
   }
 
   function undo() {
-    if ($("#phase-duel").hidden) return;
+    if (!canDuelInput()) return;
     if (!S.undo()) return;
     navigate("advance");
   }
@@ -574,8 +580,8 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (!$("#duel-intro").hidden) return closeIntro();
-    if (!$("#profile").hidden) closeProfile();
+    if (introOpen) return closeIntro();
+    if (profileId) return closeProfile();
   });
 
   document.addEventListener("keydown", (e) => {
@@ -598,8 +604,7 @@
       }
     }
     if (
-      $("#phase-duel").hidden ||
-      !$("#duel-intro").hidden ||
+      !canDuelInput() ||
       e.target.closest?.("input, textarea") ||
       e.ctrlKey ||
       e.metaKey ||
@@ -790,9 +795,9 @@
     } catch (_) {}
     applyStatic();
     renderSteps();
-    if (!$("#duel-intro").hidden) paintIntro();
+    if (introOpen) paintIntro();
     renderPick();
-    if (profileId && !$("#profile").hidden) openProfile(profileId);
+    if (profileId) openProfile(profileId);
     if (!$("#phase-duel").hidden) renderDuel();
     if (!$("#phase-result").hidden && ranking.length) {
       renderRankList();
@@ -982,16 +987,19 @@
     if (!el) return;
     if (storedFlag(INTRO_KEY)) {
       el.hidden = true;
+      introOpen = false;
       return;
     }
     paintIntro();
     el.hidden = false;
+    introOpen = true;
     const go = el.querySelector('[data-act="intro-go"]');
     if (go) go.focus();
   }
   function closeIntro() {
     rememberFlag(INTRO_KEY);
     $("#duel-intro").hidden = true;
+    introOpen = false;
     const f = $("#fighter-a");
     if (f) f.focus();
   }
