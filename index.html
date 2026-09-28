@@ -473,7 +473,7 @@
           type="button"
           class="btn ghost"
           data-act="pwa-ios"
-          data-i18n="pwa_ios_go"
+          data-i18n="pwa_guide_go"
         >
           iOS 怎么装？
         </button>
@@ -486,16 +486,18 @@
       id="pwa-sheet"
       role="dialog"
       aria-modal="true"
-      data-i18n-aria-label="pwa_ios_title"
+      data-i18n-aria-label="pwa_guide_title"
       hidden
     >
-      <h3 data-i18n="pwa_ios_title">iPhone / iPad 添加到主屏幕</h3>
-      <ol>
-        <li data-i18n="pwa_ios_s1">用 Safari 打开本站</li>
-        <li data-i18n="pwa_ios_s2">点底部工具条的「分享」按钮</li>
-        <li data-i18n="pwa_ios_s3">下滑选「添加到主屏幕」</li>
-        <li data-i18n="pwa_ios_s4">点右上角「添加」</li>
-      </ol>
+      <h3 data-i18n="pwa_guide_title">把本站装到桌面</h3>
+      <!-- 步骤按平台动态渲染（app.js 的 guideSteps）：iOS / Android / Mac / 其他 -->
+      <ol id="pwa-guide-steps"></ol>
+      <p
+        class="pwa-sheet-hint"
+        id="pwa-sheet-hint"
+        data-i18n="pwa_insecure"
+        hidden
+      ></p>
       <button
         type="button"
         class="btn primary"

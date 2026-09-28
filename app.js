@@ -1106,7 +1106,21 @@
   function paintInstall() {
     const row = $("#pwa-install");
     if (!row) return;
-    row.hidden = standalone || !(installEvent || isIOS);
+    // 曾经整行吊在 beforeinstallprompt 上，于是 Firefox / macOS Safari / headless /
+    // 非安全上下文里入口彻底消失（连「手动装」的指引一起没了）——那是设计缺陷。
+    // 现在：除已装成应用（standalone）外始终显示；有没有一键安装只决定按钮的行为。
+    row.hidden = standalone;
+  }
+  const GUIDE_STEPS = { ios: 4, android: 3, macos: 3, other: 3 };
+  function guidePlatform() {
+    const ua = navigator.userAgent;
+    if (isIOS) return "ios";
+    if (/Android/i.test(ua)) return "android";
+    if (/Macintosh|Mac OS X/i.test(ua)) return "macos";
+    return "other";
+  }
+  function guideTitleKey(plat) {
+    return plat === "other" ? "pwa_guide_title" : "pwa_guide_title_" + plat;
   }
   function paintOffline() {
     const chip = $("#pwa-chip");
@@ -1132,6 +1146,30 @@
     if (!el) return;
     sheetOpen = true;
     sheetOpener = document.activeElement;
+    const plat = guidePlatform();
+    const n = GUIDE_STEPS[plat] || 3;
+    const titleKey = guideTitleKey(plat);
+    el.dataset.i18nAriaLabel = titleKey;
+    const head = el.querySelector("h3");
+    if (head) {
+      head.dataset.i18n = titleKey;
+      head.textContent = t(titleKey);
+    }
+    const list = $("#pwa-guide-steps");
+    if (list) {
+      list.textContent = "";
+      for (let i = 1; i <= n; i++) {
+        const li = document.createElement("li");
+        li.dataset.i18n = "pwa_" + plat + "_s" + i;
+        li.textContent = t(li.dataset.i18n);
+        list.appendChild(li);
+      }
+    }
+    const hint = $("#pwa-sheet-hint");
+    if (hint) {
+      hint.hidden = secureCtx; // 非安全上下文：装不了也用不了离线，说清楚为什么
+      if (!secureCtx) hint.textContent = t("pwa_insecure");
+    }
     el.hidden = false;
     const scrim = $("#pwa-scrim");
     if (scrim) scrim.hidden = false;

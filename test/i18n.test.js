@@ -167,7 +167,9 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
   );
   for (const m of sources.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g))
     refs.add(m[1]);
-  const dynamic = /^(bio_|series_|title_prefix_|photo_src|leave_)/;
+  // 动态家族：键在代码里由前缀拼出来的（bio_、series_、pwa_ 的平台指引步骤…）
+  const dynamic =
+    /^(bio_|series_|title_prefix_|photo_src|leave_|pwa_(ios|android|macos|other)_s|pwa_guide_title_)/;
   const unreferenced = Object.keys(I18N.zh).filter(
     (k) => !refs.has(k) && !dynamic.test(k)
   );
