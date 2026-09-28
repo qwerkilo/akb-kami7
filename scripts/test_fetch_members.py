@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 from contextlib import redirect_stdout
 
 from PIL import Image
@@ -799,46 +800,70 @@ class SakamichiTests(unittest.TestCase):
             self.assertEqual(json.loads(payload), {"宫": ["宮"]})
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class CompressMembersTests(unittest.TestCase):
     """img 标志的真值来源：站内图片文件（不是远端 URL 是否解析成功）"""
 
-    def test_existing_local_file_keeps_img_true(self):
+    def _dirs(self, tmp):
+        full = os.path.join(tmp, "full")
+        thumb = os.path.join(tmp, "thumb")
+        os.makedirs(full)
+        os.makedirs(thumb)
+        return full, thumb
+
+    def _touch(self, path, data=b"x"):
+        with open(path, "wb") as fh:
+            fh.write(data)
+
+    def test_existing_local_files_keep_img_true(self):
         with tempfile.TemporaryDirectory() as tmp:
-            full = os.path.join(tmp, "full")
-            thumb = os.path.join(tmp, "thumb")
-            os.makedirs(full)
-            os.makedirs(thumb)
-            with open(os.path.join(full, "m1.webp"), "wb") as fh:
-                fh.write(b"")
+            full, thumb = self._dirs(tmp)
+            self._touch(os.path.join(full, "m1.webp"))
+            self._touch(os.path.join(thumb, "m1.webp"))
             members = [{"id": "m1", "name": "既有头像"}, {"id": "m2", "name": "无图"}]
             with redirect_stdout(io.StringIO()):
                 fetch_members.compress_members(members, {}, False, full, thumb)
             self.assertTrue(members[0]["img"], "本地已有图片时 img 不得降级为 false")
             self.assertFalse(members[1]["img"], "本地无图时 img 应为 false")
 
+    def test_half_written_or_empty_output_reports_missing(self):
+        """只写出一半、或是 0 字节残留时必须报缺图（宁可占位，也不渲染坏图）"""
+        with tempfile.TemporaryDirectory() as tmp:
+            full, thumb = self._dirs(tmp)
+            self._touch(os.path.join(full, "m1.webp"))  # thumb 缺失
+            self._touch(os.path.join(full, "m2.webp"))
+            self._touch(os.path.join(thumb, "m2.webp"), b"")  # 0 字节残留
+            members = [{"id": "m1", "name": "只有 full"}, {"id": "m2", "name": "空 thumb"}]
+            with redirect_stdout(io.StringIO()):
+                fetch_members.compress_members(members, {}, False, full, thumb)
+            self.assertFalse(members[0]["img"], "缺 thumb 时 img 应为 false")
+            self.assertFalse(members[1]["img"], "0 字节 thumb 时 img 应为 false")
+
     def test_resolved_url_without_output_still_reports_truthfully(self):
         """远端解析成功但压缩失败、仓库里也没有文件 → img 必须为 false"""
         with tempfile.TemporaryDirectory() as tmp:
-            full = os.path.join(tmp, "full")
-            thumb = os.path.join(tmp, "thumb")
-            os.makedirs(full)
-            os.makedirs(thumb)
+            full, thumb = self._dirs(tmp)
             members = [{"id": "m1", "name": "压缩失败"}]
 
             def boom(mid, path, force=False, full_dir=None, thumb_dir=None):
                 raise OSError("压缩失败")
 
             with redirect_stdout(io.StringIO()):
-                original = fetch_members.compress
-                fetch_members.compress = boom
-                try:
+                with mock.patch("fetch_members.compress", boom):
                     fetch_members.compress_members(
                         members, {"m1": "orig.jpg"}, False, full, thumb
                     )
-                finally:
-                    fetch_members.compress = original
             self.assertFalse(members[0]["img"], "仓库里没有文件时 img 必须是 false")
+
+    def test_usable_rejects_empty_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            empty = os.path.join(tmp, "x.webp")
+            self._touch(empty, b"")
+            good = os.path.join(tmp, "y.webp")
+            self._touch(good)
+            self.assertFalse(fetch_members.usable(empty))
+            self.assertFalse(fetch_members.usable(os.path.join(tmp, "missing.webp")))
+            self.assertTrue(fetch_members.usable(good))
+
+
+if __name__ == "__main__":
+    unittest.main()

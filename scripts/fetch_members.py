@@ -444,12 +444,17 @@ def cached_image_paths(jobs, orig_dir=ORIG):
     return paths
 
 
+def usable(p):
+    """站内图片文件可用：存在且非空（0 字节视为损坏，交给下一轮重压）。"""
+    return os.path.exists(p) and os.path.getsize(p) > 0
+
+
 def compress(mid, path, force=False, full_dir=FULL, thumb_dir=THUMB):
     outs = [
         os.path.join(full_dir, mid + ".webp"),
         os.path.join(thumb_dir, mid + ".webp"),
     ]
-    if not force and all(os.path.exists(o) and os.path.getmtime(o) > os.path.getmtime(path) for o in outs):
+    if not force and all(usable(o) and os.path.getmtime(o) > os.path.getmtime(path) for o in outs):
         return Image.open(path).size, None
     im = Image.open(path)
     im = ImageOps.exif_transpose(im).convert("RGB")
@@ -509,6 +514,9 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
     img 的真值来源是**站内图片文件**而不是远端 URL 是否解析成功：等爱毕业成员的
     照片要走「Web Archive → 图片快照 → Commons」回退链，上游波动时解析不到，
     但仓库里已有的头像不该因此消失（渲染器也只认本地文件）。
+
+    判定要求 full 与 thumb **都在且非空**——名册卡片读的是 thumb，只写出一半或
+    留下 0 字节时宁可显示占位图，也不要渲染坏图。
     """
     sizes = []
     for m in members:
@@ -518,7 +526,13 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
                 sizes.append(compress(m["id"], p, force, full_dir, thumb_dir)[0])
             except Exception as e:
                 print("compress failed", m["name"], e)
-        m["img"] = os.path.exists(os.path.join(full_dir, m["id"] + ".webp"))
+        m["img"] = all(
+            usable(out)
+            for out in (
+                os.path.join(full_dir, m["id"] + ".webp"),
+                os.path.join(thumb_dir, m["id"] + ".webp"),
+            )
+        )
     return sizes
 
 

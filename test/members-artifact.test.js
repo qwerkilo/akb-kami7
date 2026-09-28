@@ -237,16 +237,20 @@ test("成员 bio：生年月日基本齐全、出身地多数、字段合法", (
   }
 });
 
-test("img 标志与站内图片文件一致（有文件必为 true）", () => {
-  const bogus = [];
+test("img 标志与站内图片文件一致（img:true ⟺ full 与 thumb 都在且非空）", () => {
+  const mismatch = [];
   for (const g of loadGroups()) {
     for (const m of g.members) {
-      if (m.img) continue;
-      const has = ["full", "thumb"].every((dir) =>
-        fs.existsSync(path.join(__dirname, "..", "img", dir, `${m.id}.webp`))
-      );
-      if (has) bogus.push(`${m.name}(${m.id})`);
+      const usable = ["full", "thumb"].every((dir) => {
+        const p = path.join(__dirname, "..", "img", dir, `${m.id}.webp`);
+        return fs.existsSync(p) && fs.statSync(p).size > 0;
+      });
+      if (usable !== m.img) mismatch.push(`${m.name}(${m.id}) img=${m.img}`);
     }
   }
-  assert.deepEqual(bogus, [], `本地有图却标记 img:false：${bogus.join("、")}`);
+  assert.deepEqual(
+    mismatch,
+    [],
+    `img 标志与站内文件不一致：${mismatch.slice(0, 5).join("、")}`
+  );
 });

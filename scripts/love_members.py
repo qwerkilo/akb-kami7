@@ -313,7 +313,7 @@ def resolve_former_photos(members, urls, fetch, warn=print):
                 # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
                 # 只有连站内文件都没有的才真的显示占位。
                 warn(
-                    "warning: 等爱毕业成员上游照片解析不到（沿用站内已有照片，若无则占位）：{} {}".format(
+                    "warning: 等爱成员（多为已毕业）上游照片解析不到（沿用站内已有照片，若无则占位）：{} {}".format(
                         group, m["name"]
                     )
                 )
