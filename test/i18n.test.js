@@ -141,9 +141,11 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
     fs.readFileSync(path.join(root, "core.js"), "utf8"),
   ].join("\n");
   const refs = new Set(
-    [...html.matchAll(/data-i18n(?:-placeholder|-alt|-aria-label)?="([^"]+)"/g)].map(
-      (m) => m[1]
-    )
+    [
+      ...html.matchAll(
+        /data-i18n(?:-placeholder|-alt|-aria-label)?="([^"]+)"/g
+      ),
+    ].map((m) => m[1])
   );
   for (const m of sources.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g))
     refs.add(m[1]);
