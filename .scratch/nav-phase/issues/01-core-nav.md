@@ -15,4 +15,4 @@
 
 ## Comments
 
-2026-09-28：`core.js` 新增 `nav(ctx,intent)` / `steps(ctx)` 并导出；`test/core.test.js` +9 例（全表 12 intent × 相位/视图、steps 三态、缺省/非法），JS 92 全绿。
+2026-09-28：`core.js` 新增 `nav(ctx,intent)` / `steps(ctx)` 并导出（与工单 02 的 app 接线同落一提交 `a223fa4`，工单粒度合并，第 3 条勾选说明此点）；`test/core.test.js` +9 例（全表 12 intent × 相位/视图、steps 三态、缺省/非法），JS 92 全绿。

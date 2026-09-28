@@ -964,3 +964,14 @@ test("milestone：50% 里程碑只庆祝一次，刷新进入已越过只标记"
     celebrate: false,
   });
 });
+
+test("nav：① 由当前视图决定——相位有结果但人在挑人页时不丢弃", () => {
+  assert.deepEqual(
+    core.nav(navCtx({ view: "pick", phase: "result" }), "pick"),
+    { view: "pick", effect: "none" }
+  );
+  assert.deepEqual(
+    core.nav(navCtx({ view: "duel", phase: "result" }), "pick"),
+    { view: "pick", effect: "none" }
+  );
+});

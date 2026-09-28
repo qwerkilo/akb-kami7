@@ -13,7 +13,7 @@
    - **真实字典驱动真实组合**：用 `members.js` 产物（按 app.js 同款摊平 `group/generation/series`）× zh/en 跑 `metaText/fullMeta/posterSub/profileRows`，断言全为字符串、非空、无 `undefined`、无 `[object`；
    - **死键守卫**：未被 HTML 属性 / app.js / core.js 引用的键只允许动态家族 `bio_ / series_ / title_prefix_ / photo_src / leave_`。
 2. `i18n.js` 删死键 3 个：`left_year`、`left`、`remove`（zh/en）。
-3. `index.html` 4 处硬编码 aria-label 改为 `data-i18n-aria-label`（`series_label`、`lang_label`、`size_label`、`filter_label`、`slots_label`、`bio_close`），`i18n.js` 补 4 个新键（`lang_label / size_label / filter_label / slots_label`，zh/en 成对）。
+3. `index.html` 6 处硬编码 aria-label 改为 `data-i18n-aria-label`（`series_label`、`lang_label`、`size_label`、`filter_label`、`slots_label`、`bio_close`），`i18n.js` 补 4 个新键（`lang_label / size_label / filter_label / slots_label`，zh/en 成对）。
 
 ## 验证
 

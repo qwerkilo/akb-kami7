@@ -9,7 +9,7 @@
 ## 做了什么
 
 1. **单一门控 `canDuelInput()`**（app.js）：`view === "duel" && snap.phase === "duel" && !introOpen && !profileId`——三个入口（`answer` / `undo` / 键盘）共用；不再探测 DOM。`introOpen` 改为显式状态（`maybeIntro`/`closeIntro` 维护）。
-2. **顺带修掉一处潜在 bug**：资料卡打开时方向键会作答（此前只挡了浮层的 DOM 探测，没挡 profile）——新门控把 `profileId` 一并纳入。
+2. **顺带补上一处防御**：门控把 `profileId` 一并纳入（资料卡打开时不吃键盘）。严格说该组合今天不可达——资料卡只能从挑人/结果页打开，而那两处 `view` 不是 duel——属防御项，无对应 E2E（不可复现）。
 3. **时间闸语义明确**：160ms 回调先过 `canDuelInput()` 再登记答案——用户在窗口内离开对决页时**丢弃这次点击**（下次回到原题重答），不再发生「看不见的状态变更」。
 4. **里程碑单点**：`core.js` 新增 `milestone(percent, shown) → {shown, celebrate}`（阈值 50 一处定义，+1 例单测）；`answer` 跨阈值时庆祝、`renderDuel` 进入已越过的对决只标记；`snap.duel` 为空（对决刚完成）时不判里程碑。
 

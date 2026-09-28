@@ -457,7 +457,7 @@
           ? stay
           : { view: "pick", effect: "none" };
       case "pick":
-        return phase === "result"
+        return view === "result"
           ? { view: "pick", effect: "abandon" }
           : { view: "pick", effect: "none" };
       case "duel":

@@ -83,6 +83,12 @@ test("每个分组有 label 与 members，成员字段完整且 id 唯一", () =
     for (const m of section.members) {
       assert.equal(typeof m.id, "string");
       assert.equal(typeof m.name, "string");
+      assert.equal(typeof m.kana, "string", `kana 缺失: ${m.name}`);
+      assert.equal(typeof m.nick, "string", `nick 缺失: ${m.name}`);
+      assert.ok(
+        m.end === null || typeof m.end === "string",
+        `end 类型: ${m.name}`
+      );
       assert.ok(m.status === "current" || m.status === "former");
       assert.equal(typeof m.img, "boolean");
       assert.ok(!ids.has(m.id), `重复 id: ${m.id}`);

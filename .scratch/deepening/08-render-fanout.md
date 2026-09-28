@@ -4,7 +4,7 @@
 
 ## 背景
 
-架构扫描（报告候选 ③）：重绘清单是每个处理器各存一份的隐性依赖图——`setLang` 手写 7 个调用 + 4 处 `$("#phase-…").hidden` DOM 探测；`switchSeries` 6 个绘制 + 分支；尺寸切换各写一遍 `paintSizeButtons/applyStatic/标题/renderPick`；`renderPick` 里 `renderGuide` 被调两次（自身 + `syncSelection`）。历史事故（44e5294 `#size-7` 品牌过期）正是重绘顺序问题。
+架构扫描（报告候选 ③）：重绘清单是每个处理器各存一份的隐性依赖图——`setLang` 手写 7 个调用 + 2 处 `$("#phase-…").hidden` DOM 探测；`switchSeries` 6 个绘制 + 分支；尺寸切换各写一遍 `paintSizeButtons/applyStatic/标题/renderPick`；`renderPick` 里 `renderGuide` 被调两次（自身 + `syncSelection`）。历史事故（44e5294 `#size-7` 品牌过期）正是重绘顺序问题。
 
 ## 做了什么
 

@@ -28,7 +28,7 @@ ADR-0012 的导航语义没有实现归属：`view` 的合法转移散在 `app.j
 - **转移表**（唯一出处，与 ADR-0012 一致）：
   - `boot`：view = 相位（duel→duel、result→result、否则 pick）。
   - `sync`：view 能与新相位共存（duel+duel / result+result）则保留，否则 pick。
-  - `pick`：view=result 时 effect `abandon`；其余 view=pick、effect none。
+  - `pick`：**当前视图**为 result 时 effect `abandon`（相位有结果但人在挑人页时不动它）；其余 view=pick、effect none。
   - `duel`：相位 duel → view=duel；相位 pick 且已选满 → view=duel + effect `start`；否则不变。
   - `result`：相位 result → view=result；否则不变。
   - `start`：相位 duel → view=duel + effect `resume`（第 8 条）；已选满 → view=duel + effect `start`；否则不变。
