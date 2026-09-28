@@ -12,7 +12,9 @@
 
   const SERIES = ["48g", "sakamichi", "love"];
   const SIZES = [7, 16, 32];
+  const SKINS = ["classic", "sticker"];
   const SERIES_KEY = "akb:series";
+  const SKIN_KEY = "akb:skin";
   const stateKey = (s) => `akb:state:v2:${s}`;
 
   function create(opts) {
@@ -32,6 +34,7 @@
       query: "",
       open: new Set(),
       duel: emptyDuel(),
+      skin: "classic",
     };
 
     function emptyDuel() {
@@ -118,6 +121,8 @@
     // 启动：恢复上次系列与两个系列的存档
     const savedSeries = read(SERIES_KEY);
     if (SERIES.includes(savedSeries)) state.series = savedSeries;
+    const savedSkin = read(SKIN_KEY);
+    if (SKINS.includes(savedSkin)) state.skin = savedSkin;
     for (const s of SERIES) store[s] = loadSeries(s);
     state.size = store[state.series].size;
     state.selected = store[state.series].selected.slice();
@@ -158,7 +163,15 @@
         phase,
         duel: duelView,
         ranking,
+        skin: state.skin,
       };
+    }
+
+    function setSkin(next) {
+      if (!SKINS.includes(next) || next === state.skin) return false;
+      state.skin = next;
+      write(SKIN_KEY, next);
+      return true;
     }
 
     function switchSeries(next) {
@@ -271,6 +284,7 @@
       setGroup,
       setQuery,
       toggleOpen,
+      setSkin,
       startDuel,
       answer,
       undo,

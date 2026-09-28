@@ -35,7 +35,27 @@ test("初始会话：48g / 7 档 / 空已选 / pick 相位", () => {
     phase: "pick",
     duel: null,
     ranking: null,
+    skin: "classic",
   });
+});
+
+test("皮肤：默认 classic、切换持久化、同值与非法值拒绝", () => {
+  const storage = memoryStorage();
+  let S = make(storage);
+  assert.equal(S.snapshot().skin, "classic");
+  assert.equal(S.setSkin("sticker"), true);
+  assert.equal(S.snapshot().skin, "sticker");
+  assert.equal(S.setSkin("sticker"), false);
+  assert.equal(S.setSkin("neon"), false);
+  assert.equal(S.snapshot().skin, "sticker");
+  S = make(storage);
+  assert.equal(S.snapshot().skin, "sticker");
+});
+
+test("皮肤：存储损坏时回退 classic", () => {
+  const storage = memoryStorage();
+  storage.setItem("akb:skin", "bogus");
+  assert.equal(make(storage).snapshot().skin, "classic");
 });
 
 test("选人：满员拒绝、可取消、跨系列与未知 id 拒绝", () => {
