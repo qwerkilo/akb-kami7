@@ -827,7 +827,7 @@
     if (!S.setSkin(next)) return;
     sync();
     paintSkin();
-    renderAll();
+    if (snap.phase === "result" && ranking.length) drawPoster();
   }
 
   /* ---------------- 向导模式（v5 A） ---------------- */

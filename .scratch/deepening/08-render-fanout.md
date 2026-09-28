@@ -16,7 +16,7 @@
 
 ## 边界（有意保留）
 
-- **点选 / 作答 / 搜索** 仍走定向路径（`syncSelection` / `navigate` / `renderPick({resetScroll})`）：挑人区不因一次点选而重建（滚动、图片重载、性能），这正是「单一幂等全量渲染」被删除测试判负的地方（见 `.scratch/deepening/05-render-pick-entry.md` 的记录）。
+- **点选 / 作答 / 搜索 / 切皮肤** 仍走定向路径（`syncSelection` / `navigate` / `renderPick({resetScroll})` / `paintSkin`+按需 `drawPoster`）：挑人区不因一次点选或一次换肤而重建（滚动、图片重载、性能），这正是「单一幂等全量渲染」被删除测试判负的地方（见 `.scratch/deepening/05-render-pick-entry.md` 的记录）。
 - `applyStatic` 保持为 i18n 静态 pass（职责内聚）。
 
 ## 验证
