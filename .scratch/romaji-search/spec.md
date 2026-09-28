@@ -23,7 +23,7 @@
 ## Implementation Decisions
 
 - `core.js` 新增段「罗马字检索」：`ROMAJI`（主形，Hepburn）与 `ROMAJI_ALT`（异形：si/ti/tu/hu/zi、sya/zya…）；`romanize(s, alt)` 纯函数——内部小写、片假名→平假名、只保留平假名与 `ー`；`ー` 丢弃、`ん`→`n`、促音 `っ` 双写下一个音的辅音；非法/空输入返回 `""`。
-- **变体**（并入 haystack，去重）：主形、异形、长音折叠（`ou→o`、`oo→o`、`uu→u`）、`nn` 展开（`n` 后接元音时写 `nn`，IME 习惯）。
+- **变体**（并入 haystack，去重）：主形、异形、长音折叠（`ou→o`、`oo→o`、`uu→u`）、`nn` 展开（`n` 后接元音时写 `nn`，IME 习惯）、促音 `tch→cch`（`matchi→macchi`、`atchan→acchan`），以及「长音折叠 × nn」组合。
 - `haystack(member, fold)` 在原有 `name/kana/nick`（+ 简体折叠）之后追加上述变体；**查询串不做转换**（用户敲的就是罗马字）。
 - 文案：`search_ph`、`empty_search_hint` 加「罗马字 / romaji」（zh/en）。
 - **不做**：汉字拼音、首字母缩写、声调/连字符处理、`ei→e` 折叠（けいこ 不作 keko）。
@@ -31,7 +31,8 @@
 ## Testing Decisions
 
 - `test/core.test.js`：`romanize`（主形/异形/长音/促音/ん/nn/非假名/空输入）与 `haystack`（含变体、简体折叠共存）——先红后绿。
-- E2E：`#search` 输入 `maeda`、`sato`、`tomochin`、`siniti` 各自命中预期成员；无结果提示含「罗马字」。
+- E2E：`#search` 输入 `maeda`、`sato`、`tomochin`、`sasshi`、`sasihara`、`acchan` 各自命中预期成员；无结果提示含「罗马字」。
+  - 偏差记录（审查后）：`siniti` 在真实数据里无靶子（全站 0 人），异形改用 `さしはら` 的 Kunrei 形 `sasihara`（命中 指原莉乃）与促音变体 `acchan`（命中 前田敦子）覆盖。
 
 ## Out of Scope
 

@@ -223,13 +223,14 @@
   }
 
   function romajiForms(s) {
-    const base = [romanize(s), romanize(s, true)];
-    const forms = [...base];
-    for (const f of base) {
-      forms.push(
-        f.replace(/ou/g, "o").replace(/oo/g, "o").replace(/uu/g, "u"),
-        f.replace(/n(?=[aiueoy])/g, "nn")
-      );
+    const collapse = (f) =>
+      f.replace(/ou/g, "o").replace(/oo/g, "o").replace(/uu/g, "u");
+    const splitN = (f) => f.replace(/n(?=[aiueoy])/g, "nn");
+    const geminate = (f) => f.replace(/tch/g, "cch");
+    const forms = [];
+    for (const f of [romanize(s), romanize(s, true)]) {
+      const c = collapse(f);
+      forms.push(f, c, splitN(f), splitN(c), geminate(f), geminate(c));
     }
     return [...new Set(forms)].filter(Boolean);
   }
@@ -238,10 +239,11 @@
     const base = normalizeName(
       [member.name, member.kana, member.nick].filter(Boolean).join(" ")
     );
+    const parts = [base];
+    if (fold) parts.push([...base].map((c) => fold[c] || c).join(""));
     const romaji = romajiForms(base).join(" ");
-    if (!fold) return `${base} ${romaji}`;
-    const folded = [...base].map((c) => fold[c] || c).join("");
-    return `${base} ${folded} ${romaji}`;
+    if (romaji) parts.push(romaji);
+    return parts.join(" ");
   }
 
   function foldIndex(simpMap) {

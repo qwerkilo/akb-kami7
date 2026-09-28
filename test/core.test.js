@@ -1106,6 +1106,29 @@ test("haystack：并入罗马字变体（长音折叠 / nn 展开 / 异形）", 
   );
 });
 
+test("romanize/haystack：っち 的 cch 拼法、带空格查询、nn∘长音组合", () => {
+  assert.equal(core.romanize("まっち"), "matchi");
+  const macchi = core.haystack({ name: "町", kana: "まっち" });
+  assert.ok(macchi.includes("macchi"), macchi);
+  const a = core.haystack({ name: "前田敦子", kana: "まえだ あつこ" });
+  assert.ok(a.includes(core.normalizeName("maeda atsuko")), a);
+  const atchan = core.haystack({
+    name: "前田敦子",
+    kana: "まえだ あつこ",
+    nick: "あっちゃん",
+  });
+  assert.ok(atchan.includes("acchan") && atchan.includes("atchan"), atchan);
+  const ichiro = core.haystack({ name: "新一郎", kana: "しんいちろう" });
+  assert.ok(ichiro.includes("shinnichiro"), ichiro);
+});
+
+test("romanize：外来音与长音 ei 不折叠", () => {
+  assert.equal(core.romanize("ふぁ"), "fa");
+  assert.equal(core.romanize("てぃ"), "ti");
+  assert.equal(core.romanize("ゔ"), "vu");
+  assert.equal(core.romanize("けいこ"), "keiko");
+});
+
 test("haystack：罗马字与简体折叠共存", () => {
   const hay = core.haystack(
     { name: "渡辺麻友", kana: "わたなべ まゆ", nick: "まゆゆ" },
