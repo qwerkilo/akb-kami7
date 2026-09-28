@@ -292,14 +292,9 @@
 
   function kanjiNumber(s) {
     const d = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
-    if (s === "十") return 10;
-    let m = /^十(.)$/.exec(s);
-    if (m) return 10 + (d[m[1]] || 0);
-    m = /^(.)十$/.exec(s);
-    if (m) return (d[m[1]] || 1) * 10;
-    m = /^(.)十(.)$/.exec(s);
-    if (m) return (d[m[1]] || 1) * 10 + (d[m[2]] || 0);
-    return d[s] || 0;
+    const m = /^(.)?十(.)?$/.exec(s);
+    if (!m) return d[s] || 0;
+    return (m[1] ? (d[m[1]] || 1) * 10 : 10) + (m[2] ? d[m[2]] || 0 : 0);
   }
 
   // 期生筛选键：汉字期生归一为阿拉伯（櫻坂/日向坂的「一期生」与乃木坂的「1期生」同组）
@@ -310,12 +305,17 @@
     return `${kanjiNumber(m[1])}期生`;
   }
 
-  // 筛选下拉的期生选项：按数据出现顺序去重；「兼任・移籍加入」不是期生，不列
+  const TRANSFER_GENERATION = "兼任・移籍加入";
+
+  // 不是期生的分段标签：不入选期生下拉（成员仍可见于「全部期生」）
+  const NON_GENERATIONS = [TRANSFER_GENERATION, "Team 8", "其他"];
+
+  // 筛选下拉的期生选项：按数据出现顺序去重
   function generationOptions(sections) {
     const out = [];
     const seen = new Set();
     for (const s of sections) {
-      if (s.label === TRANSFER_GENERATION) continue;
+      if (NON_GENERATIONS.includes(s.label)) continue;
       const key = genKey(s.label);
       if (!key || seen.has(key)) continue;
       seen.add(key);
@@ -383,7 +383,6 @@
   }
 
   // ---- 成员字幕（卡片/对决/结果/海报共用） ----
-  const TRANSFER_GENERATION = "兼任・移籍加入";
 
   function isTransfer(m) {
     return m.generation === TRANSFER_GENERATION;

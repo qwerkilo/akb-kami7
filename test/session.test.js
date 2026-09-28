@@ -388,4 +388,8 @@ test("会话：期生筛选可设、切换系列复位（易失）", () => {
   assert.equal(S.setGeneration("1期生"), false);
   S.switchSeries("sakamichi");
   assert.equal(S.snapshot().generation, "all");
+  // 易失：重建实例（模拟刷新）后仍为 all
+  S.setGeneration("1期生");
+  const again = session.create({ storage: S.storage || memoryStorage(), byId });
+  assert.equal(again.snapshot().generation, "all");
 });

@@ -456,8 +456,13 @@
   const genSelect = $("#gen-filter");
 
   function refreshGenOptions() {
-    const want = snap.generation;
     const opts = CORE.generationOptions(seriesGroups());
+    const want = snap.generation;
+    const value = want === "all" || opts.includes(want) ? want : "all";
+    if (value !== want) {
+      S.setGeneration(value);
+      sync();
+    }
     genSelect.innerHTML = `<option value="all">${t("gen_all")}</option>`;
     for (const key of opts) {
       const opt = document.createElement("option");
@@ -465,8 +470,7 @@
       opt.textContent = CORE.genText(key, lang);
       genSelect.appendChild(opt);
     }
-    if (want !== "all" && !opts.includes(want)) S.setGeneration("all");
-    genSelect.value = snap.generation;
+    genSelect.value = value;
   }
 
   function paintSizeButtons() {
@@ -931,7 +935,7 @@
   function ensureOpen() {
     sync();
     if (snap.open.length || snap.query || snap.group !== "all") return;
-    const tree = CORE.groupSections(seriesGroups(), "all");
+    const tree = CORE.groupSections(seriesGroups(), "all", snap.generation);
     const first = tree[0];
     if (!first) return;
     S.toggleOpen("g:" + first.group);

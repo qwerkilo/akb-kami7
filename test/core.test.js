@@ -1221,6 +1221,10 @@ test("genKey：汉字期生归一为阿拉伯（用于筛选）", () => {
   assert.equal(core.genKey("五期生"), "5期生");
   assert.equal(core.genKey("十期生"), "10期生");
   assert.equal(core.genKey("十一期生"), "11期生");
+  assert.equal(core.genKey("十九期生"), "19期生");
+  assert.equal(core.genKey("二十期生"), "20期生");
+  assert.equal(core.genKey("二十九期生"), "29期生");
+  assert.equal(core.genKey("三十期生"), "30期生");
   assert.equal(core.genKey("二十一期生"), "21期生");
   assert.equal(core.genKey("1期生"), "1期生");
   assert.equal(core.genKey("1.5期生"), "1.5期生");
@@ -1234,6 +1238,8 @@ test("generationOptions：按出现顺序去重、汉字归一、排除兼任・
     { label: "1期生" },
     { label: "一期生" },
     { label: "兼任・移籍加入" },
+    { label: "Team 8" },
+    { label: "其他" },
     { label: "2期生" },
     { label: "二期生" },
     { label: "1期生" },
