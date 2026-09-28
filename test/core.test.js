@@ -1044,3 +1044,10 @@ test("nav/steps：上下文字段非法时保守回退（边界）", () => {
     true
   );
 });
+
+test("replay：多余答案被忽略（完成态仍返回完整名次）", () => {
+  const order = ["a", "b", "c", "d", "e"];
+  const r = core.replay(order, Array(core.worstCase(5)).fill(true));
+  assert.equal(r.done, true);
+  assert.deepEqual(r.order, order);
+});

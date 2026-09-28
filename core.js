@@ -102,7 +102,10 @@
   function replay(order, answers) {
     const g = mergeSort(order);
     let r = g.next();
-    for (const a of answers) r = g.next(a);
+    for (const a of answers) {
+      if (r.done) break;
+      r = g.next(a);
+    }
     return r.done
       ? { done: true, order: r.value }
       : { done: false, pair: r.value };

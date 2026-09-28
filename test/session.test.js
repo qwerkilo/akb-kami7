@@ -350,3 +350,21 @@ test("clearSelection：已选为空但对决进行中时也清空并返回 true"
   assert.equal(S2.clearSelection(), true);
   assert.equal(S2.snapshot().duel, null);
 });
+
+test("恢复：答案数多于排序实际消耗时不崩，快照仍给完整名次", () => {
+  const storage = memoryStorage();
+  const ids = ["a1", "a2", "a3", "a4", "a5"];
+  storage.setItem(
+    "akb:state:v2:48g",
+    JSON.stringify({
+      v: 1,
+      size: 7,
+      selected: ids,
+      duel: { order: ids, answers: Array(8).fill(true) }, // 8 = worstCase(5)：多于实际消耗
+      //（全左胜只消耗 5 次）
+    })
+  );
+  const s = make(storage).snapshot();
+  assert.equal(s.phase, "result");
+  assert.deepEqual(s.ranking, ids);
+});
