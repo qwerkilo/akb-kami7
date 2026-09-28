@@ -6,8 +6,8 @@
 
 - 站点覆盖三系列共 13 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY），现役 + 毕业共 **1375 人**。
 - 能力：三系列切换（各自保留已选/对决进度，localStorage）、7/16/32 档位（32 档精确全序最坏 129 题，结果与海报为金字塔布局）、简体输入与罗马字检索（`simplified.js` 折叠表 + `core.js` 假名→罗马字）、对决进度与刷新续玩（含向导模式：三步指示器、首屏见脸、引导卡、进度环、对决说明与续玩卡，① 返回不丢进度）、成员简介（卡片「i」→ 资料卡，值随语言本地化：映射表 + 自由文本对照表）、一键清空已选。
-- `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、折叠索引、两级分组、对决 replay、持久化载荷编解码、字幕 module、导航转移表 `nav`/`steps`、占位图）；`session.js` 是会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 是海报绘制 module（7/16/32 布局，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en 文案；`app.js` 是 DOM 层：向导（步骤指示器/引导/进度/续玩）→ pick（系列/筛选/搜索）→ duel（两两对比排序，可回放归并、可撤回、可续玩）→ result（canvas 海报导出）。
-- 双语 UI：文案在 `i18n.js`（zh/en），`index.html` 的 `data-i18n` 属性引用同一批键；改文案两处同步，`test/i18n.test.js` 会检查键完整性。
+- `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、折叠索引、两级分组、对决 replay、持久化载荷编解码、字幕 module、导航转移表 `nav`/`steps`、占位图）；`session.js` 是会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 是海报绘制 module（7/16/32 布局，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en/ja 文案；`app.js` 是 DOM 层：向导（步骤指示器/引导/进度/续玩）→ pick（系列/筛选/搜索）→ duel（两两对比排序，可回放归并、可撤回、可续玩）→ result（canvas 海报导出）。
+- 三语 UI（zh/en/ja）：文案在 `i18n.js`，`index.html` 的 `data-i18n` 属性引用同一批键；改文案三处同步，`test/i18n.test.js` 检查键完整性（ja 与 zh 同集合、en 允许 `leave_*`）。首次访问按浏览器语言自动选（ja→ja、zh→zh、其他→en），选择记忆在 `akb-lang`；数据字段随 zh/en 走映射表、日语直出数据原文。
 - `members.js` 是生成文件（48pedia + 等爱三团官网/Wikipedia），不要手改。
 
 ## CodeGraph（代码检索优先）

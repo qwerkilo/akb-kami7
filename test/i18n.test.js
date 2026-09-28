@@ -7,18 +7,21 @@ const path = require("node:path");
 const I18N = require("../i18n.js");
 const root = path.join(__dirname, "..");
 
-test("zh/en 键集合一致（en 允许额外的 leave_* 直译）", () => {
+test("zh/en/ja 键集合一致（en 允许额外的 leave_* 直译）", () => {
   const zh = Object.keys(I18N.zh).sort();
-  const en = Object.keys(I18N.en).sort();
-  const extra = en.filter((k) => !zh.includes(k));
-  assert.deepEqual(
-    extra.filter((k) => !k.startsWith("leave_")),
-    []
-  );
-  assert.deepEqual(
-    zh.filter((k) => !en.includes(k)),
-    []
-  );
+  for (const lang of ["en", "ja"]) {
+    const keys = Object.keys(I18N[lang]).sort();
+    assert.deepEqual(
+      keys.filter((k) => !zh.includes(k) && !k.startsWith("leave_")),
+      [],
+      lang
+    );
+    assert.deepEqual(
+      zh.filter((k) => !keys.includes(k)),
+      [],
+      lang
+    );
+  }
 });
 
 test("index.html 引用的 i18n 键都存在", () => {
@@ -31,8 +34,9 @@ test("index.html 引用的 i18n 键都存在", () => {
   }
   assert.ok(keys.size > 0);
   for (const key of keys) {
-    assert.ok(I18N.zh[key] != null, `zh 缺: ${key}`);
-    assert.ok(I18N.en[key] != null, `en 缺: ${key}`);
+    for (const lang of ["zh", "en", "ja"]) {
+      assert.ok(I18N[lang][key] != null, `${lang} 缺: ${key}`);
+    }
   }
 });
 
@@ -43,12 +47,13 @@ test("app.js 中静态引用的文案键都存在", () => {
   );
   assert.ok(keys.size > 0);
   for (const key of keys) {
-    assert.ok(I18N.zh[key] != null, `zh 缺: ${key}`);
-    assert.ok(I18N.en[key] != null, `en 缺: ${key}`);
+    for (const lang of ["zh", "en", "ja"]) {
+      assert.ok(I18N[lang][key] != null, `${lang} 缺: ${key}`);
+    }
   }
 });
 
-test("names 组合在 zh/en × 系列 × 档位下都解析出真实文案", () => {
+test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", () => {
   const core = require("../core.js");
   const expectBrand = {
     zh: {
@@ -73,8 +78,19 @@ test("names 组合在 zh/en × 系列 × 档位下都解析出真实文案", () 
       "love-16": "Senbatsu",
       "love-32": "Ranked",
     },
+    ja: {
+      "48g-7": "神7",
+      "sakamichi-7": "7福神",
+      "48g-16": "選抜",
+      "sakamichi-16": "選抜",
+      "48g-32": "圏内",
+      "sakamichi-32": "圏内",
+      "love-7": "推し7",
+      "love-16": "選抜",
+      "love-32": "圏内",
+    },
   };
-  for (const lang of ["zh", "en"]) {
+  for (const lang of ["zh", "en", "ja"]) {
     const t = (k) => I18N[lang][k];
     for (const series of ["48g", "sakamichi", "love"]) {
       for (const size of [7, 16, 32]) {
@@ -128,8 +144,9 @@ test("core.js 中静态引用的文案键都存在", () => {
   );
   assert.ok(keys.size > 0);
   for (const key of keys) {
-    assert.ok(I18N.zh[key] != null, `zh 缺: ${key}`);
-    assert.ok(I18N.en[key] != null, `en 缺: ${key}`);
+    for (const lang of ["zh", "en", "ja"]) {
+      assert.ok(I18N[lang][key] != null, `${lang} 缺: ${key}`);
+    }
   }
 });
 
@@ -163,7 +180,7 @@ test("真实字典驱动真实字幕/简介：无 undefined、无缺键", () => 
   vm.runInNewContext(memberSrc, sandbox);
   const members = core.flattenMembers(sandbox.window.AKB_GROUPS);
   assert.ok(members.length > 1000, String(members.length));
-  for (const lang of ["zh", "en"]) {
+  for (const lang of ["zh", "en", "ja"]) {
     const t = (k, ...args) => {
       const v = I18N[lang][k];
       return typeof v === "function" ? v(...args) : v;

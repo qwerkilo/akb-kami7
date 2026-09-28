@@ -533,9 +533,9 @@
     const y = m[1],
       mo = +m[2],
       d = +m[3];
-    return lang === "en"
-      ? `${MONTHS_EN[mo - 1]} ${d}, ${y}`
-      : `${y}/${mo}/${d}`;
+    if (lang === "en") return `${MONTHS_EN[mo - 1]} ${d}, ${y}`;
+    if (lang === "ja") return `${y}年${mo}月${d}日`;
+    return `${y}/${mo}/${d}`;
   }
 
   function ageOn(birth, now) {
@@ -552,6 +552,7 @@
   }
 
   function localized(map, v, lang) {
+    if (lang === "ja") return v;
     const pair = map[v];
     return pair ? pair[lang === "en" ? 1 : 0] : v;
   }

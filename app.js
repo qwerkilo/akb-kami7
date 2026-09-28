@@ -30,7 +30,12 @@
 
   let lang = "zh";
   try {
-    if (localStorage.getItem("akb-lang") === "en") lang = "en";
+    const saved = localStorage.getItem("akb-lang");
+    if (saved === "en" || saved === "zh" || saved === "ja") lang = saved;
+    else {
+      const nav = (navigator.language || "").toLowerCase();
+      lang = nav.startsWith("ja") ? "ja" : nav.startsWith("zh") ? "zh" : "en";
+    }
   } catch (_) {}
   const t = (key, ...args) => {
     const v = I18N[lang][key];
@@ -41,7 +46,8 @@
   }
 
   function applyStatic() {
-    document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+    document.documentElement.lang =
+      lang === "en" ? "en" : lang === "ja" ? "ja" : "zh-CN";
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.dataset.i18n;
       if (I18N[lang][key] != null) el.textContent = t(key);
@@ -789,7 +795,7 @@
   }
 
   function setLang(next) {
-    if (next !== "en" && next !== "zh") return;
+    if (next !== "en" && next !== "zh" && next !== "ja") return;
     lang = next;
     try {
       localStorage.setItem("akb-lang", lang);
