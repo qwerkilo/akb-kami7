@@ -16,6 +16,13 @@
     瀨: "瀬",
   };
 
+  const VARIANT_RE = new RegExp(
+    `[${Object.keys(VARIANTS)
+      .map((c) => c.replace(/[\\^\]\[-]/g, "\\$&"))
+      .join("")}]`,
+    "g"
+  );
+
   function normalizeName(s) {
     return s
       .trim()
@@ -24,7 +31,7 @@
       .replace(/[\u30A1-\u30F6]/g, (c) =>
         String.fromCharCode(c.charCodeAt(0) - 0x60)
       )
-      .replace(/[﨑髙邉邊濵德瀨]/g, (c) => VARIANTS[c]);
+      .replace(VARIANT_RE, (c) => VARIANTS[c]);
   }
 
   // ---- 罗马字检索（假名 → 罗马字：Hepburn 主形 + 常见异形；长音/促音/ん 变体） ----

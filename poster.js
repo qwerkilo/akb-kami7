@@ -43,6 +43,11 @@
     return { width: 1080, height: count > 7 && count <= 16 ? 1920 : 1440 };
   }
 
+  // 页框：左右边距与页脚基线（内容不得越过的界线）的单一出处
+  function frame(W, H) {
+    return { margin: 72, right: W - 72, footerTop: H - 84 };
+  }
+
   function cover(ctx, im, x, y, w, h) {
     const s = Math.max(w / im.width, h / im.height);
     const sw = w / s,
@@ -91,6 +96,30 @@
     ctx.restore();
   }
 
+  // 卡片面板：阴影 + 底 + 描边（cardStroke 语义单点；阴影参数由各样式传入）
+  function panel(ctx, T, x, y, w, h, r, opts) {
+    const o = opts || {};
+    ctx.save();
+    if (o.color) {
+      ctx.shadowColor = o.color;
+      ctx.shadowBlur = o.blur;
+      ctx.shadowOffsetY = o.dy;
+    }
+    roundRect(ctx, x, y, w, h, r);
+    ctx.fillStyle = T.colors.card;
+    ctx.fill();
+    ctx.restore();
+    const sw = o.stroke == null ? T.cardStroke : o.stroke;
+    if (sw > 0) {
+      ctx.save();
+      roundRect(ctx, x, y, w, h, r);
+      ctx.lineWidth = sw;
+      ctx.strokeStyle = T.colors.ink;
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
   function topRoundedRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -105,23 +134,12 @@
 
   function slotCard(ctx, T, im, m, x, y, w, h, compact, photoH) {
     const ph = photoH || h;
-    ctx.save();
-    ctx.shadowColor = "rgba(28,30,43,.18)";
-    ctx.shadowBlur = 24;
-    ctx.shadowOffsetY = 10;
-    roundRect(ctx, x, y, w, h, 10);
-    ctx.fillStyle = T.colors.card;
-    ctx.fill();
-    ctx.restore();
-
-    if (T.cardStroke > 0) {
-      ctx.save();
-      roundRect(ctx, x, y, w, h, 10);
-      ctx.lineWidth = compact ? Math.min(2, T.cardStroke) : T.cardStroke;
-      ctx.strokeStyle = T.colors.ink;
-      ctx.stroke();
-      ctx.restore();
-    }
+    panel(ctx, T, x, y, w, h, 10, {
+      color: "rgba(28,30,43,.18)",
+      blur: 24,
+      dy: 10,
+      stroke: compact ? Math.min(2, T.cardStroke) : T.cardStroke,
+    });
 
     ctx.save();
     if (ph < h) topRoundedRect(ctx, x, y, w, ph, 10);
@@ -518,7 +536,7 @@
       slotCard(ctx, T, images[i], members[i], x, y, cw, ch, true);
       ctx.save();
       roundRect(ctx, x + 6, y + 6, 46, 24, 12);
-      ctx.fillStyle = i < 7 ? T.colors.pink : T.colors.ink;
+      ctx.fillStyle = rankColor(i + 1, T);
       ctx.fill();
       ctx.fillStyle = "#fff";
       ctx.font = `800 15px ${T.fonts.ui}`;
@@ -538,6 +556,11 @@
 
   // ---- 样式 C：榜单领奖台（前三放大 + 双栏紧凑榜） ----
   const MEDALS = { 1: "#e8b64c", 2: "#b9c0c9", 3: "#c98a5b" };
+
+  // 前三样式共享的产品规则：前 7 名用品牌粉，其余用墨色（样式 a 的名次胶带自成一套）
+  function rankColor(rank, T) {
+    return rank <= 7 ? T.colors.pink : T.colors.ink;
+  }
 
   function drawChart(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
@@ -578,22 +601,11 @@
     ];
     for (const p of pod) {
       if (!members[p.i]) continue;
-      ctx.save();
-      ctx.shadowColor = "rgba(28,30,43,.16)";
-      ctx.shadowBlur = 20;
-      ctx.shadowOffsetY = 8;
-      roundRect(ctx, p.x, p.y, p.w, p.h, 18);
-      ctx.fillStyle = T.colors.card;
-      ctx.fill();
-      ctx.restore();
-      if (T.cardStroke > 0) {
-        ctx.save();
-        roundRect(ctx, p.x, p.y, p.w, p.h, 18);
-        ctx.lineWidth = T.cardStroke;
-        ctx.strokeStyle = T.colors.ink;
-        ctx.stroke();
-        ctx.restore();
-      }
+      panel(ctx, T, p.x, p.y, p.w, p.h, 18, {
+        color: "rgba(28,30,43,.16)",
+        blur: 20,
+        dy: 8,
+      });
       const pad = 12 * k;
       ctx.save();
       roundRect(
@@ -671,7 +683,7 @@
           photoH2
         );
         ctx.textAlign = "center";
-        ctx.fillStyle = i < 7 ? T.colors.pink : T.colors.ink;
+        ctx.fillStyle = rankColor(i + 1, T);
         ctx.font = `400 34px ${T.fonts.display}`;
         ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
         ctx.textAlign = "left";
@@ -713,7 +725,7 @@
         ctx.restore();
       }
       ctx.textAlign = "right";
-      ctx.fillStyle = i < 7 ? T.colors.pink : T.colors.ink;
+      ctx.fillStyle = rankColor(i + 1, T);
       const rs = fitText(
         ctx,
         String(i + 1),
@@ -781,18 +793,11 @@
     ctx.save();
     ctx.translate(72, 72);
     ctx.rotate(-0.05);
-    ctx.shadowColor = "rgba(28,30,43,.22)";
-    ctx.shadowBlur = 16;
-    ctx.shadowOffsetY = 8;
-    roundRect(ctx, 0, 0, tw, 132, 14);
-    ctx.fillStyle = T.colors.card;
-    ctx.fill();
-    ctx.shadowColor = "transparent";
-    if (T.cardStroke > 0) {
-      ctx.lineWidth = T.cardStroke;
-      ctx.strokeStyle = T.colors.ink;
-      ctx.stroke();
-    }
+    panel(ctx, T, 0, 0, tw, 132, 14, {
+      color: "rgba(28,30,43,.22)",
+      blur: 16,
+      dy: 8,
+    });
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     const ts = fitText(ctx, title, tw - 52, 46, 900, T.fonts.display);
@@ -849,13 +854,11 @@
         ctx.save();
         ctx.translate(x + cw / 2, y + cardH / 2);
         ctx.rotate(rot);
-        ctx.shadowColor = "rgba(28,30,43,.18)";
-        ctx.shadowBlur = 12;
-        ctx.shadowOffsetY = 6;
-        roundRect(ctx, -cw / 2, -cardH / 2, cw, cardH, 6);
-        ctx.fillStyle = T.colors.card;
-        ctx.fill();
-        ctx.shadowColor = "transparent";
+        panel(ctx, T, -cw / 2, -cardH / 2, cw, cardH, 6, {
+          color: "rgba(28,30,43,.18)",
+          blur: 12,
+          dy: 6,
+        });
         ctx.save();
         roundRect(ctx, -cw / 2 + 12, -cardH / 2 + 12, cw - 24, photoH, 3);
         ctx.clip();
@@ -888,7 +891,7 @@
         ctx.fillText(m.name, -cw / 2 + 12, cardH / 2 - 16);
         ctx.beginPath();
         ctx.arc(cw / 2 - 30, cardH / 2 - 30, 17, 0, Math.PI * 2);
-        ctx.fillStyle = idx < 7 ? T.colors.pink : T.colors.ink;
+        ctx.fillStyle = rankColor(idx + 1, T);
         ctx.fill();
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";

@@ -409,9 +409,14 @@ def image_urls(files, api_fn=api):
     return out
 
 
+def orig_path(mid, url, orig_dir=ORIG):
+    """原图缓存路径：id + URL 扩展名小写（下载与缓存命中共享同一契约）。"""
+    return os.path.join(orig_dir, mid + os.path.splitext(url)[1].lower())
+
+
 def download(args, orig_dir=ORIG, fetch=get):
     mid, url = args
-    path = os.path.join(orig_dir, mid + os.path.splitext(url)[1].lower())
+    path = orig_path(mid, url, orig_dir)
     if not os.path.exists(path):
         data = fetch(url)
         with open(path, "wb") as fh:
@@ -433,7 +438,7 @@ def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6):
 def cached_image_paths(jobs, orig_dir=ORIG):
     paths = {}
     for mid, url in jobs:
-        p = os.path.join(orig_dir, mid + os.path.splitext(url)[1].lower())
+        p = orig_path(mid, url, orig_dir)
         if os.path.exists(p):
             paths[mid] = p
     return paths
