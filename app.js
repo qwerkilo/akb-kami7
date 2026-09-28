@@ -57,6 +57,9 @@
     document.querySelectorAll("[data-i18n-alt]").forEach((el) => {
       el.alt = t(el.dataset.i18nAlt);
     });
+    document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
+      el.setAttribute("aria-label", t(el.dataset.i18nAriaLabel));
+    });
     document.querySelectorAll(".seg-lang [data-lang]").forEach((b) => {
       b.setAttribute("aria-checked", b.dataset.lang === lang);
     });
@@ -558,6 +561,24 @@
   });
 
   document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      const group = e.target.closest?.(".seg-skin");
+      if (group) {
+        const items = [...group.querySelectorAll("button")];
+        const idx = items.indexOf(e.target);
+        if (idx >= 0) {
+          e.preventDefault();
+          const next =
+            items[
+              (idx + (e.key === "ArrowRight" ? 1 : items.length - 1)) %
+                items.length
+            ];
+          next.focus();
+          switchSkin(next.dataset.skin);
+        }
+        return;
+      }
+    }
     if (
       $("#phase-duel").hidden ||
       e.target.closest?.("input, textarea") ||
@@ -768,10 +789,25 @@
     if (b) return setLang(b.dataset.lang);
     const s = e.target.closest(".seg-series [data-series]");
     if (s) switchSeries(s.dataset.series);
+    const k = e.target.closest(".seg-skin [data-skin]");
+    if (k) switchSkin(k.dataset.skin);
   });
 
+  function paintSkin() {
+    document.documentElement.dataset.skin = snap.skin;
+    document.querySelectorAll(".seg-skin [data-skin]").forEach((b) => {
+      b.setAttribute("aria-checked", String(b.dataset.skin === snap.skin));
+    });
+  }
+
+  function switchSkin(next) {
+    if (!S.setSkin(next)) return;
+    sync();
+    paintSkin();
+  }
+
   /* ---------------- boot ---------------- */
-  document.documentElement.dataset.skin = snap.skin;
+  paintSkin();
   refreshGroupOptions();
   paintSizeButtons();
   applyStatic();

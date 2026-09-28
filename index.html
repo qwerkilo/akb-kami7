@@ -52,13 +52,44 @@
           </button>
         </div>
       </div>
-      <div class="seg seg-lang" role="radiogroup" aria-label="Language">
-        <button type="button" role="radio" aria-checked="true" data-lang="zh">
-          中
-        </button>
-        <button type="button" role="radio" aria-checked="false" data-lang="en">
-          EN
-        </button>
+      <div class="masthead-side">
+        <div class="seg seg-lang" role="radiogroup" aria-label="Language">
+          <button type="button" role="radio" aria-checked="true" data-lang="zh">
+            中
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked="false"
+            data-lang="en"
+          >
+            EN
+          </button>
+        </div>
+        <div
+          class="seg seg-skin"
+          role="radiogroup"
+          data-i18n-aria-label="skin_label"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked="true"
+            data-skin="classic"
+          >
+            <span class="swatch classic" aria-hidden="true"></span
+            ><span data-i18n="skin_classic">原版</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked="false"
+            data-skin="sticker"
+          >
+            <span class="swatch sticker" aria-hidden="true"></span
+            ><span data-i18n="skin_sticker">贴纸</span>
+          </button>
+        </div>
       </div>
     </header>
 

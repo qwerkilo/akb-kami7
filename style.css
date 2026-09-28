@@ -173,6 +173,34 @@ main {
   color: var(--muted);
 }
 
+.masthead-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex: none;
+}
+.seg-skin button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(28, 30, 43, 0.35);
+}
+.swatch.classic {
+  background: linear-gradient(135deg, #edeff3 0 50%, #e4007f 50% 100%);
+}
+.swatch.sticker {
+  background: linear-gradient(135deg, #f5f1e6 0 50%, #ffe08a 50% 100%);
+}
+
 /* ---------- segmented chips ---------- */
 .seg {
   display: inline-flex;
@@ -927,7 +955,8 @@ main {
 [data-skin="classic"] .seg-lang button[aria-checked="true"],
 [data-skin="classic"] .seg-series button[aria-checked="true"],
 [data-skin="classic"] .seg-size button[aria-checked="true"],
-[data-skin="classic"] .seg-filter button[aria-checked="true"] {
+[data-skin="classic"] .seg-filter button[aria-checked="true"],
+[data-skin="classic"] .seg-skin button[aria-checked="true"] {
   background: var(--ink);
   color: #fff;
   box-shadow: none;
