@@ -300,3 +300,17 @@
   - 验证：`npm test` JS **131** + Python **86**（直接运行 `test_fetch_members.py` 亦 57 条，与 `-m unittest` 一致）；E2E 回归 **86/86**、v5 **49/49**。
 - 遗留：LOW——v5 E2E 脚本偶发 flake（5 次里 1 次 47/48，重跑即 49/49；本轮产物逐字节未变，判为脚本时序敏感，非产品回归）；记录里「等爱毕业」措辞已改为「多为已毕业」（`need` 的定义是官网列表缺照片，不限毕业）。
 - 下次基点：`388c05a`
+
+## 2026-09-28 · PWA（可安装 + 完全离线）· 第二十三轮
+
+- 基点：`76c831c`（PWA 的 ADR/spec/工单提交；第二十二轮检查点之后仅此一笔文档提交）
+- 范围：`git diff 76c831c..3ed6811`，3 个提交（实现、复审修复、收尾）；两轴子代理审查
+- 结论：
+  - **新功能**：manifest + `sw.js` + 图标（`scripts/make_icons.py`）+ 页脚安装入口（原型四版里选的 D）、iOS 四步指引浮层、离线胶囊、顶部更新横幅。壳 network-first、图片 cache-first 封顶 600、字体运行时 cache-first。策略见 ADR-0016。
+  - **审查抓到的实缺（10 条已修）**：① 对外文案把已下线的 32 档写回 `meta description` 与 manifest（并污染 ADR/spec/工单的前提）——按 ADR-0015 回滚为 40；② `activate` 会清掉同源上其他应用的缓存（`user.github.io` 是同源多站点）→ 只清 `akb-` 前缀；③ 已安装态切语言变回默认文案且按钮已被移除 → 同步改 `data-i18n`；④ 更新横幅 sticky top:0 盖住同样 sticky 的步骤条、导航点不到 → 改 static；⑤ 缓存写失败（配额满）被当成网络失败 → 响应与写缓存解耦；⑥ 字体离线只在第二次访问后成立 → 接管后重取 CSS 与 woff2；⑦ 断网海报没脸（名册只缓存 thumb）→ 选中即预热 `img/full`；⑧ 桌面 Firefox/Safari 不触发安装事件 → 该行永不出现（记为已知限制）；⑨ 体积估算与文档口径订正；⑩ 触摸目标 40→44px、`sheetOpen` 声明上提。
+  - **断网 E2E 逼出的既有缺陷**：`document.fonts.load()` 取不到字体时 reject → `fontsReady()` → `drawPoster()` 整条断掉，海报画布空白且无任何报错（离线场景必现）。已吞掉该失败：字体没加载出来也要出图。
+  - **更新流程改实现**：原方案「waiting + postMessage 叫醒 skipWaiting」实测不可靠（消息发给 waiting 里的 worker 收不到，点了「刷新」没反应）→ 新 SW 在 `install` 里直接 `skipWaiting()`，页面只决定何时 reload。ADR-0016 第 5 条已同步。
+  - **E2E 自身被复审判为不诚实**：初版 19 项里有两条断言其实从未执行（iOS 浮层在被移除按钮上点击并吞掉异常；「没浏览过 → 占位」的探针恒为 null），工单还把它们写成已验证。已重写为 **30 项**、连跑 3 次稳定：iOS 路径用 iPhone UA 上下文真跑、「占位」改在断网后现开未浏览的段、字体比对在线/断网的 `document.fonts.size` 与 h1 宽、海报脸部色彩采样、钩 `unhandledrejection`。
+  - 验证：`npm test` JS **136** / Python **88**；E2E 回归 **86/86**、v5 **49/49**、PWA **30/30**（各跑 2–3 次）；`make_icons.py` 幂等且逐字节复现产物。
+- 遗留：LOW——① 图片封顶 600 条按条数计，而 full 与 thumb 共用一个缓存（一次对决每人两条），实际覆盖约 300 人、最坏约 30MB，翻回去看很早浏览过的人可能变占位（UI 无说明）；② 壳无构建步骤，理论上存在「新 index.html + 旧 app.js」的混合版本窗口，表现是降级而非崩溃，点一次刷新自愈；③ Playwright 的 `setOffline` 在重载后会让 `navigator.onLine` 假回 true，离线胶囊只能在活文档里验；④ 站点可安装性未在真机（iOS Safari / Android Chrome）人工验过，只在 headless Chromium 验过。
+- 下次基点：`3ed6811`
