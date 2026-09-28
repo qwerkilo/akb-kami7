@@ -5,6 +5,13 @@
 BASE_KEYS = ("id", "name", "kana", "nick", "status", "end", "img")
 
 
+def ymd(y, mo=None, d=None):
+    """站点统一日期格式 YYYY.MM.DD（缺月日时只给年份，如毕业年）。"""
+    if mo in (None, ""):
+        return str(y)
+    return "{}.{}.{}".format(y, str(mo).zfill(2), str(d).zfill(2))
+
+
 def sort_members(members):
     """现役优先，其次按假名（空则用姓名）。原地排序并返回同一列表。"""
     members.sort(key=lambda m: (m["status"] != "current", m["kana"] or m["name"]))

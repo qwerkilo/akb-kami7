@@ -52,12 +52,16 @@
     if (AKB_POSTER.styles.includes(saved)) posterStyle = saved;
   } catch (_) {}
 
+  // 分段控件选中态统一绘制：aria-checked = 按钮属性值 === 当前值（值一律按字符串比）
+  function paintSeg(sel, attr, value) {
+    const want = String(value);
+    document.querySelectorAll(`${sel} [data-${attr}]`).forEach((b) => {
+      b.setAttribute("aria-checked", b.dataset[attr] === want);
+    });
+  }
+
   function renderStyleSeg() {
-    document
-      .querySelectorAll(".seg-style [data-style]")
-      .forEach((b) =>
-        b.setAttribute("aria-checked", String(b.dataset.style === posterStyle))
-      );
+    paintSeg(".seg-style", "style", posterStyle);
   }
 
   function setPosterStyle(next) {
@@ -86,9 +90,7 @@
     document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
       el.setAttribute("aria-label", t(el.dataset.i18nAriaLabel));
     });
-    document.querySelectorAll(".seg-lang [data-lang]").forEach((b) => {
-      b.setAttribute("aria-checked", b.dataset.lang === lang);
-    });
+    paintSeg(".seg-lang", "lang", lang);
     const N = names();
     const brand = $("#brand");
     if (brand) {
@@ -101,8 +103,8 @@
     if (size7) size7.textContent = CORE.names(series, 7, t).brand;
     document.querySelectorAll(".seg-series [data-series]").forEach((b) => {
       b.textContent = CORE.names(b.dataset.series, pick, t).seriesLabel;
-      b.setAttribute("aria-checked", b.dataset.series === series);
     });
+    paintSeg(".seg-series", "series", series);
     const seriesSeg = document.querySelector(".seg-series");
     if (seriesSeg) seriesSeg.setAttribute("aria-label", t("series_label"));
     const title = $("#title-input");
@@ -453,18 +455,12 @@
   }
 
   function paintSizeButtons() {
-    document
-      .querySelectorAll(".seg-size button")
-      .forEach((b) => b.setAttribute("aria-checked", +b.dataset.pick === pick));
+    paintSeg(".seg-size", "pick", pick);
   }
 
   function paintFilters() {
     sync();
-    document
-      .querySelectorAll(".seg-filter button")
-      .forEach((b) =>
-        b.setAttribute("aria-checked", String(b.dataset.filter === snap.filter))
-      );
+    paintSeg(".seg-filter", "filter", snap.filter);
   }
 
   function paintTitle() {
@@ -711,17 +707,9 @@
   $("#restart-btn").addEventListener("click", () => navigate("restart"));
   $("#save-btn").addEventListener("click", savePoster);
   $("#share-btn").addEventListener("click", () => {
-    const text =
-      `${$("#title-input").value.trim() || names().title}\n\n` +
-      ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n") +
-      `\n\n${names().shareTags}`;
-    const url =
-      location.protocol.startsWith("http") &&
-      !/^(localhost|127\.)/.test(location.hostname)
-        ? location.href.split("#")[0]
-        : "";
+    const ex = resultExport();
     window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}${url ? "&url=" + encodeURIComponent(url) : ""}`,
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(ex.caption)}${ex.shareUrl ? "&url=" + encodeURIComponent(ex.shareUrl) : ""}`,
       "_blank",
       "noopener"
     );
@@ -780,6 +768,24 @@
     };
   }
 
+  // 结果页导出装配：标题回退、日期规则、分享串与文件名各自只此一处
+  function resultExport() {
+    const title = $("#title-input").value.trim() || names().title;
+    const d = new Date();
+    return {
+      title,
+      dateText: `${names().eyebrow} · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
+      hashtag: names().posterTags,
+      fileName: `${names().fileBase}.png`,
+      caption: `${title}\n\n${ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n")}\n\n${names().shareTags}`,
+      shareUrl:
+        location.protocol.startsWith("http") &&
+        !/^(localhost|127\.)/.test(location.hostname)
+          ? location.href.split("#")[0]
+          : "",
+    };
+  }
+
   async function drawPoster() {
     if (!ranking.length) return;
     const canvas = $("#poster-canvas");
@@ -789,14 +795,13 @@
       fontsReady(),
     ]);
 
-    const title = $("#title-input").value.trim() || names().title;
-    const d = new Date();
+    const ex = resultExport();
     AKB_POSTER.draw(ctx, {
       members: ranking,
       images: imgs,
-      title,
-      dateText: `${names().eyebrow} · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      hashtag: names().posterTags,
+      title: ex.title,
+      dateText: ex.dateText,
+      hashtag: ex.hashtag,
       photoSrc: t(series === "love" ? "photo_src_love" : "photo_src"),
       subOf: posterSub,
       tokens: posterTokens(),
@@ -811,17 +816,13 @@
     }
   }
 
-  function posterFileName() {
-    return `${names().fileBase}.png`;
-  }
-
   function savePoster() {
     const canvas = $("#poster-canvas");
     canvas.toBlob((blob) => {
       if (!blob) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = posterFileName();
+      a.download = resultExport().fileName;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, "image/png");
@@ -851,9 +852,7 @@
 
   function paintSkin() {
     document.documentElement.dataset.skin = snap.skin;
-    document.querySelectorAll(".seg-skin [data-skin]").forEach((b) => {
-      b.setAttribute("aria-checked", String(b.dataset.skin === snap.skin));
-    });
+    paintSeg(".seg-skin", "skin", snap.skin);
   }
 
   function switchSkin(next) {

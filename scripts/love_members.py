@@ -84,7 +84,7 @@ def parse_detail(html):
             m = re.match(r"(\d{4})/(\d{1,2})/(\d{1,2})$", v)
             if not m:
                 continue
-            v = "{}.{:02d}.{:02d}".format(m.group(1), int(m.group(2)), int(m.group(3)))
+            v = roster.ymd(m.group(1), m.group(2), m.group(3))
         bio[key] = v
     return bio
 
@@ -125,8 +125,8 @@ def parse_wiki_members(wikitext):
         rec = {"from": from_}
         if kana_cell:
             rec["kana"] = kana_cell.group(1).strip()
-        rec["birth"] = "{}.{:02d}.{:02d}".format(
-            birth.group(1), int(birth.group(2)), int(birth.group(3))
+        rec["birth"] = roster.ymd(
+            birth.group(1), birth.group(2), birth.group(3)
         )
         height = re.search(r"([\d.]+)\s*(?:&nbsp;)?\s*cm", chunk)
         if height:
@@ -150,8 +150,8 @@ def parse_wiki_members(wikitext):
             rec["former"] = True
             grad = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日", chunk)
             if grad:
-                rec["grad"] = "{}.{:02d}.{:02d}".format(
-                    grad.group(1), int(grad.group(2)), int(grad.group(3))
+                rec["grad"] = roster.ymd(
+                    grad.group(1), grad.group(2), grad.group(3)
                 )
         out[nm] = rec
     return out

@@ -136,11 +136,11 @@ def end_leave_from_chunk(chunk):
     dates = re.findall(r"\{\{年月日\|(\d{4})\|(\d*)\|(\d*)\}\}", chunk)
     if dates:
         y, mo, d = dates[-1]
-        end = f"{y}.{mo.zfill(2)}.{d.zfill(2)}" if mo else y
+        end = roster.ymd(y, mo, d) if mo else roster.ymd(y)
     else:
         m = re.search(r'data-sort-value="(\d{4})(\d{2})(\d{2})"', chunk)
         if m:
-            end = f"{m.group(1)}.{m.group(2)}.{m.group(3)}"
+            end = roster.ymd(m.group(1), m.group(2), m.group(3))
     reason = re.search(r"<br>（([^）]+)）", chunk)
     if not reason:
         reason = re.search(r'data-sort-value="\d{8}"\s*\|（([^）]+)）', chunk)
@@ -154,7 +154,7 @@ def birth_from_chunk(chunk):
     if not m:
         return None
     y, mo, d = m.groups()
-    return f"{y}.{mo.zfill(2)}.{d.zfill(2)}"
+    return roster.ymd(y, mo, d)
 
 
 def hometown_from_chunk(chunk):
