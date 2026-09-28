@@ -24,6 +24,8 @@
   --pink: #e4007f;
   --pink-soft: #ffe1ef;
   --ok: #0e9f6e;
+  --placeholder: #e4e7ee;
+  --placeholder-ink: #9aa0b0;
   --radius: 16px;
   --border: 2px solid var(--ink);
   --shadow: 4px 4px 0 var(--ink);
@@ -436,7 +438,7 @@ main {
   border: var(--thumb-border);
   border-radius: var(--thumb-radius);
   overflow: hidden;
-  background: #e4e7ee;
+  background: var(--placeholder);
 }
 .card .ph img {
   width: 100%;
@@ -547,7 +549,7 @@ main {
   border: 0;
   border-radius: calc(var(--slot-radius) - 2px);
   overflow: hidden;
-  background: #e4e7ee;
+  background: var(--placeholder);
   display: block;
 }
 .slot img {
@@ -682,7 +684,7 @@ main {
   border: var(--border);
   border-radius: 10px;
   overflow: hidden;
-  background: #e4e7ee;
+  background: var(--placeholder);
 }
 .fighter .ph img {
   width: 100%;
@@ -888,7 +890,7 @@ main {
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border: var(--border);
-  background: #e4e7ee;
+  background: var(--placeholder);
 }
 .pf-head h3 {
   font-family: "Songti SC", "Noto Serif SC", serif;

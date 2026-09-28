@@ -158,7 +158,7 @@
     const i = snap.selected.indexOf(m.id);
     const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
     return `<button class="card" data-id="${m.id}" aria-pressed="${i >= 0}" data-order="${i + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
-      <span class="info" role="button" aria-label="${t("bio_open")}">i</span>
+      <span class="info" role="button" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
       <span class="nm">${esc(m.name)}</span>
       <span class="meta${m.status === "current" ? " now" : ""}">${esc(meta)}</span>
@@ -383,20 +383,26 @@
       closeProfile();
   });
 
-  function profileKey(e, open, getId) {
-    if (e.key !== "Enter" && e.key !== " ") return;
+  // ⓘ 的成员归属只看 data-profile（不再依赖 DOM 位置或容器）
+  function profileIdOf(e) {
     const info = e.target.closest(".info");
-    if (!info) return;
-    e.preventDefault();
-    open(getId(info));
+    return info ? info.dataset.profile || null : null;
   }
 
-  roster.addEventListener("keydown", (e) =>
-    profileKey(e, openProfile, (info) => {
-      const card = info.closest(".card");
-      return card ? card.dataset.id : "";
-    })
-  );
+  function profileKey(e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const id = profileIdOf(e);
+    if (!id) return;
+    e.preventDefault();
+    openProfile(id);
+  }
+
+  function profileClick(e) {
+    const id = profileIdOf(e);
+    if (id) openProfile(id);
+  }
+
+  roster.addEventListener("keydown", profileKey);
 
   roster.addEventListener("click", (e) => {
     const grp = e.target.closest(".grp-head");
@@ -405,8 +411,8 @@
     if (head) return toggleGroup(head.parentElement.dataset.sec);
     const info = e.target.closest(".info");
     if (info) {
-      const card = info.closest(".card");
-      if (card) return openProfile(card.dataset.id);
+      const id = info.dataset.profile;
+      if (id) return openProfile(id);
     }
     const card = e.target.closest(".card");
     if (card) toggleMember(card.dataset.id);
@@ -669,12 +675,7 @@
 
   const rankList = $("#rank-list");
 
-  rankList.addEventListener("keydown", (e) =>
-    profileKey(e, openProfile, (info) => {
-      const idx = [...rankList.children].indexOf(info.closest("li"));
-      return idx >= 0 && ranking[idx] ? ranking[idx].id : "";
-    })
-  );
+  rankList.addEventListener("keydown", profileKey);
 
   function renderRankList() {
     $("#rank-list").innerHTML = ranking
@@ -683,19 +684,13 @@
       <span class="no">${i + 1}</span>
       <img src="${thumbSrc(m)}" alt="">
       <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
-      <span class="info" role="button" aria-label="${t("bio_open")}">i</span>
+      <span class="info" role="button" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
     </li>`
       )
       .join("");
   }
 
-  $("#rank-list").addEventListener("click", (e) => {
-    const info = e.target.closest(".info");
-    if (!info) return;
-    const li = info.closest("li");
-    const idx = [...$("#rank-list").children].indexOf(li);
-    if (idx >= 0 && ranking[idx]) openProfile(ranking[idx].id);
-  });
+  rankList.addEventListener("click", profileClick);
 
   function renderResult() {
     sync();
@@ -776,6 +771,8 @@
         line: v("--line", d.colors.line),
         pink: v("--pink", d.colors.pink),
         tape: v("--lemon", d.colors.tape),
+        placeholder: v("--placeholder", d.colors.placeholder),
+        placeholderInk: v("--placeholder-ink", d.colors.placeholderInk),
       },
       fonts: {
         ui: v("--font-ui", d.fonts.ui),

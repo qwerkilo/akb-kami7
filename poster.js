@@ -20,6 +20,8 @@
         line: "#cfc7b8",
         pink: "#e4007f",
         tape: "#ffe08a",
+        placeholder: "#e4e7ee",
+        placeholderInk: "#9aa0b0",
       },
       fonts: { ui, jp, display: '"Dela Gothic One",' + jp },
       cardStroke: 3,
@@ -148,9 +150,9 @@
     if (im) {
       cover(ctx, im, x, y, w, ph);
     } else {
-      ctx.fillStyle = "#e4e7ee";
+      ctx.fillStyle = T.colors.placeholder;
       ctx.fillRect(x, y, w, ph);
-      ctx.fillStyle = "#9aa0b0";
+      ctx.fillStyle = T.colors.placeholderInk;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.font = `700 ${Math.round(ph / 3)}px ${T.fonts.jp}`;
@@ -500,7 +502,7 @@
     ctx.clip();
     if (images[0]) cover(ctx, images[0], M, heroY, W - M * 2, heroH);
     else {
-      ctx.fillStyle = "#e4e7ee";
+      ctx.fillStyle = T.colors.placeholder;
       ctx.fillRect(M, heroY, W - M * 2, heroH);
     }
     ctx.restore();
@@ -877,7 +879,7 @@
             photoH
           );
         else {
-          ctx.fillStyle = "#e4e7ee";
+          ctx.fillStyle = T.colors.placeholder;
           ctx.fillRect(-cw / 2 + 12, -cardH / 2 + 12, cw - 24, photoH);
         }
         ctx.restore();

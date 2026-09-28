@@ -570,3 +570,21 @@ test("D 拼贴：拍立得消费 cardStroke（贴纸 ≥ 人数条 3px 墨描边
   assert.ok(run(7, 3) >= 7, `7 人贴纸应有 ≥7 条 3px 描边，实际 ${run(7, 3)}`);
   assert.ok(run(32, 3) >= 32, `32 人贴纸应有 ≥32 条 3px 描边`);
 });
+
+test("占位视觉消费 tokens（placeholder / placeholderInk）", () => {
+  const members = people(7);
+  const { ctx, calls } = fakeCtx();
+  poster.draw(ctx, {
+    members,
+    images: members.map(() => null),
+    title: "T",
+    dateText: "D",
+    hashtag: "#H",
+    photoSrc: "P",
+    subOf: () => "s",
+    style: "a",
+    tokens: { colors: { placeholder: "#123456", placeholderInk: "#654321" } },
+  });
+  assert.ok(calls.fills.includes("#123456"), "未用注入的占位底色");
+  assert.ok(calls.fills.includes("#654321"), "未用注入的占位字色");
+});
