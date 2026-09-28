@@ -771,6 +771,7 @@
   });
 
   /* ---------------- boot ---------------- */
+  document.documentElement.dataset.skin = snap.skin;
   refreshGroupOptions();
   paintSizeButtons();
   applyStatic();

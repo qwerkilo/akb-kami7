@@ -1,4 +1,17 @@
 :root {
+  --font-ui:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+  --font-jp:
+    "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo",
+    var(--font-ui);
+  --font-display: "Dela Gothic One", "Zen Kaku Gothic New", var(--font-ui);
+  --font-round: "Nunito", var(--font-jp);
+}
+
+/* 贴纸（现行风格；:root 兜底与 [data-skin="sticker"] 同值） */
+:root,
+[data-skin="sticker"] {
   --floor: #f5f1e6;
   --card: #ffffff;
   --ink: #20242e;
@@ -9,20 +22,60 @@
   --lilac: #d8ccff;
   --lemon: #ffe08a;
   --pink: #e4007f;
-
-  --font-ui:
-    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
-    sans-serif;
-  --font-jp:
-    "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo",
-    var(--font-ui);
-  --font-display: "Dela Gothic One", "Zen Kaku Gothic New", var(--font-ui);
-  --font-round: "Nunito", var(--font-jp);
-
+  --pink-soft: #ffe1ef;
   --radius: 16px;
-  --border: 2px solid var(--ink);
+  --border: var(--border);
   --shadow: 4px 4px 0 var(--ink);
   --shadow-soft: 3px 3px 0 rgba(32, 36, 46, 0.22);
+  --shadow-sm: 2px 2px 0 var(--ink);
+  --shadow-xs: 1px 1px 0 var(--ink);
+  --shadow-disabled: 2px 2px 0 rgba(32, 36, 46, 0.25);
+  --on-primary: var(--ink);
+  --seg-active-color: var(--ink);
+  --hover-bg: #faf7ee;
+  --picked-bg: var(--lemon);
+  --card-radius: 14px;
+  --card-pad: 6px;
+  --card-align: left;
+  --thumb-radius: 10px;
+  --thumb-border: var(--border);
+  --slot-radius: 10px;
+  --tray-bg: var(--floor);
+  --tray-border-top: 2px solid var(--ink);
+}
+
+/* 原版（上游 11fa090 的视觉语言） */
+[data-skin="classic"] {
+  --floor: #edeff3;
+  --card: #ffffff;
+  --ink: #1c1e2b;
+  --muted: #6b6f80;
+  --line: #d5d9e2;
+  --peach: #e4007f;
+  --mint: #eef0f4;
+  --lilac: #fde6f2;
+  --lemon: #f4c20d;
+  --pink: #e4007f;
+  --pink-soft: #fde6f2;
+  --radius: 10px;
+  --border: 1px solid var(--line);
+  --shadow: none;
+  --shadow-soft: 0 1px 3px rgba(28, 30, 43, 0.12);
+  --shadow-sm: none;
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #fff;
+  --seg-active-color: #fff;
+  --hover-bg: #f4f6f9;
+  --picked-bg: var(--pink-soft);
+  --card-radius: 0;
+  --card-pad: 0;
+  --card-align: center;
+  --thumb-radius: 8px;
+  --thumb-border: 0;
+  --slot-radius: 6px;
+  --tray-bg: rgba(237, 239, 243, 0.94);
+  --tray-border-top: 0;
 }
 
 * {
@@ -92,7 +145,7 @@ main {
   background: var(--lemon);
   border: var(--border);
   border-radius: 999px;
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: var(--shadow-sm);
   padding: 5px 12px;
 }
 .masthead h1 {
@@ -134,7 +187,8 @@ main {
   padding: 8px 14px;
 }
 .seg button[aria-checked="true"] {
-  box-shadow: 2px 2px 0 var(--ink);
+  color: var(--seg-active-color);
+  box-shadow: var(--shadow-sm);
   transform: translate(1px, 1px);
 }
 .seg-lang button {
@@ -157,7 +211,7 @@ main {
 }
 .seg button:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--ink);
+  box-shadow: var(--shadow-xs);
 }
 
 /* ---------- toolbar ---------- */
@@ -230,7 +284,7 @@ main {
 }
 .gen-head:hover,
 .grp-head:hover {
-  background: #faf7ee;
+  background: var(--hover-bg);
 }
 .gen-head[aria-expanded="true"],
 .grp-head[aria-expanded="true"] {
@@ -265,7 +319,7 @@ main {
 .grp-picked {
   margin-left: auto;
   background: var(--mint);
-  border: 2px solid var(--ink);
+  border: var(--border);
   border-radius: 999px;
   font: 800 12px/1.4 var(--font-round);
   padding: 0 10px;
@@ -291,7 +345,7 @@ main {
   border-top: 2px dashed var(--line);
 }
 .gen.sub .gen-head {
-  background: #faf7ee;
+  background: var(--hover-bg);
   padding-left: 28px;
 }
 .gen.sub {
@@ -303,11 +357,11 @@ main {
   position: relative;
   border: var(--border);
   background: var(--card);
-  border-radius: 14px;
-  padding: 6px;
+  border-radius: var(--card-radius);
+  padding: var(--card-pad);
   display: grid;
   gap: 5px;
-  text-align: left;
+  text-align: var(--card-align);
   box-shadow: var(--shadow-soft);
   transition:
     transform 0.12s ease,
@@ -318,8 +372,8 @@ main {
   box-shadow: none;
 }
 .card[aria-pressed="true"] {
-  background: var(--lemon);
-  box-shadow: 2px 2px 0 var(--ink);
+  background: var(--picked-bg);
+  box-shadow: var(--shadow-sm);
   transform: translate(1px, 1px);
 }
 .card[aria-pressed="true"]::after {
@@ -332,15 +386,15 @@ main {
   display: grid;
   place-items: center;
   background: var(--peach);
-  border: 2px solid var(--ink);
+  border: var(--border);
   border-radius: 999px;
   font: 900 12px/1 var(--font-round);
 }
 .card .ph {
   display: block;
   aspect-ratio: 3 / 4;
-  border: 2px solid var(--ink);
-  border-radius: 10px;
+  border: var(--thumb-border);
+  border-radius: var(--thumb-radius);
   overflow: hidden;
   background: #e4e7ee;
 }
@@ -387,8 +441,8 @@ main {
   flex: none;
   margin: 12px -16px 0;
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: var(--floor);
-  border-top: 2px solid var(--ink);
+  background: var(--tray-bg);
+  border-top: var(--tray-border-top);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -421,8 +475,8 @@ main {
   position: relative;
   aspect-ratio: 3 / 4;
   max-height: 88px;
-  border: 2px solid var(--ink);
-  border-radius: 10px;
+  border: var(--border);
+  border-radius: var(--slot-radius);
   background: var(--card);
 }
 .slot.empty-slot {
@@ -451,7 +505,7 @@ main {
   height: 100%;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: calc(var(--slot-radius) - 2px);
   overflow: hidden;
   background: #e4e7ee;
   display: block;
@@ -466,7 +520,7 @@ main {
   padding: 4px 10px;
   font-size: 12px;
   border-radius: 999px;
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: var(--shadow-sm);
 }
 .tray.shake {
   animation: shake 0.35s ease;
@@ -496,17 +550,18 @@ main {
 }
 .primary {
   background: var(--peach);
+  color: var(--on-primary);
 }
 .primary:active:not(:disabled),
 .ghost:active:not(:disabled) {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--ink);
+  box-shadow: var(--shadow-sm);
 }
 .primary:disabled,
 .ghost:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: 2px 2px 0 rgba(32, 36, 46, 0.25);
+  box-shadow: var(--shadow-disabled);
 }
 
 /* ---------- duel ---------- */
@@ -578,13 +633,13 @@ main {
 }
 .fighter.picked {
   transform: translate(2px, 2px) scale(0.98);
-  background: var(--lemon);
-  box-shadow: 2px 2px 0 var(--ink);
+  background: var(--picked-bg);
+  box-shadow: var(--shadow-sm);
 }
 .fighter .ph {
   display: block;
   aspect-ratio: 3 / 4;
-  border: 2px solid var(--ink);
+  border: var(--border);
   border-radius: 10px;
   overflow: hidden;
   background: #e4e7ee;
@@ -642,7 +697,7 @@ main {
   width: 100%;
   height: auto;
   display: block;
-  border: 2px solid var(--ink);
+  border: var(--border);
   border-radius: 10px;
   background: var(--card);
 }
@@ -684,7 +739,7 @@ main {
   align-items: center;
   background: var(--card);
   border: var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
   padding: 8px 12px;
 }
@@ -694,7 +749,7 @@ main {
   height: 30px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--ink);
+  border: var(--border);
   border-radius: 999px;
   background: var(--card);
 }
@@ -706,7 +761,7 @@ main {
   height: 56px;
   object-fit: cover;
   object-position: 50% 22%;
-  border: 2px solid var(--ink);
+  border: var(--border);
   border-radius: 8px;
 }
 .rank-list .nm {
@@ -778,7 +833,7 @@ main {
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  border: 2px solid var(--ink);
+  border: var(--border);
   background: var(--card);
   font: 800 16px/1 var(--font-ui);
   cursor: pointer;
@@ -792,7 +847,7 @@ main {
   width: 104px;
   aspect-ratio: 3 / 4;
   object-fit: cover;
-  border: 2px solid var(--ink);
+  border: var(--border);
   background: #e4e7ee;
 }
 .pf-head h3 {
@@ -847,9 +902,108 @@ main {
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  border: 2px solid var(--ink);
+  border: var(--border);
   background: var(--card);
   font: 800 13px/20px var(--font-ui);
   text-align: center;
   cursor: pointer;
+}
+
+/* ---------- 原版皮肤组件覆盖（上游 11fa090 语言） ---------- */
+[data-skin="classic"] .eyebrow {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  color: var(--muted);
+}
+[data-skin="classic"] .kami {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+}
+[data-skin="classic"] .seg-lang button[aria-checked="true"],
+[data-skin="classic"] .seg-series button[aria-checked="true"],
+[data-skin="classic"] .seg-size button[aria-checked="true"],
+[data-skin="classic"] .seg-filter button[aria-checked="true"] {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: none;
+  transform: none;
+}
+[data-skin="classic"] .gen-head[aria-expanded="true"],
+[data-skin="classic"] .grp-head[aria-expanded="true"] {
+  background: #e7eaef;
+}
+[data-skin="classic"] .card[aria-pressed="true"] {
+  background: var(--picked-bg);
+  box-shadow: none;
+  transform: none;
+}
+[data-skin="classic"] .card[aria-pressed="true"]::after {
+  background: var(--pink);
+  color: #fff;
+  border: 0;
+}
+[data-skin="classic"] .card .nm {
+  margin-top: 5px;
+}
+[data-skin="classic"] .slot.empty-slot {
+  background:
+    linear-gradient(
+        45deg,
+        transparent 45%,
+        var(--line) 45%,
+        var(--line) 55%,
+        transparent 55%
+      )
+      center / 46% 46% no-repeat,
+    linear-gradient(
+        -45deg,
+        transparent 45%,
+        var(--line) 45%,
+        var(--line) 55%,
+        transparent 55%
+      )
+      center / 46% 46% no-repeat,
+    #e2e5ec;
+  border-style: solid;
+}
+[data-skin="classic"] .bar i {
+  background: var(--pink);
+}
+[data-skin="classic"] .or {
+  background: var(--card);
+  border: 1px solid var(--line);
+  transform: none;
+}
+[data-skin="classic"] .fighter.picked {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+[data-skin="classic"] .poster {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+[data-skin="classic"] .poster figcaption {
+  color: var(--muted);
+}
+[data-skin="classic"] .rank-list li:first-child .no {
+  background: var(--pink-soft);
+}
+[data-skin="classic"] .colophon {
+  border-top: 1px dashed var(--line);
+}
+[data-skin="classic"] .profile-card {
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -12px 32px rgba(28, 30, 43, 0.18);
+}
+[data-skin="classic"] .pf-fields > div {
+  border-top-color: var(--line);
+}
+[data-skin="classic"] .pf-badge {
+  transform: none;
 }
