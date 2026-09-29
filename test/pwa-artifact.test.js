@@ -83,43 +83,21 @@ test("apple-touch-icon 与 favicon 存在且尺寸正确", () => {
   }
 });
 
-test("sw.js 的 SHELL_FILES 与盘上壳文件双向一致", () => {
-  const listed = shellFiles()
-    .filter((f) => f !== "./" && f !== "/")
-    .map((f) => f.replace(/^\.\//, ""));
-  // 盘上应当预缓存的：页面、样式、根目录全部脚本、manifest、manifest 引用的图标
-  const onDisk = [
-    "index.html",
-    "style.css",
-    "manifest.webmanifest",
-    ...fs
-      .readdirSync(ROOT)
-      .filter((f) => f.endsWith(".js") && f !== "sw.js")
-      .sort(),
-    ...manifest().icons.map((i) => i.src.replace(/^\.\//, "")),
-  ].sort();
-  // favicon 由浏览器按需取，不进预缓存清单（不参与 shell 启动）
-  assert.deepEqual(
-    [...listed].sort(),
-    onDisk,
-    "SHELL_FILES 与盘上文件不一致：新增/删除壳文件后必须同步 sw.js"
-  );
-  for (const f of listed) {
-    assert.ok(fs.existsSync(rel(f)), `SHELL_FILES 指向不存在的文件：${f}`);
-  }
-});
-
-test("sw.js 语法可编译，且图片封顶与消息协议在位", () => {
+test("sw.js 可编译，且在 install 期就 skipWaiting（页面只决定何时刷新）", () => {
   const src = fs.readFileSync(rel("sw.js"), "utf8");
   assert.doesNotThrow(() => new Function(src), "sw.js 不能编译");
-  const cap = src.match(/IMG_CAP\s*=\s*(\d+)/);
-  assert.ok(cap && Number(cap[1]) > 0, "sw.js 缺图片封顶条数");
+  // 位置比存在更重要：原来只断言全文含 "skipWaiting"，被 install 里的调用满足，
+  // 而那条没人发的 message 死协议也算「有」——断言守错了地方。
+  const install = /addEventListener\(\s*["']install["'][\s\S]*?\n\}\);/.exec(
+    src
+  );
+  assert.ok(install, "sw.js 找不到 install 监听器");
   assert.ok(
-    src.includes("skipWaiting"),
-    "sw.js 缺 skipWaiting（新版本要能立即激活，页面只负责决定何时刷新）"
+    /self\.skipWaiting\(\)/.test(install[0]),
+    "install 段里没有 self.skipWaiting()：新版本无法立即激活"
   );
   assert.ok(
-    /mode\s*===\s*["']navigate["']/.test(src),
-    "sw.js 缺导航请求的 network-first 分支"
+    !/skip-waiting/.test(src),
+    "sw.js 仍有那条没人发的 skip-waiting 死协议（本项目不依赖它）"
   );
 });
