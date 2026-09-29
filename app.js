@@ -145,6 +145,16 @@
     for (const id of ["pick", "screen", "duel", "result"]) {
       $(`#phase-${id}`).hidden = id !== phase;
     }
+    // 对决时把页头与步骤条整体收起：这一步要的是两张脸，不是导航
+    // （工单 03 / ADR-0019；页头里的语言/皮肤切换在返回挑人页后仍可用）
+    const chrome = phase === "duel";
+    const head = $("#site-head");
+    if (head) head.hidden = chrome;
+    const steps = $("#steps");
+    if (steps) steps.hidden = chrome;
+    // 页脚（版权 + 安装行）同理：对决中它既占 270px 又与这一步无关
+    const foot = $("#site-foot");
+    if (foot) foot.hidden = chrome;
     window.scrollTo({ top: 0 });
   }
 

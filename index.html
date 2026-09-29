@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="masthead">
+    <header id="site-head" class="masthead">
       <div class="masthead-main">
         <p class="eyebrow" id="eyebrow">48 Group 好き顔ソート</p>
         <h1>
@@ -328,15 +328,19 @@
       </section>
 
       <section id="phase-duel" class="phase" hidden>
-        <div class="duel-head">
-          <h2 data-i18n="duel_title">更喜欢哪张脸？</h2>
+        <!-- 对决页把页头与步骤条收起（ADR-0019 工单 03），这里是一条细进度条：
+             复用 duel-step/duel-max/duel-bar/duel-extra 这些 id，E2E 断言不用改 -->
+        <div class="duel-thin" id="duel-thin">
           <p class="duel-progress">
             <span id="duel-step">1</span
             ><span data-i18n="duel_mid"> / 最多 </span
             ><span id="duel-max">14</span><span data-i18n="duel_end"> 题</span>
-            <span class="duel-extra" id="duel-extra"></span>
           </p>
           <div class="bar"><i id="duel-bar"></i></div>
+          <span class="duel-extra" id="duel-extra"></span>
+        </div>
+        <div class="duel-head">
+          <h2 data-i18n="duel_title">更喜欢哪张脸？</h2>
           <p class="duel-saved" id="duel-saved">
             <i aria-hidden="true"></i
             ><span data-i18n="duel_saved">进度已自动保存</span>
@@ -461,7 +465,7 @@
       </div>
     </div>
 
-    <footer class="colophon">
+    <footer id="site-foot" class="colophon">
       <span data-i18n="credit_1">成员名单与照片来自</span>
       <a href="https://48pedia.org/" target="_blank" rel="noopener"
         >エケペディア（48pedia）</a

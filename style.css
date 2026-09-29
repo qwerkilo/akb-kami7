@@ -9,6 +9,11 @@
   --font-round: "Nunito", var(--font-jp);
 }
 
+/* [hidden] 必须赢：作者样式里的 display（.masthead/.steps 等都有）会盖掉 UA 样式表的
+   [hidden]{display:none} —— 同一个坑踩了两次（#phase-duel、页头/步骤条），这里钉死 */
+[hidden] {
+  display: none !important;
+}
 /* 原版（上游 11fa090 的视觉语言）。三条不变式（test/style-artifact.test.js 守着）：
    ① 本块必须带 :root（= 应用默认皮肤，session.js 的 skin），否则新访客首屏会闪贴纸；
    ② 本块必须排在贴纸块之前（:root 与 [data-skin=…] 同权重，后来者胜）；
@@ -715,6 +720,23 @@ main {
   margin-top: 2px;
   font-size: 12px;
   color: var(--muted);
+}
+/* 对决页：两张脸等高 —— 照片比例固定，姓名//meta 各占固定行数，
+   否则文案长短不同会让两张脸一高一低（center 对齐时错开） */
+#phase-duel .fighter {
+  display: flex;
+  flex-direction: column;
+}
+#phase-duel .fighter .nm,
+#phase-duel .fighter .kn,
+#phase-duel .fighter .meta {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+#phase-duel .fighter .nm {
+  -webkit-line-clamp: 1;
 }
 .duel-actions {
   display: flex;
@@ -1538,4 +1560,77 @@ main {
 }
 .screen-foot .primary {
   flex: 1;
+}
+
+/* ---- 对决页收紧（工单 03）：页头与步骤条收起，题数进度并成一条细条，
+       两张脸垂直居中、撑满首屏（390px 上并排每张只有 ~160px 宽，
+       照片再拉高也会被 object-fit: cover 裁成大頭） ---- */
+/* 注意：作者样式里的 display 会盖掉 [hidden] 的 display:none（来自 UA 样式表）✓ */
+#phase-duel:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.duel-thin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.duel-thin .duel-progress {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.duel-thin .bar {
+  flex: 1;
+  margin: 0;
+}
+.duel-thin .duel-extra {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+#phase-duel .duel-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 6px 12px 0;
+}
+#phase-duel .duel-head h2 {
+  font-size: 18px;
+}
+#phase-duel .duel-saved {
+  font-size: 12px;
+  color: var(--muted);
+}
+#phase-duel .duel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+#phase-duel .versus,
+#phase-duel .duel .or {
+  align-self: center;
+}
+/* 撤回/保存常驻在视口底部：这一步不该靠滚动才够得着 */
+#phase-duel .duel-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  background: var(--floor);
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
+/* 两张脸各占更多宽度：照片是对决页唯一的决策依据 */
+#phase-duel .duel {
+  gap: 6px;
+  padding: 8px 6px;
+}
+#phase-duel .duel .or {
+  font-size: 13px;
 }
