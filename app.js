@@ -7,12 +7,21 @@
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map(CORE.flattenMembers(GROUPS).map((m) => [m.id, m]));
 
+  // 首次访问的默认语言按浏览器判定（这是「选什么」的决定，不是持久化）；
+  // 一旦用户自己选过，session 里的落盘值优先。
+  const preferLang = () => {
+    const nav = (navigator.language || "").toLowerCase();
+    return nav.startsWith("ja") ? "ja" : nav.startsWith("zh") ? "zh" : "en";
+  };
+
   const S = window.AKB_SESSION.create({
     storage: {
       getItem: (k) => localStorage.getItem(k),
       setItem: (k, v) => localStorage.setItem(k, v),
     },
     byId: (id) => BY_ID.get(id),
+    posterStyles: window.AKB_POSTER.styles,
+    lang: preferLang(),
   });
   let snap = S.snapshot();
   let series = snap.series;
@@ -47,15 +56,7 @@
 
   const I18N = window.AKB_I18N;
 
-  const preferLang = () => {
-    const nav = (navigator.language || "").toLowerCase();
-    return nav.startsWith("ja") ? "ja" : nav.startsWith("zh") ? "zh" : "en";
-  };
-  let lang = preferLang();
-  try {
-    const saved = localStorage.getItem("akb-lang");
-    if (saved === "en" || saved === "zh" || saved === "ja") lang = saved;
-  } catch (_) {}
+  let lang = snap.lang;
   const t = (key, ...args) => {
     const v = I18N[lang][key];
     return typeof v === "function" ? v(...args) : v;
@@ -64,12 +65,7 @@
     return CORE.names(series, pick, t);
   }
 
-  const POSTER_STYLE_KEY = "akb:poster-style";
-  let posterStyle = "a";
-  try {
-    const saved = localStorage.getItem(POSTER_STYLE_KEY);
-    if (AKB_POSTER.styles.includes(saved)) posterStyle = saved;
-  } catch (_) {}
+  let posterStyle = snap.posterStyle;
 
   // 分段控件选中态统一绘制：aria-checked = 按钮属性值 === 当前值（值一律按字符串比）
   function paintSeg(sel, attr, value) {
@@ -85,11 +81,9 @@
   }
 
   function setPosterStyle(next) {
-    if (!AKB_POSTER.styles.includes(next) || next === posterStyle) return;
-    posterStyle = next;
-    try {
-      localStorage.setItem(POSTER_STYLE_KEY, next);
-    } catch (_) {}
+    if (!S.setPosterStyle(next)) return;
+    sync(); // setter 改的是 session 的 state，snap 是副本
+    posterStyle = snap.posterStyle;
     renderStyleSeg();
     drawPoster();
   }
@@ -859,11 +853,9 @@
   }
 
   function setLang(next) {
-    if (next !== "en" && next !== "zh" && next !== "ja") return;
-    lang = next;
-    try {
-      localStorage.setItem("akb-lang", lang);
-    } catch (_) {}
+    if (!S.setLang(next)) return;
+    sync();
+    lang = snap.lang;
     renderAll();
     if (profileId) openProfile(profileId);
     if (introOpen) paintIntro();
@@ -893,8 +885,11 @@
   }
 
   /* ---------------- 向导模式（v5 A） ---------------- */
-  const COACH_KEY = "akb:coach:v1";
-  const INTRO_KEY = "akb:duelintro:v1";
+  // 「已看过」标记：键名在 core.PREF_KEYS。**内存回落是有意的取舍**——存储不可用
+  // （隐私模式 / 配额满）时，标记只在本会话有效：引导卡不该在同一次会话里反复弹，
+  // 而皮肤/语言/海报样式在那种情况下回落到默认值（用户看不出异常）。
+  const COACH_KEY = CORE.PREF_KEYS.coach;
+  const INTRO_KEY = CORE.PREF_KEYS.duelIntro;
 
   const memFlags = new Set();
   function storedFlag(key) {

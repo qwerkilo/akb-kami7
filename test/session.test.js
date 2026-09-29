@@ -18,8 +18,10 @@ for (let i = 1; i <= 3; i++) MEMBERS.push({ id: `l${i}`, series: "love" });
 const BY_ID = new Map(MEMBERS.map((m) => [m.id, m]));
 const byId = (id) => BY_ID.get(id);
 
+const POSTER_STYLES = ["a", "b", "c", "d"];
+
 function make(storage = memoryStorage(), byIdFn = byId) {
-  return session.create({ storage, byId: byIdFn });
+  return session.create({ storage, byId: byIdFn, posterStyles: POSTER_STYLES });
 }
 
 test("初始会话：48g / 7 档 / 空已选 / pick 相位", () => {
@@ -37,6 +39,8 @@ test("初始会话：48g / 7 档 / 空已选 / pick 相位", () => {
     duel: null,
     ranking: null,
     skin: "classic",
+    lang: "zh",
+    posterStyle: "a",
   });
 });
 
@@ -404,8 +408,13 @@ test("缩档截断保留的是前 N 个 id，不会留下空洞（海报会印�
   s.setSize(7);
   const sel = s.snapshot().selected;
   assert.equal(sel.length, 7);
-  assert.deepEqual(sel, ["a1", "a2", "a3", "a4", "a5", "a6", "a7"], "必须等于保留的那 7 个 id");
-  for (const id of sel) assert.equal(typeof id, "string", "id 不得是 undefined");
+  assert.deepEqual(
+    sel,
+    ["a1", "a2", "a3", "a4", "a5", "a6", "a7"],
+    "必须等于保留的那 7 个 id"
+  );
+  for (const id of sel)
+    assert.equal(typeof id, "string", "id 不得是 undefined");
 });
 
 test("快照与返回值必须是拷贝：改返回值不动内部状态", () => {
@@ -414,7 +423,11 @@ test("快照与返回值必须是拷贝：改返回值不动内部状态", () =>
   const snap = s.snapshot();
   snap.selected.push("注入");
   snap.selected.reverse();
-  assert.deepEqual(s.snapshot().selected, ["a1", "a2", "a3", "a4"], "改快照不得污染内部已选");
+  assert.deepEqual(
+    s.snapshot().selected,
+    ["a1", "a2", "a3", "a4"],
+    "改快照不得污染内部已选"
+  );
   s.startDuel(["a1", "a2"]);
   const snap2 = s.snapshot();
   // 快照里的 duel 是派生视图（pair 是当前那一对），改它不得污染后续快照
@@ -445,7 +458,11 @@ test("setter 的入参归一化：非法值一律回落到 all / 空串", () => 
   bad.setGeneration("1期生");
   bad.setGeneration(null);
   assert.equal(bad.snapshot().generation, "all", "null 应归一化为 all");
-  assert.equal(bad.setQuery(null), "", "null 查询应变成空串，不是字符串 undefined");
+  assert.equal(
+    bad.setQuery(null),
+    "",
+    "null 查询应变成空串，不是字符串 undefined"
+  );
   assert.equal(bad.setQuery(0), "0", "数字查询应转成字符串");
   assert.equal(bad.setGroup("AKB48"), "AKB48");
   assert.equal(bad.setGroup(0), "all", "0 应归一化为 all");
@@ -512,4 +529,121 @@ test("新建会话：已选、答案、排序都是空（不是 undefined）", (
   assert.equal(duel.remaining, 3, "开局时剩余题数等于总题数");
   assert.equal(duel.percent, 0);
   assert.equal(duel.canUndo, false, "还没作答就不可撤回");
+});
+
+// ── 全局偏好收进会话（深化㉓）：海报样式与语言此前各自在 app.js 里裸读裸写 ──
+test("海报样式：set → snapshot 往返并落盘", () => {
+  const storage = memoryStorage();
+  const s = make(storage);
+  assert.equal(s.snapshot().posterStyle, "a", "默认是金字塔样式");
+  assert.equal(s.setPosterStyle("c"), true);
+  assert.equal(s.snapshot().posterStyle, "c");
+  assert.equal(storage.getItem("akb:poster-style"), "c");
+});
+
+test("海报样式：非法值与重复值都返回 false 且不写盘", () => {
+  const storage = memoryStorage();
+  const s = make(storage);
+  assert.equal(s.setPosterStyle("zzz"), false);
+  assert.equal(s.snapshot().posterStyle, "a");
+  s.setPosterStyle("b");
+  const before = storage.getItem("akb:poster-style");
+  assert.equal(s.setPosterStyle("b"), false, "同值不重写");
+  assert.equal(storage.getItem("akb:poster-style"), before);
+});
+
+test("语言：set → snapshot 往返并落盘，非法值被拒", () => {
+  const storage = memoryStorage();
+  const s = make(storage);
+  assert.equal(s.setLang("ja"), true);
+  assert.equal(s.snapshot().lang, "ja");
+  assert.equal(storage.getItem("akb-lang"), "ja");
+  assert.equal(s.setLang("fr"), false, "只认 zh/en/ja");
+  assert.equal(s.snapshot().lang, "ja");
+});
+
+test("新建会话时从落盘值恢复海报样式与语言（非法值回落默认）", () => {
+  const storage = memoryStorage();
+  storage.setItem("akb:poster-style", "d");
+  storage.setItem("akb-lang", "en");
+  assert.equal(make(storage).snapshot().posterStyle, "d");
+  assert.equal(make(storage).snapshot().lang, "en");
+  storage.setItem("akb:poster-style", "nope");
+  storage.setItem("akb-lang", "de");
+  const s = make(storage).snapshot();
+  assert.equal(s.posterStyle, "a");
+  assert.equal(s.lang, "zh");
+});
+
+test("存储不可用时海报样式与语言回落到默认值而不抛", () => {
+  const broken = {
+    getItem() {
+      throw new Error("denied");
+    },
+    setItem() {
+      throw new Error("denied");
+    },
+  };
+  const s = make(broken);
+  assert.equal(s.snapshot().posterStyle, "a");
+  s.setPosterStyle("b");
+  s.setLang("en");
+  assert.equal(s.snapshot().posterStyle, "b", "本次会话内仍然生效（内存）");
+  assert.equal(s.snapshot().lang, "en");
+});
+
+test("app.js 不得自己碰 akb: 键（持久化只有一个家：注入的 storage 适配器）", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  // 锚定形状：localStorage 之后紧跟 "akb: 开头就是自己开了后门
+  // akb- 同时覆盖 akb:lang（akb-lang）与 akb:skin 这两种前缀
+  assert.doesNotMatch(
+    src,
+    /localStorage\.\w+\(\s*["'`]akb[-:]/,
+    "app.js 不得直接读写 akb 开头的键"
+  );
+  // 键名本身应该只出现在 PREF_KEYS 那种集中处，且要真的用上了
+  assert.match(
+    src,
+    /PREF_KEYS\./,
+    "app.js 的粘滞标记键应从 core 的 PREF_KEYS 取"
+  );
+  assert.doesNotMatch(
+    src,
+    /["'`]akb[-:]/,
+    "app.js 不得出现 akb 开头的键名字面量（应走 core.PREF_KEYS）"
+  );
+
+  // session.js 同理：键名只该从 core.PREF_KEYS 取，写死字面量等于又开一个家
+  const sess = fs.readFileSync(
+    path.join(__dirname, "..", "session.js"),
+    "utf8"
+  );
+  assert.doesNotMatch(
+    sess,
+    /["'`]akb[-:]/,
+    "session.js 不得写死键名（应走 core.PREF_KEYS）"
+  );
+});
+
+test("注入的默认语言是首次访问的落点（浏览器语言探测在 app 侧）", () => {
+  // 回归：opts.lang 曾被忽略，导致日文浏览器首屏落到硬编码的 "zh"
+  const s = session.create({
+    storage: memoryStorage(),
+    byId,
+    posterStyles: POSTER_STYLES,
+    lang: "ja",
+  });
+  assert.equal(s.snapshot().lang, "ja");
+  // 落盘值仍然优先于注入值
+  const storage = memoryStorage();
+  storage.setItem("akb-lang", "en");
+  const t = session.create({
+    storage,
+    byId,
+    posterStyles: POSTER_STYLES,
+    lang: "ja",
+  });
+  assert.equal(t.snapshot().lang, "en", "用户自己选过就以落盘值为准");
 });

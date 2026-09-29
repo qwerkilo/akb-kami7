@@ -13,9 +13,9 @@
   const SERIES = ["48g", "sakamichi", "love"];
   const SIZES = [7, 16, 40];
   const SKINS = ["classic", "sticker"];
-  const SERIES_KEY = "akb:series";
-  const SKIN_KEY = "akb:skin";
-  const stateKey = (s) => `akb:state:v2:${s}`;
+  const LANGS = ["zh", "en", "ja"];
+  // 键名住在 core.PREF_KEYS（跨模块契约的单一出处）
+  const stateKey = CORE.PREF_KEYS.state;
 
   function create(opts) {
     // storage 是注入依赖（ADR-0008）：调用方必须给，不再兜一个内存假实现
@@ -34,6 +34,10 @@
       duel: emptyDuel(),
       skin: "classic",
       generation: "all",
+      // 全局偏好：不随系列切换而变，存储不可用时回落到这些默认值。
+      // lang 的默认值由调用方按浏览器语言注入（那是「首次访问选什么」的决定，不是持久化）
+      lang: opts.lang || "zh",
+      posterStyle: "a",
     };
 
     function emptyDuel() {
@@ -118,10 +122,16 @@
     }
 
     // 启动：恢复上次系列与两个系列的存档
-    const savedSeries = read(SERIES_KEY);
+    const savedSeries = read(CORE.PREF_KEYS.series);
     if (SERIES.includes(savedSeries)) state.series = savedSeries;
-    const savedSkin = read(SKIN_KEY);
+    const savedSkin = read(CORE.PREF_KEYS.skin);
     if (SKINS.includes(savedSkin)) state.skin = savedSkin;
+    const savedLang = read(CORE.PREF_KEYS.lang);
+    if (LANGS.includes(savedLang)) state.lang = savedLang;
+    const savedStyle = read(CORE.PREF_KEYS.posterStyle);
+    if (opts.posterStyles && opts.posterStyles.includes(savedStyle)) {
+      state.posterStyle = savedStyle;
+    }
     for (const s of SERIES) store[s] = loadSeries(s);
     state.size = store[state.series].size;
     state.selected = store[state.series].selected.slice();
@@ -164,13 +174,31 @@
         duel: duelView,
         ranking,
         skin: state.skin,
+        lang: state.lang,
+        posterStyle: state.posterStyle,
       };
+    }
+
+    // 海报样式：合法值表由调用方注入（session 不该知道海报模块有哪些样式）
+    function setPosterStyle(next) {
+      if (!opts.posterStyles || !opts.posterStyles.includes(next)) return false;
+      if (next === state.posterStyle) return false;
+      state.posterStyle = next;
+      write(CORE.PREF_KEYS.posterStyle, next);
+      return true;
+    }
+
+    function setLang(next) {
+      if (!LANGS.includes(next) || next === state.lang) return false;
+      state.lang = next;
+      write(CORE.PREF_KEYS.lang, next);
+      return true;
     }
 
     function setSkin(next) {
       if (!SKINS.includes(next) || next === state.skin) return false;
       state.skin = next;
-      write(SKIN_KEY, next);
+      write(CORE.PREF_KEYS.skin, next);
       return true;
     }
 
@@ -179,7 +207,7 @@
       remember();
       state.duel = emptyDuel();
       state.series = next;
-      write(SERIES_KEY, next);
+      write(CORE.PREF_KEYS.series, next);
       const st = store[next];
       state.size = st.size;
       state.selected = st.selected.slice();
@@ -294,6 +322,8 @@
       setQuery,
       toggleOpen,
       setSkin,
+      setPosterStyle,
+      setLang,
       startDuel,
       answer,
       undo,

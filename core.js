@@ -919,6 +919,17 @@
     leaveText,
     yearLeave,
     sourceNote,
+    // 持久化键名的单一出处（全局偏好 vs 按系列存档）。它们是跨模块的契约：
+    // session.js 读写、app.js 的粘滞标记、SW 缓存名、E2E 脚本都按这些名字找。
+    PREF_KEYS: {
+      lang: "akb-lang",
+      skin: "akb:skin",
+      series: "akb:series",
+      posterStyle: "akb:poster-style",
+      coach: "akb:coach:v1",
+      duelIntro: "akb:duelintro:v1",
+      state: (s) => `akb:state:v2:${s}`, // 按系列存档
+    },
     metaText,
     fullMeta,
     posterSub,
