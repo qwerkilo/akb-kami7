@@ -151,6 +151,27 @@ test("core.js 中静态引用的文案键都存在", () => {
   }
 });
 
+test("安装指引的动态键三语齐（平台 × 步骤数）", () => {
+  // 这些键在 app.js 里是拼出来的（"pwa_" + plat + "_s" + i），死键守卫查不到它们；
+  // 缺一个键 t() 会返回 undefined，而 WebIDL 会把 undefined 变成空字符串——
+  // 指引里就会静悄悄多出一条空白步骤。
+  const STEPS = { ios: 4, android: 3, macos: 3, other: 3 };
+  const missing = [];
+  for (const lang of ["zh", "en", "ja"]) {
+    for (const [plat, n] of Object.entries(STEPS)) {
+      const titleKey =
+        plat === "other" ? "pwa_guide_title" : "pwa_guide_title_" + plat;
+      if (I18N[lang][titleKey] === undefined)
+        missing.push(lang + ":" + titleKey);
+      for (let i = 1; i <= n; i++) {
+        const k = "pwa_" + plat + "_s" + i;
+        if (I18N[lang][k] === undefined) missing.push(lang + ":" + k);
+      }
+    }
+  }
+  assert.deepEqual(missing, [], "指引键缺失：" + missing.join("、"));
+});
+
 test("无引用的键只允许动态家族（死键守卫）", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const sources = [

@@ -1108,15 +1108,32 @@
     if (!row) return;
     // 曾经整行吊在 beforeinstallprompt 上，于是 Firefox / macOS Safari / headless /
     // 非安全上下文里入口彻底消失（连「手动装」的指引一起没了）——那是设计缺陷。
-    // 现在：除已装成应用（standalone）外始终显示；有没有一键安装只决定按钮的行为。
+    // 现在：除已装成应用（standalone）外始终显示；有没有一键安装只决定按钮的行为——
+    // 有就「安装」一键装、「怎么装？」给指引；没有就让「怎么装？」直接开指引，
+    // 另一个按钮此刻与它同作用，藏掉（顺带让 360px 下这一行少换行一次）。
     row.hidden = standalone;
+    // 「已安装」态靠 markInstalled() 把按钮摘掉并改文案（切语言也不会复活）；
+    // 这里只管「有没有一键安装」这一维。
+    const key = installEvent ? "pwa_install_go" : "pwa_guide_go";
+    const primary = row.querySelector('[data-act="pwa-install"]');
+    if (primary) {
+      primary.dataset.i18n = key;
+      primary.textContent = t(key);
+    }
+    const guide = row.querySelector('[data-act="pwa-ios"]');
+    if (guide) guide.hidden = !installEvent;
+    const txt = row.querySelector(".pwa-install-txt");
+    if (txt) {
+      txt.dataset.i18n = "pwa_install";
+      txt.textContent = t("pwa_install");
+    }
   }
   const GUIDE_STEPS = { ios: 4, android: 3, macos: 3, other: 3 };
   function guidePlatform() {
     const ua = navigator.userAgent;
     if (isIOS) return "ios";
     if (/Android/i.test(ua)) return "android";
-    if (/Macintosh|Mac OS X/i.test(ua)) return "macos";
+    if (/Macintosh/i.test(ua)) return "macos";
     return "other";
   }
   function guideTitleKey(plat) {
@@ -1135,7 +1152,7 @@
       txt.textContent = t("pwa_installed");
       txt.dataset.i18n = "pwa_installed"; // 不换键的话 applyStatic 会打回默认文案
     }
-    row.hidden = false;
+    row.hidden = standalone;
   }
   function showUpdateBanner() {
     const el = $("#pwa-update");
@@ -1147,9 +1164,10 @@
     sheetOpen = true;
     sheetOpener = document.activeElement;
     const plat = guidePlatform();
-    const n = GUIDE_STEPS[plat] || 3;
+    const n = GUIDE_STEPS[plat]; // 不给兜底：平台加错了就在这里炸出来，而不是渲染空列表
     const titleKey = guideTitleKey(plat);
     el.dataset.i18nAriaLabel = titleKey;
+    el.setAttribute("aria-label", t(titleKey)); // 只改 dataset 的话浮层可及名会停在通用标题
     const head = el.querySelector("h3");
     if (head) {
       head.dataset.i18n = titleKey;
@@ -1234,10 +1252,13 @@
             )
           )
         );
-        // 页面被切走/隐藏就停：否则导航会中断这一两百个请求并刷一串资源错误
-        for (const u of urls) {
+        // 分批并发：逐个 await 要十几秒，期间用户断网就只预热了一半（实测会）。
+        // 页面被切走/隐藏就停：否则导航会中断这批请求并刷一串资源错误。
+        for (let i = 0; i < urls.length; i += 16) {
           if (document.hidden) return;
-          await fetch(u, { credentials: "omit" }).catch(() => {});
+          await Promise.allSettled(
+            urls.slice(i, i + 16).map((u) => fetch(u, { credentials: "omit" }))
+          );
         }
       } catch (_) {}
     }
