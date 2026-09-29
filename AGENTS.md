@@ -52,7 +52,7 @@
 3. `to-spec` → `.scratch/<feature>/spec.md`。
 4. `to-tickets` → `.scratch/<feature>/issues/NN-*.md`。
 5. `implement`，遵循 `tdd`；测试跑在 `node:test` + Python unittest 上，`npm test` 一键。
-   - 测试只落七处缝：Python 解析纯函数、`core.js` 纯逻辑、产物不变量（`members.js`/`simplified.js`）、`session.js`、`poster.js`、`i18n` 键完整性、E2E 黑盒；跨缝前先确认。
+   - 测试只落七处缝：Python 解析纯函数、`core.js` 纯逻辑、产物不变量（`members.js`/`simplified.js`、PWA 的 manifest/SW 清单/图标）、`session.js`、`poster.js`、`i18n` 键完整性、E2E 黑盒；跨缝前先确认。
 
 ## Code Review 检查点
 
