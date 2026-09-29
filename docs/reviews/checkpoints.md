@@ -391,3 +391,17 @@
 - 验证：`npm test` JS 161 + Python 90；回归 E2E 86/86、v5 49/49、PWA 39/39。
 - 遗留（按优先级）：P1 `session.js:22-23` 死分支；P2 `core.js rosterView` CCN 25 与 `love_members.py` 两处 22/21（属架构深化范畴）；P3 `app.js` IIFE 聚合刚跨线（观察）；P4 poster 变异幸存维持接受。
 - 下次基点：`672fc60`
+
+## 2026-09-29 · 第九轮质检的 P1/P2 优先级修复（基线 `672fc60`）
+
+- 基点：`672fc60`（第二十七轮检查点）
+- 范围：按 `docs/reviews/qa-baseline.md` 末尾「建议（按优先级）」逐项修。P1 `session.js` 死分支 ✓；P2 `core.js rosterView` 与 `love_members.py` 两处热点 ✓；**P3（`app.js` IIFE 聚合 CCN 11）按报告「观察，不动」未处理** ✓；P4 接受项未动。
+- **P1**：`create()` 删掉不可达的 storage 兜底（`opts.storage` 成为必填注入依赖，ADR-0008 契约）；顺带删掉由此新变成死代码的 `opts &&`。唯一行为差：`create()` 零参从「可用不持久化」变抛 TypeError（无生产路径命中 ✓）。
+- **P2**：名册投影拆成 `viewSearch`/`sectionRow`/`viewSections`/派发；等爱解析拆出 `former_members_at`/`parse_member_chunk`/`parse_nick`/`build_bio`。**`core.js` 最大 CCN 25→14、`love_members.py` 22→15（radon 无 D 级函数）**；分支点总量基本持平（降峰值不降总量）✓。
+- **等价性**：rosterView 真实数据 70 组矩阵 0 差异；两轴各写独立探针复核（54006 组 / 11645 例 ✓ 0 差异）；Python 侧 479~1400 组对拍 ✓ 0 差异。
+- **补测试（本批主要产出）**：审查指出「新缝没有测试钉住」✓ —— `viewSearch` 的三个过滤条件**此前从无任何测试**（5 个变异存活 ✓），`build_bio` 三条语义同样无测试；已补 `rosterView 搜索` 一条（7 断言）+ `BuildBioTest` 4 条 + `parse_nick` 4 条。5 个变异实证全红。JS 161→**162**、Python 90→**98**。
+- **两处我的错误（记账）**：① 读 lizard 输出时把 `NLOC` 列当成 `CCN`，一度得出「复杂度没降」的反向结论——两轴复核 + `radon`/`complexipy` 印证后订正（教训：引用 lizard 先确认列序 `NLOC CCN token PARAM length`）；② `ParseNickTest` 一度追加在 `unittest.main()` 之后，复活了上一轮已修的「直跑漏测」缺陷，已把 `main()` 放回末尾。
+- **越界记账**：P2 报告原文是「不是 QA 层能修的」，本批在用户「按优先级修复」指示下提前执行，跳过了 AGENTS.md 的架构决策流程（无 ADR / 无 spec-ticket）。不补 ADR（纯等价搬家），但显式记录；下轮若正式调整名册投影分层则立 ADR。
+- 验证：`npm test` JS 162 + Python 98；E2E 回归 86/86、v5 49/49、PWA 39/39。
+- 遗留：P3 `app.js` IIFE 聚合 CCN 11（观察项）；`build_members` 15 与 `parse_member_chunk` 12 仍 >10（解析器分支密度天然高）；`test/session.test.js:393` 的 `S.storage ||` 是恒假分支（改动前既有，顺手记）；`create()` 零参失败信号是裸 TypeError（是否换可诊断报错，待用户定）。
+- 下次基点：`994b7be`
