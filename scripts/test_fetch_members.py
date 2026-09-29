@@ -4,7 +4,7 @@ import os
 import tempfile
 import unittest
 from unittest import mock
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 
 from PIL import Image
 
@@ -540,6 +540,250 @@ class PruneUnusedTests(unittest.TestCase):
             self.assertEqual(removed, 1)
             self.assertTrue(os.path.exists(os.path.join(td, "a.webp")))
             self.assertFalse(os.path.exists(os.path.join(td, "b.webp")))
+
+
+class RosterGateTests(unittest.TestCase):
+    """必需数据源门：名册相对盘上基线塌了就不许写盘（否则 prune 会删掉全站图片）。"""
+
+    def _baseline(self, groups, count):
+        # 人数按 groups 平分，够逐团下限判据用
+        per = max(1, count // len(groups))
+        return {
+            "groups": set(groups),
+            "counts": {g: per for g in groups},
+            "total": sum(per for _ in groups),
+        }
+
+    @staticmethod
+    def _members(per_group):
+        return [{"group": g} for g, n in per_group.items() for _ in range(n)]
+
+    def test_no_baseline_is_a_first_run_and_passes(self):
+        self.assertEqual(fetch_members.roster_problems([], None), [])
+
+    def test_healthy_roster_has_no_problems(self):
+        base = self._baseline(["AKB48", "SKE48"], 100)
+        members = self._members({"AKB48": 60, "SKE48": 40})
+        self.assertEqual(fetch_members.roster_problems(members, base), [])
+
+    def test_total_below_threshold_is_a_problem(self):
+        base = self._baseline(["AKB48"], 100)
+        problems = fetch_members.roster_problems(self._members({"AKB48": 30}), base)
+        self.assertTrue(problems)
+        # 掉了 70%，消息里要带差量；逐团下限也会命中同一个团
+        self.assertTrue(any("70" in p for p in problems), problems)
+
+    def test_missing_group_is_a_problem_even_when_total_is_fine(self):
+        base = self._baseline(["AKB48", "SDN48"], 100)
+        problems = fetch_members.roster_problems(
+            self._members({"AKB48": 60, "SKE48": 40}), base
+        )
+        self.assertTrue(any("SDN48" in p for p in problems), problems)
+
+    def test_halved_group_is_a_problem(self):
+        # 基线每团 100 人：AKB48 掉到 40（低于一半）→ 该团被点名，总数判据不响
+        base = self._baseline(["AKB48", "SKE48"], 200)
+        problems = fetch_members.roster_problems(
+            self._members({"AKB48": 40, "SKE48": 100}), base
+        )
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("AKB48", problems[0])
+
+    def test_growth_never_trips_the_gate(self):
+        base = self._baseline(["AKB48"], 10)
+        self.assertEqual(fetch_members.roster_problems(self._members({"AKB48": 200}), base), [])
+
+    def test_threshold_boundary(self):
+        base = self._baseline(["AKB48"], 100)
+        self.assertEqual(
+            fetch_members.roster_problems(self._members({"AKB48": 60}), base),
+            [],
+            "正好 60% 应当放行",
+        )
+        self.assertEqual(
+            len(fetch_members.roster_problems(self._members({"AKB48": 59}), base)), 1, "59% 应当拦下"
+        )
+
+    def test_baseline_counts_field_is_required(self):
+        # 基线口径必须只含 48G/坂道 团体——含等爱分段会让「团体消失」恒成立
+        base = {"groups": {"AKB48"}, "counts": {"AKB48": 100}, "total": 100}
+        self.assertEqual(fetch_members.roster_problems(self._members({"AKB48": 100}), base), [])
+        self.assertEqual(
+            len(fetch_members.roster_problems(self._members({"AKB48": 99}), base)), 0
+        )
+
+
+class ReadBaselineTests(unittest.TestCase):
+    """基线读取：口径只算 48G/坂道，畸形产物不抛异常且会说话。"""
+
+    def _write(self, td, body):
+        with open(os.path.join(td, "members.js"), "w", encoding="utf-8") as fh:
+            fh.write("window.AKB_GROUPS = " + body + ";\n")
+
+    def test_ignores_love_sections(self):
+        with tempfile.TemporaryDirectory() as td:
+            self._write(
+                td,
+                json.dumps(
+                    [
+                        {"group": "AKB48", "members": [{"n": 1}, {"n": 2}]},
+                        {"group": "=LOVE", "members": [{"n": 1}]},
+                        {"group": "≒JOY", "members": [{"n": 1}, {"n": 2}, {"n": 3}]},
+                    ]
+                ),
+            )
+            base = fetch_members.read_baseline(td)
+            self.assertEqual(base["total"], 2)
+            self.assertEqual(base["groups"], {"AKB48"})
+
+    def test_sums_multiple_sections_of_one_group(self):
+        with tempfile.TemporaryDirectory() as td:
+            self._write(
+                td,
+                json.dumps(
+                    [
+                        {"group": "AKB48", "members": [{"n": 1}]},
+                        {"group": "AKB48", "members": [{"n": 1}, {"n": 2}]},
+                    ]
+                ),
+            )
+            self.assertEqual(fetch_members.read_baseline(td)["total"], 3)
+
+    def test_malformed_product_returns_none_and_says_so(self):
+        for name, body in [
+            ("truncated", '[{"group": "AKB48", "members": ['),
+            ("not_a_list", '{"group": "AKB48"}'),
+            ("elements_are_strings", '["AKB48", "SKE48"]'),
+            ("missing_members_key", '[{"group": "AKB48"}]'),
+        ]:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as td:
+                self._write(td, body)
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    base = fetch_members.read_baseline(td)
+                self.assertIsNone(base, name)
+                self.assertIn("不校验名册规模", buf.getvalue(), "基线读不出来必须出声，不能静默放行")
+
+    def test_absent_file_returns_none(self):
+        with tempfile.TemporaryDirectory() as td:
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                self.assertIsNone(fetch_members.read_baseline(td))
+            self.assertIn("不校验名册规模", buf.getvalue())
+
+    def test_quiet_suppresses_the_notice(self):
+        with tempfile.TemporaryDirectory() as td:
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                fetch_members.read_baseline(td, quiet=True)
+            self.assertEqual(buf.getvalue(), "")
+
+class MainGateIntegrationTests(unittest.TestCase):
+    def test_broken_source_aborts_without_touching_anything(self):
+        png = io.BytesIO()
+        Image.new("RGB", (60, 80), (10, 120, 30)).save(png, "PNG")
+        png_bytes = png.getvalue()
+
+        def fake_api(**params):
+            titles = params["titles"].split("|")
+            return {
+                "query": {
+                    "pages": {
+                        str(i): {"title": t, "imageinfo": [{"url": f"https://x/{i}.png"}]}
+                        for i, t in enumerate(titles)
+                    }
+                }
+            }
+
+        def good_pages(page):
+            return SORTKEY_FIXTURE if page == "SDN48メンバー一覧" else "{|\n|}"
+
+        with tempfile.TemporaryDirectory() as td:
+            dirs = {
+                "root": td,
+                "orig": os.path.join(td, "orig"),
+                "full": os.path.join(td, "full"),
+                "thumb": os.path.join(td, "thumb"),
+            }
+            fetch_members.main(
+                dirs=dirs,
+                fetch_page=good_pages,
+                api_fn=fake_api,
+                fetch_url=lambda url: png_bytes,
+                love_loader=lambda fetch: ([], {}),
+            )
+            before_js = open(os.path.join(td, "members.js"), encoding="utf-8").read()
+            before_files = sorted(os.listdir(dirs["full"])), sorted(os.listdir(dirs["thumb"]))
+
+            # 上游抽到错误页：名册会是空的
+            def broken_pages(page):
+                return "<html><body>503 Service Unavailable</body></html>"
+
+            with self.assertRaises(SystemExit) as ctx:
+                fetch_members.main(
+                    dirs=dirs,
+                    fetch_page=broken_pages,
+                    api_fn=fake_api,
+                    fetch_url=lambda url: png_bytes,
+                    love_loader=lambda fetch: ([], {}),
+                )
+            self.assertIn("SDN48", str(ctx.exception))
+            after_js = open(os.path.join(td, "members.js"), encoding="utf-8").read()
+            after_files = sorted(os.listdir(dirs["full"])), sorted(os.listdir(dirs["thumb"]))
+            self.assertEqual(before_js, after_js, "中止后 members.js 不得被改写")
+            self.assertEqual(before_files, after_files, "中止后图片目录不得被动过（prune 会删库）")
+
+    def test_accept_drop_flag_lets_a_real_drop_through(self):
+        png = io.BytesIO()
+        Image.new("RGB", (60, 80), (10, 120, 30)).save(png, "PNG")
+        png_bytes = png.getvalue()
+
+        def fake_api(**params):
+            titles = params["titles"].split("|")
+            return {
+                "query": {
+                    "pages": {
+                        str(i): {"title": t, "imageinfo": [{"url": f"https://x/{i}.png"}]}
+                        for i, t in enumerate(titles)
+                    }
+                }
+            }
+
+        def good_pages(page):
+            return SORTKEY_FIXTURE if page == "SDN48メンバー一覧" else "{|\n|}"
+
+        def fewer_members(page):
+            # 砍掉 fixture 的一半（2 人 → 1 人 = -50%，低于 60% 下限）
+            if page != "SDN48メンバー一覧":
+                return "{|\n|}"
+            half = SORTKEY_FIXTURE.index("|-\n", SORTKEY_FIXTURE.index("|-\n") + 1)
+            return SORTKEY_FIXTURE[:half] + "|}\n"
+
+        with tempfile.TemporaryDirectory() as td:
+            dirs = {
+                "root": td,
+                "orig": os.path.join(td, "orig"),
+                "full": os.path.join(td, "full"),
+                "thumb": os.path.join(td, "thumb"),
+            }
+            kwargs = dict(
+                dirs=dirs,
+                api_fn=fake_api,
+                fetch_url=lambda url: png_bytes,
+                love_loader=lambda fetch: ([], {}),
+            )
+            fetch_members.main(fetch_page=good_pages, **kwargs)
+            with self.assertRaises(SystemExit):
+                fetch_members.main(argv=["--no-dl"], fetch_page=fewer_members, **kwargs)
+            # 逃生阀放行，但差量要出现在 stderr 上（走 stdout 会混在正常流水里）
+            err = io.StringIO()
+            with redirect_stderr(err):
+                fetch_members.main(
+                    argv=["--no-dl", "--accept-drop"], fetch_page=fewer_members, **kwargs
+                )
+            # 总数判据命中（-50%）；逐团下限不命中（1 人 ≥ 基线 2 人的一半）✓
+            self.assertIn("-50%", err.getvalue(), err.getvalue())
+            self.assertIn("名册从 2 人掉到 1 人", err.getvalue(), err.getvalue())
 
 
 class MainIntegrationTests(unittest.TestCase):

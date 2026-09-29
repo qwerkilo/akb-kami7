@@ -3,6 +3,7 @@
 usage: python fetch_members.py            # fetch lists, download, compress
        python fetch_members.py --no-dl    # reuse cached originals only
        python fetch_members.py --force    # recompress even if outputs are up to date
+       python fetch_members.py --accept-drop   # 名册相对基线塌了也照跑（真解散一个团时才用）
 env AKB_PROXY overrides the proxy (default http://127.0.0.1:7897, empty = direct)
 """
 import hashlib
@@ -480,7 +481,68 @@ def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
 
 def parse_args(argv):
     argv = sys.argv[1:] if argv is None else argv
-    return "--no-dl" in argv, "--force" in argv
+    return "--no-dl" in argv, "--force" in argv, "--accept-drop" in argv
+
+
+def read_baseline(root, quiet=False):
+    """盘上已有的 members.js → {"counts": {团体: 人数}, "total": n}。
+
+    **只统计 48G/坂道 团体**（GROUP_ORDER 里的）：members.js 里还有等爱三团，
+    而 load_rows 只喂 GROUP_ORDER 的 10 团——口径不一致会让「团体消失」判据
+    恒非空，把每一次合法刷新都拦下来。读不到返回 None（首次生成 → 不校验）。
+    """
+    path = os.path.join(root, "members.js")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            raw = fh.read()
+        sections = json.loads(raw.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n"))
+        if not isinstance(sections, list):
+            raise ValueError("segments is not a list")
+        counts = {}
+        for sec in sections:
+            group = sec["group"]
+            n = len(sec["members"])
+            if group in GROUP_ORDER:
+                counts[group] = counts.get(group, 0) + n
+    except (OSError, ValueError, KeyError, TypeError, IndexError) as e:
+        if not quiet:
+            print(f"读不到 {path} 的基线名册（{type(e).__name__}）——本次不校验名册规模")
+        return None
+    return {"counts": counts, "groups": set(counts), "total": sum(counts.values())}
+
+
+# 名册规模相对基线跌到这个比例就停：上游整页失败/格式变动都会落到这里，
+# 而 prune_unused 会把不在新集合里的图片全删掉——不能带着残缺名册走到那一步。
+ROSTER_DROP_LIMIT = 0.6
+
+
+# 逐团下限：某团腰斩到基线的一半以下，同样会 prune 掉那半团全部图片。
+# 与总数阈值同源的两个判据；解散一个团需要 --accept-drop（这正是那把钥匙的用途）。
+ROSTER_GROUP_LIMIT = 0.5
+
+
+def roster_problems(new_members, baseline):
+    """名册相对基线的异常，返回问题描述列表（空 = 正常）。纯函数，方便离线测。"""
+    if not baseline or not baseline.get("total"):
+        return []  # 首次生成，没有可比基线
+    counts = {}
+    for m in new_members:
+        g = m.get("group")
+        counts[g] = counts.get(g, 0) + 1
+    base = baseline["total"]
+    total = sum(counts.get(g, 0) for g in baseline["counts"])
+    problems = []
+    if total < base * ROSTER_DROP_LIMIT:
+        drop = round((1 - total / base) * 100)
+        problems.append(f"48G/坂道 名册从 {base} 人掉到 {total} 人（-{drop}%）")
+    gone = sorted(baseline["groups"] - set(counts))
+    if gone:
+        problems.append("这些团体这次一个成员都没解析到：" + "、".join(gone))
+    for g, n0 in sorted(baseline["counts"].items()):
+        n1 = counts.get(g, 0)
+        if n1 < n0 * ROSTER_GROUP_LIMIT:
+            problems.append(f"{g} 从 {n0} 人掉到 {n1} 人（低于基线的一半）")
+    return problems
 
 
 def report_missing_info(missing):
@@ -563,7 +625,7 @@ def main(
     fetch_url=get,
     love_loader=None,
 ):
-    no_dl, force = parse_args(argv)
+    no_dl, force, accept_drop = parse_args(argv)
     dirs = dirs or default_dirs()
     if love_loader is None:
         love_loader = love_members.load
@@ -572,6 +634,16 @@ def main(
 
     members = merge_members(load_rows(fetch_page))
     print(f"members after dedupe: {len(members)}")
+
+    problems = roster_problems(members, read_baseline(dirs["root"]))
+    if problems:
+        detail = "；".join(problems)
+        if not accept_drop:
+            raise SystemExit(
+                f"48G/坂道 名册异常（{detail}）。为避免 prune_unused 删掉已有图片，本次不写入。"
+                "确认是上游真的少了人，再加 --accept-drop 放行。"
+            )
+        print(f"[--accept-drop] 放行名册异常：{detail}", file=sys.stderr)
 
     love = []
     love_urls = {}
