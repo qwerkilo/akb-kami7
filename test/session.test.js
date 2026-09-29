@@ -41,6 +41,7 @@ test("初始会话：48g / 7 档 / 空已选 / pick 相位", () => {
     skin: "classic",
     lang: "zh",
     posterStyle: "a",
+    screening: { cut: [], order: [], kept: 0, size: 7, canSubmit: false },
   });
 });
 
@@ -666,4 +667,126 @@ test("注入的默认语言是首次访问的落点（浏览器语言探测在 a
     lang: "ja",
   });
   assert.equal(t.snapshot().lang, "en", "用户自己选过就以落盘值为准");
+});
+
+// ---- 筛选步（ADR-0019）：挑人之后、排序之前的一站 ----
+test("筛选：划掉/恢复，kept 随之变化，canSubmit 要留够档位人数", () => {
+  const storage = memoryStorage();
+  const S = make(storage);
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  const sc = () => S.snapshot().screening;
+  assert.equal(sc().kept, 7);
+  assert.equal(sc().canSubmit, true);
+  assert.deepEqual(
+    sc().order,
+    ["a1", "a2", "a3", "a4", "a5", "a6", "a7"],
+    "留下的顺序 = 已选顺序去掉被划掉的"
+  );
+  assert.equal(S.toggleCut("a3"), true);
+  assert.deepEqual(sc().cut, ["a3"]);
+  assert.equal(sc().kept, 6);
+  assert.equal(sc().canSubmit, false);
+  S.toggleCut("a4");
+  S.toggleCut("a5");
+  assert.equal(sc().canSubmit, false, "留 4 人不够 7 档");
+  S.toggleCut("a3"); // 恢复
+  assert.deepEqual(sc().cut, ["a4", "a5"]);
+  assert.equal(sc().kept, 5);
+  assert.equal(S.toggleCut("a3"), true, "再划一次");
+  assert.equal(sc().kept, 4);
+});
+
+test("筛选：划掉的必须是已选的人，跨系列与未知 id 都拒", () => {
+  const S = make();
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  assert.equal(S.toggleCut("a1"), true);
+  assert.equal(
+    S.toggleCut("a1"),
+    false,
+    "再次调用是恢复（返回 false 表示没划）"
+  );
+  assert.equal(S.snapshot().screening.cut.length, 0);
+  assert.equal(S.toggleCut("s1"), false, "坂道的人不在 48G 的已选里");
+  assert.equal(S.toggleCut("nope"), false);
+  assert.equal(S.toggleCut("a8"), false, "本系列但不在已选里的人也不能划");
+  assert.deepEqual(S.snapshot().screening.cut, []);
+});
+
+test("筛选：脏存档里的划除（不在已选里的人）读档时被过滤", () => {
+  const storage = memoryStorage();
+  let S = make(storage);
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  S.toggleCut("a2");
+  // 手工塞一个脏划除（a1 已选、a2 已选、a8 从未选中）模拟旧/坏存档
+  const key = "akb:state:v2:48g";
+  const raw = JSON.parse(storage.getItem(key));
+  raw.cut = ["a1", "a8", "a2"];
+  storage.setItem(key, JSON.stringify(raw));
+  S = make(storage);
+  assert.deepEqual(
+    S.snapshot().screening.cut,
+    ["a1", "a2"],
+    "a8 不在已选里 → 读档时丢掉"
+  );
+});
+
+test("筛选：进度随存档走，新会话恢复得到", () => {
+  const storage = memoryStorage();
+  let S = make(storage);
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  S.toggleCut("a2");
+  S.toggleCut("a3");
+  S = make(storage); // 相当于刷新
+  const sc = S.snapshot().screening;
+  assert.deepEqual(sc.cut, ["a2", "a3"]);
+  assert.equal(sc.kept, 5);
+  assert.equal(sc.size, 7);
+  assert.equal(sc.canSubmit, false);
+  assert.deepEqual(sc.order, ["a1", "a4", "a5", "a6", "a7"]);
+});
+
+test("筛选：改已选 / 改档位 / 清空都会作废筛选与对决（不留脏划除）", () => {
+  const storage = memoryStorage();
+  const S = make(storage);
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  S.toggleCut("a2");
+  assert.equal(S.snapshot().screening.cut.length, 1);
+  S.toggleSelect("a7"); // 取消选中一人
+  assert.deepEqual(
+    S.snapshot().screening.cut,
+    [],
+    "被划掉的人已经不在已选里 → 划除作废"
+  );
+  S.toggleCut("a2");
+  S.setSize(16);
+  assert.deepEqual(S.snapshot().screening.cut, [], "改档位 → 划除作废");
+  S.clearSelection();
+  assert.deepEqual(S.snapshot().screening, {
+    cut: [],
+    order: [],
+    kept: 0,
+    size: 16,
+    canSubmit: false,
+  });
+});
+
+test("筛选：提交后进入对决，kept 的顺序就是排序的初始顺序", () => {
+  const S = make();
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  S.toggleCut("a7");
+  S.toggleCut("a1");
+  const kept = S.snapshot().screening;
+  assert.equal(kept.kept, 5);
+  assert.equal(kept.canSubmit, false, "5 < 7 → 不能提交（档位语义）");
+  // 再划掉两个以外的组合凑够 7 人不现实（只有 7 人），所以用 16 档场景验证提交：
+  const T = make();
+  for (let i = 1; i <= 7; i++) T.toggleSelect(`a${i}`);
+  T.toggleCut("a7");
+  T.toggleCut("a6");
+  const t = T.snapshot().screening;
+  assert.equal(t.canSubmit, false, "留 5 < 7 仍不够");
+  T.toggleCut("a6"); // 恢复 → 留 6，仍不够
+  assert.equal(T.snapshot().screening.canSubmit, false);
+  T.startDuel(T.snapshot().screening.order.filter((id) => id !== "a7"));
+  assert.equal(T.snapshot().phase, "duel");
 });

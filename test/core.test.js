@@ -323,8 +323,26 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
     size: 16,
     selected: ["a", "b"],
     duel: { order: ["a", "b", "c"], answers: [true] },
+    cut: ["b"],
   };
   assert.deepEqual(core.deserializeState(core.serializeState(state)), state);
+  // 旧存档（没有 cut 字段）要能读，且划除为空
+  assert.deepEqual(
+    core.deserializeState(JSON.stringify({ v: 1, size: 7, selected: ["a"] })),
+    {
+      size: 7,
+      selected: ["a"],
+      duel: null,
+      cut: [],
+    }
+  );
+  // 划除落在已选之外（脏存档）要被过滤掉
+  assert.deepEqual(
+    core.deserializeState(
+      JSON.stringify({ v: 1, size: 7, selected: ["a"], cut: ["a", "zz"] })
+    ).cut,
+    ["a"]
+  );
   assert.equal(core.deserializeState("not json"), null);
   assert.equal(core.deserializeState(JSON.stringify({ v: 0, size: 7 })), null);
   assert.equal(core.deserializeState(JSON.stringify({ v: 1, size: 9 })), null);
@@ -1468,13 +1486,30 @@ test("rosterView：已选计数只含可见成员（状态过滤下组/段口径
 
 test("罗马字：表驱动逐条（Hepburn 期望值写死，不靠实现自证）", () => {
   const cases = [
-    ["し", "shi"], ["つ", "tsu"], ["ち", "chi"], ["ふ", "fu"], ["じ", "ji"],
-    ["しゅ", "shu"], ["じょ", "jo"], ["きゃ", "kya"], ["ちゃ", "cha"],
-    ["にょ", "nyo"], ["ひゃ", "hya"], ["みょ", "myo"], ["りゅ", "ryu"],
-    ["ぎゃ", "gya"], ["びょ", "byo"], ["ぴゃ", "pya"],
-    ["まっち", "matchi"], ["あっちゃん", "atchan"], ["がっこう", "gakkou"],
-    ["さとう", "satou"], ["かんばん", "kanban"], ["らーめん", "ramen"],
-    ["ふじさん", "fujisan"], ["ひらがな", "hiragana"],
+    ["し", "shi"],
+    ["つ", "tsu"],
+    ["ち", "chi"],
+    ["ふ", "fu"],
+    ["じ", "ji"],
+    ["しゅ", "shu"],
+    ["じょ", "jo"],
+    ["きゃ", "kya"],
+    ["ちゃ", "cha"],
+    ["にょ", "nyo"],
+    ["ひゃ", "hya"],
+    ["みょ", "myo"],
+    ["りゅ", "ryu"],
+    ["ぎゃ", "gya"],
+    ["びょ", "byo"],
+    ["ぴゃ", "pya"],
+    ["まっち", "matchi"],
+    ["あっちゃん", "atchan"],
+    ["がっこう", "gakkou"],
+    ["さとう", "satou"],
+    ["かんばん", "kanban"],
+    ["らーめん", "ramen"],
+    ["ふじさん", "fujisan"],
+    ["ひらがな", "hiragana"],
   ];
   for (const [kana, want] of cases) {
     assert.equal(core.romanize(kana), want, `romanize(${kana}) 应为 ${want}`);
@@ -1482,7 +1517,9 @@ test("罗马字：表驱动逐条（Hepburn 期望值写死，不靠实现自证
   assert.equal(core.romanize("abc123"), "", "非假名字符应被滤掉");
   // 促音双写是**检索**承诺（用户敲 acchan 能搜到），不是 romanize 的输出形态
   assert.ok(
-    core.haystack({ name: "あっちゃん", kana: "あっちゃん" }, "acchan").includes("acchan"),
+    core
+      .haystack({ name: "あっちゃん", kana: "あっちゃん" }, "acchan")
+      .includes("acchan"),
     "haystack 必须含 acchan（促音 cch 变体）"
   );
   assert.equal(core.romanize(""), "");
@@ -1491,7 +1528,11 @@ test("罗马字：表驱动逐条（Hepburn 期望值写死，不靠实现自证
 
 test("罗马字：长音符被丢弃，逐条转写与整体转写一致", () => {
   assert.equal(core.romanize("ーー"), "", "只有长音符应得到空串");
-  assert.equal(core.romanize("らーめん"), core.romanize("らめん"), "长音符应被丢弃");
+  assert.equal(
+    core.romanize("らーめん"),
+    core.romanize("らめん"),
+    "长音符应被丢弃"
+  );
   assert.equal(core.romanize("らーめん"), "ramen");
   // 逐条拼接 == 整体：证明「ー 丢弃」与双字符前瞻在任意切分下自洽
   const kanaSeq = "あいうえおかきくけこ";
@@ -1523,10 +1564,18 @@ test("罗马字：normalizeName 与 haystack 两条路径结果一致（长音�
   const h = (name, kana) => core.haystack({ name, kana }, "maeda");
   assert.equal(core.romanize("まえだあつこ"), core.romanize("まえだあつこ"));
   const hay = h("佐藤友子", "さとうゆうこ");
-  assert.ok(hay.includes("satouyukо".replace("о", "o")) || hay.includes("satouyuko") || hay.includes("sato") || hay.includes("satou"),
-    `haystack 应含 sa*tou*yu*ko* 之一：${hay}`);
+  assert.ok(
+    hay.includes("satouyukо".replace("о", "o")) ||
+      hay.includes("satouyuko") ||
+      hay.includes("sato") ||
+      hay.includes("satou"),
+    `haystack 应含 sa*tou*yu*ko* 之一：${hay}`
+  );
   assert.ok(hay.includes("sato"), "长音折叠的 sato 必须在 haystack 里");
-  assert.equal(core.normalizeName("さとう ゆうこ"), core.normalizeName("サトウユウコ"));
+  assert.equal(
+    core.normalizeName("さとう ゆうこ"),
+    core.normalizeName("サトウユウコ")
+  );
 });
 
 test("正则族：近似反例不得误匹配（期生/血型/选秀/日期）", () => {
@@ -1540,7 +1589,11 @@ test("正则族：近似反例不得误匹配（期生/血型/选秀/日期）",
   // genText 只管期生（血型替换在未导出的 bloodText 里，另由 profileRows 覆盖）
   assert.equal(core.genText("选秀10期生", "en"), "Draft 10th gen");
   assert.equal(core.genText("选秀10", "en"), "选秀10", "缺「期生」不该匹配");
-  assert.equal(core.genText("12.55期生", "en"), "12.55期生", "小数点后多位不该匹配");
+  assert.equal(
+    core.genText("12.55期生", "en"),
+    "12.55期生",
+    "小数点后多位不该匹配"
+  );
   assert.equal(core.genText("12期生", "en"), "12th gen");
   assert.equal(core.genText("12期生x", "en"), "12期生x");
 });
@@ -1579,21 +1632,45 @@ test("profileRows：缺 birth/from/sign/generation/status 时不留空值或 und
     new Date(2026, 8, 27)
   );
   for (const [, v] of rows) {
-    assert.ok(v !== undefined && v !== null && String(v).trim() !== "", `不该出现空值：${JSON.stringify(rows)}`);
-    assert.doesNotMatch(String(v), /undefined|NaN/, `不该出现 undefined/NaN：${v}`);
+    assert.ok(
+      v !== undefined && v !== null && String(v).trim() !== "",
+      `不该出现空值：${JSON.stringify(rows)}`
+    );
+    assert.doesNotMatch(
+      String(v),
+      /undefined|NaN/,
+      `不该出现 undefined/NaN：${v}`
+    );
   }
   const keys = rows.map((r) => r[0]);
-  for (const absent of ["bio_birth", "bio_age", "bio_from", "bio_sign", "bio_gen"]) {
+  for (const absent of [
+    "bio_birth",
+    "bio_age",
+    "bio_from",
+    "bio_sign",
+    "bio_gen",
+  ]) {
     assert.ok(!keys.includes(absent), `${absent} 缺字段时不该出现`);
   }
   assert.ok(keys.includes("bio_height"), "存在的字段仍要出现");
   // 血型替换的锚点：O型 → Type O，带脏后缀的不动
   const blood = (v, lang) =>
-    core.profileRows({ name: "X", bio: { blood: v } }, (k) => k, lang, {}, new Date(2026, 8, 27))
+    core
+      .profileRows(
+        { name: "X", bio: { blood: v } },
+        (k) => k,
+        lang,
+        {},
+        new Date(2026, 8, 27)
+      )
       .find((r) => r[0] === "bio_blood");
   assert.deepEqual(blood("O型", "en"), ["bio_blood", "Type O"]);
   assert.deepEqual(blood("AB型", "en"), ["bio_blood", "Type AB"]);
-  assert.deepEqual(blood("O型x", "en"), ["bio_blood", "O型x"], "后缀有脏字符不该被替换");
+  assert.deepEqual(
+    blood("O型x", "en"),
+    ["bio_blood", "O型x"],
+    "后缀有脏字符不该被替换"
+  );
 });
 
 test("rosterView：group=all 不做组过滤，折叠节点键按团体区分", () => {
@@ -1602,39 +1679,189 @@ test("rosterView：group=all 不做组过滤，折叠节点键按团体区分", 
     { group: "AKB48", generation: "3期生", members: [{ id: "b", name: "乙" }] },
     { group: "SKE48", generation: "1期生", members: [{ id: "c", name: "丙" }] },
   ];
-  const all = core.rosterView(sections, { group: "all", generation: "all", status: "all", query: "", selected: [] });
+  const all = core.rosterView(sections, {
+    group: "all",
+    generation: "all",
+    status: "all",
+    query: "",
+    selected: [],
+  });
   const groups = all.nodes.map((n) => n.group);
   assert.deepEqual(groups, ["AKB48", "SKE48"], "all 时两个团体都该出现");
-  const onlySke = core.rosterView(sections, { group: "SKE48", generation: "all", status: "all", query: "", selected: [] });
-  assert.deepEqual(onlySke.nodes.map((n) => n.group), ["SKE48"]);
+  const onlySke = core.rosterView(sections, {
+    group: "SKE48",
+    generation: "all",
+    status: "all",
+    query: "",
+    selected: [],
+  });
+  assert.deepEqual(
+    onlySke.nodes.map((n) => n.group),
+    ["SKE48"]
+  );
   // 折叠节点键必须随团体不同（否则所有组挤到一起）
-  assert.equal(new Set(all.nodes.map((n) => n.id)).size, all.nodes.length, "节点 id 必须互不相同");
+  assert.equal(
+    new Set(all.nodes.map((n) => n.id)).size,
+    all.nodes.length,
+    "节点 id 必须互不相同"
+  );
   assert.notEqual(all.nodes[0].id, all.nodes[1].id);
   // 状态=all 也不该过滤
-  const s = core.rosterView(sections, { group: "all", generation: "all", status: "all", query: "", selected: [] });
+  const s = core.rosterView(sections, {
+    group: "all",
+    generation: "all",
+    status: "all",
+    query: "",
+    selected: [],
+  });
   assert.equal(s.nodes.length, 2);
 });
 
 test("rosterView 搜索：三个过滤条件各自真的生效（这条路径此前没有任何测试）", () => {
-  const akb = { group: "AKB48", label: "1期生", members: [{ id: "a1", name: "甲", status: "current", hay: "こう" }] };
-  const ske = { group: "SKE48", label: "1期生", members: [{ id: "s1", name: "乙", status: "current", hay: "こう" }] };
-  const former = { group: "AKB48", label: "3期生", members: [{ id: "f1", name: "丙", status: "former", hay: "こう" }] };
+  const akb = {
+    group: "AKB48",
+    label: "1期生",
+    members: [{ id: "a1", name: "甲", status: "current", hay: "こう" }],
+  };
+  const ske = {
+    group: "SKE48",
+    label: "1期生",
+    members: [{ id: "s1", name: "乙", status: "current", hay: "こう" }],
+  };
+  const former = {
+    group: "AKB48",
+    label: "3期生",
+    members: [{ id: "f1", name: "丙", status: "former", hay: "こう" }],
+  };
   const all = [akb, ske, former];
-  const search = (opts) => core.rosterView(all, { group: "all", generation: "all", status: "all", query: "こう", selected: [], ...opts });
-  assert.deepEqual(search({}).hits.map((m) => m.id), ["a1", "s1", "f1"], "all 时三人全中");
-  assert.deepEqual(search({ group: "AKB48" }).hits.map((m) => m.id), ["a1", "f1"], "团过滤只留 AKB48");
-  assert.deepEqual(search({ generation: "1期生" }).hits.map((m) => m.id), ["a1", "s1"], "期生过滤只留 1 期");
-  assert.deepEqual(search({ status: "current" }).hits.map((m) => m.id), ["a1", "s1"], "状态过滤排除毕业");
-  assert.deepEqual(search({ group: "SKE48", status: "current" }).hits.map((m) => m.id), ["s1"], "团 + 状态叠加");
-  // 汉字期生与阿拉伯期生归一后同组（genKey）
-  const kanji = { group: "AKB48", label: "一期生", members: [{ id: "k1", name: "丁", status: "current", hay: "こう" }] };
+  const search = (opts) =>
+    core.rosterView(all, {
+      group: "all",
+      generation: "all",
+      status: "all",
+      query: "こう",
+      selected: [],
+      ...opts,
+    });
   assert.deepEqual(
-    core.rosterView([kanji], { group: "all", generation: "1期生", status: "all", query: "こう", selected: [] }).hits.map((m) => m.id),
+    search({}).hits.map((m) => m.id),
+    ["a1", "s1", "f1"],
+    "all 时三人全中"
+  );
+  assert.deepEqual(
+    search({ group: "AKB48" }).hits.map((m) => m.id),
+    ["a1", "f1"],
+    "团过滤只留 AKB48"
+  );
+  assert.deepEqual(
+    search({ generation: "1期生" }).hits.map((m) => m.id),
+    ["a1", "s1"],
+    "期生过滤只留 1 期"
+  );
+  assert.deepEqual(
+    search({ status: "current" }).hits.map((m) => m.id),
+    ["a1", "s1"],
+    "状态过滤排除毕业"
+  );
+  assert.deepEqual(
+    search({ group: "SKE48", status: "current" }).hits.map((m) => m.id),
+    ["s1"],
+    "团 + 状态叠加"
+  );
+  // 汉字期生与阿拉伯期生归一后同组（genKey）
+  const kanji = {
+    group: "AKB48",
+    label: "一期生",
+    members: [{ id: "k1", name: "丁", status: "current", hay: "こう" }],
+  };
+  assert.deepEqual(
+    core
+      .rosterView([kanji], {
+        group: "all",
+        generation: "1期生",
+        status: "all",
+        query: "こう",
+        selected: [],
+      })
+      .hits.map((m) => m.id),
     ["k1"],
     "「一期生」应与「1期生」同组"
   );
   // 命中 0 时 hits 为空数组而不是省略字段
-  const none = core.rosterView(all, { group: "all", generation: "all", status: "all", query: "查无此人", selected: [] });
+  const none = core.rosterView(all, {
+    group: "all",
+    generation: "all",
+    status: "all",
+    query: "查无此人",
+    selected: [],
+  });
   assert.deepEqual(none.hits, []);
   assert.deepEqual(none.nodes, []);
+});
+
+// ---- 筛选相位（ADR-0019：核心循环改成 清单筛选 → 排序定序） ----
+test("nav：挑人页已选满才能进筛选；筛选页提交要留够档位人数", () => {
+  const ctx = (o) => ({
+    view: "pick",
+    phase: "pick",
+    size: 7,
+    selected: 7,
+    ...o,
+  });
+  assert.deepEqual(core.nav(ctx({}), "screen"), {
+    view: "screening",
+    effect: "none",
+  });
+  // 没选满：留在挑人
+  assert.deepEqual(core.nav(ctx({ selected: 5 }), "screen"), {
+    view: "pick",
+    effect: "none",
+  });
+  // 留够 → 进排序
+  assert.deepEqual(
+    core.nav(
+      { view: "screening", phase: "screening", size: 7, selected: 7, kept: 7 },
+      "rank"
+    ),
+    { view: "duel", effect: "start" }
+  );
+  // 留不够 → 留在筛选
+  assert.deepEqual(
+    core.nav(
+      { view: "screening", phase: "screening", size: 7, selected: 7, kept: 5 },
+      "rank"
+    ),
+    { view: "screening", effect: "none" }
+  );
+});
+
+test("nav：筛选页返回挑人保留筛选进度（不丢）", () => {
+  const s = {
+    view: "screening",
+    phase: "screening",
+    size: 7,
+    selected: 7,
+    kept: 6,
+  };
+  // 复用既有的 pick 意图（不为筛选页另造一个同义的 back）
+  assert.deepEqual(core.nav(s, "pick"), { view: "pick", effect: "none" });
+  // 挑人页再进筛选，还是同一步
+  assert.deepEqual(core.nav({ ...s, view: "pick" }, "screen"), {
+    view: "screening",
+    effect: "none",
+  });
+});
+
+test("steps：筛选时第 ② 步是高亮态（步骤条仍是三步）", () => {
+  const s = core.steps({
+    view: "screening",
+    phase: "screening",
+    size: 7,
+    selected: 7,
+    kept: 6,
+  });
+  assert.equal(s.length, 3, "步骤条保持三步（筛选算第 ② 步里的一站）");
+  assert.equal(s[1].key, "duel");
+  assert.equal(s[1].active, true, "筛选期间第 ② 步高亮");
+  assert.equal(s[1].enabled, true);
 });

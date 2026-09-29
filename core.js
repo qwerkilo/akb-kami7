@@ -743,6 +743,7 @@
       size: state.size,
       selected: state.selected,
       duel: state.duel || null,
+      cut: state.cut || [], // 筛选步的划除（v1 格式的可选字段，旧存档缺省 []）
     });
   }
 
@@ -768,7 +769,11 @@
       ) {
         duel = { order: s.duel.order, answers: s.duel.answers };
       }
-      return { size, selected, duel };
+      // 划除必须落在已选里（脏存档会被过滤掉，而不是带进会话）
+      const cut = Array.isArray(s.cut)
+        ? s.cut.filter((x) => typeof x === "string" && selected.includes(x))
+        : [];
+      return { size, selected, duel, cut };
     } catch (err) {
       return null;
     }
@@ -801,7 +806,8 @@
   }
 
   // ---- 导航相位（view 转移表；view 不持久化，刷新由相位恢复。ADR-0013） ----
-  const NAV_VIEWS = ["pick", "duel", "result"];
+  // screening = 清单筛选那一站（ADR-0019）：挑人之后、排序之前，独立可续玩
+  const NAV_VIEWS = ["pick", "screening", "duel", "result"];
 
   function navState(ctx) {
     const c = ctx || {};
@@ -814,6 +820,7 @@
       selected,
       step: c.step,
       full: selected >= size,
+      kept: typeof c.kept === "number" ? c.kept : selected, // 筛选后留下的人数
     };
   }
 
@@ -831,6 +838,22 @@
       s.view === "result"
         ? { view: "pick", effect: "abandon" }
         : { view: "pick", effect: "none" },
+    // 进筛选：已选满即可（划不划是用户的事，门槛在提交时）
+    screen: (s) =>
+      s.phase === "screening"
+        ? { view: "screening", effect: "none" }
+        : s.full
+          ? { view: "screening", effect: "none" }
+          : stay(s),
+    // 提交筛选：留下的人数必须够档位（ADR-0019：档位语义不被筛掉）
+    rank: (s) =>
+      s.view === "screening" || s.phase === "screening"
+        ? s.kept >= s.size
+          ? { view: "duel", effect: "start" }
+          : stay(s)
+        : s.phase === "duel"
+          ? { view: "duel", effect: "resume" }
+          : stay(s),
     duel: (s) =>
       s.phase === "duel"
         ? { view: "duel", effect: "none" }
@@ -879,8 +902,11 @@
       },
       {
         key: "duel",
-        active: s.view === "duel",
-        enabled: s.phase === "duel" || (s.phase === "pick" && s.full),
+        active: s.view === "duel" || s.view === "screening",
+        enabled:
+          s.phase === "duel" ||
+          s.phase === "screening" ||
+          (s.phase === "pick" && s.full),
         badge: s.phase === "duel" && s.step != null ? s.step : null,
       },
       {

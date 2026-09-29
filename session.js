@@ -32,6 +32,8 @@
       query: "",
       open: new Set(),
       duel: emptyDuel(),
+      // 筛选步（ADR-0019）：被划掉的已选成员 id；空 = 一个都没划
+      cut: [],
       skin: "classic",
       generation: "all",
       // 全局偏好：不随系列切换而变，存储不可用时回落到这些默认值。
@@ -65,11 +67,13 @@
 
     function loadSeries(s) {
       const st = CORE.deserializeState(read(stateKey(s)) || "");
-      if (!st) return { size: 7, selected: [], duel: null };
+      if (!st) return { size: 7, selected: [], duel: null, cut: [] };
       const selected = st.selected.filter((id) => inSeries(id, s));
       let duel = st.duel;
       if (duel && duel.order.some((id) => !inSeries(id, s))) duel = null;
-      return { size: st.size, selected, duel };
+      // 「划除必须落在已选里」由 core.deserializeState 统一保证（单一出处）；
+      // 这里只负责按系列过滤 selected/duel（core 不认识系列）
+      return { size: st.size, selected, duel, cut: st.cut || [] };
     }
 
     function save() {
@@ -81,6 +85,7 @@
           duel: state.duel.order.length
             ? { order: state.duel.order, answers: state.duel.answers }
             : null,
+          cut: state.cut,
         })
       );
     }
@@ -95,6 +100,7 @@
               answers: state.duel.answers.slice(),
             }
           : null,
+        cut: state.cut.slice(),
       };
     }
 
@@ -118,7 +124,40 @@
     function clearDuel() {
       const had = state.duel.order.length > 0;
       state.duel = emptyDuel();
+      state.cut = [];
       return had;
+    }
+
+    // 筛选：划掉 / 恢复一个已选成员。kept = 已选 - 被划；够档位才能提交（ADR-0019）
+    function screening() {
+      const order = state.selected.filter((id) => !state.cut.includes(id));
+      return {
+        cut: state.cut.slice(),
+        order,
+        kept: order.length,
+        size: state.size,
+        canSubmit: order.length >= state.size,
+      };
+    }
+
+    function toggleCut(id) {
+      if (!inSeries(id, state.series)) return false;
+      if (state.cut.includes(id)) {
+        state.cut = state.cut.filter((x) => x !== id);
+        save();
+        return false; // 这次是「恢复」
+      }
+      if (!state.selected.includes(id)) return false;
+      state.cut = state.cut.concat([id]);
+      save();
+      return true;
+    }
+
+    function resetScreening() {
+      if (!state.cut.length) return false;
+      state.cut = [];
+      save();
+      return true;
     }
 
     // 启动：恢复上次系列与两个系列的存档
@@ -135,6 +174,7 @@
     for (const s of SERIES) store[s] = loadSeries(s);
     state.size = store[state.series].size;
     state.selected = store[state.series].selected.slice();
+    state.cut = (store[state.series].cut || []).slice();
     setDuel(store[state.series].duel);
 
     function snapshot() {
@@ -170,7 +210,8 @@
         generation: state.generation,
         query: state.query,
         open: [...state.open],
-        phase,
+        phase: state.cut.length && !duel.order.length ? "screening" : phase,
+        screening: screening(),
         duel: duelView,
         ranking,
         skin: state.skin,
@@ -216,6 +257,7 @@
       state.generation = "all";
       state.query = "";
       state.open = new Set();
+      state.cut = (st.cut || []).slice();
       setDuel(st.duel);
       return true;
     }
@@ -325,6 +367,8 @@
       setPosterStyle,
       setLang,
       startDuel,
+      toggleCut,
+      resetScreening,
       answer,
       undo,
       clearSelection,
