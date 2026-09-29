@@ -272,3 +272,45 @@ test("步数表只有一个家：app.js 读 i18n 的，不自持一份", () => {
     "app.js 不得自持步数表（应来自 i18n）"
   );
 });
+
+test("会话接受的语言集合 = i18n 字典的键集合（加第四种语言时两处都要红）", () => {
+  // 独立事实源是 i18n 字典本身，不是抄一份 ["zh","en","ja"]
+  const SESSION = require("../session.js");
+  const I18N = require("../i18n.js");
+  const store = new Map();
+  const storage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+  };
+  const mk = () => SESSION.create({ storage, byId: () => undefined });
+  // i18n.js 除三份语言字典外还导出文案元数据（GUIDE_STEPS / values），
+  // 它们不是语言码——按「是不是语言字典」筛出来，而不是硬编码三个码
+  const META = new Set(["GUIDE_STEPS", "values"]);
+  const langs = Object.keys(I18N).filter((k) => !META.has(k));
+  assert.ok(langs.length > 0, "i18n 字典不为空");
+  // 判据看**状态**而不是返回值：setLang 对「同值」按约定返回 false（与 setSkin 同形），
+  // 那是「没变」不是「不接受」
+  for (const l of langs) {
+    assert.equal(mk().setLang(l) || true, true);
+    assert.equal(mk().snapshot().lang, l, `会话应接受 i18n 里存在的语言 ${l}`);
+    const s = mk();
+    s.setLang("en" === l ? "ja" : "en"); // 先切走，确保下面那次是真的改
+    s.setLang(l);
+    assert.equal(s.snapshot().lang, l, `会话应能切到 ${l}`);
+  }
+  // 反向：会话不得接受字典里没有的语言（探针集合含超集，不与实现耦合）
+  const CANDIDATES = ["zh", "en", "ja", "fr", "de", "ko", ""];
+  const accepted = CANDIDATES.filter((l) => {
+    const s = mk();
+    s.setLang(l);
+    return s.snapshot().lang === l;
+  });
+  assert.deepEqual(
+    [...accepted].sort(),
+    [...langs].sort(),
+    "会话接受的语言必须与 i18n 字典的键完全一致"
+  );
+  // 落盘值也只认这些语言
+  storage.setItem("akb-lang", "fr");
+  assert.notEqual(mk().snapshot().lang, "fr", "字典外的语言不得从落盘值恢复");
+});
