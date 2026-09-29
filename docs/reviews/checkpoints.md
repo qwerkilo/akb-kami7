@@ -451,3 +451,15 @@
 - 验证：`npm test` JS 166 + Python 113；E2E 回归 95/95。
 - 遗留：`read_baseline` 是文本切分解析，产物格式若变会退化成「不校验 + 一行提示」（有测试钉住该退路 ✓）；剩下两条一行级候选未做：`app.js:1098` 手搓安全上下文白名单（应换 `window.isSecureContext`）、`app.js:37` 手拼照片 URL（`core.photoSrc()` 已在同文件用于同一件事）。
 - 下次基点：`86ea684`
+
+## 2026-09-29 · 深化㉒ 安全上下文与照片 URL 收口（基点 `86ea684`）
+
+- 基点：`86ea684`（第三十一轮检查点）
+- 范围：架构扫描 Worth exploring 档最后两条（候选 5 / 6）。**两轴审查未跑**——两处共 5 行代码、判别力由变异实证、文档同步完成；下一个批次做累计审查。
+- **候选 5**：`secureCtx` 从手搓白名单 `https | localhost | 127.0.0.1 | [::1]` 换成 `window.isSecureContext && location.protocol !== "file:"`。**不能简化成纯原语**——`file://` 在浏览器里 `isSecureContext` 也是 true、且 `"serviceWorker" in navigator` 为 true，纯换原语会让代码尝试在 `file://` 注册 SW，破掉 AGENTS.md 与 pwa.md 都写着的不变量。`app.js:812` 的 `shareUrl` 判据问的是另一个问题（「这是不是开发地址」），没动。
+- **候选 6**：`app.js:37` 手拼的 `"img/full/" + id + ".webp"` 换成 `CORE.photoSrc(m, "full")`（`m` 就在上一行且已判过 `!m || !m.img`），零新接口。
+- **判别力**：2 个变异全部变红（换回纯 `isSecureContext` → 原因提示消失；照片 URL 换回手拼 → 没有对 `img/full` 的请求）。两条新断言在**改代码之前就是绿的**（白名单本来正确）→ 它们是回归守卫，用变异证明咬合力。
+- **一条断言「不咬」的记账**：`file:// 下没有注册 SW` 咬不住——`getRegistration()` 在 `file://` 上本来就抛，注册 promise 又被 catch、控制台无报错；试过加「控制台无 SW 报错」断言，变异下仍全绿 → 已删。**`file://` 不注册 SW 在浏览器里不可直接观测**，测试守的是它的可见后果（原因提示在/不在）。
+- 验证：`npm test` JS 166 + Python 113；E2E 回归 95/95、v5 49/49、PWA **42/42**（+2）。
+- 遗留：本批未做两轴审查（已记账，下个批次累计）；`docs/agents/pwa.md` 的 `file://` 那行已补实现位置与「别简化」的警告。
+- 下次基点：`a89b003`
