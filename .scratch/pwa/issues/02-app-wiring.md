@@ -21,8 +21,16 @@
 
 - **回路**：`/tmp/opencode/repro-install.cjs` 跑三种环境（localhost 安全上下文 / 局域网 IP 非安全上下文 / iPhone UA），断言「安装入口行可见 **且** 按钮可点」。修复前 2/3 场景红——**headless Chromium 在安全上下文下也不触发 `beforeinstallprompt`**，整行被 `paintInstall` 藏掉，连「手动装」的指引一起消失。
 - 排除项（都在回路里验过）：事件真触发时我们的代码没问题（H3 排除：行可见、按钮可点）；盘上 DOM 在、缓存是新版（H5 排除，不是旧壳）。
-- **修法**：入口可见性不再依赖事件（除 `standalone` 外始终显示）；「安装」按钮在无事件时打开指引；指引按平台分支渲染（`guidePlatform()` + `GUIDE_STEPS`：iOS 4 步 / Android 3 步 / Mac 3 步 / 其他 3 步），非安全上下文再显示一句原因。i18n +19 键 × 三语，删 2 个死键（`pwa_ios_go` / `pwa_ios_title`），死键守卫加 `pwa_` 动态家族。
-- **验收**：回路 3/3 绿；E2E 断言从「无事件时行不出现」反转为「无事件时行仍可见可点」，并新增按平台指引的步数 / 标题 / 提示检查（**34 项**）；`npm test` JS 136 / Python 88；回归 E2E 86/86、v5 49/49。
+- **修法**：入口可见性不再依赖事件（除 `standalone` 外始终显示）；「安装」按钮在无事件时打开指引；指引按平台分支渲染（`guidePlatform()` + `GUIDE_STEPS`：iOS 4 步 / Android 3 步 / Mac 3 步 / 其他 3 步），非安全上下文再显示一句原因。i18n +15 键 × 三语，删 2 个死键（`pwa_ios_go` / `pwa_ios_title`），死键守卫加 `pwa_` 动态家族。
+- **验收**：回路 3/3 绿；E2E 断言从「无事件时行不出现」反转为「无事件时行仍可见可点」，并新增按平台指引的步数 / 标题 / 提示检查；`npm test` + Python 全绿；回归 E2E 86/86、v5 49/49。
+
+### 两轴复审后又修的（同一批）
+- **事实错误**：`pwa_other_s3` 原写「桌面版 Firefox 暂不支持装成应用」——按 Mozilla 文档，**Windows 143+ / Linux 可以**（地址栏 web apps 按钮），只有 macOS 不支持。这条会让人直接放弃，已改（zh/en/ja × ADR × AGENTS.md 同步）。同批修掉 ja 文案里的中文残留「程序**坞**」→「プログラムDock」、iPad 分享按钮在顶部、macOS 14 起才有该菜单项。
+- **非安全上下文的原因写死成「http + 局域网地址」**：`file://` 打开真站也会照说这句（那里根本没有 http），措辞改成覆盖两种来源。
+- 浮层 `aria-label` 打开时不同步（只改了 `dataset`，可及名停在通用标题，切语言才自愈）；`GUIDE_STEPS[plat] || 3` 的兜底会把「平台加错」变成空列表而不是报错，去掉兜底。
+- **补缝**：`test/i18n.test.js` 新增「安装指引的动态键三语齐（平台 × 步骤数）」——动态拼出来的键死键守卫查不到，缺一个时 `t()` 返回 `undefined`、WebIDL 变成空字符串，指引里会静悄悄多一条空白步骤（已用「android 步数改 4」变异验证它会红）。E2E 补 Android / macOS 两个分支（此前零断言）。
+- **E2E 工具自身的缺陷**：`/tmp/opencode/e2e.cjs` 的 console handler push 到未声明的 `errs`（一旦有非预期 console error 就崩）；`e2e-pwa.cjs` 点「刷新」用 `locator.click` 会与 `location.reload()` 互等到超时（改用 evaluate 触发 + 文档戳断言）。
+- **字体预热改分批并发**：逐个 await 要十几秒，期间用户断网就只预热一半（E2E 撞到过一次 `h1 宽 152 ≠ 160`）。
 
 ## 交付实况
 
