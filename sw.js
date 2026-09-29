@@ -20,9 +20,9 @@ self.addEventListener("install", (e) => {
       .open(SHELL_CACHE)
       .then((c) => Promise.allSettled(RULES.SHELL_FILES.map((f) => c.add(f))))
   );
-  // 新版本立即激活（不再等 waiting 被 postMessage 叫醒——实测那条路在
-  // headless 环境里收不到消息，skipWaiting 永远不发生；真实浏览器可行但
-  // 本项目不依赖它，所以那条死协议已删）。
+  // 新版本立即激活（不再等 waiting 被 postMessage 叫醒——本机 headless 环境实测
+  // 那条路收不到消息、skipWaiting 永不发生；按规范真实浏览器可行，但本项目不依赖它，
+  // 所以那条 message 死协议已删，见 docs/adr/0016-pwa.md）。
   // 页面仍然不会自动刷新：app.js 只在用户点横幅上的「刷新」时才 reload，
   // 壳又是 network-first，所以激活本身对用户不可见。
   self.skipWaiting();

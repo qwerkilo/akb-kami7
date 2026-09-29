@@ -53,14 +53,7 @@
     return null;
   }
 
-  const api = {
-    classify,
-    IMG_CAP,
-    FONT_CAP,
-    FONT_HOSTS,
-    SHELL_FILES,
-    SHELL_NAMES,
-  };
+  const api = { classify, IMG_CAP, FONT_CAP, FONT_HOSTS, SHELL_FILES };
   if (typeof module === "object" && module.exports) module.exports = api;
   else root.AKB_CACHE_RULES = api;
 })(typeof self === "object" ? self : globalThis);

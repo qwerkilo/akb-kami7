@@ -98,9 +98,40 @@ test("其余同源杂项与非 GET 都直连", () => {
   );
 });
 
+test("CACHE_OF 的 kind→桶映射覆盖 classify 可能返回的每个 kind", () => {
+  // sw.js 里 CACHE_OF[plan.kind] 缺键时会 TypeError，respondWith 从不调用 →
+  // 浏览器按「无人处理」直连，**静默失去缓存**。这个耦合跨两个文件，node 能守，E2E 守不到。
+  const swSrc = fs.readFileSync(rel("sw.js"), "utf8");
+  const keys = new Set(
+    [.../CACHE_OF\s*=\s*\{([^}]*)\}/.exec(swSrc)[1].matchAll(/(\w+)\s*:/g)].map(
+      (m) => m[1]
+    )
+  );
+  const urls = [
+    ["https://example.test/", { mode: "navigate" }],
+    ["https://example.test/app.js"],
+    ["https://example.test/img/full/x.webp"],
+    ["https://fonts.googleapis.com/css2?family=X"],
+  ];
+  for (const [url, extra = {}] of urls) {
+    const plan = RULES.classify(req(url, extra), loc);
+    assert.ok(plan, `${url} 应有分类结果`);
+    if (plan.kind === "shell") continue; // 走 networkFirst，不查 CACHE_OF
+    assert.ok(
+      keys.has(plan.kind),
+      `sw.js 的 CACHE_OF 缺 kind=${plan.kind}（${url}）`
+    );
+  }
+});
+
 test("SHELL_FILES 覆盖全部壳文件且都真实存在", () => {
   const listed = RULES.SHELL_FILES.filter((f) => f !== "./").map((f) =>
     f.replace(/^\.\//, "")
+  );
+  // 图标从 manifest 派生（不是写死三条）：manifest 声明的图标必须逐个进预缓存清单，
+  // 否则装到桌面后图标 404——写死清单时「manifest 加了图标但清单没加」会全绿。
+  const manifest = JSON.parse(
+    fs.readFileSync(rel("manifest.webmanifest"), "utf8")
   );
   const onDisk = [
     "index.html",
@@ -110,9 +141,7 @@ test("SHELL_FILES 覆盖全部壳文件且都真实存在", () => {
       .readdirSync(ROOT)
       .filter((f) => f.endsWith(".js") && f !== "sw.js")
       .sort(),
-    "icons/icon-192.png",
-    "icons/icon-512.png",
-    "icons/icon-maskable-512.png",
+    ...manifest.icons.map((i) => i.src.replace(/^\.\//, "")),
   ].sort();
   assert.deepEqual(
     [...listed].sort(),

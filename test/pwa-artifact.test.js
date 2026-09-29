@@ -17,13 +17,6 @@ function manifest() {
   return JSON.parse(fs.readFileSync(rel("manifest.webmanifest"), "utf8"));
 }
 
-function shellFiles() {
-  const src = fs.readFileSync(rel("sw.js"), "utf8");
-  const m = src.match(/SHELL_FILES\s*=\s*\[([\s\S]*?)\]/);
-  assert.ok(m, "sw.js 里找不到 SHELL_FILES");
-  return Array.from(m[1].matchAll(/["']([^"']+)["']/g)).map((x) => x[1]);
-}
-
 test("manifest 关键字段齐备且面向独立窗口", () => {
   const m = manifest();
   for (const k of [
