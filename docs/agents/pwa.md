@@ -41,7 +41,7 @@
 ## 安装入口与指引文案
 
 - **能力探测决定按钮行为，不决定入口可见性**：入口（页脚）除已装成应用（`navigator.standalone`）外始终显示。`beforeinstallprompt` 只决定「安装」是一键还是改名「怎么装？」——Firefox、macOS Safari、headless、非安全上下文都不触发它，把可见性挂在上面会让入口彻底消失（用户报过「底部没看到安装按钮」）。
-- 指引按平台分支渲染（`guidePlatform()` + `GUIDE_STEPS`），键是拼出来的：`pwa_<plat>_s1..n` 与 `pwa_guide_title[_plat]`。**死键守卫查不到拼出来的键**，缺一个时 `t()` 返回 `undefined`、WebIDL 变成空字符串，指引里会静悄悄多一条空白步骤——`test/i18n.test.js` 的「安装指引的动态键三语齐」就是守这个的。
+- 指引按平台分支渲染（`guidePlatform()` + `GUIDE_STEPS`）——**步数表住在 `i18n.js` 并由 `app.js` 读取**（它是文案元数据：键是拼出来的 `pwa_<plat>_s<i>`，住在一起才不会分家）。键是拼出来的：`pwa_<plat>_s1..n` 与 `pwa_guide_title[_plat]`。**死键守卫查不到拼出来的键**，缺一个时 `t()` 返回 `undefined`、WebIDL 变成空字符串，指引里会静悄悄多一条空白步骤——`test/i18n.test.js` 的「安装指引的动态键三语齐」就是守这个的。
 - 平台事实（改文案时按这份写，写错会让人直接放弃）：
 
   | 平台                  | 路径                                         | 备注                                       |

@@ -86,7 +86,12 @@
     ジョッキ持ち: { zh: "举扎啤杯", en: "Holding a beer stein" },
   };
 
+  // 指引浮层的步数 = 文案元数据：键名是 pwa_<plat>_s<i>，步数必须与实际键一一对应。
+  // 住在这里（而不是 app.js）是因为 i18n 测试要能 require 到它来派生键存在性检查。
+  const GUIDE_STEPS = { ios: 4, android: 3, macos: 3, other: 3 };
+
   return {
+    GUIDE_STEPS,
     zh: {
       doc_title: "48 Group × 坂道 好き顔ソート（历代成员）",
       subtitle: "历代成员版",

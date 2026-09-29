@@ -1128,7 +1128,8 @@
       txt.textContent = t("pwa_install");
     }
   }
-  const GUIDE_STEPS = { ios: 4, android: 3, macos: 3, other: 3 };
+  // 步数表来自 i18n.js（文案元数据；app.js 不再自持一份）
+  const GUIDE_STEPS = I18N.GUIDE_STEPS;
   function guidePlatform() {
     const ua = navigator.userAgent;
     if (isIOS) return "ios";

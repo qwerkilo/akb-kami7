@@ -234,3 +234,42 @@ test("档位芯片与品牌字面值：40 档 = 圈内 40 / 圈内（三语）",
   assert.equal(I18N.ja.mode_40, "圏内 40");
   assert.equal(I18N.ja.brand_40, "圏内");
 });
+
+// ── 深化⑳：指引步数表的单一出处 ──
+// 这张表以前在 app.js 与本文件各写一份，改 app.js 的 ios: 4 → 5 时本文件全绿
+// （它拿自己那份 4 去查键），而线上会多渲染一条 undefined 的空白步骤。
+test("指引步数表从 i18n 导出，且各语言键都由它派生（不是各写一份）", () => {
+  assert.ok(I18N.GUIDE_STEPS, "i18n.js 必须导出 GUIDE_STEPS");
+  assert.deepEqual(Object.keys(I18N.GUIDE_STEPS).sort(), ["android", "ios", "macos", "other"]);
+  const missing = [];
+  for (const lang of ["zh", "en", "ja"]) {
+    for (const [plat, n] of Object.entries(I18N.GUIDE_STEPS)) {
+      const titleKey = plat === "other" ? "pwa_guide_title" : "pwa_guide_title_" + plat;
+      if (I18N[lang][titleKey] === undefined) missing.push(lang + ":" + titleKey);
+      // 步数是几，就该有几条文案；多出的文案键与缺键同样是错
+      for (let i = 1; i <= n; i++) {
+        const k = "pwa_" + plat + "_s" + i;
+        if (I18N[lang][k] === undefined) missing.push(lang + ":" + k);
+      }
+      const extra = Object.keys(I18N[lang]).filter((k) => k.startsWith("pwa_" + plat + "_s"));
+      if (extra.length !== n) missing.push(`${lang}:${plat} 文案 ${extra.length} 条但步数 ${n}`);
+    }
+  }
+  assert.deepEqual(missing, [], "指引键与步数表不匹配：" + missing.join("、"));
+});
+
+test("指引步数与文档口径一致（iOS 四步，其余三步）", () => {
+  // 这一份是有意的「规格声明」，不是从生产代码复制的副本：
+  // iOS 是四步（分享 → 添加到主屏幕）这条是 docs/agents/pwa.md 写着的平台事实。
+  assert.deepEqual(I18N.GUIDE_STEPS, { ios: 4, android: 3, macos: 3, other: 3 });
+});
+
+test("步数表只有一个家：app.js 读 i18n 的，不自持一份", () => {
+  // 上面的测试只看得见 i18n 侧；app.js 若偷偷自持一份副本，两边会再次分家
+  // （这正是修前的形态：改 app.js 的 ios 步数测试照样全绿）。
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(src, /I18N\.GUIDE_STEPS/, "app.js 必须读 I18N.GUIDE_STEPS");
+  assert.doesNotMatch(src, /ios:\s*\d/, "app.js 不得自持步数表（应来自 i18n）");
+});
