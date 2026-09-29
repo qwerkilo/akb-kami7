@@ -32,6 +32,17 @@ test("manifest 关键字段齐备且面向独立窗口", () => {
     assert.ok(m[k], `manifest 缺字段 ${k}`);
   }
   assert.equal(m.display, "standalone");
+  // 启动底色必须与「应用默认皮肤」的首帧一致（style.css 的 :root 块 = classic），
+  // 否则装成应用后启动闪一下另一种皮肤
+  const floor = /--floor:\s*([^;]+);/
+    .exec(fs.readFileSync(path.join(__dirname, "..", "style.css"), "utf8"))?.[1]
+    ?.trim();
+  assert.ok(floor, "读不到 style.css 的 --floor");
+  assert.equal(
+    m.background_color,
+    floor.startsWith("#") ? floor : "#" + floor,
+    `manifest 的 background_color 应等于默认皮肤底色 ${floor}`
+  );
   assert.equal(
     m.start_url,
     "./",

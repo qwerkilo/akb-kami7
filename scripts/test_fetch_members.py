@@ -578,7 +578,8 @@ class RosterGateTests(unittest.TestCase):
         problems = fetch_members.roster_problems(
             self._members({"AKB48": 60, "SKE48": 40}), base
         )
-        self.assertTrue(any("SDN48" in p for p in problems), problems)
+        # 必须盯「团体消失」那句本身：逐团下限的消息里也有团名，只 any(团名) 会被它满足
+        self.assertTrue(any("一个成员都没解析到" in p for p in problems), problems)
 
     def test_halved_group_is_a_problem(self):
         # 基线每团 100 人：AKB48 掉到 40（低于一半）→ 该团被点名，总数判据不响
@@ -604,7 +605,7 @@ class RosterGateTests(unittest.TestCase):
             len(fetch_members.roster_problems(self._members({"AKB48": 59}), base)), 1, "59% 应当拦下"
         )
 
-    def test_baseline_counts_field_is_required(self):
+    def test_just_below_threshold_still_passes(self):
         # 基线口径必须只含 48G/坂道 团体——含等爱分段会让「团体消失」恒成立
         base = {"groups": {"AKB48"}, "counts": {"AKB48": 100}, "total": 100}
         self.assertEqual(fetch_members.roster_problems(self._members({"AKB48": 100}), base), [])
@@ -671,12 +672,24 @@ class ReadBaselineTests(unittest.TestCase):
                 self.assertIsNone(fetch_members.read_baseline(td))
             self.assertIn("不校验名册规模", buf.getvalue())
 
-    def test_quiet_suppresses_the_notice(self):
+    def test_love_only_product_is_treated_as_no_baseline(self):
+        # 解析成功但只有等爱分段 → 同样当「读不到」，否则 total:0 会让门静默失效
         with tempfile.TemporaryDirectory() as td:
+            self._write(td, json.dumps([{"group": "=LOVE", "members": [{"n": 1}]}]))
             buf = io.StringIO()
             with redirect_stdout(buf):
-                fetch_members.read_baseline(td, quiet=True)
-            self.assertEqual(buf.getvalue(), "")
+                self.assertIsNone(fetch_members.read_baseline(td))
+            self.assertIn("不校验名册规模", buf.getvalue())
+
+    def test_members_not_a_list_is_rejected(self):
+        # len("abc") == 3，否则会把三个字符当成三个人
+        for body in ['[{"group": "AKB48", "members": "abc"}]', '[{"group": "AKB48", "members": {"a": 1}}]']:
+            with self.subTest(body=body), tempfile.TemporaryDirectory() as td:
+                self._write(td, body)
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    self.assertIsNone(fetch_members.read_baseline(td))
+                self.assertIn("不校验名册规模", buf.getvalue())
 
 class MainGateIntegrationTests(unittest.TestCase):
     def test_broken_source_aborts_without_touching_anything(self):

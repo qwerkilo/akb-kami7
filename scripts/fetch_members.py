@@ -484,7 +484,7 @@ def parse_args(argv):
     return "--no-dl" in argv, "--force" in argv, "--accept-drop" in argv
 
 
-def read_baseline(root, quiet=False):
+def read_baseline(root):
     """盘上已有的 members.js → {"counts": {团体: 人数}, "total": n}。
 
     **只统计 48G/坂道 团体**（GROUP_ORDER 里的）：members.js 里还有等爱三团，
@@ -500,13 +500,17 @@ def read_baseline(root, quiet=False):
             raise ValueError("segments is not a list")
         counts = {}
         for sec in sections:
+            if not isinstance(sec, dict) or not isinstance(sec.get("members"), list):
+                raise ValueError("section is not a dict with a members list")
             group = sec["group"]
-            n = len(sec["members"])
             if group in GROUP_ORDER:
-                counts[group] = counts.get(group, 0) + n
+                counts[group] = counts.get(group, 0) + len(sec["members"])
+        if not counts:
+            # 解析成功但一个 GROUP_ORDER 团体都没认出来（例如产物只剩等爱分段）：
+            # 当成「读不到基线」处理，否则 total:0 会让门静默失效又不出声
+            raise ValueError("no 48G/坂道 section in baseline")
     except (OSError, ValueError, KeyError, TypeError, IndexError) as e:
-        if not quiet:
-            print(f"读不到 {path} 的基线名册（{type(e).__name__}）——本次不校验名册规模")
+        print(f"读不到 {path} 的基线名册（{type(e).__name__}）——本次不校验名册规模")
         return None
     return {"counts": counts, "groups": set(counts), "total": sum(counts.values())}
 
