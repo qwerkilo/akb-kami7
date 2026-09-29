@@ -358,3 +358,20 @@
   - LOW——首字对比度 2.11:1 待定（改令牌会同时动名册与海报两处视觉，需单独一轮 + 视觉评估）。
   - 扫描报告的其余候选：4（`sw.js` 死分支 + 分类抽纯函数）建议搭车下一轮；2（首屏闪皮肤）、3（步数双源）、5–8 为 Worth exploring。**未做**。
 - 下次基点：`547da10`
+
+## 2026-09-29 · 深化⑱ 缓存分类规则可测化（第二十六轮）
+
+- 基点：`547da10`（第二十五轮检查点）
+- 范围：`git diff 547da10..a0981b6`，4 个提交；两轴子代理审查（Standards + Spec）
+- 性质：架构扫描候选 4，用户批准四条决策后走 TDD。
+- **做了什么**：`sw.js` 的缓存分类规则抽成 `sw-cache-rules.js`（纯函数 `classify(req, loc)` + `SHELL_FILES` / `IMG_CAP` / `FONT_CAP` / `FONT_HOSTS`），`sw.js` 第一行 `importScripts` 引入、只留 SW 生命周期（143 → 102 行）。抽出来的原因很实际：`sw.js` 顶层就注册监听器，node 里 `require` 会炸——不抽就没有缝，「哪个请求进哪个桶」只能靠 grep 源码确认形状。
+- **三处修复**（都有实测）：① 删掉 `skip-waiting` 死协议（`app.js` 从不发消息），守卫从「全文含 skipWaiting」（被 install 里的调用满足，死协议也算「有」）改成**断言 install 段里真的有 `self.skipWaiting()` 且全文无 `skip-waiting`**；② 跨源从黑名单 `!sameOrigin` 收窄为**字体域白名单**（接 CDN 或加外部图时黑名单会让字体桶变杂物箱；今天行为零变化，站内跨源只有 Google Fonts）；③ 新增 `test/sw-cache-rules.test.js`（6 条，node 可执行），把 ADR-0016 写下来的两个封顶变成会红的断言——**旧守卫连 `FONT_CAP` 被删都测不出来**。
+- **两轴复审的发现**：
+  - 守卫**净丢失**一处：新测试最初把盘上图标写死成三条（旧守卫是从 `manifest().icons` 派生）→「manifest 加图标而不加进清单」全绿。已改回派生并实证会红。记录里「manifest 侧已有覆盖 ✓」那句是错的，已删。
+  - 新引入的无人守耦合：`CACHE_OF[plan.kind]` 缺键 → TypeError → 浏览器按「无人处理」直连 → **静默失去缓存**。已加 kind 覆盖断言（删 `font` 键会红）。
+  - 死代码（`shellFiles()`）、无消费方的导出（`SHELL_NAMES`）、注释口径不齐，均已清理。
+- **E2E 判别力边界（两轴各自实测）**：「断网后仍有照片」两条断言**有时咬有时不咬**——取决于图片有没有在接管后经过 SW；那轮 `akb-img-v1 = 0`（图片接管前加载，离线由浏览器 HTTP 缓存兜住）→ 断言不咬。改用 `/tmp/opencode/pwa-cache-probe.cjs`（断网前 CDP 清 HTTP 缓存）单独核对这项，不塞进主 E2E。图片分类与 600 封顶在真实 Cache 层面、`navigate` 断网回落 `index.html`、「只在安全上下文注册」——三处**仍无守卫**（既有缺口）。
+- **一次修好又撤回的尝试（如实记账）**：把 `Network.clearBrowserCache` 塞进主 E2E 后**字体**断言变红（Latin 子集的 Nunito 离线没被应用，h1 160 → 140.3，而 325 个 woff2 全在 `akb-font-v1` 里）。三个探针查下来：量宽两侧都加 `await document.fonts.ready`（**真修复，保留**）、按族统计字体缓存、对比四种字体的宽度。在 e2e-pwa 流程里复现、在探针里不复现 → 判为**流程相关的度量时序**，不是产品缺陷结论；`Network.clearBrowserCache` 已撤回。
+- 验证：`npm test` JS **143** / Python **88**；回归 E2E **86/86**、v5 **49/49**、PWA **39/39**（连跑 2 次）；4 个规则变异 + 2 个新守卫变异全部会红。
+- 遗留：见 `docs/agents/pwa.md` 与 `.scratch/deepening/18-sw-cache-rules.md`；真机安装与离线仍未验。
+- 下次基点：`a0981b6`
