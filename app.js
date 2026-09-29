@@ -142,7 +142,7 @@
 
   /* ---------------- phase switching ---------------- */
   function show(phase) {
-    for (const id of ["pick", "duel", "result"]) {
+    for (const id of ["pick", "screen", "duel", "result"]) {
       $(`#phase-${id}`).hidden = id !== phase;
     }
     window.scrollTo({ top: 0 });
@@ -363,7 +363,9 @@
         ? t("need", left)
         : snap.phase === "duel"
           ? t("resume_go")
-          : t("start_est", CORE.worstCase(pick));
+          : snap.screening.cut.length
+            ? t("screen_min", snap.screening.kept)
+            : t("screen_go");
     btn.classList.toggle("emphasis", left === 0);
     const clearBtn = $("#clear-btn");
     if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
@@ -547,7 +549,22 @@
     }, 120);
   });
 
-  $("#start-btn").addEventListener("click", () => navigate("start"));
+  $("#start-btn").addEventListener("click", () => {
+    // 有进行中的对决就直接续上（托盘上的「继续对决」），否则进筛选
+    sync();
+    if (snap.duel) return navigate("resume");
+    navigate("screen");
+  });
+
+  $("#screen-submit").addEventListener("click", () => {
+    sync();
+    if (!snap.screening || !snap.screening.canSubmit) return;
+    navigate("rank", snap.screening.order);
+  });
+  $("#screen-reset").addEventListener("click", () => {
+    if (!S.resetScreening()) return;
+    renderScreen();
+  });
 
   $("#clear-btn").addEventListener("click", () => {
     if (!snap.selected.length) return;
@@ -983,11 +1000,51 @@
       selected: snap.selected.length,
       size: snap.size,
       step: snap.duel ? snap.duel.step : null,
+      kept: snap.screening ? snap.screening.kept : snap.selected.length,
     };
+  }
+
+  /* ---------------- screening (清单筛选；ADR-0019) ---------------- */
+  function renderScreen() {
+    sync();
+    const sc = snap.screening;
+    if (!sc) return navigate("pick");
+    $("#screen-intro").textContent = t(
+      "screen_intro",
+      sc.order.length + sc.cut.length
+    );
+    const rows = snap.selected.map((id) => {
+      const m = BY_ID.get(id);
+      const cut = sc.cut.includes(id);
+      return `<li class="screen-row${cut ? " cut" : ""}">
+        <span class="av"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async"></span>
+        <span class="who"><b>${esc(m.name)}</b><s>${esc(fullMeta(m))}</s></span>
+        <button class="mark" data-cut="${esc(id)}" aria-pressed="${cut ? "true" : "false"}"
+          aria-label="${esc(t("pick_who", m.name))}">${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
+      </li>`;
+    });
+    $("#screen-list").innerHTML = rows.join("");
+    $("#screen-count").textContent = t("picked_of", sc.kept, sc.size);
+    const sub = $("#screen-submit");
+    if (sc.canSubmit) {
+      sub.disabled = false;
+      // 用 start_est：它本来就是「开始排序（约 N 题）」，顺便保住题数提示
+      sub.textContent = t("start_est", CORE.worstCase(sc.size));
+    } else {
+      sub.disabled = true;
+      sub.textContent = t("screen_min", sc.size);
+    }
+    $("#screen-reset").disabled = !sc.cut.length;
+    renderSteps();
   }
 
   function paint() {
     sync();
+    if (view === "screening") {
+      show("screen");
+      renderScreen();
+      return;
+    }
     if (view === "duel" && snap.phase === "duel") {
       show("duel");
       renderDuel();
@@ -1071,6 +1128,16 @@
     if (e.target.closest('[data-act="coach-ok"]')) {
       rememberFlag(COACH_KEY);
       $("#coach").hidden = true;
+      return;
+    }
+    const mark = e.target.closest("[data-cut]");
+    if (mark) {
+      S.toggleCut(mark.dataset.cut);
+      renderScreen();
+      return;
+    }
+    if (e.target.closest("#screen-reset")) {
+      if (S.resetScreening()) renderScreen();
       return;
     }
     if (e.target.closest('[data-act="resume-go"]')) return navigate("resume");

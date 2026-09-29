@@ -1447,3 +1447,95 @@ main {
 .pwa-scrim[hidden] {
   display: none;
 }
+
+/* ---- 筛选步（清单；ADR-0019）：一屏把档位人数逐行列出来，每人 留/划掉 ---- */
+.screen-head {
+  padding: 4px 12px 0;
+}
+.screen-head h2 {
+  font-size: 20px;
+}
+.screen-intro {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.screen-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 10px 0;
+}
+.screen-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.screen-row .av {
+  width: 44px;
+  height: 58px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex: none;
+  background: var(--placeholder);
+}
+.screen-row .av img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.screen-row .who {
+  flex: 1;
+  min-width: 0;
+}
+.screen-row .who b {
+  display: block;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.screen-row .who s {
+  text-decoration: none;
+  font-size: 11px;
+  color: var(--muted);
+}
+.screen-row .mark {
+  min-width: 76px;
+  min-height: 44px;
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 700;
+}
+.screen-row.cut {
+  opacity: 0.5;
+}
+.screen-row.cut .mark {
+  background: var(--pink);
+  color: #fff;
+  border-color: transparent;
+}
+.screen-foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+}
+.screen-foot .screen-count {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  flex: 1;
+}
+.screen-foot .primary {
+  flex: 1;
+}

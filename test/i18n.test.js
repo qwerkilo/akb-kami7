@@ -314,3 +314,68 @@ test("会话接受的语言集合 = i18n 字典的键集合（加第四种语言
   storage.setItem("akb-lang", "fr");
   assert.notEqual(mk().snapshot().lang, "fr", "字典外的语言不得从落盘值恢复");
 });
+
+// ---- 筛选步文案（ADR-0019）：清单页的五类文案三语齐 ----
+test("筛选页文案：三语齐且都是函数/字符串（带参的那几个能插值）", () => {
+  const I18N = require("../i18n.js");
+  const KEYS = [
+    "screen_title",
+    "screen_intro",
+    "screen_keep",
+    "screen_cut",
+    "screen_min",
+    "screen_reset",
+  ];
+  for (const lang of ["zh", "en", "ja"]) {
+    for (const k of KEYS) {
+      assert.ok(I18N[lang][k], `${lang} 缺 ${k}`);
+    }
+    // screen_intro / screen_min 要能带参
+    assert.equal(
+      typeof I18N[lang].screen_intro,
+      "function",
+      `${lang}.screen_intro 应是函数`
+    );
+    assert.equal(
+      typeof I18N[lang].screen_min,
+      "function",
+      `${lang}.screen_min 应是函数`
+    );
+  }
+  // 三语的实际句子互不相同（防止复制粘贴留了原文）——只比「不相等」不够：
+  // 把 ja 换成一句**更短**的中文照样不相等，所以还要各自带语言标记
+  const t = (l, k, ...a) =>
+    typeof I18N[l][k] === "function" ? I18N[l][k](...a) : I18N[l][k];
+  for (const k of [
+    "screen_title",
+    "screen_reset",
+    "screen_keep",
+    "screen_cut",
+  ]) {
+    const vals = ["zh", "en", "ja"].map((l) => t(l, k));
+    assert.equal(
+      new Set(vals).size,
+      3,
+      `${k} 三语应互不相同：${JSON.stringify(vals)}`
+    );
+  }
+  for (const k of ["screen_intro", "screen_min"]) {
+    const vals = ["zh", "en", "ja"].map((l) => t(l, k, 7));
+    assert.equal(
+      new Set(vals).size,
+      3,
+      `${k} 三语应互不相同：${JSON.stringify(vals)}`
+    );
+  }
+  // 语言标记：抄成别的语言就抓得到
+  assert.match(t("zh", "screen_keep"), /[\u4e00-\u9fff]/);
+  assert.match(t("ja", "screen_keep"), /[\u3040-\u30ff]/);
+  // en 允许有破折号等排版符号，只要求「没有未翻译的汉字/假名」
+  assert.doesNotMatch(t("en", "screen_keep"), /[\u3040-\u9fff]/);
+  assert.match(t("ja", "screen_intro", 7), /[\u3040-\u30ff]/);
+  assert.doesNotMatch(t("en", "screen_intro", 7), /[\u3040-\u9fff]/);
+  // 带参键要真的用上参数
+  assert.match(t("zh", "screen_intro", 7), /7/);
+  assert.match(t("en", "screen_min", 7), /7/);
+  assert.match(t("ja", "screen_min", 7), /7/);
+});
