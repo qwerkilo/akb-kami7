@@ -9,9 +9,10 @@
   --font-round: "Nunito", var(--font-jp);
 }
 
-/* 原版（上游 11fa090 的视觉语言）。:root 兜底 = 应用默认皮肤（session.js 的 skin），
-   新访客没有 akb:skin 时的第一帧就是这里——别名挂到贴纸块上会让首屏闪一下，
-   见 .scratch/deepening/19-first-paint-skin.md */
+/* 原版（上游 11fa090 的视觉语言）。两条不变式（test/style-artifact.test.js 守着）：
+   ① 本块必须带 :root（= 应用默认皮肤，session.js 的 skin），否则新访客首屏会闪贴纸；
+   ② 本块必须排在贴纸块之前（:root 与 [data-skin=…] 同权重，后来者胜）；
+   ③ 两块令牌键集必须相同。 */
 :root,
 [data-skin="classic"] {
   --floor: #edeff3;

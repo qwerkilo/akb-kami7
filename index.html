@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Nunito:wght@800;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap"
     />
     <script>
-      // 皮肤要在样式生效前就落到 data-skin：令牌层与 34 条 [data-skin="classic"] 组件规则
+      // 皮肤要在样式生效前就落到 data-skin：令牌层与 34 处 [data-skin="classic"] 组件选择器（合并后 26 条）
       // 都靠它，否则新访客第一帧是「默认令牌 + 上一版组件几何」的第三种外观。
       // 默认值必须与 session.js 的初始 skin 一致——E2E 的「首屏 data-skin = 稳定后」盯着这一点。
       try {

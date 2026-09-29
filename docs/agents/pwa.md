@@ -7,6 +7,7 @@
 - `manifest.webmanifest` + `sw.js` + `icons/`（图标由 `python3 scripts/make_icons.py` 生成，产物提交，脚本幂等且逐字节可复现）。
 - `sw.js` 只管 SW 生命周期：缓存名、install/activate/fetch 监听器、`networkFirst` / `cacheFirst` 两种取数策略。第一行 `importScripts("sw-cache-rules.js")`。
 - `sw-cache-rules.js` 是**缓存分类规则**（纯函数 `classify(req, loc)` + `SHELL_FILES` / `IMG_CAP` / `FONT_CAP` / `FONT_HOSTS`）。放出来是因为 `sw.js` 在模块顶层就注册监听器，node 里 `require` 它会炸——不抽出来，「哪个请求进哪个桶、容量多少」就只能靠 grep 源码确认形状（原来的守卫连 `FONT_CAP` 被删都测不出来）。
+- **源码文本守卫是最后手段**：优先写可执行断言；实在只能读源文本时（例如「`app.js` 不得自持步数表副本」），正则必须**锚定目标的形状**（`GUIDE_STEPS\s*=\s*\{`），不要扫全文关键字（`ios:\s*\d` 会把无关的普通数据判成违规）。
 - 守卫分工：`test/sw-cache-rules.test.js` 管**规则**（可执行的分类断言 + 清单与盘上双向比对）；`test/pwa-artifact.test.js` 管**产物**（manifest 字段、图标像素、`sw.js` 可编译、install 段里真的有 `self.skipWaiting()`、死协议已删）。
 
 ## 缓存策略
@@ -17,7 +18,7 @@
 | `img/full` 与 `img/thumb`                                          | cache-first（URL 永不失效），只在浏览时进缓存 | FIFO 600 条（full 与 thumb 共用一栏，约覆盖 300 人） |
 | 跨源**字体域**（`fonts.googleapis.com` / `fonts.gstatic.com`）     | cache-first                                   | FIFO 500 条                                          |
 | 导航请求                                                           | 走壳那一条                                    | —                                                    |
-| 其余一切（同源杂项、非 GET、**非字体域的跨源**）                     | 直连不过缓存                                  | —                                                    |
+| 其余一切（同源杂项、非 GET、**非字体域的跨源**）                   | 直连不过缓存                                  | —                                                    |
 
 跨源判定是**白名单**而不是「所有跨源都收」：今天站内只有 Google Fonts 一个跨源源，黑名单与白名单行为相同，但接 CDN 或加一张外部图时黑名单会让字体桶静默变杂物箱。
 
@@ -41,13 +42,13 @@
 ## 安装入口与指引文案
 
 - **能力探测决定按钮行为，不决定入口可见性**：入口（页脚）除已装成应用（`navigator.standalone`）外始终显示。`beforeinstallprompt` 只决定「安装」是一键还是改名「怎么装？」——Firefox、macOS Safari、headless、非安全上下文都不触发它，把可见性挂在上面会让入口彻底消失（用户报过「底部没看到安装按钮」）。
-- 指引按平台分支渲染（`guidePlatform()` + `GUIDE_STEPS`）——**步数表住在 `i18n.js` 并由 `app.js` 读取**（它是文案元数据：键是拼出来的 `pwa_<plat>_s<i>`，住在一起才不会分家）。键是拼出来的：`pwa_<plat>_s1..n` 与 `pwa_guide_title[_plat]`。**死键守卫查不到拼出来的键**，缺一个时 `t()` 返回 `undefined`、WebIDL 变成空字符串，指引里会静悄悄多一条空白步骤——`test/i18n.test.js` 的「安装指引的动态键三语齐」就是守这个的。
+- 指引按平台分支渲染（`guidePlatform()` + `GUIDE_STEPS`）——**步数表住在 `i18n.js` 并由 `app.js` 读取**：它是文案元数据（键名 `pwa_<plat>_s<i>` 与步数必须一一对应），住在一起才不会分家。步数：**iOS 4 步、其余（Android / macOS / 其他）各 3 步**——`test/i18n.test.js` 用这张表派生键检查（多一步、缺一步、少一步都会红）。**死键守卫查不到拼出来的键**，缺一个时 `t()` 返回 `undefined`、WebIDL 变成空字符串，指引里会静悄悄多一条空白步骤——`test/i18n.test.js` 的「安装指引的动态键三语齐」就是守这个的。
 - 平台事实（改文案时按这份写，写错会让人直接放弃）：
 
-  | 平台                  | 路径                                         | 备注                                       |
-  | --------------------- | -------------------------------------------- | ------------------------------------------ |
-  | iOS / iPadOS Safari   | 分享 → 添加到主屏幕 → 添加                   | iPad 的分享按钮在**顶部**                  |
-  | Android Chrome / Edge | 右上菜单 ⋮ → 安装应用 / 添加到主屏幕         |                                            |
+  | 平台                  | 路径                                         | 步数                                       | 备注                      |
+  | --------------------- | -------------------------------------------- | ------------------------------------------ | ------------------------- |
+  | iOS / iPadOS Safari   | 分享 → 添加到主屏幕 → 添加                   | 4                                          | iPad 的分享按钮在**顶部** |
+  | Android Chrome / Edge | 右上菜单 ⋮ → 安装应用 / 添加到主屏幕         | 3                                          |                           |
   | macOS Safari          | 文件 → 添加到程序坞…                         | macOS 14 起是这个名字                      |
   | Firefox 桌面版        | Windows 143+ / Linux：地址栏的 web apps 按钮 | **macOS 版不支持**（同进程 Dock 无法区分） |
 
@@ -62,7 +63,7 @@
 
 1. 临时副本目录（壳文件复制过去 + `img` 软链）另起一个 `python3 -m http.server`。
 2. `context.setOffline(true)` 后 reload，验证挑人 → 对决 → 出图全程可用。
-3. 合成 `beforeinstallprompt` 验一键安装路径；UA 上下文验 iOS / Android / macOS 三个指引分支。
+3. 合成 `beforeinstallprompt` 验一键安装路径；UA 上下文验 iOS / Android / macOS 三个指引分支（`other` 分支目前只有 `test/i18n.test.js` 覆盖键，改平台判断时要手工量一次）。
 4. 把副本里的 `sw.js` 的 `VERSION` 改掉再 `registration.update()`，验更新横幅与「点刷新才切」。
 5. 钩 `unhandledrejection`——它抓到过一个真 bug（`document.fonts.load()` 取不到字体时 reject，一路冒泡让 `drawPoster()` 整条断掉，海报画布空白且无报错）。
 

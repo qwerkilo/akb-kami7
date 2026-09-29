@@ -68,7 +68,7 @@
 ## 审查打回后补的两条
 
 1. **我引入的回归（已修）**：两个令牌块**键集原本不同**——`--placeholder` / `--placeholder-ink` 只在贴纸块里。原先 `:root` 挂着贴纸块，等于**给 classic 兜了一个「有这个键」的底**；我把别名挪给原版块后，classic 下这四处的 `var(--placeholder)` 全部解析失败，`.card .ph` 背景静默变 `rgba(0,0,0,0)`（缩略图加载期间可见，实测 9.0% 像素差）。已把两键按同值补进原版块，并加注释说明「两块令牌必须键集相同」。
-2. **原目标只做了一半（已补完）**：令牌层修好后，**组件层没有**——`style.css` 里 34 条 `[data-skin="classic"] …`（`.primary` 圆角 999px、`.kami` 字距、`.card` 阴影…）没有 `:root` 兜底，于是新访客第一帧是「classic 令牌 + 贴纸时代组件几何」的第三种外观。审查把这题按新事实重开给用户决定（组件规则要不要逐条加兜底），用户选 **A**：`index.html` 的内联脚本在无存储时也显式写 `data-skin="classic"`，让默认皮肤在样式生效前就落到属性上，34 条组件规则一行不用改。代价是默认皮肤字符串出现在 `index.html` 与 `session.js` 两处 → 由 E2E 的「首屏 data-skin = 稳定后」钉住（`index.html` 写 sticker 而 `session.js` 写 classic 时它会红）。
+2. **原目标只做了一半（已补完）**：令牌层修好后，**组件层没有**——`style.css` 里 34 处 `[data-skin="classic"] …` 选择器（合并后 26 条规则；含 `.primary` 圆角 999px、`.kami` 字距、`.card` 阴影）没有 `:root` 兜底，于是新访客第一帧是「classic 令牌 + 贴纸时代组件几何」的第三种外观。审查把这题按新事实重开给用户决定（组件规则要不要逐条加兜底），用户选 **A**：`index.html` 的内联脚本在无存储时也显式写 `data-skin="classic"`，让默认皮肤在样式生效前就落到属性上，34 处组件选择器一行不用改。代价是默认皮肤字符串出现在 `index.html` 与 `session.js` 两处 → 由 E2E 的「首屏 data-skin = 稳定后」钉住（`index.html` 写 sticker 而 `session.js` 写 classic 时它会红）。
 3. **顺带**：`manifest.webmanifest` 的 `background_color` 原本是贴纸奶油底 `#f5f1e6`，与默认首帧对不上（改前反而是碰巧对的）→ 改成 `#edeff3`。
 4. **方案不是最小**：审查实测 `:root:not([data-skin])` 只需改 1 个选择器、与块顺序无关，比「搬 37 行 + 依赖顺序」更稳；记在这里供下一步参考。
 

@@ -1165,7 +1165,7 @@
     sheetOpen = true;
     sheetOpener = document.activeElement;
     const plat = guidePlatform();
-    const n = GUIDE_STEPS[plat]; // 不给兜底：平台加错了就在这里炸出来，而不是渲染空列表
+    const n = GUIDE_STEPS[plat]; // 不给兜底：平台名写错时 1 <= undefined 为 false，浮层会是空的（不抛）——靠 i18n 的孤儿键检查拦
     const titleKey = guideTitleKey(plat);
     el.dataset.i18nAriaLabel = titleKey;
     el.setAttribute("aria-label", t(titleKey)); // 只改 dataset 的话浮层可及名会停在通用标题

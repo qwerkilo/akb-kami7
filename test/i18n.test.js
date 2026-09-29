@@ -151,27 +151,6 @@ test("core.js 中静态引用的文案键都存在", () => {
   }
 });
 
-test("安装指引的动态键三语齐（平台 × 步骤数）", () => {
-  // 这些键在 app.js 里是拼出来的（"pwa_" + plat + "_s" + i），死键守卫查不到它们；
-  // 缺一个键 t() 会返回 undefined，而 WebIDL 会把 undefined 变成空字符串——
-  // 指引里就会静悄悄多出一条空白步骤。
-  const STEPS = { ios: 4, android: 3, macos: 3, other: 3 };
-  const missing = [];
-  for (const lang of ["zh", "en", "ja"]) {
-    for (const [plat, n] of Object.entries(STEPS)) {
-      const titleKey =
-        plat === "other" ? "pwa_guide_title" : "pwa_guide_title_" + plat;
-      if (I18N[lang][titleKey] === undefined)
-        missing.push(lang + ":" + titleKey);
-      for (let i = 1; i <= n; i++) {
-        const k = "pwa_" + plat + "_s" + i;
-        if (I18N[lang][k] === undefined) missing.push(lang + ":" + k);
-      }
-    }
-  }
-  assert.deepEqual(missing, [], "指引键缺失：" + missing.join("、"));
-});
-
 test("无引用的键只允许动态家族（死键守卫）", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const sources = [
@@ -240,19 +219,29 @@ test("档位芯片与品牌字面值：40 档 = 圈内 40 / 圈内（三语）",
 // （它拿自己那份 4 去查键），而线上会多渲染一条 undefined 的空白步骤。
 test("指引步数表从 i18n 导出，且各语言键都由它派生（不是各写一份）", () => {
   assert.ok(I18N.GUIDE_STEPS, "i18n.js 必须导出 GUIDE_STEPS");
-  assert.deepEqual(Object.keys(I18N.GUIDE_STEPS).sort(), ["android", "ios", "macos", "other"]);
+  assert.deepEqual(Object.keys(I18N.GUIDE_STEPS).sort(), [
+    "android",
+    "ios",
+    "macos",
+    "other",
+  ]);
   const missing = [];
   for (const lang of ["zh", "en", "ja"]) {
     for (const [plat, n] of Object.entries(I18N.GUIDE_STEPS)) {
-      const titleKey = plat === "other" ? "pwa_guide_title" : "pwa_guide_title_" + plat;
-      if (I18N[lang][titleKey] === undefined) missing.push(lang + ":" + titleKey);
+      const titleKey =
+        plat === "other" ? "pwa_guide_title" : "pwa_guide_title_" + plat;
+      if (I18N[lang][titleKey] === undefined)
+        missing.push(lang + ":" + titleKey);
       // 步数是几，就该有几条文案；多出的文案键与缺键同样是错
       for (let i = 1; i <= n; i++) {
         const k = "pwa_" + plat + "_s" + i;
         if (I18N[lang][k] === undefined) missing.push(lang + ":" + k);
       }
-      const extra = Object.keys(I18N[lang]).filter((k) => k.startsWith("pwa_" + plat + "_s"));
-      if (extra.length !== n) missing.push(`${lang}:${plat} 文案 ${extra.length} 条但步数 ${n}`);
+      const extra = Object.keys(I18N[lang]).filter((k) =>
+        k.startsWith("pwa_" + plat + "_s")
+      );
+      if (extra.length !== n)
+        missing.push(`${lang}:${plat} 文案 ${extra.length} 条但步数 ${n}`);
     }
   }
   assert.deepEqual(missing, [], "指引键与步数表不匹配：" + missing.join("、"));
@@ -261,7 +250,12 @@ test("指引步数表从 i18n 导出，且各语言键都由它派生（不是�
 test("指引步数与文档口径一致（iOS 四步，其余三步）", () => {
   // 这一份是有意的「规格声明」，不是从生产代码复制的副本：
   // iOS 是四步（分享 → 添加到主屏幕）这条是 docs/agents/pwa.md 写着的平台事实。
-  assert.deepEqual(I18N.GUIDE_STEPS, { ios: 4, android: 3, macos: 3, other: 3 });
+  assert.deepEqual(I18N.GUIDE_STEPS, {
+    ios: 4,
+    android: 3,
+    macos: 3,
+    other: 3,
+  });
 });
 
 test("步数表只有一个家：app.js 读 i18n 的，不自持一份", () => {
@@ -271,5 +265,10 @@ test("步数表只有一个家：app.js 读 i18n 的，不自持一份", () => {
   const path = require("node:path");
   const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   assert.match(src, /I18N\.GUIDE_STEPS/, "app.js 必须读 I18N.GUIDE_STEPS");
-  assert.doesNotMatch(src, /ios:\s*\d/, "app.js 不得自持步数表（应来自 i18n）");
+  // 锚定那份表的**形状**，不要全文扫 `ios: <数字>`——无关的普通数据会误报
+  assert.doesNotMatch(
+    src,
+    /\bGUIDE_STEPS\s*=\s*\{/,
+    "app.js 不得自持步数表（应来自 i18n）"
+  );
 });
