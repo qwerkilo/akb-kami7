@@ -31,6 +31,7 @@
 策略与选型见 `docs/adr/0016-pwa.md`。要动手改 SW / 缓存、指引文案、离线验收时读 `docs/agents/pwa.md`。
 
 - **改了壳文件就同步 `sw-cache-rules.js` 的 `SHELL_FILES`**（根目录 `.js` / `style.css` / `index.html` / 图标）：漏了 `test/sw-cache-rules.test.js` 会红（清单与盘上文件双向比对）。缓存分类规则（哪个请求进哪个桶、容量多少）也在那个文件里，`sw.js` 用 `importScripts` 引入——所以它能进 node 测试，规则是可断言的而不是 grep 出来的形状。
+- **持久化键名只有一处**：`core.js` 的 `PREF_KEYS`（含按系列存档的 `state: (s) => …`）✓。`app.js` / `session.js` 不得出现 `akb` 开头的键名字面量，也不得直接 `localStorage.*("akb…")` ✓（守卫在 `test/session.test.js` ✓，它同时要求两边**真的用上** `PREF_KEYS` ✓）。**刻意的例外**：`index.html` 的内联脚本要读 `akb:skin` 才能让首屏不闪——它必须在模块加载前跑 ✓，且那个默认值必须等于 `session.js` 的默认皮肤 ✓（由首屏 E2E 钉住 ✓）。
 - **能力探测决定按钮行为，不决定入口可见性**：页脚安装入口除已装成应用外始终显示，`beforeinstallprompt` 只决定「安装」是一键还是改名「怎么装？」。把可见性挂在这个事件上，入口会在 Firefox / macOS Safari / headless / 非安全上下文里整体消失。
 - **离线要预热两样**：选中成员时预热 `img/full`（名册只渲染 thumb，海报读 full）、SW 接管后重取字体（首访的字体请求发生在接管之前）。
 - **更新由用户点「刷新」才切**，不自动 reload（会打断进行中的对决）。

@@ -595,35 +595,55 @@ test("存储不可用时海报样式与语言回落到默认值而不抛", () =>
 test("app.js 不得自己碰 akb: 键（持久化只有一个家：注入的 storage 适配器）", () => {
   const fs = require("node:fs");
   const path = require("node:path");
-  const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  // 锚定形状：localStorage 之后紧跟 "akb: 开头就是自己开了后门
-  // akb- 同时覆盖 akb:lang（akb-lang）与 akb:skin 这两种前缀
+  // 注释里可以出现键名（说明「谁在写它」），它不会真的写盘——先剥掉再匹配
+  const code = (p) =>
+    fs
+      .readFileSync(path.join(__dirname, "..", p), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "");
+  const src = code("app.js");
+  // 锚定形状：localStorage 之后紧跟 akb 开头的键就是自己开了后门
+  // （akb- 同时覆盖 akb-lang 与 akb:skin 两种前缀）
   assert.doesNotMatch(
     src,
     /localStorage\.\w+\(\s*["'`]akb[-:]/,
     "app.js 不得直接读写 akb 开头的键"
-  );
-  // 键名本身应该只出现在 PREF_KEYS 那种集中处，且要真的用上了
-  assert.match(
-    src,
-    /PREF_KEYS\./,
-    "app.js 的粘滞标记键应从 core 的 PREF_KEYS 取"
   );
   assert.doesNotMatch(
     src,
     /["'`]akb[-:]/,
     "app.js 不得出现 akb 开头的键名字面量（应走 core.PREF_KEYS）"
   );
+  // 注入契约的两个静默失败口：漏注入时 session 会静默拒绝（样式切换点了没反应 /
+  // 语言落到硬编码的 zh），而它们此前只有不入仓的 E2E 抓得到 → 搬进 npm test
+  assert.match(
+    src,
+    /lang:\s*preferLang\(\)/,
+    "app.js 必须注入浏览器语言探测结果"
+  );
+  assert.match(
+    src,
+    /posterStyles:\s*window\.AKB_POSTER\.styles/,
+    "app.js 必须注入海报样式的合法值表"
+  );
+  // 键名只该出现在 core.PREF_KEYS 那种集中处，且要真的用上了
+  assert.match(
+    src,
+    /PREF_KEYS\./,
+    "app.js 的粘滞标记键应从 core 的 PREF_KEYS 取"
+  );
 
   // session.js 同理：键名只该从 core.PREF_KEYS 取，写死字面量等于又开一个家
-  const sess = fs.readFileSync(
-    path.join(__dirname, "..", "session.js"),
-    "utf8"
-  );
+  const sess = code("session.js");
   assert.doesNotMatch(
     sess,
     /["'`]akb[-:]/,
     "session.js 不得写死键名（应走 core.PREF_KEYS）"
+  );
+  assert.match(
+    sess,
+    /PREF_KEYS\./,
+    "session.js 必须真的用上 core 的键名来源（否则「一个都不读」也算过）"
   );
 });
 
