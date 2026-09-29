@@ -790,3 +790,19 @@ test("筛选：提交后进入对决，kept 的顺序就是排序的初始顺序
   T.startDuel(T.snapshot().screening.order.filter((id) => id !== "a7"));
   assert.equal(T.snapshot().phase, "duel");
 });
+
+test("筛选：划除按系列隔离（切走再切回来还在）", () => {
+  const storage = memoryStorage();
+  const S = make(storage);
+  for (let i = 1; i <= 7; i++) S.toggleSelect(`a${i}`);
+  S.toggleCut("a2");
+  for (let i = 1; i <= 6; i++) S.toggleSelect(`s${i}`);
+  S.switchSeries("sakamichi");
+  assert.deepEqual(S.snapshot().screening.cut, [], "坂道的筛选是空的");
+  S.switchSeries("48g");
+  assert.deepEqual(
+    S.snapshot().screening.cut,
+    ["a2"],
+    "切回来还是原来那一步（按系列隔离的存档语义）"
+  );
+});
