@@ -393,3 +393,123 @@ test("会话：期生筛选可设、切换系列复位（易失）", () => {
   const again = session.create({ storage: S.storage || memoryStorage(), byId });
   assert.equal(again.snapshot().generation, "all");
 });
+
+// ── 第九轮质检补的断言：变异测试指认的 session.js 缺口 ──
+
+test("缩档截断保留的是前 N 个 id，不会留下空洞（海报会印出空名）", () => {
+  const s = make();
+  s.setSize(16); // toggleSelect 不允许超过当前档位，先升档才选得到 10 人
+  for (let i = 1; i <= 10; i++) s.toggleSelect(`a${i}`);
+  assert.equal(s.snapshot().selected.length, 10);
+  s.setSize(7);
+  const sel = s.snapshot().selected;
+  assert.equal(sel.length, 7);
+  assert.deepEqual(sel, ["a1", "a2", "a3", "a4", "a5", "a6", "a7"], "必须等于保留的那 7 个 id");
+  for (const id of sel) assert.equal(typeof id, "string", "id 不得是 undefined");
+});
+
+test("快照与返回值必须是拷贝：改返回值不动内部状态", () => {
+  const s = make();
+  for (let i = 1; i <= 4; i++) s.toggleSelect(`a${i}`);
+  const snap = s.snapshot();
+  snap.selected.push("注入");
+  snap.selected.reverse();
+  assert.deepEqual(s.snapshot().selected, ["a1", "a2", "a3", "a4"], "改快照不得污染内部已选");
+  s.startDuel(["a1", "a2"]);
+  const snap2 = s.snapshot();
+  // 快照里的 duel 是派生视图（pair 是当前那一对），改它不得污染后续快照
+  snap2.duel.pair.reverse();
+  snap2.duel.pair[0] = "注入";
+  const live = s.snapshot().duel;
+  assert.notEqual(live.pair[0], "注入", "改快照里的 duel.pair 不得污染内部");
+  assert.equal(live.step, 1, "改快照不得推进对决进度");
+});
+
+test("setter 的入参归一化：非法值一律回落到 all / 空串", () => {
+  const s = make();
+  s.setFilter("current");
+  s.setGeneration("1期生");
+  s.setGroup("AKB48");
+  s.setQuery("ま");
+  // setFilter/setGroup/setQuery 返回**归一化后的值**，setGeneration 返回布尔——
+  // 两个契约都钉住（调用方按返回值刷新 UI，语义不同就是 bug）
+  const bad = make();
+  assert.equal(bad.setFilter("垃圾"), "all", "非法筛选值应归一化为 all");
+  assert.equal(bad.setFilter("current"), "current");
+  assert.equal(bad.setFilter(undefined), "all", "undefined 应归一化为 all");
+  bad.setGeneration("1期生");
+  assert.equal(bad.setGeneration(""), true, "空串应归一化为 all 并生效");
+  assert.equal(bad.snapshot().generation, "all");
+  bad.setGeneration("1期生");
+  assert.equal(bad.setGeneration("1期生"), false, "同值应是 no-op");
+  bad.setGeneration("1期生");
+  bad.setGeneration(null);
+  assert.equal(bad.snapshot().generation, "all", "null 应归一化为 all");
+  assert.equal(bad.setQuery(null), "", "null 查询应变成空串，不是字符串 undefined");
+  assert.equal(bad.setQuery(0), "0", "数字查询应转成字符串");
+  assert.equal(bad.setGroup("AKB48"), "AKB48");
+  assert.equal(bad.setGroup(0), "all", "0 应归一化为 all");
+  assert.equal(bad.setGroup(""), "all");
+  assert.ok(s.snapshot().filter === "current", "合法值不应被归一化掉");
+});
+
+test("切系列复位全部易失筛选（filter/group/generation/query 四个字段）", () => {
+  const s = make();
+  s.setFilter("former");
+  s.setGroup("SKE48");
+  s.setGeneration("1期生");
+  s.setQuery("ま");
+  s.switchSeries("sakamichi");
+  const snap = s.snapshot();
+  assert.equal(snap.filter, "all");
+  assert.equal(snap.group, "all");
+  assert.equal(snap.generation, "all");
+  assert.equal(snap.query, "");
+});
+
+test("切当前系列 / 设当前档位是 no-op：不动状态、不返回 true", () => {
+  const s = make();
+  for (let i = 1; i <= 3; i++) s.toggleSelect(`a${i}`);
+  s.startDuel(["a1", "a2", "a3"]);
+  const before = s.snapshot();
+  assert.equal(s.switchSeries("48g"), false, "切到当前系列应返回 false");
+  const after = s.snapshot();
+  assert.deepEqual(after.selected, before.selected, "no-op 不得清空已选");
+  assert.ok(after.duel, "no-op 不得丢弃进行中的对决");
+  assert.equal(s.setSize(7), false, "设成当前档位应返回 false");
+  assert.deepEqual(s.snapshot().selected, before.selected);
+  assert.ok(s.snapshot().duel, "no-op 不得丢弃进行中的对决");
+});
+
+test("持久化的键名被钉住（改名会让老用户丢数据）", () => {
+  const storage = memoryStorage();
+  const s = make(storage);
+  s.setSize(16);
+  s.setSkin("sticker");
+  s.switchSeries("sakamichi");
+  const keys = [...storage._map.keys()];
+  assert.ok(keys.includes("akb:series"), `应有 akb:series，实际 ${keys}`);
+  assert.ok(keys.includes("akb:skin"), `应有 akb:skin，实际 ${keys}`);
+  assert.ok(
+    keys.some((k) => k.startsWith("akb:state:v2:")),
+    `应有 akb:state:v2:<series>，实际 ${keys}`
+  );
+});
+
+test("新建会话：已选、答案、排序都是空（不是 undefined）", () => {
+  const s = make();
+  const snap = s.snapshot();
+  assert.deepEqual(snap.selected, []);
+  assert.equal(snap.duel, null);
+  assert.equal(snap.ranking, null);
+  assert.deepEqual(snap.open, []);
+  // 快照里的 duel 是派生视图（不含内部 answers 字段），这里只钉「开局」这一面
+  s.startDuel(["a1", "a2", "a3"]);
+  const duel = s.snapshot().duel;
+  assert.equal(duel.step, 1, "新对决从第 1 步开始");
+  // max 是**题数**不是人数：3 人两两比较共 3 题
+  assert.equal(duel.max, 3, "3 人的精确全序共 3 题");
+  assert.equal(duel.remaining, 3, "开局时剩余题数等于总题数");
+  assert.equal(duel.percent, 0);
+  assert.equal(duel.canUndo, false, "还没作答就不可撤回");
+});

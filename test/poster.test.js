@@ -6,6 +6,7 @@ function fakeCtx() {
   const calls = {
     texts: [],
     textRecords: [],
+    paths: [],
     textPos: [],
     textFonts: [],
     images: [],
@@ -24,11 +25,25 @@ function fakeCtx() {
     restore() {
       m = stack.pop() || m;
     },
-    beginPath() {},
-    closePath() {},
+    // 路径调用逐条记录：整段绘图被清空（BlockStatement → {}）必须看得见，
+    // 否则「圆角矩形/阴影没了」这类改动在假 ctx 下完全不可观测
+    beginPath() {
+      calls.paths.push("beginPath");
+    },
+    closePath() {
+      calls.paths.push("closePath");
+    },
     moveTo() {},
     lineTo() {},
-    arcTo() {},
+    arcTo(...a) {
+      calls.paths.push("arcTo:" + a.map((v) => (typeof v === "number" ? Math.round(v) : v)).join(","));
+    },
+    moveTo(...a) {
+      calls.paths.push("moveTo");
+    },
+    lineTo(...a) {
+      calls.paths.push("lineTo");
+    },
     arc() {},
     clip() {},
     fill() {},
@@ -648,4 +663,76 @@ test("占位视觉消费 tokens（placeholder / placeholderInk，四样式都不
     );
     assert.ok(calls.fills.includes("#654321"), `${style} 未用注入的占位字色`);
   }
+});
+
+// ── 第九轮质检补的断言：变异测试指认的两个新类别 ──
+
+test("圆角矩形真的画了：每张卡的四个圆角各一次 arcTo（整段绘图被清空要会红）", () => {
+  const members = people(7);
+  const { ctx, calls } = fakeCtx();
+  poster.draw(ctx, {
+    members,
+    images: members.map(() => ({ w: 100, h: 130 })),
+    title: "T",
+    dateText: "D",
+    hashtag: "#H",
+    photoSrc: "P",
+    subOf: () => "s",
+    style: "a",
+  });
+  const arcTo = calls.paths.filter((p) => p.startsWith("arcTo")).length;
+  assert.ok(arcTo >= 4, `至少 4 次 arcTo（冠军卡的四个圆角），实际 ${arcTo}`);
+  assert.ok(calls.paths.includes("beginPath"), "应有 beginPath");
+  assert.ok(calls.paths.includes("closePath"), "应有 closePath");
+  // 圆角半径必须真的进了 arcTo 的参数（不是 0）
+  const radii = calls.paths
+    .filter((p) => p.startsWith("arcTo"))
+    .map((p) => Number(p.split(",")[4]))
+    .filter((r) => r > 0);
+  assert.ok(radii.length >= 4, `至少 4 个非零圆角半径，实际 ${radii.length}`);
+});
+
+test("超长名字被省略号截断（fitText/clipText 的截断路径）", () => {
+  // 要长到「字号降到下限 12px 仍放不下」才会走 clipText 的省略号分支：
+  // 假 ctx 的 measureText 近似是 len * size * 0.55，预算 ~736px → 约 111 字符
+  const long = ("ほしの ひょうこ さいとうともえ いしかわ ふみこ いちのへいわ たちばな ななみ かんざわ ゆい ひなた くろさわ かずと ").repeat(
+    2
+  );
+  // 杂志样式的冠军横图下方用 clipText 裁名字（预算 W - 2M - 200 ≈ 736px）
+  const base = people(7);
+  const members = base.map((m, i) => (i === 0 ? { ...m, name: long } : m));
+  const { ctx, calls } = fakeCtx();
+  // 假 ctx 的 measureText 恒返回 40（见文件头），截断分支永远进不去；
+  // 这里换成长度感知的近似（≈ 12px 时的宽度），只为走通 clipText。
+  ctx.measureText = (t) => ({ width: String(t).length * 6.6 });
+  poster.draw(ctx, {
+    members,
+    images: members.map(() => ({ w: 100, h: 130 })),
+    title: "T",
+    dateText: "D",
+    hashtag: "#H",
+    photoSrc: "P",
+    subOf: () => "s",
+    style: "b", // 杂志冠军横图下的名字走 clipText
+  });
+  const withEllipsis = calls.texts.filter((t) => t.endsWith("…"));
+  assert.ok(withEllipsis.length > 0, `长名字应被截断并加省略号，实际文本 ${calls.texts.join("|")}`);
+  for (const t of withEllipsis) {
+    assert.ok(t.length < long.length, "截断后的文本应短于原名");
+  }
+  // 短名字一个都不该被截断
+  const short = people(7);
+  const c2 = fakeCtx();
+  c2.ctx.measureText = (t) => ({ width: String(t).length * 6.6 });
+  poster.draw(c2.ctx, {
+    members: short,
+    images: short.map(() => ({ w: 100, h: 130 })),
+    title: "T",
+    dateText: "D",
+    hashtag: "#H",
+    photoSrc: "P",
+    subOf: () => "s",
+    style: "b",
+  });
+  assert.equal(c2.calls.texts.filter((t) => t.endsWith("…")).length, 0, "短名字不该被截断");
 });

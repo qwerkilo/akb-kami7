@@ -152,3 +152,24 @@ test("SHELL_FILES 覆盖全部壳文件且都真实存在", () => {
     assert.ok(fs.existsSync(rel(f)), `SHELL_FILES 指向不存在的文件：${f}`);
   }
 });
+
+test("路径以 / 结尾的同源请求不是壳文件（SHELL_NAMES 里不能有空串）", () => {
+  // 守卫：SHELL_FILES 的 "./" 必须被过滤掉，否则 basename 为 "" 的路径
+  // （如 /foo/）会被误判成壳文件、按 network-first 服务
+  const names = RULES.SHELL_FILES.filter((f) => f !== "./").map((f) => f.split("/").pop());
+  assert.ok(!names.includes(""), "壳文件名清单里不得有空串（./ 未被过滤）");
+  for (const url of [
+    "https://example.test/",
+    "https://example.test/foo/",
+    "https://example.test/a/b/c/",
+    "https://example.test/icons/",
+  ]) {
+    assert.equal(
+      RULES.classify(req(url), loc),
+      null,
+      `${url} 不是壳文件（navigate 之外的按需请求应直连）`
+    );
+  }
+  // 导航请求仍然是壳
+  assert.equal(RULES.classify(req("https://example.test/foo/", { mode: "navigate" }), loc)?.kind, "shell");
+});

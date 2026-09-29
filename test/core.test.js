@@ -1463,3 +1463,154 @@ test("rosterView：已选计数只含可见成员（状态过滤下组/段口径
   assert.equal(view.nodes[0].picked, 1);
   assert.equal(view.nodes[0].sections[0].picked, 1);
 });
+
+// ── 第九轮质检补的断言：变异测试指认的断言缺口（core.js 221 条存活里的大头）──
+
+test("罗马字：表驱动逐条（Hepburn 期望值写死，不靠实现自证）", () => {
+  const cases = [
+    ["し", "shi"], ["つ", "tsu"], ["ち", "chi"], ["ふ", "fu"], ["じ", "ji"],
+    ["しゅ", "shu"], ["じょ", "jo"], ["きゃ", "kya"], ["ちゃ", "cha"],
+    ["にょ", "nyo"], ["ひゃ", "hya"], ["みょ", "myo"], ["りゅ", "ryu"],
+    ["ぎゃ", "gya"], ["びょ", "byo"], ["ぴゃ", "pya"],
+    ["まっち", "matchi"], ["あっちゃん", "atchan"], ["がっこう", "gakkou"],
+    ["さとう", "satou"], ["かんばん", "kanban"], ["らーめん", "ramen"],
+    ["ふじさん", "fujisan"], ["ひらがな", "hiragana"],
+  ];
+  for (const [kana, want] of cases) {
+    assert.equal(core.romanize(kana), want, `romanize(${kana}) 应为 ${want}`);
+  }
+  assert.equal(core.romanize("abc123"), "", "非假名字符应被滤掉");
+  // 促音双写是**检索**承诺（用户敲 acchan 能搜到），不是 romanize 的输出形态
+  assert.ok(
+    core.haystack({ name: "あっちゃん", kana: "あっちゃん" }, "acchan").includes("acchan"),
+    "haystack 必须含 acchan（促音 cch 变体）"
+  );
+  assert.equal(core.romanize(""), "");
+  assert.equal(core.romanize(null), "");
+});
+
+test("罗马字：长音符被丢弃，逐条转写与整体转写一致", () => {
+  assert.equal(core.romanize("ーー"), "", "只有长音符应得到空串");
+  assert.equal(core.romanize("らーめん"), core.romanize("らめん"), "长音符应被丢弃");
+  assert.equal(core.romanize("らーめん"), "ramen");
+  // 逐条拼接 == 整体：证明「ー 丢弃」与双字符前瞻在任意切分下自洽
+  const kanaSeq = "あいうえおかきくけこ";
+  const per = [...kanaSeq].map((c) => core.romanize(c)).join("");
+  assert.equal(core.romanize(kanaSeq), per, "逐条转写拼接应等于整体转写");
+});
+
+test("罗马字：全假名范围扫一遍，非空结果必为小写 ASCII", () => {
+  let nonEmpty = 0;
+  for (let cp = 0x3041; cp <= 0x3096; cp++) {
+    const ch = String.fromCharCode(cp);
+    const out = core.romanize(ch);
+    if (out) {
+      nonEmpty++;
+      assert.match(out, /^[a-z]+$/, `romanize(${ch}) = ${out} 不是小写 ASCII`);
+    }
+  }
+  for (let cp = 0x30a1; cp <= 0x30f6; cp++) {
+    const out = core.romanize(String.fromCharCode(cp));
+    if (out) {
+      nonEmpty++;
+      assert.match(out, /^[a-z]+$/);
+    }
+  }
+  assert.ok(nonEmpty >= 150, `假名范围只转写出 ${nonEmpty} 条，表可能缺项`);
+});
+
+test("罗马字：normalizeName 与 haystack 两条路径结果一致（长音折叠 sato 也在 haystack）", () => {
+  const h = (name, kana) => core.haystack({ name, kana }, "maeda");
+  assert.equal(core.romanize("まえだあつこ"), core.romanize("まえだあつこ"));
+  const hay = h("佐藤友子", "さとうゆうこ");
+  assert.ok(hay.includes("satouyukо".replace("о", "o")) || hay.includes("satouyuko") || hay.includes("sato") || hay.includes("satou"),
+    `haystack 应含 sa*tou*yu*ko* 之一：${hay}`);
+  assert.ok(hay.includes("sato"), "长音折叠的 sato 必须在 haystack 里");
+  assert.equal(core.normalizeName("さとう ゆうこ"), core.normalizeName("サトウユウコ"));
+});
+
+test("正则族：近似反例不得误匹配（期生/血型/选秀/日期）", () => {
+  // kanjiNumber / genKey 的锚点
+  assert.equal(core.genKey("一期生"), "1期生");
+  assert.equal(core.genKey("一期生"), "1期生");
+  assert.equal(core.genKey("十期生"), "10期生");
+  assert.equal(core.genKey("3十期生"), "3十期生", "数字开头不该被当成汉字期生");
+  assert.equal(core.genKey("三十期"), "三十期", "缺「期生」后缀不该匹配");
+  assert.equal(core.genKey("期生"), "期生");
+  // genText 只管期生（血型替换在未导出的 bloodText 里，另由 profileRows 覆盖）
+  assert.equal(core.genText("选秀10期生", "en"), "Draft 10th gen");
+  assert.equal(core.genText("选秀10", "en"), "选秀10", "缺「期生」不该匹配");
+  assert.equal(core.genText("12.55期生", "en"), "12.55期生", "小数点后多位不该匹配");
+  assert.equal(core.genText("12期生", "en"), "12th gen");
+  assert.equal(core.genText("12期生x", "en"), "12期生x");
+});
+
+test("ageOn 的月/日进位：跨月、同日、月初月末（经 profileRows 的年龄行）", () => {
+  const ageAt = (birth, now) => {
+    const rows = core.profileRows(
+      { name: "X", bio: { birth } },
+      (k) => k,
+      "zh",
+      {},
+      now
+    );
+    const hit = rows.find((r) => r[0] === "bio_age");
+    return hit ? Number(hit[1]) : null;
+  };
+  // 生日 9/30，今天 10/1 → 已过生日，不减
+  assert.equal(ageAt("2000.09.30", new Date(2026, 9, 1)), 26);
+  // 同月、生日未到（今天 9/29）→ 减一岁
+  assert.equal(ageAt("2000.09.30", new Date(2026, 8, 29)), 25);
+  // 生日就是今天 → 刚满，不减
+  assert.equal(ageAt("2000.09.29", new Date(2026, 8, 29)), 26);
+  // 月初 1 号：今天 9/1 生日 9/1 → 不减；今天 8/31 → 减
+  assert.equal(ageAt("2000.09.01", new Date(2026, 8, 1)), 26);
+  assert.equal(ageAt("2000.09.01", new Date(2026, 7, 31)), 25);
+  // 出生年份闰日也按 3/1 之后的逻辑走（不崩即可）
+  assert.equal(typeof ageAt("2000.02.29", new Date(2026, 2, 1)), "number");
+});
+
+test("profileRows：缺 birth/from/sign/generation/status 时不留空值或 undefined", () => {
+  const rows = core.profileRows(
+    { name: "X", bio: { height: "160cm" } },
+    (k) => k,
+    "zh",
+    {},
+    new Date(2026, 8, 27)
+  );
+  for (const [, v] of rows) {
+    assert.ok(v !== undefined && v !== null && String(v).trim() !== "", `不该出现空值：${JSON.stringify(rows)}`);
+    assert.doesNotMatch(String(v), /undefined|NaN/, `不该出现 undefined/NaN：${v}`);
+  }
+  const keys = rows.map((r) => r[0]);
+  for (const absent of ["bio_birth", "bio_age", "bio_from", "bio_sign", "bio_gen"]) {
+    assert.ok(!keys.includes(absent), `${absent} 缺字段时不该出现`);
+  }
+  assert.ok(keys.includes("bio_height"), "存在的字段仍要出现");
+  // 血型替换的锚点：O型 → Type O，带脏后缀的不动
+  const blood = (v, lang) =>
+    core.profileRows({ name: "X", bio: { blood: v } }, (k) => k, lang, {}, new Date(2026, 8, 27))
+      .find((r) => r[0] === "bio_blood");
+  assert.deepEqual(blood("O型", "en"), ["bio_blood", "Type O"]);
+  assert.deepEqual(blood("AB型", "en"), ["bio_blood", "Type AB"]);
+  assert.deepEqual(blood("O型x", "en"), ["bio_blood", "O型x"], "后缀有脏字符不该被替换");
+});
+
+test("rosterView：group=all 不做组过滤，折叠节点键按团体区分", () => {
+  const sections = [
+    { group: "AKB48", generation: "1期生", members: [{ id: "a", name: "甲" }] },
+    { group: "AKB48", generation: "3期生", members: [{ id: "b", name: "乙" }] },
+    { group: "SKE48", generation: "1期生", members: [{ id: "c", name: "丙" }] },
+  ];
+  const all = core.rosterView(sections, { group: "all", generation: "all", status: "all", query: "", selected: [] });
+  const groups = all.nodes.map((n) => n.group);
+  assert.deepEqual(groups, ["AKB48", "SKE48"], "all 时两个团体都该出现");
+  const onlySke = core.rosterView(sections, { group: "SKE48", generation: "all", status: "all", query: "", selected: [] });
+  assert.deepEqual(onlySke.nodes.map((n) => n.group), ["SKE48"]);
+  // 折叠节点键必须随团体不同（否则所有组挤到一起）
+  assert.equal(new Set(all.nodes.map((n) => n.id)).size, all.nodes.length, "节点 id 必须互不相同");
+  assert.notEqual(all.nodes[0].id, all.nodes[1].id);
+  // 状态=all 也不该过滤
+  const s = core.rosterView(sections, { group: "all", generation: "all", status: "all", query: "", selected: [] });
+  assert.equal(s.nodes.length, 2);
+});

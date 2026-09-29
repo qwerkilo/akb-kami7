@@ -246,3 +246,59 @@ Python：`fetch_members` 96.01、`love_members` 95.69、`wiki` 89.29、`roster.p
 - **效果**：core.js 变异分 90.93%→**93.26%**（幸存 86→62；nav/steps 段 28→**4**，4 个均为等价变异——`c.selected > 0`→`>= 0`、sync 的 `view !== "pick"` 守卫（stay 与显式 pick 同值）、`step != null` 守卫（null/undefined 同值）——已逐一论证不可杀）。
 - 口径注：lizard 把 `NAV_RULES` 对象字面量计为一个匿名函数（CCN 12 = 13 条规则聚合；单条规则 ≤3），按聚合口径记录，不再拆分。
 - 验证：`npm test` JS **99** + Python **83**；E2E v5 44/44、回归 62/62；无 JS 报错。
+
+## 全量质检（第九轮，2026-09-29，基线 `db56540`）
+
+范围：`db56540..2851e27`（63 个提交：皮肤四原型、v5 向导模式、六项架构深化、40 档、海报四样式、期生筛选、PWA 全批、深化⑰⑱、三轮 agent 文档审修）。密钥扫描按要求**跳过**；Gherkin、越权/注入按既定口径**不做**（纯静态站点，无服务端/鉴权/SQL/命令执行面；依赖只有 husky/lint-staged/prettier 三个 devDep，`npm audit` 0 漏洞）。
+
+### 测试与覆盖
+
+- 测试数：JS **143 → 161**（+18）、Python **88 → 90**（+2）。全绿。
+- JS 行覆盖（生产小计）**99.44% → 99.75%**，四个既有文件**无一下降**：`poster.js` 99.29→**99.90**（+544 行里 `photo()` 抽出后被占位测试覆盖）、`core.js` 99.64→**99.89**、`i18n.js` 99.70→**99.82**、`session.js` 98.99→99.03；新文件 `sw-cache-rules.js` 98.31%。
+- `app.js`（1315 行）与 `sw.js`（102 行）**不入 node 覆盖表**（`window` / `importScripts` 不存在，require 即抛）——「E2E 兜底」本轮**未证实**（E2E 不入仓）。`sw.js` 实测连一行都没执行过。
+- Python `--source=scripts` 97% → **95%**，降幅 **100% 来自新增且零测试的 `scripts/make_icons.py`（0%，38 行整文件）**；生产小计（剔它）95.69%→**96.18%**。
+- 未覆盖行分类：网络/IO 编排 43、防御性分支 21、**疑似死代码 2**（`session.js:22-23` 的 storage 兜底对象——生产与测试都显式传 `storage`，该分支不可达）、其它 5。
+
+### 复杂度（lizard 1.24，CCN 代理；1.24 已移除 CRAP/覆盖率输入）
+
+- 待修（CCN > 10）**9 处** = `core.js` 6（`rosterView` **25**、其余 14/14/12/11）+ `love_members.py` 2（22 / 21）+ `app.js` 1（IIFE 聚合 11）。
+- **唯一显著上升的是 `core.js`：3 处 → 6 处**，新增三处全是深化批的新函数（`rosterView` 25、`kanjiNumber` 14（343 length 数字表聚合）、`romanize` 11）。`poster.js` +544 行**复杂度零增长**（CCN>10 恒 0）；`app.js` 的 IIFE 聚合从 7 涨到 11、**刚好跨线**。
+- `sw.js` / `sw-cache-rules.js` 两个新文件 CCN>10 均为 0（最大 `classify` 9 / `networkFirst` 7）。
+- 超 600 行的源文件 4 个：`app.js` 1315、`poster.js` 967、`core.js` 909、`scripts/fetch_members.py` 615。
+
+### 重复与其他
+
+- jscpd（5.3.2）**1.11% → 0.138%**（主口径）/ 0.022%（纯源码）。第八轮那处 `poster.js` 48 行自克隆**已消除**；现存 5 处克隆里 4 处是测试/文档样板，**源码内只剩 6 行**（`drawMagazine`↔`drawChart` 共用序言）。
+- TODO/FIXME/XXX/HACK **0**；`npm audit`（官方源）**0 漏洞**；无 `dependencies`。
+
+### 变异测试（Stryker v9.6.1，2685 个变异，node:test 走 `testRunner: "command"`）
+
+| 文件 | 总数 | 存活 | 变异分 |
+| --- | --- | --- | --- |
+| core.js | 1348 | 231 | 82.86% |
+| session.js | 303 | 61 | 79.87% |
+| poster.js | 962 | 586 | 39.09% |
+| sw-cache-rules.js | 72 | 8 | 88.89% |
+| 合计 | 2685 | 886 | **67.00%** |
+
+（第八轮 core 93.26% / session 79.78% / poster 37.50% / 整体 74.3%。core 的分下降是**分母变大**——本轮含 4 个文件的全部变异点，上轮 poster 的低分拉高了整体基数。）
+
+poster.js 的 586 存活里 560 属既定可接受类（假 ctx 观测不到的几何/字号/颜色具体值）。**两个新类别**（此前未记过）：① 文本截断路径 ~10 个（假 ctx 恒返回 `measureText=40`，`clipText` 的省略号分支不可达）；② 整段绘图调用被清空 8 个（`BlockStatement → {}`，假 ctx 把 `beginPath/arcTo/...` 写成空函数，消失不可见）。
+
+### 第九轮修复记录（2026-09-29，按变异指认补的断言）
+
+- **core.js（+11 条）**：罗马字表驱动 22 例 + 全假名范围扫（值必为小写 ASCII、非空条目 ≥150）+ 逐条拼接 == 整体转写 + `normalizeName`/`haystack` 一致性 + `acchan` 变体在 haystack；正则族**近似反例** 8 条（`3十期生`/`三十期`/`O型x`/`选秀10`/`12.55期生`…）；`ageOn` 的月/日进位 6 例（经 profileRows 的年龄行）；`profileRows` 缺字段不留空值/`undefined`，血型替换锚点 3 例；`rosterView` 的 `all` 不过滤、节点 id 互不相同。
+- **session.js（+7 条）**：缩档截断**内容**（前 N 个 id、无空洞）；快照必须是拷贝（改 `selected`/`duel.pair` 不污染内部、不推进进度）；setter 归一化（`setFilter/setGroup/setQuery` 返回归一化值、`setGeneration` 返回布尔的**两套契约都钉住**）；切系列复位**四个**易失字段；`switchSeries`/`setSize` 的 no-op 不清已选、不丢对决；**持久化键名** `akb:series`/`akb:skin`/`akb:state:v2:*`；新建会话的开局视图（`max` 是题数不是人数）。
+- **poster.js（+2 条）**：假 ctx 记录路径调用（圆角半径真进了 `arcTo` 参数、整段绘图消失可见）+ 超长名字走 `clipText` 省略号分支（需换成长度感知的 `measureText`）。
+- **sw-cache-rules.js（+1 条）**：`./` 未被过滤会让 `/foo/` 误判成壳文件（按 basename 匹配）。
+- **scripts/test_make_icons.py（新）**：生成的字节必须与提交的图标一致 + 尺寸与 manifest 声明一致——把「幂等且逐字节可复现」这条承诺钉住。
+- 判别力实证：6 个变异中 **5 个变红**（促音双写、缩档不截断、切系列不复位 query、壳清单不过滤 `./`、省略号）；「长音符不丢弃」**仍全绿**——查证是**等价变异**（`ROMAJI` 表无 `ー` 键，`core.js:212` 的 `if (c === "ー") continue;` 是冗余分支）。
+- 验证：`npm test` JS **161** + Python **90**；回归 E2E **86/86**、v5 **49/49**、PWA **39/39**。
+
+### 建议（按优先级）
+
+1. **P1**：`make_icons.py` 从 0% 覆盖到有产物守卫（本轮已补 `test_make_icons.py` ✓ 已完成）；`session.js:22-23` 的死分支删掉或补测试（2 行）。
+2. **P2**：`core.js rosterView` CCN 25（全仓最高，新代码）——下一轮架构扫描的候选，不是 QA 层能修的；`love_members.py` 的 `parse_wiki_members` 22 / `build_members` 21 同理。
+3. **P3**：`app.js` 的 IIFE 聚合 CCN 11（刚跨线，单点贡献者是 `applyStatic` 10）——观察，不动。
+4. **P4**：poster.js 变异幸存维持「接受」（假 ctx 的观测极限）；`drawMagazine`/`drawChart` 6 行序言克隆与测试样板不修。
+5. 维持 checklist（`npm test` → 手动 lint-staged → `graph:sync`；UI 改动跑 E2E；review 后记检查点）。
