@@ -1614,3 +1614,27 @@ test("rosterView：group=all 不做组过滤，折叠节点键按团体区分", 
   const s = core.rosterView(sections, { group: "all", generation: "all", status: "all", query: "", selected: [] });
   assert.equal(s.nodes.length, 2);
 });
+
+test("rosterView 搜索：三个过滤条件各自真的生效（这条路径此前没有任何测试）", () => {
+  const akb = { group: "AKB48", label: "1期生", members: [{ id: "a1", name: "甲", status: "current", hay: "こう" }] };
+  const ske = { group: "SKE48", label: "1期生", members: [{ id: "s1", name: "乙", status: "current", hay: "こう" }] };
+  const former = { group: "AKB48", label: "3期生", members: [{ id: "f1", name: "丙", status: "former", hay: "こう" }] };
+  const all = [akb, ske, former];
+  const search = (opts) => core.rosterView(all, { group: "all", generation: "all", status: "all", query: "こう", selected: [], ...opts });
+  assert.deepEqual(search({}).hits.map((m) => m.id), ["a1", "s1", "f1"], "all 时三人全中");
+  assert.deepEqual(search({ group: "AKB48" }).hits.map((m) => m.id), ["a1", "f1"], "团过滤只留 AKB48");
+  assert.deepEqual(search({ generation: "1期生" }).hits.map((m) => m.id), ["a1", "s1"], "期生过滤只留 1 期");
+  assert.deepEqual(search({ status: "current" }).hits.map((m) => m.id), ["a1", "s1"], "状态过滤排除毕业");
+  assert.deepEqual(search({ group: "SKE48", status: "current" }).hits.map((m) => m.id), ["s1"], "团 + 状态叠加");
+  // 汉字期生与阿拉伯期生归一后同组（genKey）
+  const kanji = { group: "AKB48", label: "一期生", members: [{ id: "k1", name: "丁", status: "current", hay: "こう" }] };
+  assert.deepEqual(
+    core.rosterView([kanji], { group: "all", generation: "1期生", status: "all", query: "こう", selected: [] }).hits.map((m) => m.id),
+    ["k1"],
+    "「一期生」应与「1期生」同组"
+  );
+  // 命中 0 时 hits 为空数组而不是省略字段
+  const none = core.rosterView(all, { group: "all", generation: "all", status: "all", query: "查无此人", selected: [] });
+  assert.deepEqual(none.hits, []);
+  assert.deepEqual(none.nodes, []);
+});

@@ -18,11 +18,9 @@
   const stateKey = (s) => `akb:state:v2:${s}`;
 
   function create(opts) {
-    const storage = (opts && opts.storage) || {
-      getItem: () => null,
-      setItem: () => {},
-    };
-    const byId = (opts && opts.byId) || (() => undefined);
+    // storage 是注入依赖（ADR-0008）：调用方必须给，不再兜一个内存假实现
+    const storage = opts.storage;
+    const byId = opts.byId || (() => undefined);
 
     const store = {};
     const state = {

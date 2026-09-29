@@ -496,5 +496,51 @@ class LoadTests(unittest.TestCase):
         self.assertIn("love:=LOVE:大谷 映美里", urls)
 
 
+
+
+class ParseNickTest(unittest.TestCase):
+    """爱称解析单独测：它是从 parse_member_chunk 抽出来的缝，两条来源 + 两个排除条件。"""
+
+    def test_takes_cell_after_blood_type(self):
+        chunk = "\n||\n|生年月日と年齢|1998|3|15\n||O型||みかにゃ||"
+        self.assertEqual(love_members.parse_nick(chunk), "みかにゃ")
+
+    def test_skips_cell_that_is_a_label(self):
+        # 血型后那一格是「愛称」说明而不是昵称 → 不得当昵称
+        chunk = "\n||\n|生年月日と年齢|1998|3|15\n||A型||愛称は、みくにゃ(||"
+        self.assertEqual(love_members.parse_nick(chunk), "みくにゃ")
+
+    def test_falls_back_to_sentence_without_blood(self):
+        chunk = "概要\n愛称は、ゆか（ゆーか）\n"
+        self.assertEqual(love_members.parse_nick(chunk), "ゆか")
+
+    def test_returns_none_when_nothing(self):
+        chunk = "\n||\n|生年月日と年齢|1998|3|15\n||B型||\n"
+        self.assertIsNone(love_members.parse_nick(chunk))
+
+
 if __name__ == "__main__":
     unittest.main()
+
+
+class BuildBioTest(unittest.TestCase):
+    """build_bio 的三条语义：官网详情页打底、官网优先、Wikipedia 只补空缺。"""
+
+    def test_official_detail_is_the_base(self):
+        bio = love_members.build_bio({"detail": {"birth": "1998/3/15", "hobby": "Idle"}}, {})
+        self.assertEqual(bio, {"birth": "1998/3/15", "hobby": "Idle"})
+
+    def test_official_value_wins_over_wiki(self):
+        bio = love_members.build_bio(
+            {"detail": {"birth": "官网生日"}}, {"birth": "wiki生日", "from": "东京都"}
+        )
+        self.assertEqual(bio["birth"], "官网生日", "官网已有的字段不能被 Wikipedia 覆盖")
+        self.assertEqual(bio["from"], "东京都", "官网没有的字段由 Wikipedia 补上")
+
+    def test_no_detail_no_romaji(self):
+        self.assertEqual(love_members.build_bio(None, {}), {})
+        self.assertEqual(love_members.build_bio({}, {"blood": "O型"}), {"blood": "O型"})
+
+    def test_romaji_comes_from_official(self):
+        bio = love_members.build_bio({"romaji": "Mirei"}, {})
+        self.assertEqual(bio["romaji"], "Mirei")

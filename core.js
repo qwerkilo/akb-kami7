@@ -352,51 +352,53 @@
   }
 
   // ---- 名册投影：过滤/计数/已选一次算清（纯数据；m.hay 由 app 预计算） ----
-  function rosterView(sections, opts) {
-    const o = opts || {};
-    const group = o.group || "all";
-    const generation = o.generation || "all";
-    const status = o.status || "all";
-    const selected = Array.isArray(o.selected) ? o.selected : [];
-    const q = normalizeName(o.query || "");
-    if (q) {
-      const hits = [];
-      for (const s of sections) {
-        if (group !== "all" && s.group !== group) continue;
-        if (generation !== "all" && genKey(s.label) !== generation) continue;
-        for (const m of s.members) {
-          if (isVisible(m, status) && (m.hay || "").includes(q)) hits.push(m);
-        }
+  // 名册投影分两条代码路径：搜索扁平、树/单团共用（group 决定 mode 标签）。
+  function viewSearch(sections, f, q) {
+    const hits = [];
+    for (const s of sections) {
+      if (f.group !== "all" && s.group !== f.group) continue;
+      if (f.generation !== "all" && genKey(s.label) !== f.generation) continue;
+      for (const m of s.members) {
+        if (isVisible(m, f.status) && (m.hay || "").includes(q)) hits.push(m);
       }
-      return { mode: "search", nodes: [], hits };
     }
-    const selSet = new Set(selected);
+    return { mode: "search", nodes: [], hits };
+  }
+
+  // 单个期生段：可见成员为空时返回 null（整段不进结果）
+  function sectionRow(node, s, status, selSet) {
+    const members = s.members.filter((m) => isVisible(m, status));
+    if (!members.length) return null;
+    let current = 0;
+    let picked = 0;
+    for (const m of members) {
+      if (m.status === "current") current++;
+      if (selSet.has(m.id)) picked++;
+    }
+    return {
+      id: `${node.group}#${s.label}`,
+      label: s.label,
+      members,
+      count: members.length,
+      current,
+      picked,
+    };
+  }
+
+  function viewSections(sections, f, selSet) {
     const nodes = [];
-    for (const node of groupSections(sections, group, generation)) {
+    for (const node of groupSections(sections, f.group, f.generation)) {
       const secs = [];
       let count = 0;
       let current = 0;
       let picked = 0;
       for (const s of node.sections) {
-        const members = s.members.filter((m) => isVisible(m, status));
-        if (!members.length) continue;
-        let secCurrent = 0;
-        let secPicked = 0;
-        for (const m of members) {
-          if (m.status === "current") secCurrent++;
-          if (selSet.has(m.id)) secPicked++;
-        }
-        secs.push({
-          id: `${node.group}#${s.label}`,
-          label: s.label,
-          members,
-          count: members.length,
-          current: secCurrent,
-          picked: secPicked,
-        });
-        count += members.length;
-        current += secCurrent;
-        picked += secPicked;
+        const row = sectionRow(node, s, f.status, selSet);
+        if (!row) continue;
+        secs.push(row);
+        count += row.count;
+        current += row.current;
+        picked += row.picked;
       }
       if (!secs.length) continue;
       nodes.push({
@@ -408,7 +410,24 @@
         picked,
       });
     }
-    return { mode: group === "all" ? "tree" : "flat", nodes, hits: [] };
+    return nodes;
+  }
+
+  function rosterView(sections, opts) {
+    const o = opts || {};
+    const f = {
+      group: o.group || "all",
+      generation: o.generation || "all",
+      status: o.status || "all",
+    };
+    const q = normalizeName(o.query || "");
+    if (q) return viewSearch(sections, f, q);
+    const selSet = new Set(Array.isArray(o.selected) ? o.selected : []);
+    return {
+      mode: f.group === "all" ? "tree" : "flat",
+      nodes: viewSections(sections, f, selSet),
+      hits: [],
+    };
   }
 
   function* mergeSort(a) {

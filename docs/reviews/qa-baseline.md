@@ -302,3 +302,22 @@ poster.js 的 586 存活里 560 属既定可接受类（假 ctx 观测不到的�
 3. **P3**：`app.js` 的 IIFE 聚合 CCN 11（刚跨线，单点贡献者是 `applyStatic` 10）——观察，不动。
 4. **P4**：poster.js 变异幸存维持「接受」（假 ctx 的观测极限）；`drawMagazine`/`drawChart` 6 行序言克隆与测试样板不修。
 5. 维持 checklist（`npm test` → 手动 lint-staged → `graph:sync`；UI 改动跑 E2E；review 后记检查点）。
+
+### 第九轮「按优先级修复」批次（2026-09-29）
+
+用户批准「按报告里的优先级逐个修复」，本批处理 P1 与 P2。**P3（`app.js` IIFE 聚合 CCN 11）按报告的「观察，不动」未处理**，P4 为接受项。
+
+- **P1 · `session.js` 死分支**：删掉 `create()` 里不可达的 storage 兜底对象（`opts.storage` 现在是必填注入依赖，ADR-0008 的契约）。实测行为差只有一条：`create()` 零参调用从「可用但不持久化」变成抛 `TypeError`（无生产路径命中 ✓ `app.js:10` 永远传 localStorage 适配器 ✓）。顺带删掉由此**新变成**死代码的 `opts &&` 防御（`session.js:23`）。
+- **P2a · `core.js` 名册投影**：`rosterView`（CCN 25）拆成 `viewSearch` / `sectionRow` / `viewSections` + 派发体。**`core.js` 最大 CCN 25 → 14**（新的最大值是三个未动的表聚合函数 `names`/`kanjiNumber`/`deserializeState` ✓）；`rosterView` 自身 25 → 9，投影族单函数峰值 10。分支点总量 24 → 25（唯一多出的一处是「整段跳过」用 `null` 表达、被拆成返回判断 + 调用方判断两处 ✓）——**降的是峰值不是总量** ✓。
+- **P2b · `scripts/love_members.py`**：`parse_wiki_members`（22）拆出 `former_members_at` + `parse_member_chunk`（12），后者再拆出 `parse_nick`（6）；`build_members`（21）拆出 `build_bio`（7）。**该文件最大 CCN 22 → 15**（`build_members`），`radon` 无 D 级函数 ✓（`complexipy` 复核：`build_members` 42→27、`parse_wiki_members` 38→8 ✓）。
+- **等价性证据**：`rosterView` 用真实 `members.js` 跑 70 组过滤矩阵逐字节比对 ✓ 0 差异；两轴各自独立写探针复核（54006 组 / 11645 例 ✓ 均 0 差异）；Python 侧 479 / 600+ 组对拍 ✓ 0 差异（`build_bio` 600 组 ✓ `parse_nick` 800 组 ✓ 全 dict 含键序 ✓）。
+- **补测试（本批最大的一笔收获）**：审查指出「缝建起来了、钉缝的测试没跟上」✓ ——
+  - `viewSearch` 的**三个过滤条件此前从没有任何测试**（去掉团/期生/状态过滤，5 个变异全部存活 ✓）；`test/core.test.js` 新增「rosterView 搜索：三个过滤条件各自真的生效」（含汉字期生归一 ✓）。
+  - `build_bio` 的官网底座 / 官网优先 / wiki 补空三条语义无测试；`scripts/test_love_members.py` 新增 `BuildBioTest` 4 条。
+  - `parse_nick` 直测 4 条（血型后格 / 「愛称」排除 / 句式兜底 / 返回 `None` 而非空串 ✓）——其中「`愛称は、ゆか（ゆーか）` → `ゆか`」钉住了一条**此前未被文档化**的行为（字符类排除括号，注音被截断 ✓）。
+  - 5 个变异实证全部变红 ✓。测试数 JS 161 → **162**、Python 90 → **98**。
+- **审查抓到的两处我的错误（如实记账）**：
+  1. **报告口径差点写反**：我读 lizard 原始输出时把第一列 `NLOC` 当成了 CCN，一度得出「复杂度没降、25→27 / 22→41/32」的错误结论。两轴各自复核 + `radon` / `complexipy` 第三方印证，实际是**降了**（25→14 / 22→15）✓。教训记下：**引用 lizard 时先确认列序**（`NLOC CCN token PARAM length location` ✓）✓。
+  2. `ParseNickTest` 一度被追加在 `unittest.main()` 之后，**复活了上一轮已修过的「直跑漏测」缺陷**（`python3 scripts/test_love_members.py` 只跑 22 而非 26 ✓）；已把 `main()` 放回文件末尾 ✓。
+- **越界记录**：P2 在报告里的原文是「下一轮架构扫描的候选，**不是 QA 层能修的**」——本批在用户「按优先级修复」的指示下提前执行，**跳过了 AGENTS.md 规定的架构决策流程**（无 ADR、无 `.scratch/` spec/ticket）✓。不补 ADR（纯搬家的等价重构不构成需长期记录的决定 ✓），但在此显式记账 ✓：下一轮架构深化若要正式调整名册投影的分层，届时立 ADR ✓。
+- 验证：`npm test` JS **162** + Python **98**；E2E 回归 **86/86**、v5 **49/49**、PWA **39/39**。

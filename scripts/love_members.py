@@ -89,70 +89,89 @@ def parse_detail(html):
     return bio
 
 
-def parse_wiki_members(wikitext):
-    """{名前: {kana, birth, from, height, blood, nick, former, grad}}。
-
-    行可能像 =LOVE 那样单行（名前 || よみ || …），也可能像 ≒JOY 那样
-    跨两行（メンバーカラー 另起一行）；按 |- 切块后整块解析，并用
-    「出身地是都道府县」过滤掉新闻/作品表里的误匹配行。"""
+def former_members_at(wikitext):
+    """元メンバー 小节的位置：它的起点之前算现役，之后算毕业。"""
     former_at = len(wikitext)
     for heading in ("=== 元メンバー", "== 元メンバー"):
         i = wikitext.find(heading)
         if i >= 0:
             former_at = min(former_at, i)
+    return former_at
+
+
+def parse_nick(chunk):
+    """爱称：优先血型后面那一格，兜底正文里的「愛称は、…」句式。
+
+    血型后面那一格在部分行是「愛称」说明而不是昵称，要排除。"""
+    nick = None
+    blood = re.search(r"\|\|\s*(AB|A|B|O)型\s*\|\|", chunk)
+    if blood:
+        cell = re.match(r"\s*([^|{\n]{1,15}?)\s*\|\|", chunk[blood.end() :])
+        if cell and "愛称" not in cell.group(1):
+            nick = cell.group(1).strip()
+    if not nick:
+        alt = re.search(r"愛称は、([^<（(\n、]+)", chunk)
+        if alt:
+            nick = alt.group(1).strip()
+    return nick
+
+
+def parse_member_chunk(chunk):
+    """一行成员单元格块 → (name, rec)；不是成员行时返回 None。
+
+    行可能像 =LOVE 那样单行（名前 || よみ || …），也可能像 ≒JOY 那样
+    跨两行（メンバーカラー 另起一行）；用「出身地是都道府县」过滤掉
+    新闻/作品表里的误匹配行。"""
+    if "{{生年月日と年齢" not in chunk:
+        return None
+    name = re.search(
+        r"\n\|\s*(?:\[\[([^\]|]+)(?:\|[^\]]+)?\]\]|([^|\n]{2,20}?))\s*(?:\|\||\n)",
+        chunk,
+    )
+    if not name:
+        return None
+    nm = (name.group(1) or name.group(2)).strip()
+    kana_cell = re.match(r"\s*([^|\n]+?)\s*(?:\|\||\n)", chunk[name.end() :])
+    birth = re.search(r"\{\{生年月日と年齢\|(\d+)\|(\d+)\|(\d+)\}\}", chunk)
+    if not birth:
+        return None
+    pref = re.search(r"\}\}\s*\|\|\s*(?:\[\[([^|\]]+)\]\]|([^|\]\n]+?))\s*\|\|", chunk)
+    from_ = (pref.group(1) or pref.group(2)).strip() if pref else ""
+    if not re.search(r"[都道府県]$", from_):
+        return None
+    rec = {"from": from_}
+    if kana_cell:
+        rec["kana"] = kana_cell.group(1).strip()
+    rec["birth"] = roster.ymd(birth.group(1), birth.group(2), birth.group(3))
+    height = re.search(r"([\d.]+)\s*(?:&nbsp;)?\s*cm", chunk)
+    if height:
+        rec["height"] = height.group(1) + "cm"
+    blood = re.search(r"\|\|\s*(AB|A|B|O)型\s*\|\|", chunk)
+    if blood:
+        rec["blood"] = blood.group(1) + "型"
+    nick = parse_nick(chunk)
+    if nick:
+        rec["nick"] = nick
+    return nm, rec
+
+
+def parse_wiki_members(wikitext):
+    """{名前: {kana, birth, from, height, blood, nick, former, grad}}。
+
+    按 |- 切块后逐块交给 parse_member_chunk 解析。"""
+    former_at = former_members_at(wikitext)
     out = {}
     for chunk_match in re.finditer(r"\n\|-([\s\S]*?)(?=\n\|-|\n\|\}|\n\n|$)", wikitext):
         chunk = chunk_match.group(1)
-        if "{{生年月日と年齢" not in chunk:
+        parsed = parse_member_chunk(chunk)
+        if parsed is None:
             continue
-        name = re.search(
-            r"\n\|\s*(?:\[\[([^\]|]+)(?:\|[^\]]+)?\]\]|([^|\n]{2,20}?))\s*(?:\|\||\n)",
-            chunk,
-        )
-        if not name:
-            continue
-        nm = (name.group(1) or name.group(2)).strip()
-        kana_cell = re.match(r"\s*([^|\n]+?)\s*(?:\|\||\n)", chunk[name.end():])
-        birth = re.search(r"\{\{生年月日と年齢\|(\d+)\|(\d+)\|(\d+)\}\}", chunk)
-        if not birth:
-            continue
-        pref = re.search(
-            r"\}\}\s*\|\|\s*(?:\[\[([^|\]]+)\]\]|([^|\]\n]+?))\s*\|\|", chunk
-        )
-        from_ = (pref.group(1) or pref.group(2)).strip() if pref else ""
-        if not re.search(r"[都道府県]$", from_):
-            continue
-        rec = {"from": from_}
-        if kana_cell:
-            rec["kana"] = kana_cell.group(1).strip()
-        rec["birth"] = roster.ymd(
-            birth.group(1), birth.group(2), birth.group(3)
-        )
-        height = re.search(r"([\d.]+)\s*(?:&nbsp;)?\s*cm", chunk)
-        if height:
-            rec["height"] = height.group(1) + "cm"
-        blood = re.search(r"\|\|\s*(AB|A|B|O)型\s*\|\|", chunk)
-        if blood:
-            rec["blood"] = blood.group(1) + "型"
-        nick = None
-        if blood:
-            after = chunk[blood.end():]
-            cell = re.match(r"\s*([^|{\n]{1,15}?)\s*\|\|", after)
-            if cell and "愛称" not in cell.group(1):
-                nick = cell.group(1).strip()
-        if not nick:
-            alt = re.search(r"愛称は、([^<（(\n、]+)", chunk)
-            if alt:
-                nick = alt.group(1).strip()
-        if nick:
-            rec["nick"] = nick
+        nm, rec = parsed
         if chunk_match.start() >= former_at:
             rec["former"] = True
             grad = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日", chunk)
             if grad:
-                rec["grad"] = roster.ymd(
-                    grad.group(1), grad.group(2), grad.group(3)
-                )
+                rec["grad"] = roster.ymd(grad.group(1), grad.group(2), grad.group(3))
         out[nm] = rec
     return out
 
@@ -247,6 +266,19 @@ def archived_list_photos(group, fetch):
     return out
 
 
+def build_bio(item, w):
+    """官网详情页的字段打底，Wikipedia 补空缺；官网没有的字段不进 bio。"""
+    bio = {}
+    if item and item.get("detail"):
+        bio.update(item["detail"])
+    for key in ("birth", "from", "height", "blood"):
+        if w.get(key):
+            bio.setdefault(key, w[key])
+    if item and item.get("romaji"):
+        bio["romaji"] = item["romaji"]
+    return bio
+
+
 def build_members(official, wiki):
     """official: {group: [parse_list 项（含 detail）]}；wiki: {group: parse_wiki_members}。
     返回 (members, urls)。"""
@@ -262,14 +294,7 @@ def build_members(official, wiki):
             w = pair[1] if pair else {}
             item = by_name.get(person_key)
             name = item["name"] if item else pair[0]
-            bio = {}
-            if item and item.get("detail"):
-                bio.update(item["detail"])
-            for key in ("birth", "from", "height", "blood"):
-                if w.get(key):
-                    bio.setdefault(key, w[key])
-            if item and item.get("romaji"):
-                bio["romaji"] = item["romaji"]
+            bio = build_bio(item, w)
             rec = {
                 "name": name,
                 "kana": w.get("kana") or (item["romaji"].lower() if item else ""),
