@@ -9,8 +9,52 @@
   --font-round: "Nunito", var(--font-jp);
 }
 
-/* 贴纸（现行风格；:root 兜底与 [data-skin="sticker"] 同值） */
+/* 原版（上游 11fa090 的视觉语言）。:root 兜底 = 应用默认皮肤（session.js 的 skin），
+   新访客没有 akb:skin 时的第一帧就是这里——别名挂到贴纸块上会让首屏闪一下，
+   见 .scratch/deepening/19-first-paint-skin.md */
 :root,
+[data-skin="classic"] {
+  --floor: #edeff3;
+  --card: #ffffff;
+  --ink: #1c1e2b;
+  --muted: #6b6f80;
+  --line: #d5d9e2;
+  --placeholder: #e4e7ee;
+  --placeholder-ink: #9aa0b0;
+  --peach: #e4007f;
+  --mint: #eef0f4;
+  --lilac: #fde6f2;
+  --lemon: #f4c20d;
+  --pink: #e4007f;
+  --pink-soft: #fde6f2;
+  --ok: #0b7a4f;
+  --radius: 10px;
+  --border: 1px solid var(--line);
+  --shadow: none;
+  --shadow-soft: 0 1px 3px rgba(28, 30, 43, 0.12);
+  --shadow-sm: none;
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #fff;
+  --seg-active-color: #fff;
+  --hover-bg: #f4f6f9;
+  --picked-bg: var(--pink-soft);
+  --card-radius: 0;
+  --card-pad: 0;
+  --card-align: center;
+  --thumb-radius: 8px;
+  --thumb-border: 0;
+  --slot-radius: 6px;
+  --row-radius: 10px;
+  --tray-bg: rgba(237, 239, 243, 0.94);
+  --tray-border-top: 0;
+  --poster-card-stroke: 0px;
+}
+
+/* 贴纸（与本项目同期做出来的风格）。两块令牌必须键集相同——曾经贴纸块多出
+   --placeholder/--placeholder-ink，classic 下 .card .ph 背景静默变透明。
+   必须排在原版块之后：
+   :root 与 [data-skin="…"] 同权重，靠后者胜出，所以「默认皮肤」的别名只挂在原版块上 */
 [data-skin="sticker"] {
   --floor: #f5f1e6;
   --card: #ffffff;
@@ -47,43 +91,6 @@
   --tray-bg: var(--floor);
   --tray-border-top: 2px solid var(--ink);
   --poster-card-stroke: 3px;
-}
-
-/* 原版（上游 11fa090 的视觉语言） */
-[data-skin="classic"] {
-  --floor: #edeff3;
-  --card: #ffffff;
-  --ink: #1c1e2b;
-  --muted: #6b6f80;
-  --line: #d5d9e2;
-  --peach: #e4007f;
-  --mint: #eef0f4;
-  --lilac: #fde6f2;
-  --lemon: #f4c20d;
-  --pink: #e4007f;
-  --pink-soft: #fde6f2;
-  --ok: #0b7a4f;
-  --radius: 10px;
-  --border: 1px solid var(--line);
-  --shadow: none;
-  --shadow-soft: 0 1px 3px rgba(28, 30, 43, 0.12);
-  --shadow-sm: none;
-  --shadow-xs: none;
-  --shadow-disabled: none;
-  --on-primary: #fff;
-  --seg-active-color: #fff;
-  --hover-bg: #f4f6f9;
-  --picked-bg: var(--pink-soft);
-  --card-radius: 0;
-  --card-pad: 0;
-  --card-align: center;
-  --thumb-radius: 8px;
-  --thumb-border: 0;
-  --slot-radius: 6px;
-  --row-radius: 10px;
-  --tray-bg: rgba(237, 239, 243, 0.94);
-  --tray-border-top: 0;
-  --poster-card-stroke: 0px;
 }
 
 * {
