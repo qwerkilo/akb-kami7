@@ -1,0 +1,98 @@
+/* v9：四版换的是**核心交互范式**，令牌仍逐字取自主站三块真实块（tokens.css） */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--floor); color: var(--ink); font-family: var(--font-ui);
+  font-size: 15px; line-height: 1.5; }
+img { display: block; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.seg { display: inline-flex; gap: 4px; }
+.seg button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 10px; font-size: 13px; min-height: 32px; }
+.seg button[aria-checked="true"] { background: var(--pink); color: #fff; border-color: 0; }
+.chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 10px; font-size: 12px; min-height: 30px; }
+.primary { background: var(--pink); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 700; min-height: 46px; }
+.ghost { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; min-height: 44px; }
+.top { position: sticky; top: 0; z-index: 20; display: flex; gap: 6px; align-items: center;
+  padding: 6px 8px; background: var(--card); border-bottom: 1px solid var(--line); }
+.top .grow { flex: 1; }
+.proto-bar { position: sticky; top: 0; z-index: 60; display: flex; gap: 6px; align-items: center; padding: 6px 8px; background: #11131a; color: #fff; font-size: 12px; }
+.proto-bar a { color: #fff; opacity: .55; text-decoration: none; padding: 4px 8px; border-radius: 999px; }
+.proto-bar a[aria-current="true"] { opacity: 1; background: var(--pink); }
+.proto-bar .sp { flex: 1; }
+.note { padding: 6px 10px; font-size: 12px; color: var(--muted); background: var(--mint); }
+.ph { background: var(--placeholder); }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+.mcard { position: relative; background: var(--card); border-radius: 12px; overflow: hidden; border: 2px solid transparent; }
+.mcard.picked { border-color: var(--pink); background: var(--pink-soft); }
+.mcard .ph { aspect-ratio: 3/4; }
+.mcard .ph img { width: 100%; height: 100%; object-fit: cover; }
+.mcard .nm { padding: 5px 6px 2px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mcard .mt { padding: 0 6px 6px; font-size: 11px; color: var(--muted); }
+.mcard .rank { position: absolute; top: 3px; left: 3px; min-width: 22px; height: 22px; border-radius: 999px;
+  background: var(--pink); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; z-index: 2; }
+.mcard .info { position: absolute; top: 3px; right: 3px; width: 30px; height: 30px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line); font-size: 12px; z-index: 2; }
+.count { font-size: 13px; color: var(--muted); }
+
+/* ── E 滑选 Swipe ───────────────────────────── */
+.e-stage { height: 100dvh; display: flex; flex-direction: column; }
+.e-stage .deck { flex: 1; position: relative; overflow: hidden; display: grid; place-items: center; }
+.e-card { position: absolute; left: 10px; right: 10px; top: 50%; margin-top: -33dvh; height: 66dvh; max-height: 560px; border-radius: 18px; overflow: hidden; background: var(--card);
+  border: 2px solid var(--line); transition: transform .18s ease, opacity .18s ease; }
+.e-card .ph { height: calc(100% - 64px); }
+.e-card .ph img { width: 100%; height: 100%; object-fit: cover; }
+.e-card .cap { padding: 6px 12px; display: flex; align-items: baseline; gap: 8px; }
+.e-card .cap b { font-size: 16px; }
+.e-card .cap span { font-size: 12px; color: var(--muted); }
+.e-hint { text-align: center; padding: 6px 0 10px; font-size: 12px; color: var(--muted); }
+.e-hint kbd { border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; background: var(--card); }
+.e-tray { position: fixed; right: 10px; bottom: 12px; z-index: 30; background: var(--card);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; display: flex; gap: 8px; align-items: center; }
+.e-tray .thumbs { display: flex; }
+.e-tray .thumbs i { width: 26px; height: 26px; border-radius: 999px; overflow: hidden; margin-left: -7px; border: 2px solid var(--card); display: block; }
+.e-tray .thumbs i:first-child { margin-left: 0; }
+.e-tray .thumbs img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── F 锦标赛 Bracket ───────────────────────── */
+.f-wrap { padding: 8px 10px 90px; }
+.f-ask { text-align: center; font-weight: 700; padding: 4px 0 8px; }
+.f-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.f-col { border: 2px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--card); padding: 6px; }
+.f-col.win { border-color: var(--pink); background: var(--pink-soft); }
+.f-col h4 { margin: 0 0 6px; font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+.f-col .fcell { display: flex; gap: 6px; align-items: center; padding: 4px 0; }
+.f-col .fcell .av { width: 40px; height: 52px; border-radius: 8px; overflow: hidden; flex: none; }
+.f-col .fcell .av img { width: 100%; height: 100%; object-fit: cover; }
+.f-col .fcell b { font-size: 13px; }
+.f-col .fcell s { display: block; font-size: 11px; color: var(--muted); }
+.f-foot { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; align-items: center;
+  padding: 10px; background: var(--card); border-top: 1px solid var(--line); }
+.f-foot .primary { flex: 1; }
+
+/* ── G 清单 Checklist ──────────────────────── */
+.g-list { padding: 4px 10px 96px; }
+.g-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.g-row .av { width: 44px; height: 58px; border-radius: 8px; overflow: hidden; flex: none; }
+.g-row .av img { width: 100%; height: 100%; object-fit: cover; }
+.g-row .meta { flex: 1; min-width: 0; }
+.g-row .meta b { font-size: 14px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-row .meta s { font-size: 11px; color: var(--muted); text-decoration: none; }
+.g-row .mark { width: 40px; height: 40px; border-radius: 999px; border: 2px solid var(--line); background: var(--card); font-size: 18px; }
+.g-row.in .mark { background: var(--pink); color: #fff; border-color: transparent; }
+.g-row.out { opacity: .45; }
+.g-row.out .mark { background: var(--mint); }
+.g-foot { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; align-items: center;
+  padding: 10px; background: var(--card); border-top: 1px solid var(--line); }
+.g-foot .primary { flex: 1; }
+
+/* ── H 对照长条 Rail ───────────────────────── */
+.h-rails { padding: 8px 10px 80px; }
+.h-rail { display: flex; gap: 8px; overflow-x: auto; padding: 6px 2px 10px; scrollbar-width: none; }
+.h-rail::-webkit-scrollbar { display: none; }
+.h-cell { flex: none; width: 74px; border-radius: 12px; overflow: hidden; border: 2px solid transparent; background: var(--card); }
+.h-cell .ph { aspect-ratio: 3/4; }
+.h-cell .ph img { width: 100%; height: 100%; object-fit: cover; }
+.h-cell .nm { font-size: 11px; font-weight: 700; padding: 4px 5px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h-cell.on { border-color: var(--pink); }
+.h-cell.out { opacity: .35; }
+.h-rail-label { font-size: 12px; color: var(--muted); padding: 0 2px 2px; display: flex; justify-content: space-between; }
+.h-foot { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px; background: var(--card); border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
+.h-foot .primary { flex: 1; }
