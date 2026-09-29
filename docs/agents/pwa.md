@@ -53,7 +53,7 @@
   | Firefox 桌面版        | Windows 143+ / Linux：地址栏的 web apps 按钮 | **macOS 版不支持**（同进程 Dock 无法区分） |
 
 - 非安全上下文（http + 局域网 IP、直接打开的本地文件）会补一句「装不了、也不能离线，请用 https 或 127.0.0.1」。
-- `file://` 下不注册 SW。
+- `file://` 下不注册 SW：`secureCtx = window.isSecureContext && location.protocol !== "file:"`——**别简化成纯 `isSecureContext`**，`file://` 在浏览器里也是安全上下文，只是注册不了 SW。同一个判定也控制「装不了也不能离线」的原因提示（`pwa_insecure`）✓。
 
 ## 验离线
 

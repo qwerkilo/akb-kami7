@@ -34,7 +34,7 @@
       if (!m || !m.img) continue;
       const img = new Image();
       img.decoding = "async";
-      img.src = "img/full/" + id + ".webp";
+      img.src = CORE.photoSrc(m, "full");
     }
   }
 
@@ -1093,9 +1093,10 @@
   let swReg = null;
 
   const swOK = "serviceWorker" in navigator;
-  const secureCtx =
-    location.protocol === "https:" ||
-    ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+  // 平台原语 + 一处显式排除：file:// 在浏览器里 isSecureContext 也是 true，
+  // 但那边注册不了 SW、也装不了 PWA，必须按「装不了」说。改用原语之后
+  // 127.0.0.2、*.localhost、企业内网 https 这些白名单会误判的地址不再被误判。
+  const secureCtx = window.isSecureContext && location.protocol !== "file:";
   const standalone =
     matchMedia("(display-mode: standalone)").matches ||
     navigator.standalone === true;
