@@ -1,0 +1,103 @@
+/* 原型：只借真实令牌，布局是新的（四版共用） */
+:root {
+  --font-ui:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    sans-serif;
+  --font-jp:
+    "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo",
+    var(--font-ui);
+  --font-display: "Dela Gothic One", "Zen Kaku Gothic New", var(--font-ui);
+  --font-round: "Nunito", var(--font-jp);
+}
+
+:root,
+[data-skin="classic"] {
+  --floor: #edeff3;
+  --card: #ffffff;
+  --ink: #1c1e2b;
+  --muted: #6b6f80;
+  --line: #d5d9e2;
+  --placeholder: #e4e7ee;
+  --placeholder-ink: #9aa0b0;
+  --peach: #e4007f;
+  --mint: #eef0f4;
+  --lilac: #fde6f2;
+  --lemon: #f4c20d;
+  --pink: #e4007f;
+  --pink-soft: #fde6f2;
+  --ok: #0b7a4f;
+  --radius: 10px;
+  --border: 1px solid var(--line);
+  --shadow: none;
+  --shadow-soft: 0 1px 3px rgba(28, 30, 43, 0.12);
+  --shadow-sm: none;
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #fff;
+  --seg-active-color: #fff;
+  --hover-bg: #f4f6f9;
+  --picked-bg: var(--pink-soft);
+  --card-radius: 0;
+  --card-pad: 0;
+  --card-align: center;
+  --thumb-radius: 8px;
+  --thumb-border: 0;
+  --slot-radius: 6px;
+  --row-radius: 10px;
+  --tray-bg: rgba(237, 239, 243, 0.94);
+  --tray-border-top: 0;
+  --poster-card-stroke: 0px;
+}
+
+[data-skin="sticker"] {
+  --floor: #f5f1e6;
+  --card: #ffffff;
+  --ink: #20242e;
+  --muted: #6f6a60;
+  --line: #cfc7b8;
+  --peach: #ffb4a2;
+  --mint: #a7e8c8;
+  --lilac: #d8ccff;
+  --lemon: #ffe08a;
+  --pink: #e4007f;
+  --pink-soft: #ffe1ef;
+  --ok: #0e9f6e;
+  --placeholder: #e4e7ee;
+  --placeholder-ink: #9aa0b0;
+  --radius: 16px;
+  --border: 2px solid var(--ink);
+  --shadow: 4px 4px 0 var(--ink);
+  --shadow-soft: 3px 3px 0 rgba(32, 36, 46, 0.22);
+  --shadow-sm: 2px 2px 0 var(--ink);
+  --shadow-xs: 1px 1px 0 var(--ink);
+  --shadow-disabled: 2px 2px 0 rgba(32, 36, 46, 0.25);
+  --on-primary: var(--ink);
+  --seg-active-color: var(--ink);
+  --hover-bg: #faf7ee;
+  --picked-bg: var(--lemon);
+  --card-radius: 14px;
+  --card-pad: 6px;
+  --card-align: left;
+  --thumb-radius: 10px;
+  --thumb-border: 2px solid var(--ink);
+  --slot-radius: 10px;
+  --row-radius: 14px;
+  --tray-bg: var(--floor);
+  --tray-border-top: 2px solid var(--ink);
+  --poster-card-stroke: 3px;
+}
+
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--floor); color: var(--ink); font-family: var(--font-ui);
+  font-size: 15px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+img { display: block; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.sel { display: none; }
+/* 顶栏：四版切换器（原型用） */
+.proto-bar { position: sticky; top: 0; z-index: 50; display: flex; gap: 6px; align-items: center;
+  padding: 6px 8px; background: #11131a; color: #fff; font-size: 12px; }
+.proto-bar a { color: #fff; opacity: .55; text-decoration: none; padding: 4px 8px; border-radius: 999px; }
+.proto-bar a[aria-current="true"] { opacity: 1; background: var(--pink); }
+.proto-bar .sp { flex: 1; }
+.proto-note { padding: 6px 10px; font-size: 12px; color: var(--muted); background: var(--mint); }
