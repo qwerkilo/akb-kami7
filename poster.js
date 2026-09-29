@@ -134,6 +134,35 @@
     ctx.closePath();
   }
 
+  // 「照片或占位」的唯一绘制点：五个样式（卡片 / 杂志 hero / 领奖台 / 榜单紧凑行 /
+  // 拼贴拍立得）都走它，所以「没照片」的结果不再取决于样式。圆角与裁剪仍归调用点。
+  function photo(ctx, T, im, box, name) {
+    const { x, y, w, h } = box;
+    if (im) {
+      cover(ctx, im, x, y, w, h);
+      return;
+    }
+    // 整段包在 save/restore 里：调用点虽然都已在自己的 save 里，但这让 photo()
+    // 不依赖调用点是否已 save（否则 fillStyle 会漏给下游绘制）。
+    ctx.save();
+    ctx.fillStyle = T.colors.placeholder;
+    ctx.fillRect(x, y, w, h);
+    // 首字：框高的三分之一、封顶 96px。封顶的理由是杂志 hero 的框高能到 1083px
+    // （/3 会写出 361px 的巨字压掉名次角标），a/7 的冠军卡 523px（174 → 96）。
+    // 低于 6px 就只留底色：那种尺寸的字是噪点，不是信息。
+    const size = Math.min(Math.round(h / 3), 96);
+    if (size >= 6) {
+      ctx.fillStyle = T.colors.placeholderInk;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `700 ${size}px ${T.fonts.jp}`;
+      // trim 与名册占位（core.js 的 placeholder 路径）一致：全空白名字画「?」而非空白
+      const ch = String(name || "").trim().charAt(0);
+      ctx.fillText(ch || "?", x + w / 2, y + h / 2);
+    }
+    ctx.restore();
+  }
+
   function slotCard(ctx, T, im, m, x, y, w, h, compact, photoH) {
     const ph = photoH || h;
     panel(ctx, T, x, y, w, h, 10, {
@@ -148,28 +177,6 @@
     else roundRect(ctx, x, y, w, h, 10);
     ctx.clip();
     photo(ctx, T, im, { x, y, w, h: ph }, m.name);
-    ctx.restore();
-  }
-
-  // 「照片或占位」的唯一绘制点：五个样式（卡片 / 杂志 hero / 领奖台 / 榜单紧凑行 /
-  // 拼贴拍立得）都走它，所以「没照片」的结果不再取决于样式。圆角与裁剪仍归调用点。
-  function photo(ctx, T, im, box, name) {
-    const { x, y, w, h } = box;
-    if (im) {
-      cover(ctx, im, x, y, w, h);
-      return;
-    }
-    ctx.fillStyle = T.colors.placeholder;
-    ctx.fillRect(x, y, w, h);
-    // 首字封顶 96px：领奖台与杂志 hero 的框高能到 300–700px，/3 会画出巨字压掉名次角标
-    const size = Math.min(Math.round(h / 3), 96);
-    if (size < 6) return;
-    ctx.save();
-    ctx.fillStyle = T.colors.placeholderInk;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `700 ${size}px ${T.fonts.jp}`;
-    ctx.fillText(String(name || "?").charAt(0), x + w / 2, y + h / 2);
     ctx.restore();
   }
 

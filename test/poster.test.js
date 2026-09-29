@@ -5,6 +5,7 @@ const poster = require("../poster.js");
 function fakeCtx() {
   const calls = {
     texts: [],
+    textRecords: [],
     textPos: [],
     textFonts: [],
     images: [],
@@ -54,6 +55,8 @@ function fakeCtx() {
     },
     fillText(text, x, y) {
       calls.texts.push(String(text));
+      // 逐次记录「这次写字时生效的字色与字体」：只靠 texts 看不出占位首字用的是哪个令牌
+      calls.textRecords.push({ text: String(text), fill: fillStyle, font });
       calls.textPos.push([String(text), x, y]);
       calls.textFonts.push([String(text), font]);
     },
@@ -575,16 +578,17 @@ test("全员无照片时每个位置都有占位（四样式 × 三档，占位�
   // 收口成一处绘制点之后，「没有照片」这件事的结果不再取决于样式：
   // 每一格要么有脸，要么有底色 + 名字首字。c（榜单）此前是**零占位**——
   // 领奖台与紧凑榜行只有 if (images[i]) 没有 else，40 档离线时 37/40 没有脸。
-  for (const [style, n] of [
-    ["a", 7],
-    ["b", 7],
-    ["c", 7],
-    ["d", 7],
-    ["a", 16],
-    ["c", 16],
-    ["c", 40],
-  ]) {
-    const members = people(n);
+  for (const style of ["a", "b", "c", "d"]) {
+    for (const n of [7, 16, 40]) {
+    // 名字首字必须互不相同：people(n) 的「成员1/成员2/…」首字都是「成」，
+    // 那样「首字顺序对不对」这条断言等于没有判别力（下标错位也测不出来）。
+    const head = "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳";
+    const members = Array.from({ length: n }, (_, i) => ({
+      name: head[i] + (i + 1) + "号",
+      group: "AKB48",
+      generation: "1期生",
+      status: "current",
+    }));
     const { ctx, calls } = fakeCtx();
     poster.draw(ctx, {
       members,
@@ -603,10 +607,22 @@ test("全员无照片时每个位置都有占位（四样式 × 三档，占位�
       n,
       `${style}/${n} 档：占位底色应画满 ${n} 格，实际 ${fills}`
     );
-    assert.ok(
-      calls.fills.includes("#654321"),
-      `${style}/${n} 档：占位首字未用注入的 placeholderInk`
+    // 首字要**逐格**对上人：只断言「用过字色」的话，37 行紧凑榜集体丢首字也会绿。
+    // 比对用多重集合（排序后相等）而不是绘制顺序——绘制顺序是版式决定
+    // （金字塔按行、领奖台是中间先画），与「谁的字该出现在哪一格」无关。
+    const wanted = members.map((m) => m.name.charAt(0)).sort();
+    const got = calls.textRecords.filter((t) => t.fill === "#654321");
+    assert.deepEqual(
+      got.map((t) => t.text).sort(),
+      wanted,
+      `${style}/${n} 档：占位首字没逐格对上成员名（集合不等）`
     );
+    // 封顶 96px 是 Q1 明确批准的视觉决定：框高到 523px 的大卡若不封顶会写 174px。
+    for (const t of got) {
+      const px = Number(/(\d+(?:\.\d+)?)px/.exec(t.font || "")[1]);
+      assert.ok(px > 0 && px <= 96, `${style}/${n} 档：首字 ${px}px 越出 0–96 的约定区间`);
+    }
+    }
   }
 });
 
