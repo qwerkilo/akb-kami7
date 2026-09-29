@@ -30,16 +30,13 @@
 
 ## PWA（可安装 + 离线）
 
-`manifest.webmanifest` + `sw.js` + `icons/`（图标由 `python3 scripts/make_icons.py` 生成，产物提交）。策略与选型见 `docs/adr/0016-pwa.md`。
+策略与选型见 `docs/adr/0016-pwa.md`。要动手改 SW / 缓存、指引文案、离线验收时读 `docs/agents/pwa.md`。
 
-- **壳走 network-first，离线回落缓存**：不设需要人工改的版本号。在线永远拿最新，离线秒开。
-- **图片 cache-first + FIFO 封顶 600 条**（thumb 约 12KB/张），**不预缓存**；没浏览过的成员离线显示占位图。
-- **改了壳文件必须同步 `sw.js` 的 `SHELL_FILES`**：新增/删除根目录 `.js`、`style.css`、`index.html`、图标后，`test/pwa-artifact.test.js` 会红（清单与盘上文件双向比对）。
-- **更新不自动刷新**：新 SW 进 waiting 后显示顶部横幅，用户点「刷新」才 `skipWaiting` + reload（自动 reload 会打断进行中的对决）。
-- **选中成员时预热 `img/full`**（`warmPhotos`）与**接管后重取字体 CSS/woff2**（`warmFonts`）：名册只用 thumb、海报用 full，首访的字体请求又发生在接管之前，不预热就会出现「离线海报没脸 / 离线字形变样」。
-- 手动验离线：本地起 `python3 -m http.server`（`127.0.0.1` 是安全上下文）→ DevTools Application 里看 SW 与缓存；黑盒验收脚本是本机临时脚本 `/tmp/opencode/e2e-pwa.cjs`（39 项，第二版 sw.js 跑在 `/tmp` 副本里，不污染仓库）——**/tmp 不持久，可能已不存在**，要复跑就按它的结构重建：临时副本 + `context.setOffline(true)` 重载 + 合成 `beforeinstallprompt` + 换 `VERSION` 的 sw.js 触发更新。
-- **安装入口（页脚）除已装成应用外始终显示**，一键安装看 `beforeinstallprompt`：有就「安装」一键装 + 第二个按钮给指引；没有就主按钮改名「怎么装？」直接开**按平台分支的指引**（iOS 4 步 / Android / macOS / 其他各 3 步；「其他」里说明 Firefox 的 Windows/Linux 支持与 macOS 不支持）。非安全上下文（http + 局域网 IP、直接打开的本地文件）补一句「装不了、也不能离线，请用 https 或 127.0.0.1」——**别再把入口的可见性吊在那个事件上**（Firefox / macOS Safari / headless 都不触发，曾导致用户完全看不到入口）。指引键是拼出来的，死键守卫查不到，靠 `test/i18n.test.js` 的「安装指引的动态键三语齐」守。
-- `file://` 下不注册 SW（本来也打不开海报导出）。
+- **改了壳文件就同步 `sw.js` 的 `SHELL_FILES`**（根目录 `.js` / `style.css` / `index.html` / 图标）：漏了 `test/pwa-artifact.test.js` 会红（清单与盘上文件双向比对）。
+- **能力探测决定按钮行为，不决定入口可见性**：页脚安装入口除已装成应用外始终显示，`beforeinstallprompt` 只决定「安装」是一键还是改名「怎么装？」。把可见性挂在这个事件上，入口会在 Firefox / macOS Safari / headless / 非安全上下文里整体消失。
+- **离线要预热两样**：选中成员时预热 `img/full`（名册只渲染 thumb，海报读 full）、SW 接管后重取字体（首访的字体请求发生在接管之前）。
+- **更新由用户点「刷新」才切**，不自动 reload（会打断进行中的对决）。
+- `file://` 下不注册 SW。
 
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）
 
