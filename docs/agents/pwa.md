@@ -4,7 +4,10 @@
 
 ## 文件
 
-`manifest.webmanifest` + `sw.js` + `icons/`（图标由 `python3 scripts/make_icons.py` 生成，产物提交，脚本幂等且逐字节可复现）。`sw.js` 语法与 `SHELL_FILES` 清单由 `test/pwa-artifact.test.js` 守。
+- `manifest.webmanifest` + `sw.js` + `icons/`（图标由 `python3 scripts/make_icons.py` 生成，产物提交，脚本幂等且逐字节可复现）。
+- `sw.js` 只管 SW 生命周期：缓存名、install/activate/fetch 监听器、`networkFirst` / `cacheFirst` 两种取数策略。第一行 `importScripts("sw-cache-rules.js")`。
+- `sw-cache-rules.js` 是**缓存分类规则**（纯函数 `classify(req, loc)` + `SHELL_FILES` / `IMG_CAP` / `FONT_CAP` / `FONT_HOSTS`）。放出来是因为 `sw.js` 在模块顶层就注册监听器，node 里 `require` 它会炸——不抽出来，「哪个请求进哪个桶、容量多少」就只能靠 grep 源码确认形状（原来的守卫连 `FONT_CAP` 被删都测不出来）。
+- 守卫分工：`test/sw-cache-rules.test.js` 管**规则**（可执行的分类断言 + 清单与盘上双向比对）；`test/pwa-artifact.test.js` 管**产物**（manifest 字段、图标像素、`sw.js` 可编译、install 段里真的有 `self.skipWaiting()`、死协议已删）。
 
 ## 缓存策略
 
@@ -12,8 +15,11 @@
 | ------------------------------------------------------------------ | --------------------------------------------- | ---------------------------------------------------- |
 | 壳（`index.html` / `style.css` / 根目录 `*.js` / manifest / 图标） | network-first，失败回落缓存                   | 无上限（键固定，约 540KB）                           |
 | `img/full` 与 `img/thumb`                                          | cache-first（URL 永不失效），只在浏览时进缓存 | FIFO 600 条（full 与 thumb 共用一栏，约覆盖 300 人） |
-| 跨源字体（Google Fonts CSS / woff2）                               | cache-first                                   | FIFO 500 条                                          |
+| 跨源**字体域**（`fonts.googleapis.com` / `fonts.gstatic.com`）     | cache-first                                   | FIFO 500 条                                          |
 | 导航请求                                                           | 走壳那一条                                    | —                                                    |
+| 其余一切（同源杂项、非 GET、**非字体域的跨源**）                     | 直连不过缓存                                  | —                                                    |
+
+跨源判定是**白名单**而不是「所有跨源都收」：今天站内只有 Google Fonts 一个跨源源，黑名单与白名单行为相同，但接 CDN 或加一张外部图时黑名单会让字体桶静默变杂物箱。
 
 不需要人工改版本号：壳是 network-first，在线永远拿最新；`VERSION` 只在**换缓存结构**时才需要动。
 
@@ -29,7 +35,7 @@
 新 SW 在 `install` 里直接 `skipWaiting()`，页面只在用户点横幅「刷新」时 reload。
 
 - **不自动 reload**：自动刷新会打断进行中的对决（进度虽已自动保存，一次自动跳转仍会毁掉当下的节奏）。
-- **waiting 里的 worker 收不到 `postMessage`**：实测「waiting + 发消息叫醒 skipWaiting」这条路不可靠（消息发给 active 的能收到），所以改成 install 期就接管。
+- **waiting 里的 worker 收不到 `postMessage`**：实测「waiting + 发消息叫醒 skipWaiting」这条路在本机环境不可靠（消息发给 active 的能收到），所以改成 install 期就接管。**那条 `message` 死协议已删**（`app.js` 从不发消息），`test/pwa-artifact.test.js` 现在断言 install 段里真的有 `self.skipWaiting()`、且全文不再出现 `skip-waiting`——原来那条「全文含 skipWaiting」的断言被 install 里的调用满足，死协议也算「有」。
 - 横幅是 `position: static`，不盖住同样 sticky 的步骤条；代价是用户停在页面下方看不见它——新 SW 已激活，下次自然打开即新版。
 
 ## 安装入口与指引文案
