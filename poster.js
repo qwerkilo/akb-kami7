@@ -147,17 +147,29 @@
     if (ph < h) topRoundedRect(ctx, x, y, w, ph, 10);
     else roundRect(ctx, x, y, w, h, 10);
     ctx.clip();
+    photo(ctx, T, im, { x, y, w, h: ph }, m.name);
+    ctx.restore();
+  }
+
+  // 「照片或占位」的唯一绘制点：五个样式（卡片 / 杂志 hero / 领奖台 / 榜单紧凑行 /
+  // 拼贴拍立得）都走它，所以「没照片」的结果不再取决于样式。圆角与裁剪仍归调用点。
+  function photo(ctx, T, im, box, name) {
+    const { x, y, w, h } = box;
     if (im) {
-      cover(ctx, im, x, y, w, ph);
-    } else {
-      ctx.fillStyle = T.colors.placeholder;
-      ctx.fillRect(x, y, w, ph);
-      ctx.fillStyle = T.colors.placeholderInk;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `700 ${Math.round(ph / 3)}px ${T.fonts.jp}`;
-      ctx.fillText(String(m.name || "?").charAt(0), x + w / 2, y + ph / 2);
+      cover(ctx, im, x, y, w, h);
+      return;
     }
+    ctx.fillStyle = T.colors.placeholder;
+    ctx.fillRect(x, y, w, h);
+    // 首字封顶 96px：领奖台与杂志 hero 的框高能到 300–700px，/3 会画出巨字压掉名次角标
+    const size = Math.min(Math.round(h / 3), 96);
+    if (size < 6) return;
+    ctx.save();
+    ctx.fillStyle = T.colors.placeholderInk;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `700 ${size}px ${T.fonts.jp}`;
+    ctx.fillText(String(name || "?").charAt(0), x + w / 2, y + h / 2);
     ctx.restore();
   }
 
@@ -500,11 +512,13 @@
     ctx.save();
     roundRect(ctx, M, heroY, W - M * 2, heroH, 8);
     ctx.clip();
-    if (images[0]) cover(ctx, images[0], M, heroY, W - M * 2, heroH);
-    else {
-      ctx.fillStyle = T.colors.placeholder;
-      ctx.fillRect(M, heroY, W - M * 2, heroH);
-    }
+    photo(
+      ctx,
+      T,
+      images[0],
+      { x: M, y: heroY, w: W - M * 2, h: heroH },
+      members[0].name
+    );
     ctx.restore();
     const capH = 84;
     ctx.save();
@@ -623,15 +637,18 @@
         12
       );
       ctx.clip();
-      if (images[p.i])
-        cover(
-          ctx,
-          images[p.i],
-          p.x + pad,
-          p.y + pad,
-          p.w - pad * 2,
-          p.h - p.bar - pad
-        );
+      photo(
+        ctx,
+        T,
+        images[p.i],
+        {
+          x: p.x + pad,
+          y: p.y + pad,
+          w: p.w - pad * 2,
+          h: p.h - p.bar - pad,
+        },
+        members[p.i].name
+      );
       ctx.restore();
       ctx.beginPath();
       ctx.arc(
@@ -723,13 +740,17 @@
       const y = listTop + row * rowH;
       const th = Math.min(rowH - 8, 44 * k);
       const tw = th * 0.79;
-      if (images[i]) {
-        ctx.save();
-        roundRect(ctx, x + 46 * k, y + (rowH - th) / 2, tw, th, 4);
-        ctx.clip();
-        cover(ctx, images[i], x + 46 * k, y + (rowH - th) / 2, tw, th);
-        ctx.restore();
-      }
+      ctx.save();
+      roundRect(ctx, x + 46 * k, y + (rowH - th) / 2, tw, th, 4);
+      ctx.clip();
+      photo(
+        ctx,
+        T,
+        images[i],
+        { x: x + 46 * k, y: y + (rowH - th) / 2, w: tw, h: th },
+        members[i].name
+      );
+      ctx.restore();
       ctx.textAlign = "right";
       ctx.fillStyle = rankColor(i + 1, T);
       const rs = fitText(
@@ -869,19 +890,13 @@
         ctx.save();
         roundRect(ctx, -cw / 2 + 12, -cardH / 2 + 12, cw - 24, photoH, 3);
         ctx.clip();
-        if (images[idx])
-          cover(
-            ctx,
-            images[idx],
-            -cw / 2 + 12,
-            -cardH / 2 + 12,
-            cw - 24,
-            photoH
-          );
-        else {
-          ctx.fillStyle = T.colors.placeholder;
-          ctx.fillRect(-cw / 2 + 12, -cardH / 2 + 12, cw - 24, photoH);
-        }
+        photo(
+          ctx,
+          T,
+          images[idx],
+          { x: -cw / 2 + 12, y: -cardH / 2 + 12, w: cw - 24, h: photoH },
+          members[idx].name
+        );
         ctx.restore();
         ctx.textAlign = "left";
         ctx.textBaseline = "alphabetic";

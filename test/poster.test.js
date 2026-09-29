@@ -571,8 +571,47 @@ test("D 拼贴：拍立得消费 cardStroke（贴纸 ≥ 人数条 3px 墨描边
   assert.ok(run(32, 3) >= 32, `32 人贴纸应有 ≥32 条 3px 描边`);
 });
 
-test("占位视觉消费 tokens（placeholder / placeholderInk，a/b/d 三样式）", () => {
-  for (const style of ["a", "b", "d"]) {
+test("全员无照片时每个位置都有占位（四样式 × 三档，占位与首字）", () => {
+  // 收口成一处绘制点之后，「没有照片」这件事的结果不再取决于样式：
+  // 每一格要么有脸，要么有底色 + 名字首字。c（榜单）此前是**零占位**——
+  // 领奖台与紧凑榜行只有 if (images[i]) 没有 else，40 档离线时 37/40 没有脸。
+  for (const [style, n] of [
+    ["a", 7],
+    ["b", 7],
+    ["c", 7],
+    ["d", 7],
+    ["a", 16],
+    ["c", 16],
+    ["c", 40],
+  ]) {
+    const members = people(n);
+    const { ctx, calls } = fakeCtx();
+    poster.draw(ctx, {
+      members,
+      images: members.map(() => null),
+      title: "T",
+      dateText: "D",
+      hashtag: "#H",
+      photoSrc: "P",
+      subOf: () => "s",
+      style,
+      tokens: { colors: { placeholder: "#123456", placeholderInk: "#654321" } },
+    });
+    const fills = calls.fills.filter((f) => f === "#123456").length;
+    assert.equal(
+      fills,
+      n,
+      `${style}/${n} 档：占位底色应画满 ${n} 格，实际 ${fills}`
+    );
+    assert.ok(
+      calls.fills.includes("#654321"),
+      `${style}/${n} 档：占位首字未用注入的 placeholderInk`
+    );
+  }
+});
+
+test("占位视觉消费 tokens（placeholder / placeholderInk，四样式都不许硬编码残留）", () => {
+  for (const style of ["a", "b", "c", "d"]) {
     const members = people(7);
     const { ctx, calls } = fakeCtx();
     poster.draw(ctx, {
@@ -591,7 +630,6 @@ test("占位视觉消费 tokens（placeholder / placeholderInk，a/b/d 三样式
       !calls.fills.includes("#e4e7ee"),
       `${style} 仍有硬编码占位底色残留`
     );
-    if (style === "a")
-      assert.ok(calls.fills.includes("#654321"), "a 未用注入的占位字色");
+    assert.ok(calls.fills.includes("#654321"), `${style} 未用注入的占位字色`);
   }
 });
