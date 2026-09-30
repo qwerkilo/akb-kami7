@@ -1781,7 +1781,7 @@ main {
      两处处置：gap 8→6（省 4，让 16 档 en 在线也放得下）；离线胶囊在窄屏缩成
      「更多」按钮角上的一个点（绝对定位，横向 0 成本，文字对读屏仍可见）。 */
   .masthead {
-    gap: 6px;
+    gap: 5px;
   }
   /* 离线胶囊在窄屏只占「更多」按钮的左上角一个点：横向 0 成本。
      文字不 display:none —— role="status" 要靠它播报，用 clip 移到屏幕外保留可访问性。 */
@@ -1810,7 +1810,7 @@ main {
     display: inline;
   }
   .masthead-main .seg-series button {
-    padding: 6px 8px;
+    padding: 6px 7px;
   }
   .masthead-main .sub {
     display: none;

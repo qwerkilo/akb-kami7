@@ -379,3 +379,60 @@ test("筛选页文案：三语齐且都是函数/字符串（带参的那几个�
   assert.match(t("en", "screen_min", 7), /7/);
   assert.match(t("ja", "screen_min", 7), /7/);
 });
+
+// ---- 架构扫描第 4 项：en 字典表必须保持纯拉丁 ----
+// 上一批加的 series_saka_short 写成了「坂道」，于是 en 表 167 个键里出现了唯一一个 CJK 串：
+// 同一个 tab 在 560px 断点两侧显示两个名字（Sakamichi / 坂道），旋转手机就变。
+// en 界面里出现日文本身不是问题（眉标的「好き顔ソート」是 core.names 拼的，不在表里），
+// 但**字典表**是给英文用户的文案来源，里面混一个中文词就是漏。
+test("en 字典表不含汉字/假名（en 表是纯拉丁的，别混进中文词）", () => {
+  const bad = Object.entries(I18N.en)
+    .filter(
+      ([, v]) => typeof v === "string" && /[\u3040-\u30ff\u4e00-\u9fff]/.test(v)
+    )
+    .map(([k, v]) => `${k}=${v}`);
+  assert.deepEqual(bad, [], `en 表里混进了 CJK：${bad.join(" ")}`);
+});
+
+test("系列短标签在三种语言里都是**同一名字的缩写**（不是另一个词）", () => {
+  // 判据取形状而非逐字列表：短标签要么与长标签相同，要么是它的前缀式缩写。
+  // 这样加第 4 个系列时新键会自动进来，不用改这里。
+  for (const lang of ["zh", "en", "ja"]) {
+    const t = (k) => {
+      const v = I18N[lang][k];
+      return typeof v === "function" ? v() : v;
+    };
+    for (const [short, long] of [
+      ["series_48g_short", "series_48g"],
+      ["series_saka_short", "series_saka"],
+      ["series_love_short", "series_love"],
+    ]) {
+      const s = String(t(short));
+      const l = String(t(long));
+      assert.ok(s.length > 0, `${lang} ${short} 是空的`);
+      // 判据取「子序列」而不是前缀/子串：48G 不是「48 Group」的子串（G 来自 Group），
+      // 但它显然是同一个名字的缩写。去掉大小写与标点后按序出现即可 —— 换成另一个词
+      // （比如把 Sakamichi 的短标签写成 Idol）就过不了。
+      const isAbbrev = (shortS, longS) => {
+        const a = shortS.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+        const b = longS.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+        let k = 0;
+        for (const ch of b) if (k < a.length && a[k] === ch) k++;
+        return k === a.length;
+      };
+      // 「同一个名字」要跨语言判断：团只有一个身份，短标签可以是**任一语言**那个名字的缩写。
+      // （ja 的长标签是「48グループ」纯假名，而 48G 的 G 来自英文 Group —— 只看当前语言
+      // 就会把合法缩写判成另一个词。）
+      const anyLang = ["zh", "en", "ja"].some((lg) => {
+        const v = I18N[lg][long];
+        return isAbbrev(s, typeof v === "function" ? v() : v);
+      });
+      assert.ok(
+        anyLang,
+        `${lang} ${short}「${s}」不是 ${long} 在任何语言下（${["zh", "en", "ja"]
+          .map((lg) => String(I18N[lg][long]))
+          .join(" / ")}）的缩写 —— 同一 tab 两个名字 = 旋转手机就变`
+      );
+    }
+  }
+});

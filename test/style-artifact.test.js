@@ -179,8 +179,8 @@ test("窄屏页头：系列 tab 的长短标签切换规则还在（删了就会
   );
   assert.match(
     narrow,
-    /\.masthead-main \.seg-series button\s*\{[^}]*padding:\s*6px 8px/,
-    "≤560px 应把系列 tab 内边距收窄到 6px 8px（每按钮省 8px，三按钮省 24px）"
+    /\.masthead-main \.seg-series button\s*\{[^}]*padding:\s*6px 7px/,
+    "≤560px 应把系列 tab 内边距收窄到 6px 7px（每按钮比默认的 12px 省 10px）"
   );
   assert.match(
     narrow,
@@ -227,8 +227,8 @@ test("窄屏页头：离线胶囊缩成「更多」角上的点（84px 横向成
   assert.ok(mastheadGaps.length, "≤560px 块里找不到 .masthead 的 gap");
   assert.equal(
     mastheadGaps[mastheadGaps.length - 1],
-    6,
-    `≤560px 页头 gap 的生效值应为 6px（给 16 档 en 的品牌让 4px），实际 ${JSON.stringify(mastheadGaps)}`
+    5,
+    `≤560px 页头 gap 的生效值应为 5px（最紧的 en 16 档只差 2px），实际 ${JSON.stringify(mastheadGaps)}`
   );
 });
 

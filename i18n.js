@@ -271,7 +271,7 @@
       series_48g: "48 Group",
       series_48g_short: "48G",
       series_saka: "Sakamichi",
-      series_saka_short: "坂道",
+      series_saka_short: "Saka",
       series_love: "=LOVE Family",
       series_love_short: "=LOVE",
       series_label: "Series",
