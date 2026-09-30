@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>基调方向板 · 三选一</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Nunito:wght@800;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 全部取自真站 style.css 的令牌块（35 键 × 两块），不是编的值 */
+      :root {
+        --floor: #edeff3;
+        --card: #ffffff;
+        --ink: #1c1e2b;
+        --muted: #6b6f80;
+        --line: #d5d9e2;
+        --peach: #e4007f;
+        --radius: 10px;
+        --placeholder: #e4e7ee;
+        --placeholder-ink: #9aa0b0;
+        --font-display: "Dela Gothic One", "Zen Kaku Gothic New", sans-serif;
+        --font-ui:
+          "Nunito", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC",
+          sans-serif;
+        --font-jp:
+          "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo",
+          sans-serif;
+        /* R2-Q1 定的刻度 */
+        --t1: 12px;
+        --t2: 14px;
+        --t3: 16px;
+        --t4: 20px;
+        --t5: 28px;
+        /* R2-Q2 定的动效令牌 */
+        --d-fast: 120ms;
+        --d-mid: 200ms;
+        --d-slow: 320ms;
+        --ease: cubic-bezier(0.2, 0, 0.1, 1);
+        /* 字阶样本各自的字体：展示级用 display，说明与正文级用正文字体 */
+        --spec-d: 400 28px/1.1 var(--font-display);
+        --spec-t4: 800 20px/1.2 var(--font-ui);
+        --spec-b: 400 16px/1.7 var(--font-jp);
+        --spec-c: 700 12px/1.4 var(--font-jp);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--floor);
+        color: var(--ink);
+        font: 400 var(--t3) / 1.55 var(--font-ui);
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 32px 20px 80px;
+      }
+
+      /* ---- 板头：这一页要判的是基调，决策清单只是背景 ---- */
+      .board-head {
+        margin-bottom: 28px;
+      }
+      .board-head h1 {
+        font: 400 28px/1.2 var(--font-display);
+        letter-spacing: -0.01em;
+        margin: 0 0 8px;
+      }
+      .board-head p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        max-width: 68ch;
+      }
+      .facts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 8px;
+        font: 700 var(--t1) / 1.4 var(--font-ui);
+      }
+      .fact {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      .fact b {
+        display: block;
+        font-size: var(--t2);
+      }
+      .fact .ok {
+        color: #0a7d3f;
+      }
+      .fact .bad {
+        color: #c2185b;
+      }
+      .fact span {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      /* ---- 三栏 ---- */
+      .tones {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+      @media (max-width: 1000px) {
+        .tones {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .tone {
+        min-width: 0;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .tone-head {
+        padding: 14px 16px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      .tone-head h2 {
+        margin: 0 0 4px;
+        font: 400 var(--t5) / 1.1 var(--font-display);
+        letter-spacing: -0.02em;
+      }
+      .tone-head p {
+        margin: 0;
+        color: var(--muted);
+        font: 800 var(--t2) / 1.4 var(--font-ui);
+      }
+      .tone-body {
+        padding: 16px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .label {
+        font: 900 10px / 1 var(--font-ui);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+
+      /* 字阶样本 */
+      .spec {
+        display: grid;
+        gap: 2px;
+      }
+      .spec div {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .spec i {
+        font: 800 10px/1 var(--font-ui);
+        color: var(--muted);
+        font-style: normal;
+        width: 34px;
+        flex: none;
+      }
+
+      /* 中性阶 */
+      .ramp {
+        display: flex;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+      }
+      .ramp div {
+        flex: 1;
+        height: 34px;
+      }
+
+      /* 脸带（R3-Q1 的最小版本） */
+      .strip {
+        display: flex;
+        gap: 4px;
+      }
+      .strip img {
+        flex: 1 1 0;
+        min-width: 0;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        border-radius: inherit;
+        display: block;
+        background: var(--placeholder);
+      }
+      .strip--hero img {
+        border-radius: 0;
+      }
+      .strip--hero {
+        gap: 6px;
+      }
+
+      /* 卡片 */
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .mcard {
+        position: relative;
+        background: var(--card);
+        overflow: hidden;
+      }
+      .mcard img {
+        width: 100%;
+        min-width: 0;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        display: block;
+        background: var(--placeholder);
+      }
+      .mcard .nm {
+        font-family: var(--font-jp);
+        font-weight: 700;
+        font-size: var(--t1);
+        line-height: 1.25;
+        padding: 5px 6px 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .mcard .sub {
+        font-family: var(--font-jp);
+        font-size: 10px;
+        color: var(--muted);
+        padding: 0 6px 6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .mcard .rk {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        background: var(--peach);
+        color: #fff;
+        font: 900 10px/1 var(--font-ui);
+        min-width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        padding: 0 4px;
+      }
+      .mcard.sel {
+        outline: 2px solid var(--peach);
+        outline-offset: -2px;
+      }
+
+      /* 控件 */
+      .ctrls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .btn {
+        font: 900 var(--t2) / 1 var(--font-ui);
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .btn--pri {
+        background: var(--peach);
+        color: #fff;
+      }
+      .btn--sec {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--line);
+      }
+      .chip {
+        font: 800 var(--t1) / 1 var(--font-ui);
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .chip[aria-checked="true"] {
+        background: var(--ink);
+        color: #fff;
+        border-color: var(--ink);
+      }
+      .focusring {
+        outline: 2px solid #0a7d3f;
+        outline-offset: 2px;
+      }
+
+      .note {
+        font: 700 var(--t1) / 1.5 var(--font-ui);
+        color: var(--muted);
+      }
+      .note b {
+        color: var(--ink);
+      }
+
+      /* ================= A · 编辑感 ================= */
+      .t-editorial {
+        --radius: 4px;
+        --hair: #1c1e2b;
+      }
+      .t-editorial .mcard,
+      .t-editorial .btn,
+      .t-editorial .chip {
+        border-radius: 4px;
+        box-shadow: none;
+      }
+      .t-editorial .mcard {
+        border: 1px solid var(--line);
+      }
+      .t-editorial .strip--hero {
+        border-bottom: 1px solid var(--hair);
+        padding-bottom: 6px;
+      }
+      .t-editorial .btn--pri {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--hair);
+      }
+      .t-editorial .btn--pri::after {
+        content: " →";
+        color: var(--peach);
+      }
+      .t-editorial .chip[aria-checked="true"] {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--hair);
+      }
+      .t-editorial .mcard .nm {
+        font-weight: 700;
+        font-size: var(--t1);
+        letter-spacing: 0;
+      }
+      .t-editorial .spec .d {
+        font-family: var(--font-jp);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+      }
+      .t-editorial .spec .b {
+        font-family: var(--font-jp);
+        font-weight: 500;
+        line-height: 1.75;
+      }
+
+      /* ================= B · 工业感 ================= */
+      .t-industrial .mcard,
+      .t-industrial .btn,
+      .t-industrial .chip {
+        border-radius: 2px;
+        box-shadow: none;
+      }
+      .t-industrial .mcard {
+        border: 1px solid var(--line);
+      }
+      .t-industrial .mcard .nm {
+        font-family: var(--font-ui);
+        font-weight: 900;
+        font-size: 10px;
+        letter-spacing: 0.02em;
+      }
+      .t-industrial .label {
+        letter-spacing: 0.2em;
+      }
+      .t-industrial .btn--pri {
+        border-radius: 2px;
+      }
+      .t-industrial .chip {
+        border-radius: 2px;
+      }
+      .t-industrial .strip--hero {
+        gap: 2px;
+      }
+      .t-industrial .strip--hero img {
+        border-radius: 0;
+        filter: saturate(0.92) contrast(1.04);
+      }
+      .t-industrial .ramp div {
+        border-right: 1px solid #fff;
+      }
+
+      /* ================= C · 杂志感 ================= */
+      .t-magazine .mcard,
+      .t-magazine .btn,
+      .t-magazine .chip {
+        border-radius: 18px;
+      }
+      .t-magazine .mcard {
+        box-shadow: 0 6px 18px rgba(28, 30, 43, 0.1);
+        border: none;
+      }
+      .t-magazine .mcard .nm {
+        font-family: var(--font-jp);
+        font-weight: 900;
+        font-size: var(--t2);
+        padding-top: 8px;
+      }
+      .t-magazine .mcard .sub {
+        font-size: 11px;
+      }
+      .t-magazine .strip--hero {
+        border-radius: 999px;
+        overflow: hidden;
+        padding: 4px;
+        background: var(--peach);
+      }
+      .t-magazine .btn--pri {
+        box-shadow: 0 8px 20px rgba(228, 0, 127, 0.32);
+      }
+      .t-magazine .spec .d {
+        letter-spacing: -0.04em;
+      }
+
+      /* 悬停：R2-Q2 的「点选反馈」样本 */
+      .mcard {
+        transition:
+          transform var(--d-fast) var(--ease),
+          box-shadow var(--d-fast) var(--ease);
+      }
+      .mcard:hover {
+        transform: translateY(-3px);
+      }
+      .t-magazine .mcard:hover {
+        box-shadow: 0 12px 26px rgba(28, 30, 43, 0.16);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .mcard {
+          transition: none;
+        }
+        .mcard:hover {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="board-head">
+        <h1>基调方向板 · 三选一</h1>
+        <p>
+          同一批内容（真实成员照片、真实令牌
+          <code>#edeff3</code>/<code>#e4007f</code>/<code>--radius 10px</code
+          >）在三种基调下的样子。判的是<b>基调</b>——色彩性格、字阶用法、密度、圆角与阴影的取舍——不是布局（布局已由「引导卡压成细条
+          + 筛选收进面板」定死）。
+        </p>
+        <div class="facts">
+          <div class="fact">
+            <b>字阶</b><span>12 / 14 / 16 / 20 / 28，间距 4 的倍数</span>
+          </div>
+          <div class="fact">
+            <b>动效</b
+            ><span>120 / 200 / 320ms 一条缓动，尊重 reduced-motion</span>
+          </div>
+          <div class="fact"><b>色彩</b><span>主色不动，只补中性阶</span></div>
+          <div class="fact">
+            <b>对比度实况</b>
+            <span class="ok">ink 16.5 ✓</span>
+            <span class="bad">muted-on-floor 4.33 ✗</span>
+            <span class="bad">peach-as-text 3.96 ✗</span>
+            <span class="bad">placeholder-ink 2.11 ✗</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tones" id="tones"></div>
+    </div>
+
+    <script>
+      // 真数据：成员 id / 名字 / 团 / 期生（不编内容）
+      const FACES = [
+        ["m8393c0805d", "板野友美", "AKB48", "1期生"],
+        ["mae7a58749f", "宇佐美友紀", "AKB48", "1期生"],
+        ["m851d800f25", "大江朝美", "AKB48", "1期生"],
+        ["m01a4b0ab84", "大島麻衣", "AKB48", "1期生"],
+        ["m629d582c1f", "折井あゆみ", "AKB48", "1期生"],
+        ["mc4a5044789", "小嶋陽菜", "AKB48", "1期生"],
+        ["m00d0603716", "高橋みなみ", "AKB48", "1期生"],
+        ["m7b733904fe", "中西里菜", "AKB48", "1期生"],
+      ];
+      const TONES = [
+        {
+          id: "t-editorial",
+          name: "编辑感",
+          line: "细线替代阴影 · 紧字距 · 克制的主色（只染一个词）",
+          ramp: [
+            "#ffffff",
+            "#f7f8fa",
+            "#edeff3",
+            "#dfe3ec",
+            "#a8aebd",
+            "#1c1e2b",
+          ],
+          spec: [
+            ["d", "", "喜欢颜排序"],
+            ["t4", "", "第 2/5 组"],
+            ["b", "", "正文用日文黑体，混排最稳"],
+            ["c", "", "板野友美 · AKB48 1期生"],
+          ],
+          motion:
+            "进场 stagger 120ms、点选 120ms、切屏 200ms。密度高、装饰几乎没有。",
+          risk: "最像「做得干净」，但记忆点最弱 —— 首次访客可能只觉得好看。",
+        },
+        {
+          id: "t-industrial",
+          name: "工业感",
+          line: "全 1px 边框 · 2px 圆角 · 大写微标签 · 主色只做信号",
+          ramp: [
+            "#ffffff",
+            "#eef0f4",
+            "#dfe3ec",
+            "#c3c8d4",
+            "#8b91a1",
+            "#1c1e2b",
+          ],
+          spec: [
+            ["d", "", "FACE RANKING"],
+            ["t4", "", "GROUP 2/5"],
+            ["b", "", "正文密集但对齐严格"],
+            ["c", "", "ITANO TOMOMI / AKB48"],
+          ],
+          motion: "120ms 线性、无缓动装饰、方形焦点环。反馈最快、最不啰嗦。",
+          risk: "最贴合「效率区」，但表现区会显得冷 —— 需要结果页另开一套。",
+        },
+        {
+          id: "t-magazine",
+          name: "杂志感",
+          line: "大字号 · 大图裁切 · 圆角 18px + 柔影 · 主色做整条色带",
+          ramp: [
+            "#ffffff",
+            "#fafafc",
+            "#edeff3",
+            "#dfe3ec",
+            "#9aa0b0",
+            "#1c1e2b",
+          ],
+          spec: [
+            ["d", "", "推しランキング"],
+            ["t4", "", "筛选到 3/5"],
+            ["b", "", "正文行距最松"],
+            ["c", "", "板野友美 — AKB48 — 1期生"],
+          ],
+          motion:
+            "320ms、stagger 进场、共享元素感（脸带 → 结果海报）。最有「值得截图」的气质。",
+          risk: "密度最低，而效率区要的是密度 —— 必须在效率区降级用。",
+        },
+      ];
+
+      const img = (id) => `../../img/thumb/${id}.webp`;
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]
+        );
+
+      document.getElementById("tones").innerHTML = TONES.map((t) => {
+        const spec = t.spec
+          .map(
+            ([k, size, sample]) =>
+              `<div class="${k === "d" ? "d" : k === "b" ? "b" : ""}"><i>${k}</i><span style="font:var(--spec-${k})">${esc(sample)}</span></div>`
+          )
+          .join("");
+        const strip = FACES.slice(0, 6)
+          .map(([id]) => `<img src="${img(id)}" alt="" loading="lazy" />`)
+          .join("");
+        const cards = FACES.slice(0, 4)
+          .map(
+            (
+              [id, name, grp, gen],
+              i
+            ) => `<div class="mcard${i < 2 ? " sel" : ""}">
+              <span class="rk">${i + 1}</span>
+              <img src="${img(id)}" alt="${esc(name)}" loading="lazy" />
+              <div class="nm">${esc(name)}</div>
+              <div class="sub">${esc(grp)} ${esc(gen)}</div>
+            </div>`
+          )
+          .join("");
+        return `<section class="tone ${t.id}">
+          <div class="tone-head">
+            <h2>${t.name}</h2>
+            <p>${t.line}</p>
+          </div>
+          <div class="tone-body">
+            <div>
+              <p class="label">字阶</p>
+              <div class="spec">${spec}</div>
+            </div>
+            <div>
+              <p class="label">中性阶（主色 #e4007f 不动）</p>
+              <div class="ramp">${t.ramp.map((c) => `<div style="background:${c}"></div>`).join("")}</div>
+            </div>
+            <div>
+              <p class="label">脸带 · 表现区的视觉锚（R3-Q1）</p>
+              <div class="strip strip--hero">${strip}</div>
+            </div>
+            <div>
+              <p class="label">成员卡（前两张为已选）</p>
+              <div class="cards">${cards}</div>
+            </div>
+            <div>
+              <p class="label">控件（最后一个展示焦点环）</p>
+              <div class="ctrls">
+                <span class="btn btn--pri">开始排序</span>
+                <span class="btn btn--sec">全部恢复</span>
+                <span class="chip" aria-checked="true">7 档</span>
+                <span class="chip" aria-checked="false">16 档</span>
+                <span class="chip focusring">40 档</span>
+              </div>
+            </div>
+            <div>
+              <p class="label">动效性格</p>
+              <p class="note">${esc(t.motion)}</p>
+            </div>
+            <div>
+              <p class="label">代价</p>
+              <p class="note">${esc(t.risk)}</p>
+            </div>
+          </div>
+        </section>`;
+      }).join("");
+    </script>
+  </body>
+</html>
