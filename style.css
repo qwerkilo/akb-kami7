@@ -1601,6 +1601,20 @@ main {
   font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
+  /* 细条是 flex 行：不收缩就会被前面的题号挤到视口外（实测右边缘 484 > 390）。
+     min-width:0 + ellipsis 是兜底 —— 文案缩短后不该走到这里，但一旦又变长，
+     截断成「…」远好过整条滑出屏幕。 */
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 细条里的进度条是装饰：百分比已经由题号和 extra 说了，给固定 56px 就够，
+   把剩下的横向空间让给 extra（实测它只有 111px 可用，装不下任何完整文案） */
+.duel-thin .bar {
+  flex: 0 0 56px;
+  width: 56px;
 }
 #phase-duel .duel-head {
   display: flex;
@@ -1739,10 +1753,31 @@ main {
   .masthead-main h1 {
     flex: none;
   }
+  /* 系列 tab 留在同一行，但必须能收缩 —— 之前写的是 flex: none（注释「不许被挤到
+     换行」），后果不是换行而是溢出：390px 上总宽 391px，第三个 tab（「等爱」）
+     被压在「更多」按钮底下，elementFromPoint 命中的是 more-btn → 等爱系列在手机上
+     完全点不到。副标题长度还随语言变（zh/en/ja 各不相同），所以不能靠写死宽度解决：
+     让它可收缩 + 横向滚动，任何语言下都「可达」而不是「看不见」。 */
+  /* 窄屏一行装不下的三样：品牌 159（神7 + 副标题）+ 系列 tab 189 + 更多 52 = 416 > 358。
+     眉标在窄屏本来就隐藏了，副标题「历代成员版」是补充说明 —— 隐藏它让出一行，
+     比让 tab 换行或横向滚动都干净。 */
+  .masthead-main .sub {
+    display: none;
+  }
   .masthead-main .seg-series {
     margin-top: 0;
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+  .masthead-main .seg-series::-webkit-scrollbar {
+    display: none;
+  }
+  .masthead-main .seg-series button {
     flex: none;
-  } /* 不许被挤到换行 */
+  }
   .masthead-main h1 {
     flex: none;
   }

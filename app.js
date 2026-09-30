@@ -617,8 +617,7 @@
         snap.duel.remaining,
         Math.max(1, Math.ceil(snap.duel.etaSeconds / 60)),
         snap.duel.tier + 1,
-        snap.duel.tiers,
-        snap.duel.tierAnswered + 1
+        snap.duel.tiers
       );
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));

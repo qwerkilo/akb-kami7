@@ -231,10 +231,11 @@
       duel_title: "更喜欢哪张脸？",
       duel_mid: " / 最多 ",
       duel_end: " 题",
-      duel_extra: (p, n, m, t, tn, tl) =>
-        tn > 1
-          ? `第 ${t}/${tn} 组（本组第 ${tl} 题）· 已完成 ${p}% · 还需 ${n} 题 · 约 ${m} 分钟`
-          : `已完成 ${p}% · 预计还需 ${n} 题 · 约 ${m} 分钟`,
+      // 细条只有 358px 宽，而且和「1 / 最多 106 题」「进度条」并排：百分比由进度条
+      // 表示、题数由前面的题号表示，这里只补两件它们没说的 —— 哪一组、还要多久。
+      // 放第三个事实就会被 flex 挤到视口外（实测右边缘 484 > 390）。
+      duel_extra: (p, n, m, t, tn) =>
+        tn > 1 ? `第 ${t}/${tn} 组 · 约 ${m} 分钟` : `约 ${m} 分钟`,
       undo: "撤回上一题",
       reselect: "重新选人",
       keys: "键盘可用 ← → 选择，Z 撤回",
@@ -403,10 +404,8 @@
       duel_title: "Which face do you like more?",
       duel_mid: " / up to ",
       duel_end: "",
-      duel_extra: (p, n, m, t, tn, tl) =>
-        tn > 1
-          ? `Group ${t}/${tn} (Q${tl}) · ${p}% done · about ${n} more · ~${m} min`
-          : `${p}% done · about ${n} more · ~${m} min`,
+      duel_extra: (p, n, m, t, tn) =>
+        tn > 1 ? `Group ${t}/${tn} · ~${m} min left` : `~${m} min left`,
       undo: "Undo last",
       reselect: "Pick again",
       keys: "← → to choose, Z to undo",
@@ -584,10 +583,8 @@
       duel_title: "どちらが好き？",
       duel_mid: " / 最大 ",
       duel_end: "問",
-      duel_extra: (p, n, m, t, tn, tl) =>
-        tn > 1
-          ? `第${t}/${tn}グループ（${tl}問目）・ ${p}% 完了 ・ 残り約${n}問 ・ 約${m}分`
-          : `${p}% 完了 ・ 残り約${n}問 ・ 約${m}分`,
+      duel_extra: (p, n, m, t, tn) =>
+        tn > 1 ? `第${t}/${tn}グループ ・ 残り約${m}分` : `残り約${m}分`,
       undo: "1つ戻す",
       reselect: "選び直す",
       keys: "キーボード：← → で選択、Z で戻す",
