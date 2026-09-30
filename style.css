@@ -7,6 +7,25 @@
     var(--font-ui);
   --font-display: "Dela Gothic One", "Zen Kaku Gothic New", var(--font-ui);
   --font-round: "Nunito", var(--font-jp);
+  /* 设计刻度（ADR-0020 §4）。字阶 5 级：正文从 15px 提到 16px（390px 上 15 偏小）。
+     刻度外的字面量由 test/style-artifact.test.js 的棘轮守卫只许减不许增 ——
+     整体重排要动全层数值（改 padding 就是改版面），而本机跑不动全量 E2E。 */
+  --t1: 12px;
+  --t2: 14px;
+  --t3: 16px;
+  --t4: 20px;
+  --t5: 28px;
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  /* 动效：三档时长 + 一条缓动（ADR-0020 §4）。prefers-reduced-motion 下全部关闭。 */
+  --dur-fast: 120ms;
+  --dur-mid: 200ms;
+  --dur-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0, 0.1, 1);
 }
 
 /* [hidden] 必须赢：作者样式里的 display（.masthead/.steps 等都有）会盖掉 UA 样式表的
@@ -23,10 +42,10 @@
   --floor: #edeff3;
   --card: #ffffff;
   --ink: #1c1e2b;
-  --muted: #6b6f80;
+  --muted: #686c7c;
   --line: #d5d9e2;
   --placeholder: #e4e7ee;
-  --placeholder-ink: #9aa0b0;
+  --placeholder-ink: #7e8390;
   --peach: #e4007f;
   --mint: #eef0f4;
   --lilac: #fde6f2;
@@ -42,7 +61,10 @@
   --shadow-xs: none;
   --shadow-disabled: none;
   --on-primary: #fff;
-  --seg-active-color: #fff;
+  /* 压 --pink 的文字。两块 --pink 同值（#e4007f），白字 4.56:1 达标；
+     仍按块定义而不是放共享块 —— 将来某块改了 --pink，这条会立刻被对比度守卫抓住。 */
+  --on-pink: #ffffff;
+  --seg-active-color: var(--on-primary);
   --hover-bg: #f4f6f9;
   --picked-bg: var(--pink-soft);
   --card-radius: 0;
@@ -75,7 +97,7 @@
   --pink-soft: #ffe1ef;
   --ok: #0e9f6e;
   --placeholder: #e4e7ee;
-  --placeholder-ink: #9aa0b0;
+  --placeholder-ink: #7e8390;
   --radius: 16px;
   --border: 2px solid var(--ink);
   --shadow: 4px 4px 0 var(--ink);
@@ -84,6 +106,7 @@
   --shadow-xs: 1px 1px 0 var(--ink);
   --shadow-disabled: 2px 2px 0 rgba(32, 36, 46, 0.25);
   --on-primary: var(--ink);
+  --on-pink: #ffffff;
   --seg-active-color: var(--ink);
   --hover-bg: #faf7ee;
   --picked-bg: var(--lemon);
@@ -947,7 +970,7 @@ main {
   margin-top: 6px;
   padding: 2px 8px;
   background: var(--pink);
-  color: #fff;
+  color: var(--on-pink);
   font-size: 11px;
   font-weight: 800;
   transform: rotate(-2deg);
@@ -1021,7 +1044,10 @@ main {
   left: 2px;
   right: 34%;
   bottom: 0;
-  height: 8px;
+  /* 高度随字号：写死 8px 时，窄屏（20px 字 + 4px 下内边距）这条会切进字的下缘，
+     两款皮肤下都读作「错位」而不是「涂鸦」。改成 em 相对后还需要盒子留出位置 ——
+     下面的窄屏块把下内边距加大到大于条高。 */
+  height: 0.16em;
   background: var(--pink);
   transform: rotate(-1deg);
   opacity: 0.9;
@@ -1062,7 +1088,7 @@ main {
 [data-skin="classic"] .gen-picked,
 [data-skin="classic"] .grp-picked {
   background: var(--pink);
-  color: #fff;
+  color: var(--on-pink);
   border: 0;
 }
 [data-skin="classic"] .primary {
@@ -1074,7 +1100,7 @@ main {
 }
 [data-skin="classic"] .card[aria-pressed="true"]::after {
   background: var(--pink);
-  color: #fff;
+  color: var(--on-pink);
   border: 0;
 }
 [data-skin="classic"] .card .nm {
@@ -1179,7 +1205,7 @@ main {
 }
 .steps button[aria-current="step"] .step-no {
   background: var(--pink);
-  color: #fff;
+  color: var(--on-pink);
 }
 .steps b {
   font: 700 11px/1 var(--font-round);
@@ -1348,6 +1374,14 @@ main {
   transform: translateX(-50%) translateY(0);
 }
 @media (prefers-reduced-motion: reduce) {
+  /* 降级时不该有任何动效（ADR-0020 §4）。用 transition/animation 而不是只调时长 ——
+     时长为 0 的 transition 仍会触发 transitionstart 事件，屏幕阅读器会念出来。 */
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
   .toast {
     transition: none;
   }
@@ -1551,7 +1585,7 @@ main {
 }
 .screen-row.cut .mark {
   background: var(--pink);
-  color: #fff;
+  color: var(--on-pink);
   border-color: transparent;
 }
 .screen-foot {
@@ -1681,12 +1715,13 @@ main {
   }
   .kami {
     font-size: 28px;
-    padding: 2px 10px;
+    /* 下内边距要大于洋红条高（0.16em ≈ 4.5px），否则条压字 */
+    padding: 2px 10px 7px;
     border-radius: 10px;
   }
   .kami.long {
     font-size: 20px;
-    padding: 4px 8px;
+    padding: 4px 8px 7px;
   }
   .masthead-main .seg-series {
     margin-top: 6px;

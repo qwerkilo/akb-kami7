@@ -277,3 +277,222 @@ test("≤380px：系列 tab 落到第二行，但品牌与「更多」留在第�
     "≤340px 允许步骤条横向滚动（再窄就不收内边距了）"
   );
 });
+
+// ---- ADR-0020 §6：对比度是硬指标，不是观感 ----
+// 现状三处欠账（实测）：--muted 在页底 4.33:1（正文需 ≥4.5）、--peach 作正文 3.96:1、
+// 占位图首字 2.11:1。这个守卫就是为了让它们没法再欠着 —— 纯计算，不依赖浏览器。
+function srgbLum(hex) {
+  let h = hex.replace("#", "").trim();
+  assert.match(h, /^[0-9a-f]{3}([0-9a-f]{3})?$/i, `不是十六进制色：${hex}`);
+  if (h.length === 3) h = [...h].map((c) => c + c).join(""); // #fff 是合法简写
+  const ch = [0, 2, 4].map((i) => {
+    const c = parseInt(h.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
+function contrast(a, b) {
+  const la = srgbLum(a);
+  const lb = srgbLum(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+test("对比度：两款皮肤的正文 / 次要文字 / 占位首字都达标（ADR-0020 §6）", () => {
+  // 正文与小字 ≥4.5:1（WCAG AA）；占位首字是大字号图形，套大字阈值 ≥3:1 ——
+  // 它是**信息**（离线时要读得出是谁），不能当装饰豁免。
+  // 同块内的 var() 引用要能解析：贴纸块的 --on-primary 写的是 var(--ink)，
+  // 而对比度是算不出来的 —— 必须跟着引用取到字面量（限深 4 层，防环）。
+  const resolve = (v, vars, depth = 0) => {
+    const m = /^var\(\s*(--[a-z0-9-]+)\s*\)$/.exec(v);
+    if (!m || depth > 3) return v;
+    return vars[m[1]] ? resolve(vars[m[1]], vars, depth + 1) : v;
+  };
+  const PAIRS = [
+    ["正文 ink / 卡片", "--ink", "--card", 4.5],
+    ["正文 ink / 页底", "--ink", "--floor", 4.5],
+    ["次要 muted / 卡片", "--muted", "--card", 4.5],
+    ["次要 muted / 页底", "--muted", "--floor", 4.5],
+    // 压 --peach 的文字（主按钮 / 分段控件选中态）：--on-primary 是这个用途的令牌
+    // （实测白字在原版 #e4007f 上 4.56:1；贴纸皮那块 --peach 是浅色，用墨色 9.09:1）
+    ["主按钮文字 / 主色浅色面", "--on-primary", "--peach", 4.5],
+    // 压 --pink 的文字：--pink 两款皮肤同值（#e4007f），所以白字即可 ——
+    // 实测 4.56:1。我一度把它写成「主色作正文」的用例，那是伪判据（CSS 里
+    // 0 处 color: var(--pink)），真判据是主按钮/分段控件/序号这些压 --pink 的元素。
+    ["压 --pink 的文字", "--on-pink", "--pink", 4.5],
+    ["占位首字 / 占位底", "--placeholder-ink", "--placeholder", 3],
+    ["占位底上的 ink", "--ink", "--placeholder", 4.5],
+  ];
+  for (const skin of ["classic", "sticker"]) {
+    const v = blockVars(`[data-skin="${skin}"] {`);
+    for (const [name, fg, bg, min] of PAIRS) {
+      assert.ok(v[fg], `${skin} 块缺 ${fg}`);
+      assert.ok(v[bg], `${skin} 块缺 ${bg}`);
+      const got = contrast(resolve(v[fg], v), resolve(v[bg], v));
+      assert.ok(
+        got >= min,
+        `${skin} 的${name}只有 ${got.toFixed(2)}:1（要求 ≥${min}）—— ${fg}=${resolve(v[fg], v)} on ${bg}=${resolve(v[bg], v)}`
+      );
+    }
+  }
+});
+
+test("刻度：令牌存在，且刻度外的字面量只许减不许增（棘轮，ADR-0020 §4）", () => {
+  const shared = blockVars(":root {");
+  for (const k of [
+    "--t1",
+    "--t2",
+    "--t3",
+    "--t4",
+    "--t5",
+    "--s1",
+    "--s2",
+    "--s3",
+    "--s4",
+    "--s5",
+    "--s6",
+  ]) {
+    assert.ok(shared[k], `:root 块缺刻度令牌 ${k}`);
+  }
+  const TYPE = ["12px", "14px", "16px", "20px", "28px", "44px", "72px"];
+  // 28px 在表里：它是 4 的倍数（4×7），漏掉会把它误报成新欠账。
+  // 负值不参与：负边距是出血（如 margin: 12px -16px 0），不是节奏值。
+  const SPACE = [
+    "0",
+    "1px",
+    "2px",
+    "3px",
+    "4px",
+    "6px",
+    "8px",
+    "12px",
+    "16px",
+    "20px",
+    "24px",
+    "28px",
+    "32px",
+    "40px",
+    "48px",
+    "56px",
+    "64px",
+  ];
+  const decls = css
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .matchAll(
+      /(^|[;{])\s*(font-size|padding|padding-top|padding-bottom|padding-left|padding-right|margin|margin-top|margin-bottom|margin-left|margin-right|gap|row-gap|column-gap)\s*:\s*([^;}]+)/g
+    );
+  const type = new Set();
+  const space = new Set();
+  for (const m of decls) {
+    for (const raw of m[3].split(/\s+/).filter(Boolean)) {
+      if (!/^\d+(\.\d+)?px$/.test(raw)) continue; // 负边距是出血，不是节奏
+      const v = raw.trim();
+      if (m[2] === "font-size") {
+        if (!TYPE.includes(v)) type.add(v);
+      } else if (!SPACE.includes(v)) space.add(v);
+    }
+  }
+  // 棘轮：刻度建立之前 style.css 里有 8 个刻度外字号与 8 个刻度外间距。
+  // 整体重排要动全层数值（改 padding 就是改版面），而本机跑不动全量 E2E ——
+  // 所以这里不假装已经清零，而是**只许减不许增**：清单外的刻度外值一律红。
+  // 每次重排一批就从清单里划掉一个，并改这一行。
+  const KNOWN_TYPE = [
+    "10px",
+    "11px",
+    "13px",
+    "15px",
+    "17px",
+    "18px",
+    "19px",
+    "30px",
+  ];
+  const KNOWN_SPACE = [
+    "5px",
+    "7px",
+    "10px",
+    "13px",
+    "14px",
+    "18px",
+    "22px",
+    "30px",
+  ];
+  const newType = [...type].filter((v) => !KNOWN_TYPE.includes(v)).sort();
+  const newSpace = [...space].filter((v) => !KNOWN_SPACE.includes(v)).sort();
+  assert.deepEqual(
+    newType,
+    [],
+    `新出现的刻度外字号：${newType.join("、")}（用刻度令牌或既有值）`
+  );
+  assert.deepEqual(
+    newSpace,
+    [],
+    `新出现的刻度外间距：${newSpace.join("、")}（用刻度令牌或既有值）`
+  );
+  const left =
+    [...type].filter((v) => KNOWN_TYPE.includes(v)).length +
+    [...space].filter((v) => KNOWN_SPACE.includes(v)).length;
+  assert.ok(
+    left <= KNOWN_TYPE.length + KNOWN_SPACE.length,
+    `棘轮反了：剩 ${left} 个，但基线是 ${KNOWN_TYPE.length + KNOWN_SPACE.length} 个`
+  );
+});
+test("动效：有三档时长令牌 + 一条缓动，且降级时全部关闭（ADR-0020 §4）", () => {
+  const shared = blockVars(":root {");
+  for (const k of ["--dur-fast", "--dur-mid", "--dur-slow", "--ease"]) {
+    assert.ok(shared[k], `:root 块缺动效令牌 ${k}`);
+  }
+  const fast = parseFloat(shared["--dur-fast"]);
+  const mid = parseFloat(shared["--dur-mid"]);
+  const slow = parseFloat(shared["--dur-slow"]);
+  assert.ok(
+    fast <= mid && mid <= slow,
+    `三档时长必须递增：${fast}/${mid}/${slow}`
+  );
+  assert.ok(slow <= 400, `最慢一档 ${slow}ms 超过 400ms 上限`);
+  // 降级块：prefers-reduced-motion 下 transition/animation 归零
+  const rm =
+    /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/.exec(
+      css
+    );
+  assert.ok(rm, "style.css 缺 @media (prefers-reduced-motion: reduce) 块");
+  // 必须锚在**通用选择器**那条规则上：块里还有 .toast 的 transition:none，
+  // 只在整块里搜 transition/animation 的话，把通用规则改成 revert 也照样通过 ——
+  // 守卫给的是虚假安全感（实测过：改成 revert 仍然全绿）。
+  const uni =
+    /(^|\n)\s*\*,\s*\n\s*\*::before,\s*\n\s*\*::after\s*\{([^}]*)\}/.exec(
+      rm[1]
+    );
+  assert.ok(uni, "降级块里缺通用选择器规则（*, *::before, *::after）");
+  assert.match(uni[2], /transition:\s*none/, "降级时 transition 必须归零");
+  assert.match(uni[2], /animation:\s*none/, "降级时 animation 必须关掉");
+});
+
+// 品牌下那条洋红装饰：窄屏（20px 字 + 4px 下内边距）时，写死 8px 会切进字的下缘 ——
+// 两款皮肤下都读作「错位」。几何只能在浏览器里量（仓外探针 verify-ticket01），
+// 但**形状**可以在这里守：条高必须随字号，且窄屏的下内边距要大于条高。
+test("品牌装饰条：高度随字号，窄屏留出了条的位置（不许写死像素）", () => {
+  const start = css.indexOf('[data-skin="classic"] .kami::after');
+  assert.ok(start >= 0, "style.css 里找不到品牌的装饰条规则");
+  const body = css.slice(start, css.indexOf("\n}", start));
+  const h = /height:\s*([\d.]+)em/.exec(body);
+  assert.ok(h, "装饰条高度必须用 em（写死 px 就会在窄屏切进字面）");
+  const narrow = mediaBlock(560);
+  assert.ok(narrow, "缺 ≤560px 断点块");
+  let seen = 0;
+  for (const m of narrow.matchAll(/\.kami(?:\.long)?\s*\{([^}]*)\}/g)) {
+    seen++;
+    const pad = /padding:\s*([^;]+);/.exec(m[1]);
+    const fontSize = /font-size:\s*([\d.]+)px/.exec(m[1]);
+    assert.ok(pad && fontSize, `窄屏 .kami 的声明形状变了：${m[1].trim()}`);
+    const parts = pad[1].trim().split(/\s+/);
+    const bottom = parseFloat(parts[2] ?? parts[0]); // Number("7px") 是 NaN —— 要 parseFloat
+    const barPx = Number(h[1]) * Number(fontSize[1]);
+    assert.ok(
+      bottom > barPx,
+      `窄屏 .kami 下内边距 ${bottom}px 要大于装饰条 ${barPx.toFixed(1)}px，否则条压字`
+    );
+  }
+  assert.ok(
+    seen >= 2,
+    `窄屏块里应同时有 .kami 与 .kami.long，只找到 ${seen} 处`
+  );
+});

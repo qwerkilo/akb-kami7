@@ -21,7 +21,7 @@
         pink: "#e4007f",
         tape: "#ffe08a",
         placeholder: "#e4e7ee",
-        placeholderInk: "#9aa0b0",
+        placeholderInk: "#7e8390",
       },
       fonts: { ui, jp, display: '"Dela Gothic One",' + jp },
       cardStroke: 3,
