@@ -32,8 +32,10 @@
       query: "",
       open: new Set(),
       duel: emptyDuel(),
-      // 筛选步（ADR-0019）：被划掉的已选成员 id；空 = 一个都没划
+      // 筛选步（ADR-0019 改写版）：按轮次分组的划除，每轮是一组 id
       cut: [],
+      // 用户是否已点「继续细分」进入下一轮（轮次自动推进，靠它区分「可提交」与「已在下一轮」）
+      deeper: false,
       skin: "classic",
       generation: "all",
       // 全局偏好：不随系列切换而变，存储不可用时回落到这些默认值。
@@ -43,7 +45,7 @@
     };
 
     function emptyDuel() {
-      return { order: [], answers: [] };
+      return { tiers: [], answers: [] };
     }
 
     function read(k) {
@@ -70,7 +72,8 @@
       if (!st) return { size: 7, selected: [], duel: null, cut: [] };
       const selected = st.selected.filter((id) => inSeries(id, s));
       let duel = st.duel;
-      if (duel && duel.order.some((id) => !inSeries(id, s))) duel = null;
+      if (duel && duel.tiers.flat().some((id) => !inSeries(id, s))) duel = null;
+      if (duel && !duel.tiers.length) duel = null;
       // 「划除必须落在已选里」由 core.deserializeState 统一保证（单一出处）；
       // 这里只负责按系列过滤 selected/duel（core 不认识系列）
       return { size: st.size, selected, duel, cut: st.cut || [] };
@@ -82,8 +85,8 @@
         CORE.serializeState({
           size: state.size,
           selected: state.selected,
-          duel: state.duel.order.length
-            ? { order: state.duel.order, answers: state.duel.answers }
+          duel: state.duel.tiers.length
+            ? { tiers: state.duel.tiers, answers: state.duel.answers }
             : null,
           cut: state.cut,
         })
@@ -94,9 +97,9 @@
       store[state.series] = {
         size: state.size,
         selected: state.selected.slice(),
-        duel: state.duel.order.length
+        duel: state.duel.tiers.length
           ? {
-              order: state.duel.order.slice(),
+              tiers: state.duel.tiers.map((x) => x.slice()),
               answers: state.duel.answers.slice(),
             }
           : null,
@@ -105,57 +108,98 @@
     }
 
     function setDuel(d) {
+      const tiers =
+        d && Array.isArray(d.tiers)
+          ? d.tiers.filter((g) => Array.isArray(g) && g.length)
+          : [];
       if (
-        !d ||
-        !Array.isArray(d.order) ||
-        !d.order.length ||
-        d.order.some((id) => !inSeries(id, state.series))
+        !tiers.length ||
+        tiers.flat().some((id) => !inSeries(id, state.series))
       ) {
         state.duel = emptyDuel();
         return false;
       }
       state.duel = {
-        order: d.order.slice(),
+        tiers: tiers.map((g) => g.slice()),
         answers: (d.answers || []).slice(),
       };
       return true;
     }
 
     function clearDuel() {
-      const had = state.duel.order.length > 0;
+      const had = state.duel.tiers.length > 0;
       state.duel = emptyDuel();
       state.cut = [];
+      state.deeper = false;
       return had;
     }
 
-    // 筛选：划掉 / 恢复一个已选成员。kept = 已选 - 被划；够档位才能提交（ADR-0019）
+    // 筛选（ADR-0019 改写版）：每轮把保留组划掉一半，保留组占据前 K 名。
+    // cut 是「按轮次分组」的：rounds[r] = 第 r 轮划掉的人，层级由内到外排。
+    // 筛选轮次按「实际已选人数」减半 —— 真实流程里恒等于档位（进筛选的前提就是已选满），
+    // 用实际值是为了让「少于档位」也能排（测试与将来的其它入口）
+    function nSel() {
+      return state.selected.length;
+    }
+
     function screening() {
-      const order = state.selected.filter((id) => !state.cut.includes(id));
+      const step = CORE.screenStep(nSel(), state.cut, state.deeper);
+      // cut 报「全部已划的 id」—— UI 要的是「这个人划了没有」；
+      // 本轮进度由 need/canCut 表达，分轮结构由 rounds 保留。
+      const all = state.cut.flat();
+      const pool = state.selected.filter((id) => !all.includes(id));
       return {
-        cut: state.cut.slice(),
-        order,
-        kept: order.length,
+        rounds: state.cut.map((r) => r.slice()),
+        cut: all,
+        pool,
+        round: step.round,
+        need: step.need,
+        canCut: step.canCut,
         size: state.size,
-        canSubmit: order.length >= state.size,
+        complete: step.complete,
+        filled: step.filled,
+        atBoundary: step.atBoundary,
+        canRecurse: step.atBoundary && step.canCut > 0,
+        tiers: CORE.screenTiers(state.selected, state.cut),
       };
     }
 
+    // 划掉 = 划进当前轮；再点一次 = 从当前轮恢复。超额被定值门槛挡住。
     function toggleCut(id) {
       if (!inSeries(id, state.series)) return false;
-      if (state.cut.includes(id)) {
-        state.cut = state.cut.filter((x) => x !== id);
+      if (!state.selected.includes(id)) return false;
+      const step = CORE.screenStep(nSel(), state.cut, state.deeper);
+      if (step.canCut === 0) return false; // 本轮名额用完（或保留组到下限）→ 划不动
+      // 注意：deeper 只由 enterNextRound（点「继续细分」）设置 ——
+      // 划除本身不设，否则「刚划完一轮」这个边界信号会在第一次划除时就没了。
+      const roundIdx = step.round;
+      const cur = state.cut[roundIdx] || [];
+      const pool = state.selected.filter((x) => !state.cut.flat().includes(x));
+      if (cur.includes(id)) {
+        state.cut[roundIdx] = cur.filter((x) => x !== id);
         save();
         return false; // 这次是「恢复」
       }
-      if (!state.selected.includes(id)) return false;
-      state.cut = state.cut.concat([id]);
+      if (!pool.includes(id)) return false;
+      if (cur.length >= step.need) return false; // 定值门槛：不能超额
+      state.cut[roundIdx] = cur.concat([id]);
+      save();
+      return true;
+    }
+
+    // 「继续细分」：显式进入下一轮（deeper）。不设它的话轮次自动推进会丢掉
+    // 「本轮刚划完、可以提交」这个信号（core.screenStep 的 deeper 参数）
+    function enterNextRound() {
+      if (!screening().canRecurse) return false;
+      state.deeper = true;
       save();
       return true;
     }
 
     function resetScreening() {
-      if (!state.cut.length) return false;
+      if (!state.cut.length && !state.deeper) return false;
       state.cut = [];
+      state.deeper = false;
       save();
       return true;
     }
@@ -182,14 +226,14 @@
       let phase = "pick";
       let duelView = null;
       let ranking = null;
-      if (duel.order.length) {
-        const r = CORE.replay(duel.order, duel.answers);
+      if (duel.tiers.length) {
+        const r = CORE.replayTiers(duel.tiers, duel.answers);
         if (r.done) {
           phase = "result";
           ranking = r.order.slice();
         } else {
           phase = "duel";
-          const p = CORE.duelProgress(duel.order.length, duel.answers.length);
+          const p = CORE.tierProgress(duel.tiers, duel.answers.length);
           duelView = {
             step: duel.answers.length + 1,
             max: p.max,
@@ -198,6 +242,10 @@
             etaSeconds: p.etaSeconds,
             pair: r.pair.slice(),
             canUndo: duel.answers.length > 0,
+            tier: p.tier,
+            tiers: p.tiers,
+            tierAnswered: p.tierAnswered,
+            tierMax: p.tierMax,
           };
         }
       }
@@ -210,7 +258,7 @@
         generation: state.generation,
         query: state.query,
         open: [...state.open],
-        phase: state.cut.length && !duel.order.length ? "screening" : phase,
+        phase: state.cut.length && !duel.tiers.length ? "screening" : phase,
         screening: screening(),
         duel: duelView,
         ranking,
@@ -314,10 +362,13 @@
       return state.open.has(key);
     }
 
-    function startDuel(order) {
-      if (!Array.isArray(order) || !order.length) return false;
-      if (order.some((id) => !inSeries(id, state.series))) return false;
-      state.duel = { order: order.slice(), answers: [] };
+    // 对决按层级喂：保留组 + 各轮划掉组（由内到外）。跨层级不比较（ADR-0019）。
+    function startDuel() {
+      if (!state.selected.length) return false;
+      if (!screening().complete) return false; // 定值门槛：没划够不给开始排序
+      if (state.selected.some((id) => !inSeries(id, state.series)))
+        return false;
+      state.duel = { tiers: screening().tiers, answers: [] };
       save();
       return true;
     }
@@ -338,16 +389,18 @@
     }
 
     function clearSelection() {
-      const had = state.selected.length > 0 || state.duel.order.length > 0;
+      const had = state.selected.length > 0 || state.duel.tiers.length > 0;
       if (!had) return false;
       state.selected = [];
       state.duel = emptyDuel();
+      state.cut = [];
+      state.deeper = false;
       save();
       return true;
     }
 
     function abandonDuel() {
-      if (!state.duel.order.length) return false;
+      if (!state.duel.tiers.length) return false;
       state.duel = emptyDuel();
       save();
       return true;
@@ -369,6 +422,7 @@
       startDuel,
       toggleCut,
       resetScreening,
+      enterNextRound,
       answer,
       undo,
       clearSelection,

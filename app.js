@@ -568,11 +568,18 @@
 
   $("#screen-submit").addEventListener("click", () => {
     sync();
-    if (!snap.screening || !snap.screening.canSubmit) return;
-    navigate("rank", snap.screening.order);
+    // 门槛是「本轮划够一半」（定值，不是「至少留 N 人」）
+    if (!snap.screening || !snap.screening.complete) return;
+    navigate("rank"); // startDuel 自己按层级喂（保留组 + 各轮划掉组）
   });
   $("#screen-reset").addEventListener("click", () => {
     if (!S.resetScreening()) return;
+    renderScreen();
+  });
+  // 「继续细分」：进入下一轮（session 里记 deeper —— 轮次自动推进，
+  // 没有这个显式标记就分不清「刚划完、可以提交」和「已经在下一轮里」）
+  $("#screen-more").addEventListener("click", () => {
+    S.enterNextRound();
     renderScreen();
   });
 
@@ -584,10 +591,10 @@
   });
 
   /* ---------------- duel (replayable merge sort) ---------------- */
-  function beginDuel(order) {
-    if (!S.startDuel(order)) return false;
+  function beginDuel() {
+    if (!S.startDuel()) return false;
     duel50 = false;
-    order.forEach((id) => {
+    snap.selected.forEach((id) => {
       new Image().src = fullSrc(BY_ID.get(id));
     });
     show("duel");
@@ -674,6 +681,7 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
+    if (moreOpen()) return setMore(false);
     if (sheetOpen) return closeSheet();
     if (introOpen) return closeIntro();
     if (profileId) return closeProfile();
@@ -1010,7 +1018,8 @@
       selected: snap.selected.length,
       size: snap.size,
       step: snap.duel ? snap.duel.step : null,
-      kept: snap.screening ? snap.screening.kept : snap.selected.length,
+      // 筛选门槛（ADR-0019 改写版）：本轮划够一半
+      canScreen: snap.screening ? snap.screening.complete : false,
     };
   }
 
@@ -1019,9 +1028,11 @@
     sync();
     const sc = snap.screening;
     if (!sc) return navigate("pick");
-    $("#screen-intro").textContent = t(
-      "screen_intro",
-      sc.order.length + sc.cut.length
+    $("#screen-intro").textContent = t("screen_intro", sc.pool.length);
+    // 轮次标签：还有名额 = 正在第 round+1 轮；名额用尽 = 第 round 轮已到底
+    $("#screen-round").textContent = t(
+      "screen_round",
+      sc.canCut > 0 ? sc.round + 1 : Math.max(1, sc.round)
     );
     const rows = snap.selected.map((id) => {
       const m = BY_ID.get(id);
@@ -1030,20 +1041,25 @@
         <span class="av"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async"></span>
         <span class="who"><b>${esc(m.name)}</b><s>${esc(fullMeta(m))}</s></span>
         <button class="mark" data-cut="${esc(id)}" aria-pressed="${cut ? "true" : "false"}"
+          ${!cut && !sc.canCut ? "disabled" : ""}
           aria-label="${esc(t("pick_who", m.name))}">${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
       </li>`;
     });
     $("#screen-list").innerHTML = rows.join("");
-    $("#screen-count").textContent = t("picked_of", sc.kept, sc.size);
+    $("#screen-count").textContent = t("picked_of", sc.pool.length, sc.size);
     const sub = $("#screen-submit");
-    if (sc.canSubmit) {
-      sub.disabled = false;
-      // 用 start_est：它本来就是「开始排序（约 N 题）」，顺便保住题数提示
-      sub.textContent = t("start_est", CORE.worstCase(sc.size));
-    } else {
-      sub.disabled = true;
-      sub.textContent = t("screen_min", sc.size);
-    }
+    // 本轮划够就能开始排序；题数上限是「各层级组大小之和」，不再只是档位的函数
+    sub.disabled = !sc.complete;
+    // data-need：本轮还差几个人才能提交（给 E2E 用的确定性钩子，不含文案）
+    // 缺口用 canCut（= 本轮还剩几个名额）；cut 是「全部已划」，不能拿来减
+    sub.dataset.need = String(sc.canCut);
+    sub.textContent = sc.complete
+      ? // 用「实际已划的轮数」，不是完整计划：筛得浅题数反而多
+        t("start_est", CORE.tierQuestionMax(snap.selected.length, sc.round))
+      : t("screen_min", sc.canCut);
+    const more = $("#screen-more");
+    // 只有「本轮已划够、且还能再划」时才给递归入口（主动决定要不要继续细分）
+    more.hidden = !sc.canRecurse;
     $("#screen-reset").disabled = !sc.cut.length;
     renderSteps();
   }
@@ -1069,12 +1085,12 @@
     renderPick();
   }
 
-  function navigate(intent, order) {
+  function navigate(intent) {
     const out = CORE.nav(navCtx(), intent);
     if (out.effect === "abandon") S.abandonDuel();
     view = out.view;
-    if (out.effect === "start")
-      return beginDuel(order || CORE.shuffle(snap.selected.slice()));
+    // 对决的对手来自「已选 + 筛选层级」（ADR-0019 改写版），不再由调用方传 order
+    if (out.effect === "start" || out.effect === "resume") return beginDuel();
     paint();
     return true;
   }
@@ -1369,6 +1385,43 @@
       })
       .catch(() => {});
   }
+
+  /* ---------------- 更多浮层（语言 / 外观） ---------------- */
+  const moreBtn = $("#more-btn");
+  const moreMenu = $("#more-menu");
+
+  function setMore(open) {
+    if (!moreMenu || !moreBtn) return;
+    moreMenu.hidden = !open;
+    moreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  function moreOpen() {
+    return !!moreMenu && !moreMenu.hidden;
+  }
+
+  if (moreBtn) {
+    moreBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setMore(!moreOpen());
+    });
+    // 点浮层外面关掉；点语言/皮肤后也关（选完就收起，不挡着名册）
+    moreMenu.addEventListener("click", (e) => {
+      if (e.target.closest(".seg-lang button, .seg-skin button"))
+        setMore(false);
+    });
+  }
+  document.addEventListener("click", (e) => {
+    if (
+      moreOpen() &&
+      !e.target.closest("#more-menu") &&
+      !e.target.closest("#more-btn")
+    )
+      setMore(false);
+  });
+  // 选完语言/皮肤后要重画按钮状态（paintSeg 在 changeLang / 皮肤处理里跑）
+  window.addEventListener("resize", () => {
+    if (moreOpen() && window.innerWidth > 560) setMore(false);
+  });
 
   document.addEventListener("click", (e) => {
     if (e.target.closest('[data-act="pwa-install"]')) return void doInstall();

@@ -322,8 +322,8 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
   const state = {
     size: 16,
     selected: ["a", "b"],
-    duel: { order: ["a", "b", "c"], answers: [true] },
-    cut: ["b"],
+    duel: { tiers: [["a", "b", "c"]], answers: [true] },
+    cut: [["b"]],
   };
   assert.deepEqual(core.deserializeState(core.serializeState(state)), state);
   // 旧存档（没有 cut 字段）要能读，且划除为空
@@ -339,9 +339,23 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
   // 划除落在已选之外（脏存档）要被过滤掉
   assert.deepEqual(
     core.deserializeState(
-      JSON.stringify({ v: 1, size: 7, selected: ["a"], cut: ["a", "zz"] })
+      JSON.stringify({ v: 1, size: 7, selected: ["a"], cut: [["a", "zz"]] })
     ).cut,
-    ["a"]
+    [["a"]]
+  );
+  // 旧格式（平面 id 数组）→ 迁移成「全在第一轮」
+  assert.deepEqual(
+    core.deserializeState(
+      JSON.stringify({ v: 1, size: 7, selected: ["a", "b"], cut: ["b"] })
+    ).cut,
+    [["b"]]
+  );
+  // 空轮次要被丢掉（否则层级里会出现一个空组）
+  assert.deepEqual(
+    core.deserializeState(
+      JSON.stringify({ v: 1, size: 7, selected: ["a"], cut: [[], ["a"]] })
+    ).cut,
+    [["a"]]
   );
   assert.equal(core.deserializeState("not json"), null);
   assert.equal(core.deserializeState(JSON.stringify({ v: 0, size: 7 })), null);
@@ -829,9 +843,10 @@ test("nav：② 回续 / 开局 / 不可用", () => {
     view: "duel",
     effect: "none",
   });
+  // ADR-0019 改写版：② 从挑人页先去筛选页（划一半才进对决）
   assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 7 }), "duel"), {
-    view: "duel",
-    effect: "start",
+    view: "screening",
+    effect: "none",
   });
   assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 6 }), "duel"), {
     view: "pick",
@@ -863,9 +878,10 @@ test("nav：start 在有对决时回续（不再静默重开）", () => {
     view: "duel",
     effect: "resume",
   });
+  // ADR-0019 改写版：托盘「开始」在未开始时先到筛选页
   assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 7 }), "start"), {
-    view: "duel",
-    effect: "start",
+    view: "screening",
+    effect: "none",
   });
   assert.deepEqual(core.nav(navCtx({ phase: "pick", selected: 3 }), "start"), {
     view: "pick",
@@ -1043,9 +1059,10 @@ test("nav/steps：上下文字段非法时保守回退（边界）", () => {
     core.nav({ size: 16, selected: 10, phase: "pick" }, "start"),
     { view: "pick", effect: "none" }
   );
+  // ADR-0019 改写版：满员后的「开始」先进筛选页
   assert.deepEqual(
     core.nav({ size: 40, selected: 40, phase: "pick" }, "start"),
-    { view: "duel", effect: "start" }
+    { view: "screening", effect: "none" }
   );
   // 相位有结果、人却在挑人页时，③ 仍指向结果
   assert.deepEqual(core.nav({ view: "pick", phase: "result" }, "result"), {
@@ -1222,7 +1239,11 @@ test("deserializeState：旧 32 档存档迁移为 40 档（已选与对决保�
   assert.ok(st, "旧存档不应被丢弃");
   assert.equal(st.size, 40);
   assert.deepEqual(st.selected, ["a", "b", "c"]);
-  assert.deepEqual(st.duel.order, ["a", "b"]);
+  assert.deepEqual(
+    st.duel.tiers,
+    [["a", "b"]],
+    "旧格式的扁平 order 迁移成单层级"
+  );
   assert.deepEqual(st.duel.answers, [true]);
 });
 
@@ -1818,17 +1839,39 @@ test("nav：挑人页已选满才能进筛选；筛选页提交要留够档位�
     effect: "none",
   });
   // 留够 → 进排序
+  // ADR-0019 改写版：提交门槛是「本轮划够一半」（canScreen），不再是 kept >= size ——
+  // 旧口径下 kept = 已选 − 已划 ≤ size，只有全留才能提交，划掉就是死路
   assert.deepEqual(
     core.nav(
-      { view: "screening", phase: "screening", size: 7, selected: 7, kept: 7 },
+      {
+        view: "screening",
+        phase: "screening",
+        size: 7,
+        selected: 7,
+        canScreen: true,
+      },
       "rank"
     ),
     { view: "duel", effect: "start" }
   );
-  // 留不够 → 留在筛选
+  // 本轮没划够 → 留在筛选
   assert.deepEqual(
     core.nav(
-      { view: "screening", phase: "screening", size: 7, selected: 7, kept: 5 },
+      {
+        view: "screening",
+        phase: "screening",
+        size: 7,
+        selected: 7,
+        canScreen: false,
+      },
+      "rank"
+    ),
+    { view: "screening", effect: "none" }
+  );
+  // 缺 canScreen（脏调用）→ 保守不提交
+  assert.deepEqual(
+    core.nav(
+      { view: "screening", phase: "screening", size: 7, selected: 7 },
       "rank"
     ),
     { view: "screening", effect: "none" }
@@ -1864,4 +1907,156 @@ test("steps：筛选时第 ② 步是高亮态（步骤条仍是三步）", () =
   assert.equal(s[1].key, "duel");
   assert.equal(s[1].active, true, "筛选期间第 ② 步高亮");
   assert.equal(s[1].enabled, true);
+});
+
+// ---- 筛选：逐轮二分（ADR-0019 改写版） ----
+test("筛选轮次：每轮划掉保留组的一半，保留组剩 4 人即停", () => {
+  assert.deepEqual(core.screenRounds(7), { cuts: [3], kept: 4, done: true });
+  assert.deepEqual(core.screenRounds(16), {
+    cuts: [8, 4],
+    kept: 4,
+    done: true,
+  });
+  assert.deepEqual(core.screenRounds(40), {
+    cuts: [20, 10, 5, 2],
+    kept: 3,
+    done: true,
+  });
+  // 下限以下不再产生轮次
+  assert.deepEqual(core.screenRounds(4), { cuts: [], kept: 4, done: true });
+  assert.deepEqual(core.screenRounds(3), { cuts: [], kept: 3, done: true });
+  assert.deepEqual(core.screenRounds(1), { cuts: [], kept: 1, done: true });
+});
+
+test("筛选轮次：进行中的那一轮 —— 划够一半才完成", () => {
+  // 16 档：第一轮进行中（还没划够 8）
+  let st = core.screenStep(16, []);
+  assert.equal(st.round, 0);
+  assert.equal(st.need, 8, "第一轮要划 8 个");
+  assert.equal(st.complete, false);
+  st = core.screenStep(16, [["a", "b", "c", "d", "e", "f", "g", "h"]]);
+  assert.equal(st.round, 1, "进入第二轮（16 档要划 [8,4] 两轮才到底）");
+  assert.equal(st.pool, 8);
+  assert.equal(st.need, 4, "第二轮从 8 人里划 4");
+  assert.equal(st.canCut, 4);
+  // 刚划完一轮、还没点「继续细分」→ 这一刻二选一：可以提交，也可以再细分
+  assert.equal(st.complete, true, "刚划完一轮 → 可以提交");
+  assert.equal(st.filled, false, "本轮一个都还没划（filled 只说本轮）");
+  assert.equal(st.atBoundary, true, "但处于「刚划完一轮」的边界上");
+  assert.equal(
+    core.screenStep(
+      16,
+      [st === null ? [] : ["a", "b", "c", "d", "e", "f", "g", "h"]],
+      true
+    ).complete,
+    false,
+    "点了「继续细分」→ 回到未完成，必须再划够下一轮"
+  );
+  st = core.screenStep(16, [
+    ["a", "b", "c", "d", "e", "f", "g", "h"],
+    ["i", "j", "k", "l"],
+  ]);
+  // round = 已完成的轮数（0 起）；「到底」由 need/canCut 归零 + complete 表达
+  assert.equal(st.round, 2, "两轮都划完了");
+  assert.equal(st.pool, 4, "保留组剩 4");
+  assert.equal(st.need, 0);
+  assert.equal(st.canCut, 0);
+  assert.equal(st.complete, true);
+});
+
+test("筛选轮次：本轮要划多少由 need 上报，超额由 canCut 归零拦住", () => {
+  const r = core.screenStep(16, [["a", "b"]]);
+  assert.equal(r.round, 0);
+  assert.equal(r.need, 8, "第一轮要划 8 个");
+  assert.equal(r.cut, 2);
+  assert.equal(r.canCut, 6, "还能再划 6 个");
+  assert.equal(r.complete, false);
+  const same = core.screenStep(16, [["a", "a", "a"]]);
+  assert.equal(same.cut, 1, "同一个 id 重复划只算一个");
+  assert.equal(same.canCut, 7);
+  const done = core.screenStep(16, [
+    Array.from({ length: 8 }, (_, i) => "x" + i),
+  ]);
+  assert.equal(
+    done.canCut,
+    4,
+    "划够 8 → 轮次推进，canCut 归零重算为新一轮的额度"
+  );
+  const bottom = core.screenStep(16, [
+    Array.from({ length: 8 }, (_, i) => "x" + i),
+    ["i", "j", "k", "l"],
+  ]);
+  assert.equal(bottom.canCut, 0, "到底后 canCut 归零（门关上，划不动了）");
+});
+
+test("筛选层级：名次由内到外填，越早划的组越靠后", () => {
+  // 16 档：第一轮划 a、b；第二轮划 c、d；最终保留 e..l
+  const s1 = new Set(["a", "b"]);
+  const s2 = new Set(["c", "d"]);
+  const tiers = core.screenTiers(
+    ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"],
+    [[...s1], [...s2]]
+  );
+  assert.deepEqual(tiers, [
+    ["e", "f", "g", "h", "i", "j", "k", "l"], // 最内层 = 前 8 名
+    ["c", "d"], // 最后一轮划的
+    ["a", "b"], // 最早划的 = 最后 2 名
+  ]);
+});
+
+test("筛选题数：各层级组大小之和，不是档位的函数", () => {
+  assert.equal(core.tierQuestionMax(7), 8); // [4,3] → 5+3
+  assert.equal(core.tierQuestionMax(16), 27); // [4,4,8] → 5+5+17
+  assert.equal(core.tierQuestionMax(40), 106); // [3,2,5,10,20] → 3+1+12+34+69
+  // 同一档位筛到不同轮次 → 不同题数：只划一轮是 [20,20] → 138，划满四轮 → 106
+  assert.equal(core.tierQuestionMax(40, 1), 138);
+  assert.ok(
+    core.tierQuestionMax(40, 1) > core.tierQuestionMax(40),
+    "筛得浅题数反而多"
+  );
+});
+
+test("跨层级不得比较：组内对决的对手只能来自同一层级", () => {
+  const tiers = [
+    ["e", "f"],
+    ["c", "d"],
+    ["a", "b"],
+  ];
+  const answers = [];
+  const seen = [];
+  let r = core.replayTiers(tiers, answers);
+  let guard = 0;
+  while (!r.done && guard++ < 10) {
+    const [l, rgt] = r.pair;
+    const li = tiers.findIndex((x) => x.includes(l));
+    const ri = tiers.findIndex((x) => x.includes(rgt));
+    assert.equal(
+      li,
+      ri,
+      `对手跨层级了：${l}(tier ${li}) vs ${rgt}(tier ${ri})`
+    );
+    seen.push([l, rgt]);
+    answers.push(true);
+    r = core.replayTiers(tiers, answers);
+  }
+  assert.ok(guard < 10, "不该死循环");
+  assert.equal(r.done, true);
+  assert.equal(seen.length, 3, "3 组各 1 题（2 人组）= 3 题");
+  assert.equal(r.order.length, 6);
+  // 名次由内到外：e 组的人排前面，a 组的人排最后
+  assert.deepEqual(r.order.slice(0, 2), ["e", "f"]);
+  assert.deepEqual(r.order.slice(4), ["a", "b"]);
+});
+
+test("replayTiers：单层级退化成原来的 replay", () => {
+  const one = [["a", "b", "c"]];
+  const answers = [];
+  let r = core.replayTiers(one, answers);
+  let guard = 0;
+  while (!r.done && guard++ < 20) {
+    answers.push(true);
+    r = core.replayTiers(one, answers);
+  }
+  assert.equal(r.done, true);
+  assert.equal(r.order.length, 3);
 });

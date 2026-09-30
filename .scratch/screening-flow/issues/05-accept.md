@@ -1,6 +1,6 @@
 # 05-accept · 端到端验收 + 文档同步
 
-- **Status**: todo
+- **Status**: done
 - **所属 spec**：`.scratch/screening-flow/spec.md`
 - **依据**：`docs/adr/0019-screening-then-rank.md`
 

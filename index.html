@@ -77,54 +77,72 @@
           <span class="pwa-dot" aria-hidden="true"></span>
           <span data-i18n="pwa_offline">离线中</span>
         </span>
-        <div
-          class="seg seg-lang"
-          role="radiogroup"
-          data-i18n-aria-label="lang_label"
+        <button
+          type="button"
+          class="more-btn"
+          id="more-btn"
+          aria-expanded="false"
+          aria-controls="more-menu"
+          data-i18n-aria-label="more_label"
+          data-i18n="more_go"
         >
-          <button type="button" role="radio" aria-checked="true" data-lang="zh">
-            中
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked="false"
-            data-lang="en"
+          更多
+        </button>
+        <div class="more-menu" id="more-menu" hidden>
+          <div
+            class="seg seg-lang"
+            role="radiogroup"
+            data-i18n-aria-label="lang_label"
           >
-            EN
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked="false"
-            data-lang="ja"
+            <button
+              type="button"
+              role="radio"
+              aria-checked="true"
+              data-lang="zh"
+            >
+              中
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-lang="en"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-lang="ja"
+            >
+              日
+            </button>
+          </div>
+          <div
+            class="seg seg-skin"
+            role="radiogroup"
+            data-i18n-aria-label="skin_label"
           >
-            日
-          </button>
-        </div>
-        <div
-          class="seg seg-skin"
-          role="radiogroup"
-          data-i18n-aria-label="skin_label"
-        >
-          <button
-            type="button"
-            role="radio"
-            aria-checked="true"
-            data-skin="classic"
-          >
-            <span class="swatch classic" aria-hidden="true"></span
-            ><span data-i18n="skin_classic">原版</span>
-          </button>
-          <button
-            type="button"
-            role="radio"
-            aria-checked="false"
-            data-skin="sticker"
-          >
-            <span class="swatch sticker" aria-hidden="true"></span
-            ><span data-i18n="skin_sticker">贴纸</span>
-          </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="true"
+              data-skin="classic"
+            >
+              <span class="swatch classic" aria-hidden="true"></span
+              ><span data-i18n="skin_classic">原版</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-skin="sticker"
+            >
+              <span class="swatch sticker" aria-hidden="true"></span
+              ><span data-i18n="skin_sticker">贴纸</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -317,11 +335,15 @@
           <h2 data-i18n="screen_title">先筛一遍</h2>
           <p class="screen-intro" id="screen-intro"></p>
         </div>
+        <p class="screen-round" id="screen-round"></p>
         <ol class="screen-list" id="screen-list"></ol>
         <div class="screen-foot">
           <p class="screen-count" id="screen-count"></p>
           <button class="ghost" id="screen-reset" data-i18n="screen_reset">
             全部恢复
+          </button>
+          <button class="ghost" id="screen-more" data-i18n="screen_more" hidden>
+            继续细分
           </button>
           <button class="primary" id="screen-submit">开始排序</button>
         </div>

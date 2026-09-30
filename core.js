@@ -743,7 +743,11 @@
       size: state.size,
       selected: state.selected,
       duel: state.duel || null,
-      cut: state.cut || [], // 筛选步的划除（v1 格式的可选字段，旧存档缺省 []）
+      // 划除按轮次分组（ADR-0019 改写版）；旧存档是平面数组 → 迁移成单个轮次
+      cut:
+        state.cut && state.cut.length && !Array.isArray(state.cut[0])
+          ? [state.cut]
+          : state.cut || [],
     });
   }
 
@@ -757,22 +761,40 @@
       const selected = Array.isArray(s.selected)
         ? s.selected.filter((x) => typeof x === "string").slice(0, size)
         : [];
+      // 对决：旧格式是扁平的 order（= 单层级），新格式是按层级分组的 tiers
       let duel = null;
-      if (
-        s.duel &&
-        Array.isArray(s.duel.order) &&
-        s.duel.order.length &&
-        s.duel.order.every((x) => typeof x === "string") &&
-        Array.isArray(s.duel.answers) &&
-        s.duel.answers.length <= worstCase(s.duel.order.length) &&
-        s.duel.answers.every((x) => typeof x === "boolean")
-      ) {
-        duel = { order: s.duel.order, answers: s.duel.answers };
+      if (s.duel) {
+        const tiers = Array.isArray(s.duel.tiers)
+          ? s.duel.tiers.filter((g) => Array.isArray(g) && g.length)
+          : Array.isArray(s.duel.order) && s.duel.order.length
+            ? [s.duel.order]
+            : [];
+        const flat = tiers.flat();
+        const cap = tiers.reduce((sum, g) => sum + worstCase(g.length), 0);
+        if (
+          flat.length &&
+          flat.every((x) => typeof x === "string") &&
+          Array.isArray(s.duel.answers) &&
+          s.duel.answers.length <= cap &&
+          s.duel.answers.every((x) => typeof x === "boolean")
+        ) {
+          duel = { tiers, answers: s.duel.answers };
+        }
       }
-      // 划除必须落在已选里（脏存档会被过滤掉，而不是带进会话）
-      const cut = Array.isArray(s.cut)
+      // 划除必须落在已选里（脏存档会被过滤掉，而不是带进会话）。
+      // 旧格式是平面 id 数组 → 视为「全部在第一轮」。
+      const flat = Array.isArray(s.cut)
         ? s.cut.filter((x) => typeof x === "string" && selected.includes(x))
         : [];
+      const nested =
+        Array.isArray(s.cut) && Array.isArray(s.cut[0]) ? s.cut : null;
+      const cut = (nested ? nested : [flat])
+        .map((ids) =>
+          (Array.isArray(ids) ? ids : []).filter(
+            (x) => typeof x === "string" && selected.includes(x)
+          )
+        )
+        .filter((ids) => ids.length);
       return { size, selected, duel, cut };
     } catch (err) {
       return null;
@@ -795,6 +817,35 @@
     };
   }
 
+  // 逐层对决的进度：题数上限是各层级组大小之和（筛到哪一轮决定问多少题）
+  function tierProgress(tiers, answered) {
+    const max = tiers.reduce((sum, g) => sum + worstCase(g.length), 0);
+    const p = duelProgress(1, 0); // 只为拿同一个形状
+    const done = Math.max(0, Math.min(answered, max));
+    const remaining = max - done;
+    // 当前在第几层 / 该层内第几题（由答案数跨层累加得出）
+    let tier = 0;
+    let local = done;
+    for (const g of tiers) {
+      const w = worstCase(g.length);
+      if (local <= w) break;
+      local -= w;
+      tier += 1;
+    }
+    return {
+      ...p,
+      answered: done,
+      max,
+      percent: max ? Math.round((done / max) * 100) : 0,
+      remaining,
+      etaSeconds: remaining * SECONDS_PER_DUEL,
+      tier,
+      tiers: tiers.length,
+      tierAnswered: local,
+      tierMax: worstCase(tiers[tier] ? tiers[tier].length : 0),
+    };
+  }
+
   // ---- 对决里程碑（50% 只庆祝一次；刷新进入已越过的对决只标记不庆祝） ----
   const HALFWAY_PERCENT = 50;
 
@@ -803,6 +854,122 @@
     if (!(percent >= HALFWAY_PERCENT))
       return { shown: false, celebrate: false };
     return { shown: true, celebrate: true };
+  }
+
+  // ---- 筛选：逐轮二分（ADR-0019 改写版） ----
+  // 保留组剩 SCREEN_STOP 人就停：4 人以下组内排序的边际收益极小
+  // （保 3 → 3 题 vs 保 4 → 5 题，差 2 题却少一个完整名次）。
+  const SCREEN_STOP = 4;
+
+  // 一档位完整筛到停的轮次计划
+  function screenRounds(size) {
+    const cuts = [];
+    let kept = Math.max(0, size);
+    while (kept > SCREEN_STOP) {
+      const c = Math.floor(kept / 2);
+      cuts.push(c);
+      kept -= c;
+    }
+    return { cuts, kept, done: true };
+  }
+
+  // 当前这一轮的进度：cutRounds 是「按轮次分组的已划 id」。
+  // deeper = 用户是否已点「继续细分」进入下一轮。轮次是自动推进的，所以「本轮刚划完、
+  // 可以提交」和「已经在下一轮里」必须由这个显式信号区分 —— 否则 complete 会在轮次
+  // 推进的瞬间丢掉，用户就没法在第一轮就提交（Q5 批准的是「可提交 or 继续细分」二选一）。
+  function screenStep(size, cutRounds, deeper) {
+    const rounds = Array.isArray(cutRounds) ? cutRounds : [];
+    let pool = Math.max(0, size);
+    let round = 0;
+    let cut = 0;
+    // 「刚推进过一轮」：轮次一推进 cut 就归零，所以这是唯一能识别
+    // 「上一轮刚划完、用户还没决定要不要继续细分」的信号
+    let justAdvanced = false;
+    for (const ids of rounds) {
+      if (pool <= SCREEN_STOP) break;
+      const inRound = new Set(ids).size;
+      if (inRound < Math.floor(pool / 2)) {
+        cut = inRound; // 这一轮还没划够，停在轮内
+        break;
+      }
+      pool -= inRound;
+      round += 1;
+      cut = 0; // 进入下一轮：本轮计数归零（否则会带着上一轮的数把门关死）
+      justAdvanced = true;
+    }
+    if (pool <= SCREEN_STOP) {
+      return {
+        round,
+        need: 0,
+        cut: 0,
+        canCut: 0,
+        pool,
+        complete: true,
+        filled: true,
+        atBoundary: true, // 保留组到下限，没有更深的轮次了
+      };
+    }
+    const need = Math.floor(pool / 2);
+    // 划掉的必须是这一轮池子里的人；越界的忽略。
+    // 「定值门槛」由 toggleCut 拒绝超额来守（canCut 归零），所以这里 cut ≤ need。
+    const filled = cut >= need;
+    // 刚划完一轮、且这一轮一个都还没划 → 二选一（提交 or 再细分）。
+    // 「已经进这一轮并划了几个」本身就说明用户往下走了，不能算边界。
+    const atBoundary = justAdvanced && cut === 0 && !deeper;
+    return {
+      round,
+      need,
+      cut,
+      canCut: Math.max(0, need - cut),
+      pool,
+      filled,
+      atBoundary,
+      // 提交门槛：本轮划够、或者刚划完一轮还没决定要不要继续 → 都能提交
+      complete: filled || atBoundary,
+    };
+  }
+
+  // 层级：由内到外（最内层 = 前 K 名，越早划的组越靠后）
+  function screenTiers(selected, cutRounds) {
+    const rounds = (Array.isArray(cutRounds) ? cutRounds : []).filter(
+      (x) => x.length
+    );
+    const gone = new Set(rounds.flat());
+    const inner = selected.filter((id) => !gone.has(id));
+    return [inner, ...rounds.slice().reverse()];
+  }
+
+  // 题数上限 = 各层级组大小之和（筛到哪一轮决定问多少题）
+  function tierQuestionMax(size, maxRounds) {
+    const { cuts } = screenRounds(size);
+    const used = cuts.slice(
+      0,
+      typeof maxRounds === "number" ? maxRounds : cuts.length
+    );
+    // 层级 = [最内层保留组, ...各轮划掉组（倒序）]。
+    // 注意 kept 要按「实际用了几轮」算，不是完整计划的 kept —— 筛得浅题数反而多。
+    const kept = size - used.reduce((a, b) => a + b, 0);
+    const sizes = [kept, ...used.slice().reverse()];
+    return sizes.reduce((sum, n) => sum + worstCase(n), 0);
+  }
+
+  // 逐层排序：对手只来自同一层级（跨层级比较会推翻「保留组占据前 K 名」）
+  function* rankTiers(tiers) {
+    const out = [];
+    for (const g of tiers) out.push(yield* mergeSort(g));
+    return out.flat();
+  }
+
+  function replayTiers(tiers, answers) {
+    const g = rankTiers(tiers);
+    let r = g.next();
+    for (const a of answers) {
+      if (r.done) break;
+      r = g.next(a);
+    }
+    return r.done
+      ? { done: true, order: r.value }
+      : { done: false, pair: r.value };
   }
 
   // ---- 导航相位（view 转移表；view 不持久化，刷新由相位恢复。ADR-0013） ----
@@ -820,7 +987,9 @@
       selected,
       step: c.step,
       full: selected >= size,
-      kept: typeof c.kept === "number" ? c.kept : selected, // 筛选后留下的人数
+      // 筛选门槛（ADR-0019 改写版）：本轮划够一半或已到「刚划完一轮」边界。
+      // 旧口径是 kept >= size，而 kept = 已选 − 已划 ≤ size → 恒为「只有全留才能提交」。
+      canScreen: c.canScreen === true, // 缺省即「不提交」（脏调用保守回退）
     };
   }
 
@@ -845,29 +1014,35 @@
         : s.full
           ? { view: "screening", effect: "none" }
           : stay(s),
-    // 提交筛选：留下的人数必须够档位（ADR-0019：档位语义不被筛掉）
+    // 提交筛选：门槛是「本轮划够一半」（不是「留下的人够档位」——那个条件恒真/恒假）
     rank: (s) =>
       s.view === "screening" || s.phase === "screening"
-        ? s.kept >= s.size
+        ? s.canScreen
           ? { view: "duel", effect: "start" }
           : stay(s)
         : s.phase === "duel"
           ? { view: "duel", effect: "resume" }
           : stay(s),
+    // 步骤条 ②：还没开始就去筛选页（ADR-0019 改写版），对决中才是对决。
+    // 相位是 screening 时也要回筛选页 —— 从挑人页点 ② 之前相位已经是 screening 了。
     duel: (s) =>
       s.phase === "duel"
         ? { view: "duel", effect: "none" }
-        : s.phase === "pick" && s.full
-          ? { view: "duel", effect: "start" }
-          : stay(s),
+        : s.phase === "screening"
+          ? { view: "screening", effect: "none" }
+          : s.phase === "pick" && s.full
+            ? { view: "screening", effect: "none" }
+            : stay(s),
     result: (s) =>
       s.phase === "result" ? { view: "result", effect: "none" } : stay(s),
     start: (s) =>
       s.phase === "duel"
         ? { view: "duel", effect: "resume" }
-        : s.full
-          ? { view: "duel", effect: "start" }
-          : stay(s),
+        : s.phase === "screening"
+          ? { view: "screening", effect: "none" }
+          : s.full
+            ? { view: "screening", effect: "none" }
+            : stay(s),
     resume: (s) =>
       s.phase === "duel" ? { view: "duel", effect: "none" } : stay(s),
     drop: dropDuel,
@@ -933,6 +1108,12 @@
     generationOptions,
     rosterView,
     replay,
+    replayTiers,
+    screenRounds,
+    screenStep,
+    screenTiers,
+    tierQuestionMax,
+    tierProgress,
     worstCase,
     shuffle,
     milestone,
