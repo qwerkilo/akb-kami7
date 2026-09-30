@@ -5,76 +5,110 @@
 纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `session.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
 
 - 站点覆盖三系列共 13 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY），现役 + 毕业（人数以脚本输出为准，见 `docs/agents/data-pipeline.md`）。
-- 能力：三系列切换（各自保留已选/对决进度，localStorage）、7/16/40 档位（40 档精确全序最坏 177 题，海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴））、简体输入与罗马字检索（`simplified.js` 折叠表 + `core.js` 假名→罗马字）、对决进度与刷新续玩（含向导模式：三步指示器、首屏见脸、引导卡、进度环、对决说明与续玩卡，① 返回不丢进度）、成员简介（卡片「i」→ 资料卡，值随语言本地化：映射表 + 自由文本对照表）、一键清空已选。
-- `core.js` 是无 DOM 依赖的纯逻辑（搜索归一、折叠索引、两级分组、对决 replay、持久化载荷编解码、字幕 module、导航转移表 `nav`/`steps`、占位图）；`session.js` 是会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 是海报绘制 module（7/16/40 × 四样式：金字塔/杂志/榜单/拼贴，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en/ja 文案；`app.js` 是 DOM 层：向导（步骤指示器/引导/进度/续玩）→ pick（系列/筛选/搜索）→ duel（两两对比排序，可回放归并、可撤回、可续玩）→ result（canvas 海报导出）。
-- 三语 UI（zh/en/ja）：文案在 `i18n.js`，`index.html` 的 `data-i18n` 属性引用同一批键；改文案三处同步，`test/i18n.test.js` 检查键完整性（ja 与 zh 同集合、en 允许 `leave_*`）。首次访问按浏览器语言自动选（ja→ja、zh→zh、其他→en）并记住选择；数据字段随 zh/en 走映射表、日语直出数据原文。
-- `members.js` 是生成文件（48pedia + 等爱三团官网/Wikipedia），不要手改。
+- 能力：三系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，40 档五层、最坏 106 题）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（classic / sticker）、PWA 可安装 + 离线。
+- 层次：`core.js` 无 DOM 依赖的纯逻辑（搜索归一、两级分组、筛选轮次与层级、`mergeSort` 对决 replay、持久化载荷编解码、导航相位 `nav`/`steps`、`names()` 命名组合）；`session.js` 会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 海报绘制（7/16/40 × 四样式，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en/ja 文案；`app.js` 是 DOM 层：向导 → pick → 筛选 → duel → result（canvas 海报导出）。
+- `members.js` / `simplified.js` 是生成文件，不要手改。
+- 三语 UI（zh/en/ja）：文案在 `i18n.js`，`index.html` 的 `data-i18n` 引用同一批键。**加一个 UI 文案要同时改三种语言**（漏一种时 `test/i18n.test.js` 会红，它还额外要求 ja 与 zh 同集合）；出身地/星座/期生/状态这类可穷举字段走映射表（只服务 zh/en，ja 直出数据原文），趣味/特技走仓库内「日文原文 → zh/en」对照表，未收录自动回退原文。
+
+## 工作流：三条链
+
+**核心链条（做新功能）**：`grill-with-docs` → `to-spec` → `to-tickets` → `implement-spec` → `code-review` → `retro`
+
+- `grill-with-docs` 顺带维护 `CONTEXT.md` 与 `docs/adr/`（术语与不可逆决定），不要跳过。
+- `implement-spec` 的前提是**真 issue tracker + 每工单一个 worktree + 子代理并发**。本仓 tracker 是本地 markdown（`docs/agents/issue-tracker.md`），工单通常在**同一会话里顺序做**，所以实际常用 `/implement` 逐工单（它内部驱动 `tdd` 并以 `code-review` 收尾）；工单彼此独立且量大时才用 `implement-spec`。子代理的笔记要存**仓库外**（否则会被 lint-staged 的格式化卷进去）。
+- `retro` 的产出是**改 agent 环境**（导航指针、自动化检查、编码规范、工具），不是代码改动 —— 大部分落点是本文件、`docs/agents/*`、测试守卫。
+
+**修 Bug**：`diagnosing-bugs` → `tdd`
+
+先有一条**能对这个 bug 变红**的命令（脚本路径 / 测试），再谈原因；修完补回归测试。`app.js` 没有单测缝，接线层的 bug 只有 E2E 能抓（见下）。
+
+**架构重构**：`improve-codebase-architecture` → （需要看得见的问题时）`prototype` → `to-spec` → `to-tickets` → `tdd`
+
+扫描给出的候选要**自己复核证据**再排序（子代理的结论会错）。有可复现症状的先按 `diagnosing-bugs` 建回路，纯形状问题才直接进 `to-spec`。
+
+## 测试：七处缝与实际文件
+
+跨缝前先跟用户确认。`npm test` 一次跑全部（`node --test` + Python unittest），均离线不联网。
+
+| 缝                  | 落点                                       | 文件                                                                                                                       |
+| ------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| ① Python 解析纯函数 | fixture 驱动                               | `scripts/test_*.py`                                                                                                        |
+| ② `core.js` 纯逻辑  | 纯函数直接调                               | `test/core.test.js`                                                                                                        |
+| ③ 产物不变量        | 清单 vs 盘上 reality **双向**比对          | `test/members-artifact.test.js`、`test/pwa-artifact.test.js`、`test/style-artifact.test.js`、`test/sw-cache-rules.test.js` |
+| ④ `session.js`      | 注入内存 storage + 假成员表                | `test/session.test.js`                                                                                                     |
+| ⑤ `poster.js`       | 注入假 ctx 与 tokens                       | `test/poster.test.js`                                                                                                      |
+| ⑥ `i18n` 键完整性   | 含**拼出来的键家族**（死键守卫查不到它们） | `test/i18n.test.js`                                                                                                        |
+| ⑦ E2E 黑盒          | 行为不变的硬验收                           | **不在仓里**（`/tmp/opencode/e2e*.cjs`）                                                                                   |
+
+- 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
+- **E2E 脚本不入仓，换会话就没了** —— 需要时重建（`git log` 里有当时的断言清单）。⑦ 是 UI 改动的唯一验收手段。
+- 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
+- 缝④ 的夹具 id 前缀：`a1–a40` = 48g、`s1–s40` = 坂道、`l1–l40` = 等爱。写错前缀时 `toggleSelect` 静默返回 false，测试会以「筛不出东西」的方式假绿。
+- 断言要挑**有分辨力**的那一个：同一条测试里有的断言在错误路径上也会通过（曾有一条「complete」假绿、只有「已划人数」抓住）。
+- 写变异测试（验证守卫会红）时**先断言文件真的变了**：「锚点没命中」和「变异存活」在结果上长得一模一样（都是全绿），而 Prettier 常把三元/多行表达式重排导致静默不命中。
 
 ## CodeGraph（代码检索优先）
 
-- 本仓库已建立 CodeGraph 索引（`.codegraph/` 是本地缓存，已 gitignore）。**定位符号、梳理调用链、了解架构一律先走 CodeGraph**：MCP 工具 `codegraph_explore`（带上 `projectPath`），或命令行 `codegraph explore "<符号或问题>"`。
-- 代码或数据改动后同步索引：`npm run graph:sync`（即 `codegraph sync -q`，秒级）；查看状态 `codegraph status`；索引异常时用 `codegraph index` 重建。
-- 本机 FUSE 限制导致 git 钩子不执行，同步不会自动发生：**每次提交前手动同步一次**，与手跑 lint-staged 同一条流程。
-- 索引覆盖 JS/Python 代码；HTML/CSS 不在索引内。
+- 本仓库已建立 CodeGraph 索引（`.codegraph/` 是本地缓存，已 gitignore）。**定位符号、梳理调用链、了解架构一律先走 CodeGraph**：MCP 工具 `codegraph_explore`（带 `projectPath`），或命令行 `codegraph explore "<符号或问题>"`。
+- 改动后同步：`npm run graph:sync`；状态 `codegraph status`；异常时 `codegraph index`。
+- 本机 git 钩子不执行（见环境限制），**每次提交前手动同步一次**，与手跑 lint-staged 同一条流程。索引只覆盖 JS/Python，HTML/CSS 不在索引内。
 
 ## 常用命令
 
-- 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问页面（`file://` 下海报导出会因 canvas 污染失败）。
-- 格式化（Prettier，配置见 `.prettierrc`）。本机钩子不执行（原因见下），提交前手动运行：
+- 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
+- 格式化（Prettier，配置见 `.prettierrc`）。提交前手动运行：
   `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
-  （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。仓库没有 lint / typecheck 脚本。
-- 测试：`npm test`（node:test 跑 `test/*.test.js` + Python 标准库 unittest 跑 `scripts/test_*.py`，均离线、不联网）。
-- 查看原型：原型文件在 `prototype/*` 分支上，main 工作区里没有属预期。用 `git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再 `python3 -m http.server <端口> --directory /tmp/akb-proto-<名>` 托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
+  （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。仓库没有 lint / typecheck 脚本 —— **格式化不会被 `npm test` 抓到，漏跑就静默回归**。
+- 查看原型：原型在 `prototype/*` 分支上，main 工作区里没有属预期。`git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再静态服务器托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
+
+## UI 版面：横账要按维度算，不能只按默认状态量
+
+- 窄屏（≤560px）页头横账 = **品牌 + 系列 tab + 「更多」**，其中**品牌宽度随系列与档位变**（en 16 档的 "Senbatsu" 133 比 7 档的 "Oshi 7" 96 宽 37）、**tab 满宽随语言变**、**离线胶囊 84px 插在永不让步的一侧**。只按「7 档 + 中文 + 在线」量过就会全绿，然后 P0 照溜（已因此漏过两轮）。守卫在 E2E 的 390px 块，按语言 × 档位 × 系列 × 在线/离线跑。
+- ≤380px 的换行用 `display: contents` 让品牌 / tab /「更多」各自参与 `.masthead` 排列，tab 落第二行、其余留第一行；`margin-left: auto` 而不是写死像素（zh「更多」52 / en「More」63 宽度不同）。
+- 探针**读计算样式**而不是元素属性：`[hidden]` 会被作者样式的 `display` 盖掉（`el.hidden === true` 但元素仍在布局里），这类问题只有计算样式看得见。
+- 名册卡片 `<img>` 没有 `onerror` 兜底 —— 0 字节的图会渲染成坏卡片。
 
 ## PWA（可安装 + 离线）
 
-策略与选型见 `docs/adr/0016-pwa.md`。要动手改 SW / 缓存、指引文案、离线验收时读 `docs/agents/pwa.md`。
+策略与选型见 `docs/adr/0016-pwa.md`；要改 SW / 缓存 / 指引文案 / 离线验收时读 `docs/agents/pwa.md`。
 
-- **改了壳文件就同步 `sw-cache-rules.js` 的 `SHELL_FILES`**（根目录 `.js` / `style.css` / `index.html` / 图标）：漏了 `test/sw-cache-rules.test.js` 会红（清单与盘上文件双向比对）。缓存分类规则（哪个请求进哪个桶、容量多少）也在那个文件里，`sw.js` 用 `importScripts` 引入——所以它能进 node 测试，规则是可断言的而不是 grep 出来的形状。
-- **持久化键名只有一处**：`core.js` 的 `PREF_KEYS`（含按系列存档的 `state: (s) => …`）✓。`app.js` / `session.js` 不得出现 `akb` 开头的键名字面量，也不得直接 `localStorage.*("akb…")` ✓（守卫在 `test/session.test.js` ✓，它同时要求两边**真的用上** `PREF_KEYS` ✓）。**刻意的例外**：`index.html` 的内联脚本要读 `akb:skin` 才能让首屏不闪——它必须在模块加载前跑 ✓，且那个默认值必须等于 `session.js` 的默认皮肤 ✓（由首屏 E2E 钉住 ✓）。
+- **改了壳文件就同步 `sw-cache-rules.js` 的 `SHELL_FILES`**（根目录 `.js` / `style.css` / `index.html` / 图标）：漏了 `test/sw-cache-rules.test.js` 会红。缓存分类规则（哪个请求进哪个桶、容量多少）也在那个文件里，`sw.js` 用 `importScripts` 引入 —— 所以规则是可断言的，而不是 grep 出来的形状。
+- **持久化键名只有一处**：`core.js` 的 `PREF_KEYS`（含按系列存档的 `state: (s) => …`）。`app.js` / `session.js` 不得出现 `akb` 开头的键名字面量，也不得直接 `localStorage.*("akb…")`（守卫在 `test/session.test.js`，它同时要求两边**真的用上** `PREF_KEYS`）。**刻意的例外**：`index.html` 的内联脚本要读 `akb:skin` 才能让首屏不闪 —— 它必须在模块加载前跑，且那个默认值必须等于 `session.js` 的默认皮肤（由首屏 E2E 钉住）。
 - **能力探测决定按钮行为，不决定入口可见性**：页脚安装入口除已装成应用外始终显示，`beforeinstallprompt` 只决定「安装」是一键还是改名「怎么装？」。把可见性挂在这个事件上，入口会在 Firefox / macOS Safari / headless / 非安全上下文里整体消失。
 - **离线要预热两样**：选中成员时预热 `img/full`（名册只渲染 thumb，海报读 full）、SW 接管后重取字体（首访的字体请求发生在接管之前）。
-- **更新由用户点「刷新」才切**，不自动 reload（会打断进行中的对决）。
-- `file://` 下不注册 SW。
+- **更新由用户点「刷新」才切**，不自动 reload（会打断进行中的对决）。`file://` 下不注册 SW。
+
+## 会话状态的接线纪律
+
+- `session.js` 新增字段必须在 **snapshot / deserializeState / 落盘 / 切系列** 全部接上。漏一处的症状是「刷新前后相反」或「切系列就丢」——`deeperRound` 是第三例（localStorage 那条路存了，内存里按系列的 `remember()` 漏了）。
+- 存档校验要**对称**：成员归属、跨轮去重、每轮人数（按 `screenRounds(size).cuts` 夹）三层都夹。少一层就会出现「提交按钮与细条题数打架」——旧扁平 cut 迁移会把全部 id 塞进第一轮，那是真实用户能踩到的越界形状。
+- 加了新规则后**既有测试变红，先看夹具是不是越界形状**，别急着改断言迁就实现（7 档的计划只有 1 轮，「7 档存 3 轮」这种夹具在新规则下消失是对的）。
 
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）
 
-- 不支持符号链接和可执行位：`npm install` 必须加 `--bin-links=false --ignore-scripts`；husky 钩子在本机无法执行（git 会跳过），所以提交前要手动跑上面的 lint-staged 命令。
+- 不支持符号链接和可执行位：`npm install` 必须加 `--bin-links=false --ignore-scripts`；husky 钩子无法执行（git 会跳过），所以提交前手动跑 lint-staged 与 `graph:sync`。
 - 当前 Node v20.19.2：lint-staged 固定在 `^16`，不要升级到 v17（需要 Node ≥22）。
+- **内存是 E2E 的实际瓶颈**：本机 15GB 总量，可用常驻掉到 3GB 以下时单次页面导航要 **30 秒**（正常 ~1 秒），全量 E2E 必然超时。跑之前先 `free -m`，并清掉历轮遗留的静态服务器（`ps aux | grep http.server`；**别用宽泛的 `pkill http`，会误杀用户自己的预览**）。预算不足时把重矩阵拆成独立脚本分开跑。
+- 网络：`github.com` 资源一律走 `https://gh-proxy.com/` 前缀；纯信息查询先 websearch。`gh` CLI 未安装，API 走 `https://gh-proxy.com/https://api.github.com/...`（列目录比猜 raw 路径可靠）。
 
 ## 数据与图片生成
 
-- 重新生成成员数据/图片（`scripts/fetch_members.py`）前读 `docs/agents/data-pipeline.md`。
-
-## 工作流 SOP（尽量遵守）
-
-1. 先用 `grilling` / `grill-with-docs` 把需求和方案 grill 清楚。
-2. 更新 `CONTEXT.md` 和 `docs/adr/`（`domain-modeling`）。
-3. `to-spec` → `.scratch/<feature>/spec.md`。
-4. `to-tickets` → `.scratch/<feature>/issues/NN-*.md`。
-5. `implement`，遵循 `tdd`；测试跑在 `node:test` + Python unittest 上，`npm test` 一键。
-   - 测试只落七处缝：Python 解析纯函数、`core.js` 纯逻辑、产物不变量（`members.js`/`simplified.js`、PWA 的 manifest/SW 清单/图标）、`session.js`、`poster.js`、`i18n` 键完整性、E2E 黑盒；跨缝前先确认。
+重新生成成员数据/图片（`scripts/fetch_members.py`）前读 `docs/agents/data-pipeline.md`（含必需源门与 `--accept-drop` 逃生阀、成员 `img` 真值来源是站内文件而非远端解析结果）。
 
 ## Code Review 检查点
 
 - 每次 review 结束后，向 `docs/reviews/checkpoints.md` 追加一条记录（格式见该文件）：日期、本次基点、审查范围、结论、遗留问题、下次基点（本次 HEAD 的 SHA）。
 - 下次 review 从上次记录的基点开始，不重复审查已经通过的部分。
+- 质检基线在 `docs/reviews/qa-baseline.md`；口径「CCN > 10 才列修」目前**没有任何自动化在守**（lizard 也不输出 CRAP，本仓无覆盖率工具链），要靠手动跑。
 
 ## 约定
 
-- 与用户交流使用中文。
-- 提交信息使用中文（沿用仓库历史风格）。
+- 与用户交流使用中文；提交信息使用中文（沿用仓库历史风格）。
+- 声明「收口完成」前先 grep 全部调用点确认已接线（曾出现 `frame()` 只定义未接线却写进记录，被两轴审查抓出）。
+- 验证结论要写实际跑过的命令与数字；跑不了的（如设备资源不够）**如实说明没跑成**，不要写成已验证。
 
 ## Agent skills
 
-### Issue tracker
-
-新建/更新 spec 与工单（`to-spec` / `to-tickets` / `triage` / `wayfinder`）前读 `docs/agents/issue-tracker.md`：`.scratch/<feature>/` 的本地 markdown 约定与操作。
-
-### Triage labels
-
-`triage` 打标签前读 `docs/agents/triage-labels.md`：五个标准角色，标签字符串与角色同名。
-
-### Domain docs
-
-改 `CONTEXT.md`、写 ADR 或命名领域概念前读 `docs/agents/domain.md`：单上下文（根 `CONTEXT.md` + `docs/adr/`）。
+- **Issue tracker**：新建/更新 spec 与工单（`to-spec` / `to-tickets` / `triage` / `wayfinder`）前读 `docs/agents/issue-tracker.md`（`.scratch/<feature>/` 的本地 markdown 约定）。
+- **Triage labels**：`triage` 打标签前读 `docs/agents/triage-labels.md`。
+- **Domain docs**：改 `CONTEXT.md`、写 ADR 或命名领域概念前读 `docs/agents/domain.md`（单上下文：根 `CONTEXT.md` + `docs/adr/`）。
