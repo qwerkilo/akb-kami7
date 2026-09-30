@@ -112,6 +112,11 @@
             }
           : null,
         cut: state.cut.slice(),
+        // 「我为这一轮点过继续细分」也是**按系列**的状态：漏了它，切一次系列这个
+        // 决定就变了（切回来变成「本轮已完整、可提交」），而 F5 刷新又会从 localStorage
+        // 读回来 → 同一状态下「刷新前后相反」。写档的 write() 一直有它，只有这份
+        // 内存 store 漏了 —— 两份形状不一致的典型。
+        deeperRound: state.deeperRound,
       };
     }
 
@@ -323,6 +328,7 @@
       state.query = "";
       state.open = new Set();
       state.cut = (st.cut || []).slice();
+      state.deeperRound = st.deeperRound || 0;
       setDuel(st.duel);
       return true;
     }

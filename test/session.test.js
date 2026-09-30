@@ -1005,3 +1005,87 @@ test("筛选：点「继续细分」后刷新，那一轮仍不给出提交", ()
   );
   assert.equal(v.canCut, 4, "本轮名额还是 4");
 });
+
+// ---- 架构扫描第 2 项：切系列不能把「我为这一轮点过继续细分」这个决定弄丢 ----
+// 背景：deeperRound 有两条路。localStorage 走 write()/loadSeries()，存了也读了；
+// 但 switchSeries 走的是内存里的 store[s]（remember 写、switchSeries 读），
+// 而 remember() 当时漏了 deeperRound → 切一次系列，这个决定就变了；
+// F5 刷新又会从 localStorage 读回来 → 同一状态下「刷新前后相反」。
+//
+// 注意顺序：要先切到另一个系列再在那边选人。反过来（留在 48g 里 setSize(16) 想给坂道
+// 准备人）不成立：setSize 会把当前系列的已选清掉，切回来 cut 是 0 —— 我第一版就是这么
+// 写错的，第一条断言「complete」还假绿通过，只有「已划人数」那条抓住。
+const cutRound = (S) => {
+  const cur = S.snapshot().screening;
+  for (let i = 0; i < cur.need; i++) {
+    const c = S.snapshot().screening;
+    const next = c.pool.find((id) => !c.cut.includes(id));
+    if (!next) break;
+    S.toggleCut(next);
+  }
+};
+
+test("筛选：切系列往返后 deeperRound 不变（提交门槛不能刷新前后相反）", () => {
+  const S = make();
+  S.setSize(40);
+  for (let i = 1; i <= 40; i++) S.toggleSelect("a" + i);
+  cutRound(S);
+  assert.equal(S.snapshot().screening.complete, true, "R1 划够可提交");
+  assert.equal(S.enterNextRound(), true, "点继续细分");
+  const before = S.snapshot().screening;
+  assert.equal(before.complete, false, "点了之后本轮必须再划够");
+  const cutBefore = before.cut.length;
+
+  S.switchSeries("sakamichi");
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("s" + i); // 坂道这边也要有真实状态（夹具里坂道是 s1–s40）
+  S.switchSeries("48g");
+
+  const after = S.snapshot().screening;
+  assert.equal(after.cut.length, cutBefore, "切回原系列后已划人数不变");
+  assert.equal(after.complete, false, "切回原系列后仍应是「本轮还要再划够」");
+  assert.equal(after.round, before.round, "轮次不变");
+});
+
+test("筛选：切到另一个系列不该继承上一个系列的 deeperRound", () => {
+  const S = make();
+  S.setSize(40);
+  for (let i = 1; i <= 40; i++) S.toggleSelect("a" + i);
+  cutRound(S);
+  assert.equal(S.enterNextRound(), true, "48g 在第 1 轮点继续细分");
+  assert.equal(S.snapshot().screening.round, 1, "48g 现在在第 1 轮");
+
+  // 坂道也走到第 1 轮的边界：若它继承了 48g 的 deeperRound=1，边界会被压掉 → canRecurse 假
+  S.switchSeries("sakamichi");
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("s" + i);
+  const v0 = S.snapshot().screening;
+  assert.equal(v0.round, 0, "新系列从第 0 轮开始");
+  assert.equal(v0.cut.length, 0, "新系列没有已划");
+  cutRound(S);
+  const v1 = S.snapshot().screening;
+  assert.equal(v1.round, 1, "坂道也进了第 1 轮");
+  assert.equal(v1.complete, true, "坂道第 1 轮划够可提交");
+  assert.equal(
+    v1.canRecurse,
+    true,
+    "坂道自己的边界没被 48g 的 deeperRound 压掉"
+  );
+});
+
+test("筛选：切走再切回，48g 仍能接着划完并提交（端到端不丢进度）", () => {
+  const S = make();
+  S.setSize(40);
+  for (let i = 1; i <= 40; i++) S.toggleSelect("a" + i);
+  cutRound(S);
+  S.enterNextRound();
+  S.switchSeries("sakamichi");
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("s" + i);
+  S.switchSeries("48g");
+  // 回来后继续划完这一轮，应该能提交
+  cutRound(S);
+  const v = S.snapshot().screening;
+  assert.equal(v.complete, true, "切回来接着划完即可提交");
+  assert.equal(S.startDuel(), true, "能开始排序");
+});
