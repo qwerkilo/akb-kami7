@@ -8,7 +8,8 @@
     "graph:sync": "codegraph sync -q",
     "prepare": "husky",
     "check": "npm run format:check && npm test",
-    "format:check": "node node_modules/prettier/bin/prettier.cjs --check ."
+    "format:check": "node node_modules/prettier/bin/prettier.cjs --check .",
+    "complexity": "node scripts/complexity.mjs"
   },
   "devDependencies": {
     "husky": "^9.1.7",

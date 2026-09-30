@@ -1778,7 +1778,8 @@ main {
        133+8+159+8+52+32 = 392 > 390 —— 光在线就已经把第三个 tab 裁掉 2px。
      - **离线**：`#pwa-chip` 84px 插在 `.masthead-side` 里，而那边是 `flex:none`
        永不让步 → seg 被压到 66px、两个 tab 落到盒外且 `elementFromPoint` 命中空。
-     三处处置：gap 8→5、系列 tab 内边距 12px→8px→7px（每按钮省 10px，三按钮省 30px）；离线胶囊在窄屏缩成
+     三处处置（省多少 px 不写在这里 —— `test/style-artifact.test.js` 钉的是**级联后的生效值**，
+     改了这三处却不改那个测试，它会红）：收 gap、收系列 tab 内边距；离线胶囊在窄屏缩成
      「更多」按钮角上的一个点（绝对定位，横向 0 成本，文字对读屏仍可见）。 */
   .masthead {
     gap: 5px;

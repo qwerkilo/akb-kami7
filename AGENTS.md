@@ -5,7 +5,7 @@
 纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `session.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
 
 - 站点覆盖三系列共 13 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY），现役 + 毕业（人数以脚本输出为准，见 `docs/agents/data-pipeline.md`）。
-- 能力：三系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，40 档五层、最坏 106 题）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（classic / sticker）、PWA 可安装 + 离线。
+- 能力：三系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，层级与题数上限见 `docs/adr/0019-screening-then-rank.md`）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（classic / sticker）、PWA 可安装 + 离线。
 - 层次：`core.js` 无 DOM 依赖的纯逻辑（搜索归一、两级分组、筛选轮次与层级、`mergeSort` 对决 replay、持久化载荷编解码、导航相位 `nav`/`steps`、`names()` 命名组合）；`session.js` 会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 海报绘制（7/16/40 × 四样式，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en/ja 文案；`app.js` 是 DOM 层：向导 → pick → 筛选 → duel → result（canvas 海报导出）。
 - `members.js` / `simplified.js` 是生成文件，不要手改。
 - 三语 UI（zh/en/ja）：文案在 `i18n.js`，`index.html` 的 `data-i18n` 引用同一批键。**加一个 UI 文案要同时改三种语言**（漏一种时 `test/i18n.test.js` 会红，它还额外要求 ja 与 zh 同集合）；出身地/星座/期生/状态这类可穷举字段走映射表（只服务 zh/en，ja 直出数据原文），趣味/特技走仓库内「日文原文 → zh/en」对照表，未收录自动回退原文。
@@ -77,6 +77,16 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 - 探针**读计算样式**而不是元素属性：`[hidden]` 会被作者样式的 `display` 盖掉（`el.hidden === true` 但元素仍在布局里），这类问题只有计算样式看得见。
 - 名册卡片 `<img>` 没有 `onerror` 兜底 —— 0 字节的图会渲染成坏卡片。
 
+## 注释与文档里能不能写数字
+
+- **陈述当前状态的数字不要写**（如「gap 8→6 省 4px」「40 档最坏 106 题」）：它一定会有第二份
+  副本，然后漂移。本项目已因此出过两次文档与代码不符（style.css 注释与生效值、AGENTS.md 说
+  离线胶囊还占 84px 而实现已改成绝对定位）。**数字让测试钉住**，文档与注释只指路
+  （`core.screenRounds(size).cuts` / 那个断言生效值的守卫）。
+- **「为什么这么定」的实测依据要写**（如「360px en 下按钮右边缘 366 → 6px 横向滚动」）——
+  那是决策快照，改决策时自然会更新，不会自己漂。
+- ADR 与 `docs/adr/` 里的数字属于决策记录，按历史快照处理，不因为代码变了就回改。
+
 ## PWA（可安装 + 离线）
 
 策略与选型见 `docs/adr/0016-pwa.md`；要改 SW / 缓存 / 指引文案 / 离线验收时读 `docs/agents/pwa.md`。
@@ -97,6 +107,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 - 不支持符号链接和可执行位：`npm install` 必须加 `--bin-links=false --ignore-scripts`；husky 钩子无法执行（git 会跳过），所以提交前手动跑 lint-staged 与 `graph:sync`。
 - 当前 Node v20.19.2：lint-staged 固定在 `^16`，不要升级到 v17（需要 Node ≥22）。
+- **跑浏览器套件之前先跑 `node scripts/preflight.mjs`**：它报可用内存并列出历轮遗留的静态服务器，不足就退出 1。本机可用内存掉到 3GB 以下时单次页面导航要 30 秒（正常 ~1 秒），症状是「goto 超时」，看起来像产品坏了 —— 本项目已经因此白烧过两成回合。
 - **内存是 E2E 的实际瓶颈**：本机 15GB 总量，可用常驻掉到 3GB 以下时单次页面导航要 **30 秒**（正常 ~1 秒），全量 E2E 必然超时。跑之前先 `free -m`，并清掉历轮遗留的静态服务器（`ps aux | grep http.server`；**别用宽泛的 `pkill http`，会误杀用户自己的预览**）。预算不足时把重矩阵拆成独立脚本分开跑。
 - 网络：`github.com` 资源一律走 `https://gh-proxy.com/` 前缀；纯信息查询先 websearch。`gh` CLI 未安装，API 走 `https://gh-proxy.com/https://api.github.com/...`（列目录比猜 raw 路径可靠）。
 
