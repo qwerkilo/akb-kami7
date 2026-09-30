@@ -1771,8 +1771,38 @@ main {
      系列 tab 满宽（三语）：zh 201 / en 254（=LOVE Family）/ ja 212（イコノイジョイ）
      → 一律超预算，第三个 tab 被压成滚动盒、被切掉，「更多」又盖在上面 → 点不到。
      两处省：① 换短标签（i18n 的 series_*_short，窄屏由 CSS 选它）；② 内边距
-     12→8，每按钮省 8px。ja 最紧：132+8+157+8+52+32 = 389 ≤ 390 ✓
-     —— 刚好，所以品牌字号不动（品牌是这个站的辨识度，不该为导航让路）。 */
+     12→8，每按钮省 8px。
+
+     2026-09-29 补：上面只按 **7 档** 算过，漏了两个维度，两路架构扫描各自独立指认：
+     - **档位**：en 的 16 档品牌是 "Senbatsu" 133（比 7 档的 "Oshi 7" 宽 37），于是
+       133+8+159+8+52+32 = 392 > 390 —— 光在线就已经把第三个 tab 裁掉 2px。
+     - **离线**：`#pwa-chip` 84px 插在 `.masthead-side` 里，而那边是 `flex:none`
+       永不让步 → seg 被压到 66px、两个 tab 落到盒外且 `elementFromPoint` 命中空。
+     两处处置：gap 8→6（省 4，让 16 档 en 在线也放得下）；离线胶囊在窄屏缩成
+     「更多」按钮角上的一个点（绝对定位，横向 0 成本，文字对读屏仍可见）。 */
+  .masthead {
+    gap: 6px;
+  }
+  /* 离线胶囊在窄屏只占「更多」按钮的左上角一个点：横向 0 成本。
+     文字不 display:none —— role="status" 要靠它播报，用 clip 移到屏幕外保留可访问性。 */
+  .pwa-chip {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    min-height: 0;
+    padding: 0;
+    border-radius: 999px;
+    background: none;
+    border: none;
+  }
+  .pwa-chip > span:not(.pwa-dot) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   .seg-label-full {
     display: none;
   }
@@ -1809,20 +1839,59 @@ main {
 /* 380px 以下横向真的放不下了（可用 288，品牌 132 + tab 168 + 更多 52 = 352），
    这时把系列 tab 放到第二行 —— 头部变高，好过把哪个 tab 切掉一半。 */
 @media (max-width: 380px) {
-  .masthead,
-  .masthead-main {
+  /* 步骤条也不参与横账就出事了：英文第 3 步标签最长，360px 上「3 Poster」那枚按钮
+     右边缘到 366 → 6px 横向滚动（挑人页可见）。这里只收内边距与间隙，不改标签。 */
+  .steps {
+    padding: 6px 4px;
+    gap: 2px;
+  }
+  .steps button {
+    padding: 8px 6px;
+    gap: 4px;
+  }
+  /* 目标版式：第一行 = 品牌（左）+「更多」（右），第二行 = 系列 tab 整行。
+     之前两版都没 achieving：
+       ① `.masthead-main { flex: 1 0 100% }` —— 把 main 顶成占满整行，兄弟节点
+          .masthead-side（里面是「更多」）被挤到第三行，页头 66 → 164px，
+          375px 以下首屏可见的名册卡从 3 张掉到 0（AGENTS.md 明列的「首屏见脸」归零）。
+       ② 改成 `flex: 1 1 auto` —— main 内部 seg 还会 grow，把 main 撑满，
+          「更多」仍然被挤下去（en 16 档实测 340 + 63 > 343）。
+     display:contents 让 main 的子元素直接成为 .masthead 的 flex item，于是三者
+     能各就各位；`margin-left:auto` 把「更多」推到右侧，与语言无关（zh「更多」52 /
+     en「More」63 宽度不同，写死数值就会在另一种语言下复发）。 */
+  .masthead {
     flex-wrap: wrap;
   }
   .masthead-main {
-    flex: 1 0 100%;
-    justify-content: space-between;
+    display: contents;
   }
-  /* 品牌与 tab 各自一行：tab 独占一行后不再被品牌挤窄 */
+  .masthead-main h1 {
+    flex: 0 1 auto;
+    order: 1;
+  }
   .masthead-main .seg-series {
+    order: 3;
     flex: 1 0 100%;
     justify-content: flex-start;
+    margin-top: 4px;
+  }
+  .masthead-side {
+    order: 2;
+    margin-left: auto;
   }
 }
+/* 320px 英文仍差 6px（步骤条第 3 枚按钮右边缘 326 > 320）：再收每枚按钮的横向内边距，
+   三个按钮共省 18px。低于 320px 不再处理 —— 那已不是常见视口，与其无限收窄，
+   不如让步骤条自己横向滚动。 */
+@media (max-width: 340px) {
+  .steps button {
+    padding: 8px 3px;
+  }
+  .steps {
+    overflow-x: auto;
+  }
+}
+
 /* 筛选：轮次行 + 「继续细分」按钮 */
 .screen-round {
   margin: 0;

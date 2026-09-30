@@ -203,3 +203,55 @@ test("窄屏页头：≤380px 有把系列 tab 另起一行的规则（更窄时
     "≤380px 系列 tab 应独占一行"
   );
 });
+
+test("窄屏页头：离线胶囊缩成「更多」角上的点（84px 横向成本会让 seg 塌到 66px）", () => {
+  const narrow = mediaBlock(560);
+  assert.match(
+    narrow,
+    /\.pwa-chip\s*\{[^}]*position:\s*absolute/,
+    "≤560px 离线胶囊应绝对定位（否则 84px 全额吃掉系列 tab 的横账）"
+  );
+  assert.match(
+    narrow,
+    /\.pwa-chip\s*>\s*span:not\(\.pwa-dot\)\s*\{[^}]*clip-path/,
+    "文字要用 clip 移出屏幕而不是 display:none —— role=status 要靠它播报"
+  );
+  // gap 必须断言**级联后的有效值**，不能只断言「有一条 .masthead 规则带 gap:6」：
+  // 560 断点下本来就有两个 @media 块、块 1 的 .masthead 早就是 gap:6（列布局），
+  // 只扫「有没有」的话，删掉我那条覆盖（块 2 的 gap:6）照样匹配 → 守卫是空的。
+  // CSS 里同权重后来居上，所以取这些规则里最后一条的 gap 才是真正生效的那个。
+  const mastheadGaps = [...narrow.matchAll(/\.masthead\s*\{([^}]*)\}/g)]
+    .map((m) => /gap:\s*([0-9]+)px/.exec(m[1]))
+    .filter(Boolean)
+    .map((m) => Number(m[1]));
+  assert.ok(mastheadGaps.length, "≤560px 块里找不到 .masthead 的 gap");
+  assert.equal(
+    mastheadGaps[mastheadGaps.length - 1],
+    6,
+    `≤560px 页头 gap 的生效值应为 6px（给 16 档 en 的品牌让 4px），实际 ${JSON.stringify(mastheadGaps)}`
+  );
+});
+
+test("≤380px：系列 tab 落到第二行，但品牌与「更多」留在第一行（display:contents 换行）", () => {
+  const tiny = mediaBlock(380);
+  assert.match(
+    tiny,
+    /\.masthead-main\s*\{[^}]*display:\s*contents/,
+    "≤380px 应让 main 的子元素直接参与 .masthead 排列（否则「更多」被挤到第三行、页头 66→164px）"
+  );
+  assert.match(
+    tiny,
+    /\.masthead-side\s*\{[^}]*margin-left:\s*auto/,
+    "「更多」靠右推（写死宽度会在另一种语言下复发）"
+  );
+  assert.match(
+    tiny,
+    /\.masthead-main \.seg-series\s*\{[^}]*flex:\s*1 0 100%/,
+    "≤380px 系列 tab 应独占一行"
+  );
+  assert.match(
+    tiny,
+    /\.steps button\s*\{[^}]*padding:\s*8px 6px/,
+    "≤380px 步骤条按钮内边距应收窄（英文第 3 步标签最长，360px 上会横向滚动）"
+  );
+});
