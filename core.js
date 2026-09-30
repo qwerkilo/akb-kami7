@@ -548,6 +548,15 @@
     const seriesLabel = t(
       love ? "series_love" : saka ? "series_saka" : "series_48g"
     );
+    // 窄屏用的短标签：390px 放不下全长（en「=LOVE Family」右边缘到 457 > 视口 390），
+    // 而品牌还随系列变宽（神7 79 / 7福神 123 / 推し 7 132），所以 tab 必须有短形。
+    const seriesShort = t(
+      love
+        ? "series_love_short"
+        : saka
+          ? "series_saka_short"
+          : "series_48g_short"
+    );
     const tag = love ? "#イコノイジョイ" : saka ? "#Sakamichi" : "#48Group";
     const filePrefix = love ? "love" : saka ? "sakamichi" : "48group";
     const titleKey = love
@@ -558,6 +567,7 @@
     return {
       brand,
       seriesLabel,
+      seriesShort,
       title: `${t(titleKey)} ${brand}`,
       eyebrow: `${seriesLabel} 好き顔ソート`,
       shareTags: `${tag} #好き顔ソート`,

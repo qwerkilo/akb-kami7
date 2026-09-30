@@ -201,6 +201,11 @@ main {
   gap: 8px;
   flex: none;
 }
+/* 系列 tab 的长短标签：窄屏用短的那个（理由见 @media 560 段） */
+.seg-label-short {
+  display: none;
+}
+
 .seg-skin button {
   display: inline-flex;
   align-items: center;
@@ -1761,6 +1766,22 @@ main {
   /* 窄屏一行装不下的三样：品牌 159（神7 + 副标题）+ 系列 tab 189 + 更多 52 = 416 > 358。
      眉标在窄屏本来就隐藏了，副标题「历代成员版」是补充说明 —— 隐藏它让出一行，
      比让 tab 换行或横向滚动都干净。 */
+  /* 390px 的横向账：内容宽 358 = 品牌 + gap 8 + 系列 tab + gap 8 + 「更多」52。
+     品牌随系列变宽：神7 79 / 7福神 123 / 推し 7 132 → 最紧时 tab 只剩 158。
+     系列 tab 满宽（三语）：zh 201 / en 254（=LOVE Family）/ ja 212（イコノイジョイ）
+     → 一律超预算，第三个 tab 被压成滚动盒、被切掉，「更多」又盖在上面 → 点不到。
+     两处省：① 换短标签（i18n 的 series_*_short，窄屏由 CSS 选它）；② 内边距
+     12→8，每按钮省 8px。ja 最紧：132+8+157+8+52+32 = 389 ≤ 390 ✓
+     —— 刚好，所以品牌字号不动（品牌是这个站的辨识度，不该为导航让路）。 */
+  .seg-label-full {
+    display: none;
+  }
+  .seg-label-short {
+    display: inline;
+  }
+  .masthead-main .seg-series button {
+    padding: 6px 8px;
+  }
   .masthead-main .sub {
     display: none;
   }
@@ -1783,6 +1804,23 @@ main {
   }
   .masthead-side {
     flex: none;
+  }
+}
+/* 380px 以下横向真的放不下了（可用 288，品牌 132 + tab 168 + 更多 52 = 352），
+   这时把系列 tab 放到第二行 —— 头部变高，好过把哪个 tab 切掉一半。 */
+@media (max-width: 380px) {
+  .masthead,
+  .masthead-main {
+    flex-wrap: wrap;
+  }
+  .masthead-main {
+    flex: 1 0 100%;
+    justify-content: space-between;
+  }
+  /* 品牌与 tab 各自一行：tab 独占一行后不再被品牌挤窄 */
+  .masthead-main .seg-series {
+    flex: 1 0 100%;
+    justify-content: flex-start;
   }
 }
 /* 筛选：轮次行 + 「继续细分」按钮 */

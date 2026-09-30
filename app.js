@@ -115,8 +115,11 @@
     if (eyebrow) eyebrow.textContent = N.eyebrow;
     const size7 = $("#size-7");
     if (size7) size7.textContent = CORE.names(series, 7, t).brand;
+    // 按钮里放长短两个标签，窄屏由 CSS 选短的那个。这里必须渲染成两个 <span> ——
+    // 直接写 textContent 会把结构抹掉，窄屏就只剩一个截断的长标签了。
     document.querySelectorAll(".seg-series [data-series]").forEach((b) => {
-      b.textContent = CORE.names(b.dataset.series, pick, t).seriesLabel;
+      const n = CORE.names(b.dataset.series, pick, t);
+      b.innerHTML = `<span class="seg-label-full">${esc(n.seriesLabel)}</span><span class="seg-label-short">${esc(n.seriesShort)}</span>`;
     });
     paintSeg(".seg-series", "series", series);
     const seriesSeg = document.querySelector(".seg-series");

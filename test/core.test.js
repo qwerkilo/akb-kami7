@@ -430,12 +430,15 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
     title_prefix_48g: "我的 48 Group",
     title_prefix_saka: "我的坂道",
     series_48g: "48 Group",
+    series_48g_short: "48G",
     series_saka: "坂道",
+    series_saka_short: "坂道",
   };
   const t = (k) => DICT[k];
   assert.deepEqual(core.names("48g", 7, t), {
     brand: "神7",
     seriesLabel: "48 Group",
+    seriesShort: "48G",
     title: "我的 48 Group 神7",
     eyebrow: "48 Group 好き顔ソート",
     shareTags: "#48Group #好き顔ソート",
@@ -451,12 +454,14 @@ test("names 组合随系列与档位产出品牌、标题、标签与文件名",
     ...DICT,
     brand_7oshi: "推し 7",
     series_love: "等爱",
+    series_love_short: "等爱",
     title_prefix_love: "我的等爱",
   };
   const tl = (k) => LOVE_DICT[k];
   const love7 = core.names("love", 7, tl);
   assert.equal(love7.brand, "推し 7");
   assert.equal(love7.seriesLabel, "等爱");
+  assert.equal(love7.seriesShort, "等爱");
   assert.equal(love7.title, "我的等爱 推し 7");
   assert.equal(love7.fileBase, "love_7");
   assert.equal(love7.shareTags, "#イコノイジョイ #好き顔ソート");
