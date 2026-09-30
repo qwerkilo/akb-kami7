@@ -45,7 +45,14 @@
 - 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
 - 缝④ 的夹具 id 前缀：`a1–a40` = 48g、`s1–s40` = 坂道、`l1–l40` = 等爱。写错前缀时 `toggleSelect` 静默返回 false，测试会以「筛不出东西」的方式假绿。
 - 断言要挑**有分辨力**的那一个：同一条测试里有的断言在错误路径上也会通过（曾有一条「complete」假绿、只有「已划人数」抓住）。
-- 写变异测试（验证守卫会红）时**先断言文件真的变了**：「锚点没命中」和「变异存活」在结果上长得一模一样（都是全绿），而 Prettier 常把三元/多行表达式重排导致静默不命中。
+
+## 变异验证：用脚本，不要手搓
+
+```
+node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...] [--dry-run] -- <测试命令>
+```
+
+每个变异单独跑一次命令、**跑完立刻还原**，全被杀掉则退出 0，有存活则退出 1。**锚点必须恰好命中一次**，命中 0 次或多次一律退出 2（工具失败，结论不可信）—— 「变异没打上」与「变异存活」在结果上长得一模一样，手搓脚本时我两者都报错过。
 
 ## CodeGraph（代码检索优先）
 
@@ -56,9 +63,10 @@
 ## 常用命令
 
 - 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
-- 格式化（Prettier，配置见 `.prettierrc`）。提交前手动运行：
-  `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
-  （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。仓库没有 lint / typecheck 脚本 —— **格式化不会被 `npm test` 抓到，漏跑就静默回归**。
+- **提交闸门 = `npm run check`**（`prettier --check .` + `npm test`）。格式化**不会**被 `npm test` 抓到，所以要单独跑那一半。
+- 格式化写回用（`check` 红了之后）：`PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
+  （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。**顺序有陷阱**：lint-staged 只处理**已暂存**的文件，先跑 `graph:sync` 再 `git add` 会让它变成 no-op（本项目踩过两次）。
+- 仓库没有 lint / typecheck 脚本。
 - 查看原型：原型在 `prototype/*` 分支上，main 工作区里没有属预期。`git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再静态服务器托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
 
 ## UI 版面：横账要按维度算，不能只按默认状态量

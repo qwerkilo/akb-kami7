@@ -156,7 +156,9 @@ test("SHELL_FILES 覆盖全部壳文件且都真实存在", () => {
 test("路径以 / 结尾的同源请求不是壳文件（SHELL_NAMES 里不能有空串）", () => {
   // 守卫：SHELL_FILES 的 "./" 必须被过滤掉，否则 basename 为 "" 的路径
   // （如 /foo/）会被误判成壳文件、按 network-first 服务
-  const names = RULES.SHELL_FILES.filter((f) => f !== "./").map((f) => f.split("/").pop());
+  const names = RULES.SHELL_FILES.filter((f) => f !== "./").map((f) =>
+    f.split("/").pop()
+  );
   assert.ok(!names.includes(""), "壳文件名清单里不得有空串（./ 未被过滤）");
   for (const url of [
     "https://example.test/",
@@ -171,5 +173,9 @@ test("路径以 / 结尾的同源请求不是壳文件（SHELL_NAMES 里不能�
     );
   }
   // 导航请求仍然是壳
-  assert.equal(RULES.classify(req("https://example.test/foo/", { mode: "navigate" }), loc)?.kind, "shell");
+  assert.equal(
+    RULES.classify(req("https://example.test/foo/", { mode: "navigate" }), loc)
+      ?.kind,
+    "shell"
+  );
 });

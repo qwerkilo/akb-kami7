@@ -2394,7 +2394,7 @@ test("clampCut：层级的并集必须落在已选里（screenTiers 不再引用
   );
 });
 
-test("累计审查验收：setSize 缩小档位后，提交按钮与细条题数恒等", () => {
+test("clampCut 验收：把旧档位的 cut 夹到新档位后，提交按钮与细条题数恒等", () => {
   // 40 档划满 4 轮，然后把档位改成 16（session.setSize 的真实形状）
   const sel40 = ids(40, "m");
   let cut = [];
@@ -2403,6 +2403,8 @@ test("累计审查验收：setSize 缩小档位后，提交按钮与细条题数
     cut.push(sel40.slice(k, k + q));
     k += q;
   }
+  // 注意：这是 clampCut 的**单元**测试（手工构出缩小档位后的形状）。
+  // 通过 session 走不到这个形状 —— setSize 会先 clearDuel() 把 cut 清空。
   const sel16 = sel40.slice(0, 16);
   const clamped = core.clampCut(sel16, cut, 16);
   const step = core.screenStep(16, clamped, 0);

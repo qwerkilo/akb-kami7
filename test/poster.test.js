@@ -36,7 +36,10 @@ function fakeCtx() {
     moveTo() {},
     lineTo() {},
     arcTo(...a) {
-      calls.paths.push("arcTo:" + a.map((v) => (typeof v === "number" ? Math.round(v) : v)).join(","));
+      calls.paths.push(
+        "arcTo:" +
+          a.map((v) => (typeof v === "number" ? Math.round(v) : v)).join(",")
+      );
     },
     moveTo(...a) {
       calls.paths.push("moveTo");
@@ -595,48 +598,53 @@ test("全员无照片时每个位置都有占位（四样式 × 三档，占位�
   // 领奖台与紧凑榜行只有 if (images[i]) 没有 else，40 档离线时 37/40 没有脸。
   for (const style of ["a", "b", "c", "d"]) {
     for (const n of [7, 16, 40]) {
-    // 名字首字必须互不相同：people(n) 的「成员1/成员2/…」首字都是「成」，
-    // 那样「首字顺序对不对」这条断言等于没有判别力（下标错位也测不出来）。
-    const head = "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳";
-    const members = Array.from({ length: n }, (_, i) => ({
-      name: head[i] + (i + 1) + "号",
-      group: "AKB48",
-      generation: "1期生",
-      status: "current",
-    }));
-    const { ctx, calls } = fakeCtx();
-    poster.draw(ctx, {
-      members,
-      images: members.map(() => null),
-      title: "T",
-      dateText: "D",
-      hashtag: "#H",
-      photoSrc: "P",
-      subOf: () => "s",
-      style,
-      tokens: { colors: { placeholder: "#123456", placeholderInk: "#654321" } },
-    });
-    const fills = calls.fills.filter((f) => f === "#123456").length;
-    assert.equal(
-      fills,
-      n,
-      `${style}/${n} 档：占位底色应画满 ${n} 格，实际 ${fills}`
-    );
-    // 首字要**逐格**对上人：只断言「用过字色」的话，37 行紧凑榜集体丢首字也会绿。
-    // 比对用多重集合（排序后相等）而不是绘制顺序——绘制顺序是版式决定
-    // （金字塔按行、领奖台是中间先画），与「谁的字该出现在哪一格」无关。
-    const wanted = members.map((m) => m.name.charAt(0)).sort();
-    const got = calls.textRecords.filter((t) => t.fill === "#654321");
-    assert.deepEqual(
-      got.map((t) => t.text).sort(),
-      wanted,
-      `${style}/${n} 档：占位首字没逐格对上成员名（集合不等）`
-    );
-    // 封顶 96px 是 Q1 明确批准的视觉决定：框高到 523px 的大卡若不封顶会写 174px。
-    for (const t of got) {
-      const px = Number(/(\d+(?:\.\d+)?)px/.exec(t.font || "")[1]);
-      assert.ok(px > 0 && px <= 96, `${style}/${n} 档：首字 ${px}px 越出 0–96 的约定区间`);
-    }
+      // 名字首字必须互不相同：people(n) 的「成员1/成员2/…」首字都是「成」，
+      // 那样「首字顺序对不对」这条断言等于没有判别力（下标错位也测不出来）。
+      const head = "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳";
+      const members = Array.from({ length: n }, (_, i) => ({
+        name: head[i] + (i + 1) + "号",
+        group: "AKB48",
+        generation: "1期生",
+        status: "current",
+      }));
+      const { ctx, calls } = fakeCtx();
+      poster.draw(ctx, {
+        members,
+        images: members.map(() => null),
+        title: "T",
+        dateText: "D",
+        hashtag: "#H",
+        photoSrc: "P",
+        subOf: () => "s",
+        style,
+        tokens: {
+          colors: { placeholder: "#123456", placeholderInk: "#654321" },
+        },
+      });
+      const fills = calls.fills.filter((f) => f === "#123456").length;
+      assert.equal(
+        fills,
+        n,
+        `${style}/${n} 档：占位底色应画满 ${n} 格，实际 ${fills}`
+      );
+      // 首字要**逐格**对上人：只断言「用过字色」的话，37 行紧凑榜集体丢首字也会绿。
+      // 比对用多重集合（排序后相等）而不是绘制顺序——绘制顺序是版式决定
+      // （金字塔按行、领奖台是中间先画），与「谁的字该出现在哪一格」无关。
+      const wanted = members.map((m) => m.name.charAt(0)).sort();
+      const got = calls.textRecords.filter((t) => t.fill === "#654321");
+      assert.deepEqual(
+        got.map((t) => t.text).sort(),
+        wanted,
+        `${style}/${n} 档：占位首字没逐格对上成员名（集合不等）`
+      );
+      // 封顶 96px 是 Q1 明确批准的视觉决定：框高到 523px 的大卡若不封顶会写 174px。
+      for (const t of got) {
+        const px = Number(/(\d+(?:\.\d+)?)px/.exec(t.font || "")[1]);
+        assert.ok(
+          px > 0 && px <= 96,
+          `${style}/${n} 档：首字 ${px}px 越出 0–96 的约定区间`
+        );
+      }
     }
   }
 });
@@ -695,9 +703,10 @@ test("圆角矩形真的画了：每张卡的四个圆角各一次 arcTo（整�
 test("超长名字被省略号截断（fitText/clipText 的截断路径）", () => {
   // 要长到「字号降到下限 12px 仍放不下」才会走 clipText 的省略号分支：
   // 假 ctx 的 measureText 近似是 len * size * 0.55，预算 ~736px → 约 111 字符
-  const long = ("ほしの ひょうこ さいとうともえ いしかわ ふみこ いちのへいわ たちばな ななみ かんざわ ゆい ひなた くろさわ かずと ").repeat(
-    2
-  );
+  const long =
+    "ほしの ひょうこ さいとうともえ いしかわ ふみこ いちのへいわ たちばな ななみ かんざわ ゆい ひなた くろさわ かずと ".repeat(
+      2
+    );
   // 杂志样式的冠军横图下方用 clipText 裁名字（预算 W - 2M - 200 ≈ 736px）
   const base = people(7);
   const members = base.map((m, i) => (i === 0 ? { ...m, name: long } : m));
@@ -716,7 +725,10 @@ test("超长名字被省略号截断（fitText/clipText 的截断路径）", () 
     style: "b", // 杂志冠军横图下的名字走 clipText
   });
   const withEllipsis = calls.texts.filter((t) => t.endsWith("…"));
-  assert.ok(withEllipsis.length > 0, `长名字应被截断并加省略号，实际文本 ${calls.texts.join("|")}`);
+  assert.ok(
+    withEllipsis.length > 0,
+    `长名字应被截断并加省略号，实际文本 ${calls.texts.join("|")}`
+  );
   for (const t of withEllipsis) {
     assert.ok(t.length < long.length, "截断后的文本应短于原名");
   }
@@ -734,5 +746,9 @@ test("超长名字被省略号截断（fitText/clipText 的截断路径）", () 
     subOf: () => "s",
     style: "b",
   });
-  assert.equal(c2.calls.texts.filter((t) => t.endsWith("…")).length, 0, "短名字不该被截断");
+  assert.equal(
+    c2.calls.texts.filter((t) => t.endsWith("…")).length,
+    0,
+    "短名字不该被截断"
+  );
 });

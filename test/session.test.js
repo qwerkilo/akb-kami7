@@ -1091,14 +1091,15 @@ test("筛选：切走再切回，48g 仍能接着划完并提交（端到端不�
   assert.equal(S.startDuel(), true, "能开始排序");
 });
 
-// ---- 累计审查发现：夹子只在 load 路径，setSize 是第二个来源 ----
-// 40 档划满 4 轮 → setSize(16)：selected 被截到 16、cut 却留着旧档位的 id。
-// 结果提交按钮写 27、细条写 83（complete=true → 按钮走的就是题数那条路，看得见）。
-test("筛选：缩小档位后 cut 被重新夹住（按钮题数与细条题数恒等）", () => {
+// ---- 累计审查：我一度以为「夹子只在 load 路径、setSize 是第二个来源」 ----
+// 复核后是错的：setSize 调 clearDuel()，而 clearDuel 会把 cut 整个清空
+// （session.js:142-148），所以「旧档位的 cut 残留」这个形状通过 session 走不到。
+// 我据此加的死代码与空转测试已删。这里钉住**真正成立**的那件事 ——
+// 换档位就丢筛选进度，所以两个口径不会因为旧 cut 残留而分叉。
+test("缩小档位会清空筛选进度：旧档位的 cut 不会残留（按钮与细条因此恒等）", () => {
   const S = make();
   S.setSize(40);
   for (let i = 1; i <= 40; i++) S.toggleSelect("a" + i);
-  // 一路划到底，让轮次走满计划
   let guard = 0;
   while (guard++ < 40) {
     const sc = S.snapshot().screening;
@@ -1108,30 +1109,26 @@ test("筛选：缩小档位后 cut 被重新夹住（按钮题数与细条题数
     S.toggleCut(next);
   }
   const before = S.snapshot().screening;
-  assert.equal(before.complete, true, "划到底后可提交");
-  const tiersBefore = S.snapshot().screening.tiers;
-  assert.equal(
-    tiersBefore.reduce((s, g) => s + g.length, 0),
-    40,
-    "层级并集 = 已选 40 人"
+  assert.equal(before.complete, true, "40 档划满 4 轮后可提交");
+  assert.deepEqual(
+    before.tiers.map((t) => t.length),
+    [3, 2, 5, 10, 20],
+    "五层"
   );
 
-  assert.equal(S.setSize(16), true, "改成 16 档");
+  assert.equal(S.setSize(16), true);
   const sc = S.snapshot().screening;
-  assert.equal(
-    sc.tiers.flat().length,
-    16,
-    "层级并集 = 已选 16 人（不能有已选之外的人）"
+  assert.equal(sc.round, 0, "换档位回到第 0 轮");
+  assert.deepEqual(
+    sc.tiers.map((t) => t.length),
+    [16],
+    "层级里没有旧档位的组"
   );
-  assert.ok(
-    sc.tiers.every((t) => t.length),
-    `层级里不能有空层：${JSON.stringify(sc.tiers.map((t) => t.length))}`
-  );
-  // 按钮侧用的就是 screenStep 的轮数（app.js 传 sc.round）
+  assert.equal(sc.tiers.flat().length, 16, "层级并集 = 已选 16 人");
   const strip = sc.tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
   assert.equal(
     core.tierQuestionMax(16, sc.round),
     strip,
-    "按钮题数与细条题数必须一致"
+    "按钮题数与细条题数一致"
   );
 });

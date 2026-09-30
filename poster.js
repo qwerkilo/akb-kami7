@@ -157,7 +157,9 @@
       ctx.textBaseline = "middle";
       ctx.font = `700 ${size}px ${T.fonts.jp}`;
       // trim 与名册占位（core.js 的 placeholder 路径）一致：全空白名字画「?」而非空白
-      const ch = String(name || "").trim().charAt(0);
+      const ch = String(name || "")
+        .trim()
+        .charAt(0);
       ctx.fillText(ch || "?", x + w / 2, y + h / 2);
     }
     ctx.restore();
