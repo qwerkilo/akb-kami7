@@ -1110,13 +1110,28 @@ test("筛选：缩小档位后 cut 被重新夹住（按钮题数与细条题数
   const before = S.snapshot().screening;
   assert.equal(before.complete, true, "划到底后可提交");
   const tiersBefore = S.snapshot().screening.tiers;
-  assert.equal(tiersBefore.reduce((s, g) => s + g.length, 0), 40, "层级并集 = 已选 40 人");
+  assert.equal(
+    tiersBefore.reduce((s, g) => s + g.length, 0),
+    40,
+    "层级并集 = 已选 40 人"
+  );
 
   assert.equal(S.setSize(16), true, "改成 16 档");
   const sc = S.snapshot().screening;
-  assert.equal(sc.tiers.flat().length, 16, "层级并集 = 已选 16 人（不能有已选之外的人）");
-  assert.ok(sc.tiers.every((t) => t.length), `层级里不能有空层：${JSON.stringify(sc.tiers.map((t) => t.length))}`);
+  assert.equal(
+    sc.tiers.flat().length,
+    16,
+    "层级并集 = 已选 16 人（不能有已选之外的人）"
+  );
+  assert.ok(
+    sc.tiers.every((t) => t.length),
+    `层级里不能有空层：${JSON.stringify(sc.tiers.map((t) => t.length))}`
+  );
   // 按钮侧用的就是 screenStep 的轮数（app.js 传 sc.round）
   const strip = sc.tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
-  assert.equal(core.tierQuestionMax(16, sc.round), strip, "按钮题数与细条题数必须一致");
+  assert.equal(
+    core.tierQuestionMax(16, sc.round),
+    strip,
+    "按钮题数与细条题数必须一致"
+  );
 });

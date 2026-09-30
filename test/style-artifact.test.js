@@ -180,7 +180,8 @@ test("窄屏页头：系列 tab 的长短标签切换规则还在（删了就会
   assert.match(
     narrow,
     /\.masthead-main \.seg-series button\s*\{[^}]*padding:\s*6px 7px/,
-    "≤560px 应把系列 tab 内边距收窄到 6px 7px（每按钮比默认的 12px 省 10px）"  );
+    "≤560px 应把系列 tab 内边距收窄到 6px 7px（每按钮比默认的 12px 省 10px）"
+  );
   assert.match(
     narrow,
     /\.masthead-main \.sub\s*\{[^}]*display:\s*none/,

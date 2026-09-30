@@ -2362,9 +2362,19 @@ test("脏存档：**超额**形状夹过之后，按钮题数与细条题数不�
 test("clampCut：成员归属 + 跨轮去重 + 每轮按计划夹，三层一起", () => {
   const sel = ids(16, "k");
   // 第 1 轮超额（计划 8）+ 引用了不在已选里的人 + 与第 2 轮重复
-  const out = core.clampCut(sel, [["k0", "k1", "zz", "k2"], ["k1", "k3"]], 16);
+  const out = core.clampCut(
+    sel,
+    [
+      ["k0", "k1", "zz", "k2"],
+      ["k1", "k3"],
+    ],
+    16
+  );
   assert.deepEqual(out, [["k0", "k1", "k2"], ["k3"]]);
-  assert.ok(out.every((r) => r.length), "空轮次被丢掉");
+  assert.ok(
+    out.every((r) => r.length),
+    "空轮次被丢掉"
+  );
 });
 
 test("clampCut：层级的并集必须落在已选里（screenTiers 不再引用已选之外的人）", () => {
@@ -2378,7 +2388,10 @@ test("clampCut：层级的并集必须落在已选里（screenTiers 不再引用
     `层级里有已选之外的人：${JSON.stringify(flat.filter((i) => !sel.includes(i)))}`
   );
   assert.equal(new Set(flat).size, flat.length, "同一人没有出现在两层");
-  assert.ok(tiers.every((t) => t.length), `层级里有空层：${JSON.stringify(tiers.map((t) => t.length))}`);
+  assert.ok(
+    tiers.every((t) => t.length),
+    `层级里有空层：${JSON.stringify(tiers.map((t) => t.length))}`
+  );
 });
 
 test("累计审查验收：setSize 缩小档位后，提交按钮与细条题数恒等", () => {
@@ -2397,18 +2410,33 @@ test("累计审查验收：setSize 缩小档位后，提交按钮与细条题数
   const strip = tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
   // 按钮侧用的就是 screenStep 的轮数（app.js 传 sc.round）
   const shown = core.tierQuestionMax(16, step.round);
-  assert.equal(shown, strip, `按钮 ${shown} 与细条 ${strip} 必须一致（层级 ${JSON.stringify(tiers.map((t) => t.length))}）`);
+  assert.equal(
+    shown,
+    strip,
+    `按钮 ${shown} 与细条 ${strip} 必须一致（层级 ${JSON.stringify(tiers.map((t) => t.length))}）`
+  );
 });
 
 test("脏存档：少划的轮次仍会让两个口径不等，但那时按钮走门槛文案（complete=false），用户看不见", () => {
   const sel = ids(40, "m");
   const cut = [sel.slice(0, 20), sel.slice(20, 30), sel.slice(30, 31)]; // 第 3 轮只划 1（计划 5）
   const step = core.screenStep(40, cut, 0);
-  assert.equal(step.complete, false, "少划 ⇒ 不可提交 ⇒ 按钮显示门槛文案而不是题数");
+  assert.equal(
+    step.complete,
+    false,
+    "少划 ⇒ 不可提交 ⇒ 按钮显示门槛文案而不是题数"
+  );
   const tiers = core.screenTiers(sel, cut);
   const strip = tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
   const shown = core.tierQuestionMax(40, cut.length);
-  assert.notEqual(shown, strip, "这个形状下两个口径确实不等（所以上一条不能说「恒等」）");
+  assert.notEqual(
+    shown,
+    strip,
+    "这个形状下两个口径确实不等（所以上一条不能说「恒等」）"
+  );
   // 但它必须是「按钮低估」而不是「按钮高估」—— 低估时用户点进去才发现题数更多。
-  assert.ok(shown < strip, `按钮 ${shown} 应低于细条 ${strip}（按钮按计划、细条按实际）`);
+  assert.ok(
+    shown < strip,
+    `按钮 ${shown} 应低于细条 ${strip}（按钮按计划、细条按实际）`
+  );
 });
