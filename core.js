@@ -805,8 +805,14 @@
       // → 对决里同一张脸出现两次、海报出现重复。应用自己产生不了这种数据
       // （toggleCut 要求 id 在本轮 pool 里），但手改存档可以。
       const seen = new Set();
+      // 还要按**计划**夹每轮人数：每轮划掉的一半是 screenRounds(size).cuts 定的
+      // （第 r 轮上限 = cuts[r]），超出的轮次整个丢掉。少了这道夹子，越界形状有两个来源：
+      // ① 旧扁平 cut 迁移时把全部 id 塞进第一轮（正常玩法产生不了，迁移会）；② 手改存档。
+      // 后果不是「数据脏」而是**同一屏两个数字打架** —— 提交按钮按计划算、细条按实际层级算。
+      const quotas = screenRounds(size).cuts;
       const cut = (nested ? nested : [flat])
-        .map((ids) =>
+        .slice(0, quotas.length)
+        .map((ids, r) =>
           (Array.isArray(ids) ? ids : []).filter((x) => {
             if (typeof x !== "string" || !selected.includes(x) || seen.has(x))
               return false;
@@ -814,6 +820,7 @@
             return true;
           })
         )
+        .map((ids, r) => ids.slice(0, quotas[r]))
         .filter((ids) => ids.length);
       return {
         size,

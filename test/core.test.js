@@ -354,12 +354,16 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
     ).cut,
     [["b"]]
   );
-  // 空轮次要被丢掉（否则层级里会出现一个空组）
+  // 空轮次要被丢掉（否则层级里会出现一个空组）。
+  // 夹具必须用 40 档而不是 7 档：现在每轮人数与轮数都按计划夹了，而 7 档的计划只有
+  // 1 轮（cuts=[3]），所以「第 2 轮」在 7 档下是不可能出现的形状，会被整轮丢掉 ——
+  // 那条规则是对的，这条断言的意图（空轮次要丢）得换个合法夹具才测得到。
+  const forty = Array.from({ length: 40 }, (_, i) => "m" + i);
   assert.deepEqual(
     core.deserializeState(
-      JSON.stringify({ v: 1, size: 7, selected: ["a"], cut: [[], ["a"]] })
+      JSON.stringify({ v: 1, size: 40, selected: forty, cut: [[], ["m1"]] })
     ).cut,
-    [["a"]]
+    [["m1"]]
   );
   assert.equal(core.deserializeState("not json"), null);
   assert.equal(core.deserializeState(JSON.stringify({ v: 0, size: 7 })), null);
@@ -2135,27 +2139,32 @@ test("存档：deeperRound 跟着往返（刷新不丢「继续细分」的选�
 });
 
 test("存档：跨轮重复的 id 只保留首次出现（否则同一人进两层）", () => {
+  // 夹具用 40 档（计划 4 轮、配额 [20,10,5,2]）：7 档的计划只有 1 轮，3 轮存档在 7 档下
+  // 是越界形状，会被新加的「按计划夹住」整轮丢掉 —— 那条规则对，夹具得合法才测得到去重。
+  const many = Array.from({ length: 40 }, (_, i) => "m" + i);
   const raw = JSON.stringify({
     v: 1, // STATE_VERSION（键名是 akb:state:v2 但载荷版本是 1，别被键名误导）
-    size: 7,
-    selected: ["a", "b", "c", "d", "e", "f", "g"],
+    size: 40,
+    selected: many,
     cut: [
-      ["a", "b", "c", "d"],
-      ["b", "e", "f"],
-      ["g", "a"],
+      ["m0", "m1", "m2", "m3"],
+      ["m1", "m4", "m5"],
+      ["m6", "m0"],
     ],
   });
   const st = core.deserializeState(raw);
-  // b 已在第 1 轮 → 第 2 轮里不重复；a 已在第 1 轮 → 第 3 轮里不重复
+  // m1 已在第 1 轮 → 第 2 轮里不重复；m0 已在第 1 轮 → 第 3 轮里不重复
   assert.deepEqual(
     st.cut,
-    [["a", "b", "c", "d"], ["e", "f"], ["g"]],
+    [["m0", "m1", "m2", "m3"], ["m4", "m5"], ["m6"]],
     "跨轮去重后各轮"
   );
   const tiers = core.screenTiers(st.selected, st.cut);
   const flat = tiers.flat();
   assert.equal(new Set(flat).size, flat.length, "同一人没有出现在两层里");
-  assert.equal(flat.length, 7, "全部 7 人各在一层");
+  // 40 人里划掉了 7 个（4 + 2 + 1，去重后 6 个 + 第 1 轮那个重复的 m0 被丢）→ 层级里
+  // 划掉 6 人 + 保留 34 人 = 40
+  assert.equal(flat.length, 40, "40 人各在一层");
 });
 
 // ---- 窄屏系列 tab 的短标签契约（缝②/⑥） ----
@@ -2230,5 +2239,111 @@ test("短标签：i18n 三语的键集与长标签那批一一对应", () => {
     for (const k of ["series_48g", "series_saka", "series_love"]) {
       assert.ok(I18N[lang][k + "_short"], `${lang} 缺 ${k}_short`);
     }
+  }
+});
+
+// ---- 架构扫描第 3 项：脏存档的每轮人数没人夹（旧扁平 cut 迁移后就是越界形状） ----
+// deserializeState 对 duel 载荷夹了容量上限，对 cut 只查了「成员归属」与「跨轮去重」，
+// 唯独没查每轮人数是否越界。而旧版扁平 cut 迁移时会把**全部** id 塞进第一轮 —— 那正是
+// 越界形状的真实来源（正常玩法产生不了，迁移会）。后果是同一屏上两个数字打架：
+// 提交按钮按「计划」算、细条按「实际层级」算。
+const ids = (n, p = "x") => Array.from({ length: n }, (_, i) => p + i);
+const store = (o) =>
+  JSON.stringify({ v: 1, size: 16, selected: ids(16), duel: null, ...o });
+
+test("脏存档：每轮人数按计划夹住（旧扁平 cut 迁移出第一轮 10 人时夹到 8）", () => {
+  const s = core.deserializeState(store({ cut: [ids(10)] }));
+  assert.ok(s, "存档应被接受（成员都在已选里）");
+  assert.deepEqual(
+    s.cut.map((r) => r.length),
+    [8],
+    "16 档第一轮上限是 8（计划 floor(16/2)）"
+  );
+});
+
+test("脏存档：超出计划轮数的轮次被丢掉（40 档计划 4 轮，存 5 轮）", () => {
+  const sel = ids(40, "y");
+  const s = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 40,
+      selected: sel,
+      duel: null,
+      cut: [
+        sel.slice(0, 20),
+        sel.slice(20, 30),
+        sel.slice(30, 35),
+        sel.slice(35, 37),
+        sel.slice(37, 39),
+      ],
+    })
+  );
+  assert.ok(s, "存档应被接受");
+  assert.deepEqual(
+    s.cut.map((r) => r.length),
+    [20, 10, 5, 2],
+    "只保留计划的 4 轮且每轮按计划夹住"
+  );
+});
+
+test("脏存档：合规存档原样通过（别把合法数据也夹掉）", () => {
+  const sel = ids(16, "z");
+  const s = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 16,
+      selected: sel,
+      duel: null,
+      cut: [sel.slice(0, 8)],
+    })
+  );
+  assert.deepEqual(
+    s.cut.map((r) => r.length),
+    [8],
+    "只划完第一轮是合法的（用户可以主动少划）"
+  );
+  const s2 = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 16,
+      selected: sel,
+      duel: null,
+      cut: [sel.slice(0, 8), sel.slice(8, 12)],
+    })
+  );
+  assert.deepEqual(
+    s2.cut.map((r) => r.length),
+    [8, 4],
+    "两轮都合法"
+  );
+});
+
+test("脏存档：夹过之后，提交按钮的题数与细条的题数恒等（两个口径不再打架）", () => {
+  for (const [size, badRound] of [
+    [16, 10],
+    [16, 15],
+    [40, 33],
+    [7, 5],
+  ]) {
+    const sel = ids(size, "w");
+    const s = core.deserializeState(
+      JSON.stringify({
+        v: 1,
+        size,
+        selected: sel,
+        duel: null,
+        cut: [sel.slice(0, badRound)],
+      })
+    );
+    assert.ok(s, `${size} 档脏存档应被接受`);
+    const tiers = core.screenTiers(sel, s.cut);
+    const actual = tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
+    // 按钮用 tierQuestionMax(size, sc.round) —— sc.round 就是 cut 的轮数
+    const shown = core.tierQuestionMax(size, s.cut.length);
+    assert.equal(
+      shown,
+      actual,
+      `${size} 档第 0 轮存 ${badRound} 人 → 按钮 ${shown} 与细条 ${actual} 必须一致`
+    );
   }
 });
