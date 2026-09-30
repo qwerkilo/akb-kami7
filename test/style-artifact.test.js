@@ -141,3 +141,65 @@ test("app.js 的 posterTokens() 映射用的是同一批 CSS 变量名（别让�
     assert.ok(body.includes(`"${v}"`), `app.js posterTokens() 应读 ${v}`);
   }
 });
+
+// ---- 窄屏页头的三条横账规则（缝③，源码守卫） ----
+// 这条测试**不测行为、只测「规则还在」**：窄屏页头能不能放下系列 tab 只能在浏览器里
+// 量（E2E 缝⑦，脚本在 /tmp 不入仓）。仓内如果完全没有守卫，那么删掉下面任意一条
+// 都不会有任何测试变红，而后果是「等爱在手机上点不到」——这个 P0 已经因此溜过两轮。
+// 局限要写清楚：它抓「规则被删/被改名」，抓不到「预算算错、规则还在但不够用」。
+// style.css 里同一个断点可能有多个 @media 块（不同年代加的），所以要把该断点的
+// 全部块拼起来再断言 —— 只取第一个会漏（第一版就是这么写错的，红了但不是 CSS 的问题）。
+function mediaBlock(maxWidth) {
+  const at = `@media (max-width: ${maxWidth}px)`;
+  const out = [];
+  let from = 0;
+  for (;;) {
+    const i = css.indexOf(at, from);
+    if (i < 0) break;
+    const end = css.indexOf("\n}\n", i);
+    assert.ok(end > i, `@media (max-width: ${maxWidth}px) 块没有正常闭合`);
+    out.push(css.slice(i, end));
+    from = end;
+  }
+  assert.ok(out.length, `style.css 里找不到 ${at}`);
+  return out.join("\n");
+}
+
+test("窄屏页头：系列 tab 的长短标签切换规则还在（删了就会重演等爱点不到的 P0）", () => {
+  const narrow = mediaBlock(560);
+  assert.match(
+    narrow,
+    /\.seg-label-full\s*\{[^}]*display:\s*none/,
+    "≤560px 应隐藏长标签"
+  );
+  assert.match(
+    narrow,
+    /\.seg-label-short\s*\{[^}]*display:\s*inline/,
+    "≤560px 应显示短标签"
+  );
+  assert.match(
+    narrow,
+    /\.masthead-main \.seg-series button\s*\{[^}]*padding:\s*6px 8px/,
+    "≤560px 应把系列 tab 内边距收窄到 6px 8px（每按钮省 8px，三按钮省 24px）"
+  );
+  assert.match(
+    narrow,
+    /\.masthead-main \.sub\s*\{[^}]*display:\s*none/,
+    "≤560px 应隐藏副标题（它让出的 80px 是 tab 预算的一部分）"
+  );
+});
+
+test("窄屏页头：≤380px 有把系列 tab 另起一行的规则（更窄时不得切掉半个 tab）", () => {
+  const tiny = mediaBlock(380);
+  // 选择器可能是列表（`.masthead,\n  .masthead-main {`），所以不能要求 .masthead 紧跟 {
+  assert.match(
+    tiny,
+    /\.masthead\b[^{}]*\{[^}]*flex-wrap:\s*wrap/,
+    "≤380px 页头应允许换行"
+  );
+  assert.match(
+    tiny,
+    /\.masthead-main \.seg-series\s*\{[^}]*flex:\s*1 0 100%/,
+    "≤380px 系列 tab 应独占一行"
+  );
+});

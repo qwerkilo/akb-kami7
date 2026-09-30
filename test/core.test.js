@@ -2157,3 +2157,78 @@ test("存档：跨轮重复的 id 只保留首次出现（否则同一人进两�
   assert.equal(new Set(flat).size, flat.length, "同一人没有出现在两层里");
   assert.equal(flat.length, 7, "全部 7 人各在一层");
 });
+
+// ---- 窄屏系列 tab 的短标签契约（缝②/⑥） ----
+// 390px 的横账：内容 358 = 品牌(最宽「推し 7」132) + gap 8 + tab + gap 8 + 更多 52
+// → tab 只剩 158px，而长标签三语分别 201/254/212（en「=LOVE Family」右边缘到 457 >
+// 视口 390）。所以 tab 必须有短形，且短形不得比长形更长 —— 否则窄屏那条 CSS
+// 规则在替一个不存在的「短」标签兜底，第三个 tab 就又会被切掉。
+test("短标签：三语 × 三系列都存在、非空、且不长于长标签", () => {
+  const I18N = require("../i18n.js");
+  for (const lang of ["zh", "en", "ja"]) {
+    const t = (k) => {
+      const v = I18N[lang][k];
+      return typeof v === "function" ? v() : v;
+    };
+    for (const series of ["48g", "sakamichi", "love"]) {
+      const n = core.names(series, 7, t);
+      const where = `${lang}/${series}`;
+      assert.ok(n.seriesShort, `${where} 缺 seriesShort`);
+      assert.ok(n.seriesShort.length > 0, `${where} 的 seriesShort 是空的`);
+      assert.ok(
+        n.seriesShort.length <= n.seriesLabel.length,
+        `${where} 的短标签比长标签还长：${n.seriesShort} > ${n.seriesLabel}`
+      );
+    }
+  }
+});
+
+test("短标签：三语的 tab 总长都在 158px 预算内（长短标签必须真的分得开）", () => {
+  // 「不长于长标签」这条不够：把 seriesShort 改成读长标签时它照样通过（相等是合法的），
+  // 而那样窄屏就回到原状。所以再加一条按字符宽度估算的总长上限。
+  // 单位：CJK/假名 1，拉丁与数字 0.5（13px 字号的近似），每按钮再加 16px 内边距。
+  // 上限 7 单位是从实测校准出来的，不是拍的：
+  //   长标签 zh 8.5 / en 15.0 / ja 14.5 → 全部超（实测 tab 满宽 201/254/212，158 装不下）
+  //   短标签 zh 5.5 / en 6.0 / ja 6.5 → 全部有余（实测 144/144/141）
+  const units = (str) =>
+    [...str].reduce(
+      (n, c) => n + (/[\u3040-\u30ff\u4e00-\u9fff]/.test(c) ? 1 : 0.5),
+      0
+    );
+  const I18N = require("../i18n.js");
+  const CAP = 7;
+  for (const lang of ["zh", "en", "ja"]) {
+    const t = (k) => {
+      const v = I18N[lang][k];
+      return typeof v === "function" ? v() : v;
+    };
+    // 判据必须是**三个 tab 的总和**：158px 是总预算，逐个判会漏 ——
+    // 只把其中一个短标签换回长标签，单个可能仍在上限内（en「=LOVE Family」6 单位），
+    // 但三个加起来就超了。
+    const sum = (pick) =>
+      ["48g", "sakamichi", "love"].reduce(
+        (n, series) => n + units(pick(core.names(series, 7, t))),
+        0
+      );
+    const shortU = sum((n) => n.seriesShort);
+    assert.ok(
+      shortU <= CAP,
+      `${lang} 短标签总长 ${shortU} 单位 > 上限 ${CAP}（${["48g", "sakamichi", "love"].map((x) => core.names(x, 7, t).seriesShort).join(" / ")}）`
+    );
+    // 顺带钉住「长标签确实超预算」—— 校准用的前提，写成断言才不会悄悄失真
+    const longU = sum((n) => n.seriesLabel);
+    assert.ok(
+      longU > CAP,
+      `${lang} 的长标签总长 ${longU} 竟然没超预算 —— 上面的校准前提变了？`
+    );
+  }
+});
+
+test("短标签：i18n 三语的键集与长标签那批一一对应", () => {
+  const I18N = require("../i18n.js");
+  for (const lang of ["zh", "en", "ja"]) {
+    for (const k of ["series_48g", "series_saka", "series_love"]) {
+      assert.ok(I18N[lang][k + "_short"], `${lang} 缺 ${k}_short`);
+    }
+  }
+});
