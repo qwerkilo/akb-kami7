@@ -748,6 +748,9 @@
         state.cut && state.cut.length && !Array.isArray(state.cut[0])
           ? [state.cut]
           : state.cut || [],
+      // 用户为第几轮点过「继续细分」。不落盘的话刷新会忘掉这个选择：
+      // 提交口重新打开、「继续细分」也回来，同一轮的两个出口在刷新边界上不一致。
+      deeperRound: state.deeperRound || 0,
     });
   }
 
@@ -788,14 +791,30 @@
         : [];
       const nested =
         Array.isArray(s.cut) && Array.isArray(s.cut[0]) ? s.cut : null;
+      // 还要跨轮去重：同一个人出现在两轮 → screenTiers 会把他放进两层
+      // → 对决里同一张脸出现两次、海报出现重复。应用自己产生不了这种数据
+      // （toggleCut 要求 id 在本轮 pool 里），但手改存档可以。
+      const seen = new Set();
       const cut = (nested ? nested : [flat])
         .map((ids) =>
-          (Array.isArray(ids) ? ids : []).filter(
-            (x) => typeof x === "string" && selected.includes(x)
-          )
+          (Array.isArray(ids) ? ids : []).filter((x) => {
+            if (typeof x !== "string" || !selected.includes(x) || seen.has(x))
+              return false;
+            seen.add(x);
+            return true;
+          })
         )
         .filter((ids) => ids.length);
-      return { size, selected, duel, cut };
+      return {
+        size,
+        selected,
+        duel,
+        cut,
+        deeperRound:
+          Number.isInteger(s.deeperRound) && s.deeperRound > 0
+            ? s.deeperRound
+            : 0,
+      };
     } catch (err) {
       return null;
     }
@@ -820,7 +839,6 @@
   // 逐层对决的进度：题数上限是各层级组大小之和（筛到哪一轮决定问多少题）
   function tierProgress(tiers, answered) {
     const max = tiers.reduce((sum, g) => sum + worstCase(g.length), 0);
-    const p = duelProgress(1, 0); // 只为拿同一个形状
     const done = Math.max(0, Math.min(answered, max));
     const remaining = max - done;
     // 当前在第几层 / 该层内第几题（由答案数跨层累加得出）
@@ -833,7 +851,6 @@
       tier += 1;
     }
     return {
-      ...p,
       answered: done,
       max,
       percent: max ? Math.round((done / max) * 100) : 0,
@@ -870,14 +887,17 @@
       cuts.push(c);
       kept -= c;
     }
-    return { cuts, kept, done: true };
+    return { cuts, kept };
   }
 
   // 当前这一轮的进度：cutRounds 是「按轮次分组的已划 id」。
-  // deeper = 用户是否已点「继续细分」进入下一轮。轮次是自动推进的，所以「本轮刚划完、
+  // deeperRound = 用户为「哪一轮」点过继续细分。轮次是自动推进的，所以「本轮刚划完、
   // 可以提交」和「已经在下一轮里」必须由这个显式信号区分 —— 否则 complete 会在轮次
   // 推进的瞬间丢掉，用户就没法在第一轮就提交（Q5 批准的是「可提交 or 继续细分」二选一）。
-  function screenStep(size, cutRounds, deeper) {
+  //
+  // 它必须**按轮**记而不是全局布尔：全局闩锁会让第二轮之后的边界永久消失
+  // （提交禁用 + 「继续细分」按钮不出现 = 静默逼着划到底）。每轮都要能二选一。
+  function screenStep(size, cutRounds, deeperRound) {
     const rounds = Array.isArray(cutRounds) ? cutRounds : [];
     let pool = Math.max(0, size);
     let round = 0;
@@ -892,9 +912,9 @@
         cut = inRound; // 这一轮还没划够，停在轮内
         break;
       }
+      // 继续迭代时 cut 必为初始的 0：非零只在下面那个 break 分支写入（那里已退出）
       pool -= inRound;
       round += 1;
-      cut = 0; // 进入下一轮：本轮计数归零（否则会带着上一轮的数把门关死）
       justAdvanced = true;
     }
     if (pool <= SCREEN_STOP) {
@@ -915,7 +935,9 @@
     const filled = cut >= need;
     // 刚划完一轮、且这一轮一个都还没划 → 二选一（提交 or 再细分）。
     // 「已经进这一轮并划了几个」本身就说明用户往下走了，不能算边界。
-    const atBoundary = justAdvanced && cut === 0 && !deeper;
+    // deeperRound === round 表示用户就是为这一轮点过「继续细分」→ 本轮不给出提交。
+    const deeperHere = deeperRound === round;
+    const atBoundary = justAdvanced && cut === 0 && !deeperHere;
     return {
       round,
       need,

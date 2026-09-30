@@ -35,7 +35,7 @@
       // 筛选步（ADR-0019 改写版）：按轮次分组的划除，每轮是一组 id
       cut: [],
       // 用户是否已点「继续细分」进入下一轮（轮次自动推进，靠它区分「可提交」与「已在下一轮」）
-      deeper: false,
+      deeperRound: 0,
       skin: "classic",
       generation: "all",
       // 全局偏好：不随系列切换而变，存储不可用时回落到这些默认值。
@@ -73,10 +73,17 @@
       const selected = st.selected.filter((id) => inSeries(id, s));
       let duel = st.duel;
       if (duel && duel.tiers.flat().some((id) => !inSeries(id, s))) duel = null;
-      if (duel && !duel.tiers.length) duel = null;
+      // 不判 duel.tiers.length：deserializeState 已过滤空组并要求 flat 非空，
+      // 随后 init 走 setDuel（那里也查过）—— 那道门不可达。
       // 「划除必须落在已选里」由 core.deserializeState 统一保证（单一出处）；
       // 这里只负责按系列过滤 selected/duel（core 不认识系列）
-      return { size: st.size, selected, duel, cut: st.cut || [] };
+      return {
+        size: st.size,
+        selected,
+        duel,
+        cut: st.cut || [],
+        deeperRound: st.deeperRound || 0,
+      };
     }
 
     function save() {
@@ -89,6 +96,7 @@
             ? { tiers: state.duel.tiers, answers: state.duel.answers }
             : null,
           cut: state.cut,
+          deeperRound: state.deeperRound,
         })
       );
     }
@@ -130,7 +138,7 @@
       const had = state.duel.tiers.length > 0;
       state.duel = emptyDuel();
       state.cut = [];
-      state.deeper = false;
+      state.deeperRound = 0;
       return had;
     }
 
@@ -143,7 +151,7 @@
     }
 
     function screening() {
-      const step = CORE.screenStep(nSel(), state.cut, state.deeper);
+      const step = CORE.screenStep(nSel(), state.cut, state.deeperRound);
       // cut 报「全部已划的 id」—— UI 要的是「这个人划了没有」；
       // 本轮进度由 need/canCut 表达，分轮结构由 rounds 保留。
       const all = state.cut.flat();
@@ -160,7 +168,11 @@
         filled: step.filled,
         atBoundary: step.atBoundary,
         canRecurse: step.atBoundary && step.canCut > 0,
-        tiers: CORE.screenTiers(state.selected, state.cut),
+        // screenTiers 会把 state.cut 的每轮数组直接放进层级里，这里必须拷一层 ——
+        // 否则改一次快照就改了会话内部状态（startDuel 还会把别名存进 state.duel.tiers）
+        tiers: CORE.screenTiers(state.selected, state.cut).map((t) =>
+          t.slice()
+        ),
       };
     }
 
@@ -168,9 +180,9 @@
     function toggleCut(id) {
       if (!inSeries(id, state.series)) return false;
       if (!state.selected.includes(id)) return false;
-      const step = CORE.screenStep(nSel(), state.cut, state.deeper);
+      const step = CORE.screenStep(nSel(), state.cut, state.deeperRound);
       if (step.canCut === 0) return false; // 本轮名额用完（或保留组到下限）→ 划不动
-      // 注意：deeper 只由 enterNextRound（点「继续细分」）设置 ——
+      // 注意：deeperRound 只由 enterNextRound（点「继续细分」）设置 ——
       // 划除本身不设，否则「刚划完一轮」这个边界信号会在第一次划除时就没了。
       const roundIdx = step.round;
       const cur = state.cut[roundIdx] || [];
@@ -187,19 +199,23 @@
       return true;
     }
 
-    // 「继续细分」：显式进入下一轮（deeper）。不设它的话轮次自动推进会丢掉
-    // 「本轮刚划完、可以提交」这个信号（core.screenStep 的 deeper 参数）
+    // 「继续细分」：显式进入下一轮。不设它的话轮次自动推进会丢掉
+    // 「本轮刚划完、可以提交」这个信号（core.screenStep 的 deeperRound 参数）。
+    //
+    // 记的是**轮次号**而不是布尔：全局闩锁会让第二轮之后的边界永久消失
+    // （提交禁用 + 「继续细分」按钮不出现 = 静默逼着划到底）。
     function enterNextRound() {
-      if (!screening().canRecurse) return false;
-      state.deeper = true;
+      const sc = screening();
+      if (!sc.canRecurse) return false;
+      state.deeperRound = sc.round;
       save();
       return true;
     }
 
     function resetScreening() {
-      if (!state.cut.length && !state.deeper) return false;
+      if (!state.cut.length && !state.deeperRound) return false;
       state.cut = [];
-      state.deeper = false;
+      state.deeperRound = 0;
       save();
       return true;
     }
@@ -219,6 +235,7 @@
     state.size = store[state.series].size;
     state.selected = store[state.series].selected.slice();
     state.cut = (store[state.series].cut || []).slice();
+    state.deeperRound = store[state.series].deeperRound || 0;
     setDuel(store[state.series].duel);
 
     function snapshot() {
@@ -363,12 +380,21 @@
     }
 
     // 对决按层级喂：保留组 + 各轮划掉组（由内到外）。跨层级不比较（ADR-0019）。
-    function startDuel() {
+    //
+    // opts.shuffle：出图页的「这几位重新排序」用它重排**每一层内部**的顺序。
+    // 层级归属是语义（谁比谁靠前），层内顺序是自由量 —— 洗它不违反「跨层级不比较」。
+    // 不传就保持已选顺序：首场对决跟着挑人顺序走，不随机器变。
+    function startDuel(opts) {
       if (!state.selected.length) return false;
       if (!screening().complete) return false; // 定值门槛：没划够不给开始排序
-      if (state.selected.some((id) => !inSeries(id, state.series)))
-        return false;
-      state.duel = { tiers: screening().tiers, answers: [] };
+      // 不再查 inSeries：selected 只能经 toggleSelect（自带检查）与 loadSeries
+      // （按系列过滤）进入，结构上不会跨系列；那个门不可达且无测试覆盖。
+      // screening() 给的是拷贝，再拷一层是因为这份要活过整个对决。
+      const mix = (opts && opts.shuffle) || null;
+      const tiers = screening().tiers.map((t) =>
+        mix ? mix(t.slice()) : t.slice()
+      );
+      state.duel = { tiers, answers: [] };
       save();
       return true;
     }
@@ -394,7 +420,7 @@
       state.selected = [];
       state.duel = emptyDuel();
       state.cut = [];
-      state.deeper = false;
+      state.deeperRound = 0;
       save();
       return true;
     }

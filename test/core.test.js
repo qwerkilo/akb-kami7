@@ -325,7 +325,10 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
     duel: { tiers: [["a", "b", "c"]], answers: [true] },
     cut: [["b"]],
   };
-  assert.deepEqual(core.deserializeState(core.serializeState(state)), state);
+  assert.deepEqual(core.deserializeState(core.serializeState(state)), {
+    ...state,
+    deeperRound: 0, // 新增的可选字段：没设过就是 0
+  });
   // 旧存档（没有 cut 字段）要能读，且划除为空
   assert.deepEqual(
     core.deserializeState(JSON.stringify({ v: 1, size: 7, selected: ["a"] })),
@@ -334,6 +337,7 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
       selected: ["a"],
       duel: null,
       cut: [],
+      deeperRound: 0, // 旧存档没有这个字段 → 0
     }
   );
   // 划除落在已选之外（脏存档）要被过滤掉
@@ -1821,7 +1825,7 @@ test("rosterView 搜索：三个过滤条件各自真的生效（这条路径此
 });
 
 // ---- 筛选相位（ADR-0019：核心循环改成 清单筛选 → 排序定序） ----
-test("nav：挑人页已选满才能进筛选；筛选页提交要留够档位人数", () => {
+test("nav：挑人页已选满才能进筛选；筛选页提交要本轮划够一半", () => {
   const ctx = (o) => ({
     view: "pick",
     phase: "pick",
@@ -1911,21 +1915,13 @@ test("steps：筛选时第 ② 步是高亮态（步骤条仍是三步）", () =
 
 // ---- 筛选：逐轮二分（ADR-0019 改写版） ----
 test("筛选轮次：每轮划掉保留组的一半，保留组剩 4 人即停", () => {
-  assert.deepEqual(core.screenRounds(7), { cuts: [3], kept: 4, done: true });
-  assert.deepEqual(core.screenRounds(16), {
-    cuts: [8, 4],
-    kept: 4,
-    done: true,
-  });
-  assert.deepEqual(core.screenRounds(40), {
-    cuts: [20, 10, 5, 2],
-    kept: 3,
-    done: true,
-  });
+  assert.deepEqual(core.screenRounds(7), { cuts: [3], kept: 4 });
+  assert.deepEqual(core.screenRounds(16), { cuts: [8, 4], kept: 4 });
+  assert.deepEqual(core.screenRounds(40), { cuts: [20, 10, 5, 2], kept: 3 });
   // 下限以下不再产生轮次
-  assert.deepEqual(core.screenRounds(4), { cuts: [], kept: 4, done: true });
-  assert.deepEqual(core.screenRounds(3), { cuts: [], kept: 3, done: true });
-  assert.deepEqual(core.screenRounds(1), { cuts: [], kept: 1, done: true });
+  assert.deepEqual(core.screenRounds(4), { cuts: [], kept: 4 });
+  assert.deepEqual(core.screenRounds(3), { cuts: [], kept: 3 });
+  assert.deepEqual(core.screenRounds(1), { cuts: [], kept: 1 });
 });
 
 test("筛选轮次：进行中的那一轮 —— 划够一半才完成", () => {
@@ -1943,14 +1939,17 @@ test("筛选轮次：进行中的那一轮 —— 划够一半才完成", () => 
   assert.equal(st.complete, true, "刚划完一轮 → 可以提交");
   assert.equal(st.filled, false, "本轮一个都还没划（filled 只说本轮）");
   assert.equal(st.atBoundary, true, "但处于「刚划完一轮」的边界上");
+  // 「继续细分」传的是轮次号（第几轮点过），不是布尔
+  const round1 = ["a", "b", "c", "d", "e", "f", "g", "h"];
   assert.equal(
-    core.screenStep(
-      16,
-      [st === null ? [] : ["a", "b", "c", "d", "e", "f", "g", "h"]],
-      true
-    ).complete,
+    core.screenStep(16, [round1], 1).complete,
     false,
-    "点了「继续细分」→ 回到未完成，必须再划够下一轮"
+    "为第 1 轮点过继续细分 → 这一轮不再可提交"
+  );
+  assert.equal(
+    core.screenStep(16, [round1], 0).complete,
+    true,
+    "deeperRound 与 round 不等（没为这轮点过）→ 仍是边界"
   );
   st = core.screenStep(16, [
     ["a", "b", "c", "d", "e", "f", "g", "h"],
@@ -2007,7 +2006,7 @@ test("筛选层级：名次由内到外填，越早划的组越靠后", () => {
 test("筛选题数：各层级组大小之和，不是档位的函数", () => {
   assert.equal(core.tierQuestionMax(7), 8); // [4,3] → 5+3
   assert.equal(core.tierQuestionMax(16), 27); // [4,4,8] → 5+5+17
-  assert.equal(core.tierQuestionMax(40), 106); // [3,2,5,10,20] → 3+1+12+34+69
+  assert.equal(core.tierQuestionMax(40), 106); // [3,2,5,10,20] → 3+1+8+25+69
   // 同一档位筛到不同轮次 → 不同题数：只划一轮是 [20,20] → 138，划满四轮 → 106
   assert.equal(core.tierQuestionMax(40, 1), 138);
   assert.ok(
@@ -2059,4 +2058,97 @@ test("replayTiers：单层级退化成原来的 replay", () => {
   }
   assert.equal(r.done, true);
   assert.equal(r.order.length, 3);
+});
+
+// ---- S3：deeper 必须按轮记，不是全局闩锁（Standards 轴实缺） ----
+test("筛选：继续细分是按轮的 —— 第二轮划完后「二选一」仍在", () => {
+  const r1 = Array.from({ length: 20 }, (_, i) => "a" + i);
+  const r2 = Array.from({ length: 10 }, (_, i) => "b" + i);
+  const r3 = Array.from({ length: 5 }, (_, i) => "c" + i);
+  // 第一轮划够 → 边界：可提交，也可递归
+  let st = core.screenStep(40, [r1], undefined);
+  assert.equal(st.atBoundary, true, "R1 划够后是边界");
+  assert.equal(st.complete, true, "R1 划够后可提交");
+  assert.equal(st.canCut, 10, "R1 划够后还剩 10 个名额");
+  // 用户为第 1 轮点了「继续细分」→ 只作用于那一轮
+  assert.equal(
+    core.screenStep(40, [r1], 1).complete,
+    false,
+    "为第 1 轮点过继续细分 → R1 这一轮不再可提交"
+  );
+  // 第二轮也划够 → 必须又是边界（全局闩锁会在这里永久关掉二选一）
+  st = core.screenStep(40, [r1, r2], undefined);
+  assert.equal(st.atBoundary, true, "R2 划够后又是边界");
+  assert.equal(st.complete, true, "R2 划够后照样能提交");
+  // 第三轮同理
+  assert.equal(
+    core.screenStep(40, [r1, r2, r3], undefined).atBoundary,
+    true,
+    "R3 划够后仍是边界"
+  );
+});
+
+test("筛选：本轮已经划了几个 → 不是边界（不必点继续细分就往下走了）", () => {
+  const r1 = Array.from({ length: 20 }, (_, i) => "a" + i);
+  const r2 = Array.from({ length: 10 }, (_, i) => "b" + i);
+  assert.equal(
+    core.screenStep(40, [r1, r2.slice(0, 2)], undefined).atBoundary,
+    false,
+    "已经在第二轮里划了两个 → 不是边界"
+  );
+  assert.equal(
+    core.screenStep(40, [r1, r2.slice(0, 2)], undefined).complete,
+    false,
+    "而且没划够 → 不能提交"
+  );
+});
+
+test("存档：deeperRound 跟着往返（刷新不丢「继续细分」的选择）", () => {
+  const st = core.deserializeState(
+    core.serializeState({
+      size: 16,
+      selected: ["a", "b", "c", "d"],
+      duel: null,
+      cut: [["a", "b"]],
+      deeperRound: 1,
+    })
+  );
+  assert.equal(st.deeperRound, 1, "为第 1 轮点过继续细分这件事要落盘");
+  // 脏值（非整数 / 负数）保守归零
+  assert.equal(
+    core.deserializeState(
+      JSON.stringify({ v: 1, size: 7, selected: [], deeperRound: -3 })
+    ).deeperRound,
+    0
+  );
+  assert.equal(
+    core.deserializeState(
+      JSON.stringify({ v: 1, size: 7, selected: [], deeperRound: "x" })
+    ).deeperRound,
+    0
+  );
+});
+
+test("存档：跨轮重复的 id 只保留首次出现（否则同一人进两层）", () => {
+  const raw = JSON.stringify({
+    v: 1, // STATE_VERSION（键名是 akb:state:v2 但载荷版本是 1，别被键名误导）
+    size: 7,
+    selected: ["a", "b", "c", "d", "e", "f", "g"],
+    cut: [
+      ["a", "b", "c", "d"],
+      ["b", "e", "f"],
+      ["g", "a"],
+    ],
+  });
+  const st = core.deserializeState(raw);
+  // b 已在第 1 轮 → 第 2 轮里不重复；a 已在第 1 轮 → 第 3 轮里不重复
+  assert.deepEqual(
+    st.cut,
+    [["a", "b", "c", "d"], ["e", "f"], ["g"]],
+    "跨轮去重后各轮"
+  );
+  const tiers = core.screenTiers(st.selected, st.cut);
+  const flat = tiers.flat();
+  assert.equal(new Set(flat).size, flat.length, "同一人没有出现在两层里");
+  assert.equal(flat.length, 7, "全部 7 人各在一层");
 });

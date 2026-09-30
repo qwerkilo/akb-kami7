@@ -1535,6 +1535,12 @@ main {
   font-size: 13px;
   font-weight: 700;
 }
+.screen-row.locked .mark {
+  opacity: 0.4;
+}
+.screen-row.locked .who b {
+  opacity: 0.75;
+}
 .screen-row.cut {
   opacity: 0.5;
 }

@@ -373,9 +373,7 @@
         ? t("need", left)
         : snap.phase === "duel"
           ? t("resume_go")
-          : snap.screening.cut.length
-            ? t("screen_min", snap.screening.kept)
-            : t("screen_go");
+          : t("screen_go");
     btn.classList.toggle("emphasis", left === 0);
     const clearBtn = $("#clear-btn");
     if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
@@ -560,7 +558,10 @@
   });
 
   $("#start-btn").addEventListener("click", () => {
-    // 有进行中的对决就直接续上（托盘上的「继续对决」），否则进筛选
+    // 有进行中的对决就走 resume（只切视图，保留题号）—— 这里必须预判：
+    // navigate() 对 effect "start" 与 "resume" 都调 beginDuel()，而 beginDuel 里的
+    // S.startDuel() 会重开对决、把答案清零。nav 的 start 规则在 phase==="duel" 时
+    // 返回 effect "resume" 但仍会走到 beginDuel，所以这一层预判不是冗余的。
     sync();
     if (snap.duel) return navigate("resume");
     navigate("screen");
@@ -571,10 +572,6 @@
     // 门槛是「本轮划够一半」（定值，不是「至少留 N 人」）
     if (!snap.screening || !snap.screening.complete) return;
     navigate("rank"); // startDuel 自己按层级喂（保留组 + 各轮划掉组）
-  });
-  $("#screen-reset").addEventListener("click", () => {
-    if (!S.resetScreening()) return;
-    renderScreen();
   });
   // 「继续细分」：进入下一轮（session 里记 deeper —— 轮次自动推进，
   // 没有这个显式标记就分不清「刚划完、可以提交」和「已经在下一轮里」）
@@ -591,8 +588,8 @@
   });
 
   /* ---------------- duel (replayable merge sort) ---------------- */
-  function beginDuel() {
-    if (!S.startDuel()) return false;
+  function beginDuel(opts) {
+    if (!S.startDuel(opts)) return false;
     duel50 = false;
     snap.selected.forEach((id) => {
       new Image().src = fullSrc(BY_ID.get(id));
@@ -612,11 +609,16 @@
     $("#duel-bar").style.width = `${snap.duel.percent}%`;
     const extra = $("#duel-extra");
     if (extra)
+      // 多轮筛选时对决跨层级（保留组 + 各轮划掉组），单一百分比看不出层级跳跃 →
+      // tier/tiers 就是为此而算的（ADR-0019）
       extra.textContent = t(
         "duel_extra",
         snap.duel.percent,
         snap.duel.remaining,
-        Math.max(1, Math.ceil(snap.duel.etaSeconds / 60))
+        Math.max(1, Math.ceil(snap.duel.etaSeconds / 60)),
+        snap.duel.tier + 1,
+        snap.duel.tiers,
+        snap.duel.tierAnswered + 1
       );
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
@@ -757,8 +759,10 @@
     clearTimeout(drawTimer);
     drawTimer = setTimeout(drawPoster, 200);
   });
+  // 「这几位重新排序」：shuffle 传进 startDuel，由它对**每一层内部**洗牌
+  // （层级归属是语义，层内顺序是自由量 —— 洗它不违反「跨层级不比较」）
   $("#resort-btn").addEventListener("click", () =>
-    navigate("resort", CORE.shuffle(ranking.map((m) => m.id)))
+    navigate("resort", { shuffle: CORE.shuffle })
   );
   $("#restart-btn").addEventListener("click", () => navigate("restart"));
   $("#save-btn").addEventListener("click", savePoster);
@@ -1034,19 +1038,29 @@
       "screen_round",
       sc.canCut > 0 ? sc.round + 1 : Math.max(1, sc.round)
     );
+    // 跨轮已定的人不能在本轮「恢复」（toggleCut 会拒它），那这里就不能留一个
+    // 点了没反应的可点控件。判据是「他被划掉的那一轮 ≠ 当前轮」——
+    // 不能用 rounds[round] 的成员集合：当前轮还没往里划过任何东西时它是空的。
+    const roundOf = (id) => sc.rounds.findIndex((r) => r.includes(id));
     const rows = snap.selected.map((id) => {
       const m = BY_ID.get(id);
       const cut = sc.cut.includes(id);
-      return `<li class="screen-row${cut ? " cut" : ""}">
+      const r = roundOf(id);
+      const locked = cut && r !== sc.round; // 别的轮次划掉的
+      const noQuota = !cut && !sc.canCut; // 本轮名额用尽 → 划不动
+      const off = locked || noQuota;
+      return `<li class="screen-row${cut ? " cut" : ""}${locked ? " locked" : ""}">
         <span class="av"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async"></span>
         <span class="who"><b>${esc(m.name)}</b><s>${esc(fullMeta(m))}</s></span>
         <button class="mark" data-cut="${esc(id)}" aria-pressed="${cut ? "true" : "false"}"
-          ${!cut && !sc.canCut ? "disabled" : ""}
+          ${off ? "disabled" : ""}
+          title="${off ? esc(t("screen_locked")) : ""}"
           aria-label="${esc(t("pick_who", m.name))}">${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
       </li>`;
     });
     $("#screen-list").innerHTML = rows.join("");
-    $("#screen-count").textContent = t("picked_of", sc.pool.length, sc.size);
+    // 页脚说的是「本轮待筛」而不是「已选」—— 划掉 ≠ 取消选择，两页的 N 含义不同
+    $("#screen-count").textContent = t("screen_left", sc.pool.length, sc.size);
     const sub = $("#screen-submit");
     // 本轮划够就能开始排序；题数上限是「各层级组大小之和」，不再只是档位的函数
     sub.disabled = !sc.complete;
@@ -1085,12 +1099,14 @@
     renderPick();
   }
 
-  function navigate(intent) {
+  // opts 透给 startDuel（目前只有 { shuffle }，出图页「这几位重新排序」用）
+  function navigate(intent, opts) {
     const out = CORE.nav(navCtx(), intent);
     if (out.effect === "abandon") S.abandonDuel();
     view = out.view;
     // 对决的对手来自「已选 + 筛选层级」（ADR-0019 改写版），不再由调用方传 order
-    if (out.effect === "start" || out.effect === "resume") return beginDuel();
+    if (out.effect === "start" || out.effect === "resume")
+      return beginDuel(opts);
     paint();
     return true;
   }

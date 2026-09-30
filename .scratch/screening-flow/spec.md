@@ -24,7 +24,8 @@
 
 ### 1 · 筛选步（新增相位 `screening`）
 
-> **本节已被 `docs/adr/0019-screening-then-rank.md` 的改写版取代**（2026-09-29）。
+> **本节 §1 已被 `docs/adr/0019-screening-then-rank.md` 的改写版取代**（2026-09-29）。
+> §2/§3/§4 是现状；§1 的原文留在下面只为说明「为什么改」✓。
 > 初版写的是「筛选到人数 = 档位」，实现后发现不可用：`toggleSelect` 在
 > `selected.length >= size` 时拒绝，所以挑人最多选到档位人数，而门槛是
 > `kept >= size` → 只有「一个都没划」才能提交。现行语义见下面。
@@ -54,11 +55,13 @@
 
 ### 4 · i18n
 
-- `duel_intro_title/_1/_2/_3` 改写成清单语义（三语 ✓）
-- `duel_title` → 筛选页标题（三语 ✓）
+- `duel_intro_title/_1/_2/_3` **不改**（它们解释的是对决这一步，而对决还在 ✓；
+  实现时没改，与本节初稿写的「改写成清单语义」不符 —— 已订正 ✓）
+- 筛选页标题用新键 `screen_title`（不复用 `duel_title` ✓，那个仍是对决页标题 ✓）
 - `duel_saved` / `duel_extra` / `undo` / `duel_leave` **继续使用** ✓（排序步）
 - 新增：`screen_title` / `screen_keep` / `screen_cut` / `screen_min` /
-  `screen_more` / `screen_round`（三语 ✓）
+  `screen_more` / `screen_round` / `screen_reset` / `screen_go` /
+  `screen_locked`（跨轮已定，不能单独恢复）/ `screen_left`（本轮待筛 / 共 N）（三语 ✓）
 - `screen_intro` 与 `screen_min` 的语义**反转**：`screen_min` 不再是「至少留 N 人」
   而是「再划 N 人」✓
 - 死键守卫必须仍全绿 ✓（`test/i18n.test.js` ✓）

@@ -856,3 +856,152 @@ test("筛选：划掉的必须是本系列已选的人", () => {
   assert.equal(S.toggleCut("a9"), false, "本系列但不在已选里的人");
   assert.deepEqual(S.snapshot().screening.cut, []);
 });
+
+// ---- S3（Standards 轴实缺）：enterNextRound 必须按轮生效，且要有守卫 ----
+test("筛选：继续细分按轮生效 —— 40 档每轮划完都还能二选一", () => {
+  const S = make();
+  S.setSize(40);
+  for (let i = 1; i <= 40; i++) S.toggleSelect("a" + i);
+  // 只划够本轮的名额就停手（真实用户不会一口气划到底 —— 划够后主按钮已可提交）
+  const cutThisRound = () => {
+    const v = S.snapshot().screening;
+    for (let i = 0; i < v.need; i++) {
+      const cur = S.snapshot().screening;
+      const next = cur.pool.find((id) => !cur.cut.includes(id));
+      if (!next) break;
+      S.toggleCut(next);
+    }
+  };
+  const v0 = S.snapshot().screening;
+  assert.equal(v0.need, 20, "40 档第一轮划 20");
+
+  cutThisRound();
+  let v = S.snapshot().screening;
+  assert.equal(v.round, 1);
+  assert.equal(v.complete, true, "R1 划够可提交");
+  assert.equal(v.canRecurse, true, "R1 划够可以再细分");
+  assert.equal(S.enterNextRound(), true, "点继续细分成功");
+  assert.equal(
+    S.snapshot().screening.complete,
+    false,
+    "点了之后这一轮不再可提交"
+  );
+
+  cutThisRound();
+  v = S.snapshot().screening;
+  assert.equal(v.round, 2, "进到第二轮");
+  assert.equal(v.complete, true, "R2 划够照样能提交（全局闩锁会在这里失败）");
+  assert.equal(v.canRecurse, true, "R2 划够照样能继续细分");
+
+  assert.equal(S.enterNextRound(), true);
+  cutThisRound();
+  v = S.snapshot().screening;
+  assert.equal(v.round, 3);
+  assert.equal(v.complete, true, "R3 划够照样能提交");
+  assert.equal(v.canRecurse, true, "R3 也一样");
+});
+
+test("筛选：不能递归时点「继续细分」返回 false（不静默推进）", () => {
+  const S = make();
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("a" + i);
+  // 还没划够 → 不是边界 → 按钮不出现，调用也该被拒
+  assert.equal(S.enterNextRound(), false, "第 1 轮没划够时不能进入下一轮");
+  assert.equal(S.snapshot().screening.round, 0, "轮次没有被动过");
+});
+
+// ---- S2（Standards 轴实缺）：快照的层级必须是拷贝 ----
+test("筛选：快照的 rounds / tiers 改不动会话内部状态", () => {
+  const S = make();
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("a" + i);
+  for (let i = 1; i <= 8; i++) S.toggleCut("a" + i);
+  const before = S.snapshot().screening;
+  const roundsBefore = JSON.stringify(before.rounds);
+  before.tiers[1].push("zzz");
+  before.rounds[0].push("yyy");
+  const after = S.snapshot().screening;
+  assert.equal(
+    JSON.stringify(after.rounds),
+    roundsBefore,
+    "改快照的 tiers/rounds 动到了内部状态"
+  );
+  assert.equal(after.tiers.flat().includes("zzz"), false, "tiers 被污染");
+  assert.equal(after.cut.includes("yyy"), false, "rounds 被污染");
+});
+
+// ---- S7（Standards 轴实缺）：跨轮越界门要有守卫 ----
+test("筛选：第 1 轮划掉的人，在第 2 轮点「留」不生效", () => {
+  const S = make();
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("a" + i);
+  for (let i = 1; i <= 8; i++) assert.equal(S.toggleCut("a" + i), true);
+  // 第 2 轮：a1 已在第 1 轮被划掉，点它必须无效（它不在本轮保留组里）
+  assert.equal(S.snapshot().screening.round, 1, "已进第 2 轮");
+  assert.equal(S.toggleCut("a1"), false, "跨轮点划掉无效");
+  const v = S.snapshot().screening;
+  assert.deepEqual(
+    v.rounds[0],
+    ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"],
+    "第 1 轮没被动"
+  );
+  assert.equal(v.rounds.length, 1, "第 2 轮压根没被创建（还没往里划过）");
+  // 同理，非已选成员也划不动
+  assert.equal(S.toggleCut("a99"), false, "未选的人划不动");
+});
+
+// ---- 「这几位重新排序」必须真的重新洗牌（Spec 轴实缺） ----
+test("重新排序：注入的 shuffle 只打乱层内顺序，层级归属不变", () => {
+  const mk = (shuffle) => {
+    const S = make();
+    S.setSize(7);
+    for (let i = 1; i <= 7; i++) S.toggleSelect("a" + i);
+    for (let i = 1; i <= 3; i++) S.toggleCut("a" + i);
+    assert.equal(S.startDuel({ shuffle }), true);
+    return S.snapshot().duel;
+  };
+  // 不洗牌：内层（保留组 a4..a7）按已选顺序，第一对是 a4 / a5
+  const plain = mk(null);
+  assert.equal(plain.tiers, 2, "两层（保留组 + 划掉组）");
+  assert.deepEqual(plain.pair, ["a4", "a5"], "未洗牌时第一对取保留组前两人");
+  // 倒序洗牌：内层变成 a7,a6,a5,a4 → 第一对是 a7 / a6
+  const rev = mk((a) => a.slice().reverse());
+  assert.equal(rev.tiers, 2, "层数不变（洗牌不改变层级结构）");
+  assert.equal(rev.max, plain.max, "题数上界不变");
+  assert.deepEqual(rev.pair, ["a7", "a6"], "倒序洗牌后第一对换成内层末尾两人");
+});
+
+test("重新排序：不传 shuffle 时保持确定性（首场对决不随机器变）", () => {
+  const mk = () => {
+    const S = make();
+    S.setSize(7);
+    for (let i = 1; i <= 7; i++) S.toggleSelect("a" + i);
+    for (let i = 1; i <= 3; i++) S.toggleCut("a" + i);
+    S.startDuel();
+    return S.snapshot().duel.pair;
+  };
+  assert.deepEqual(mk(), mk(), "同一份已选 → 同一场第一对");
+});
+
+test("筛选：点「继续细分」后刷新，那一轮仍不给出提交", () => {
+  const st = memoryStorage();
+  const S = session.create({ storage: st, byId, posterStyles: POSTER_STYLES });
+  S.setSize(16);
+  for (let i = 1; i <= 16; i++) S.toggleSelect("a" + i);
+  for (let i = 1; i <= 8; i++) S.toggleCut("a" + i);
+  assert.equal(S.enterNextRound(), true);
+  assert.equal(
+    S.snapshot().screening.complete,
+    false,
+    "点之前：这一轮不给提交"
+  );
+  // 同一条存档重开会话（模拟刷新）
+  const T = session.create({ storage: st, byId, posterStyles: POSTER_STYLES });
+  const v = T.snapshot().screening;
+  assert.equal(
+    v.complete,
+    false,
+    "刷新后仍然不给提交（否则两个出口在刷新边界上不一致）"
+  );
+  assert.equal(v.canCut, 4, "本轮名额还是 4");
+});
