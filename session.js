@@ -344,6 +344,10 @@
       if (!SIZES.includes(n) || n === state.size) return false;
       state.size = n;
       if (state.selected.length > n) state.selected.length = n;
+      // 缩小档位会截断 selected，但 cut 里还留着旧档位的 id → 层级里出现「已选之外的人」
+      // 与空层（screenTiers 不筛归属），于是提交按钮按计划算、细条按实际层级算，两个数字
+      // 打架（40 档划满 4 轮改成 16 档：27 vs 83）。所以这里要和 load 路径共用同一道夹子。
+      state.cut = CORE.clampCut(state.selected, state.cut, state.size);
       clearDuel();
       save();
       return true;

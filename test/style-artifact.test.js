@@ -180,8 +180,7 @@ test("窄屏页头：系列 tab 的长短标签切换规则还在（删了就会
   assert.match(
     narrow,
     /\.masthead-main \.seg-series button\s*\{[^}]*padding:\s*6px 7px/,
-    "≤560px 应把系列 tab 内边距收窄到 6px 7px（每按钮比默认的 12px 省 10px）"
-  );
+    "≤560px 应把系列 tab 内边距收窄到 6px 7px（每按钮比默认的 12px 省 10px）"  );
   assert.match(
     narrow,
     /\.masthead-main \.sub\s*\{[^}]*display:\s*none/,
@@ -244,6 +243,14 @@ test("≤380px：系列 tab 落到第二行，但品牌与「更多」留在第�
     /\.masthead-side\s*\{[^}]*margin-left:\s*auto/,
     "「更多」靠右推（写死宽度会在另一种语言下复发）"
   );
+  // display:contents 才是真正起作用的机制。前两版方案（给 main 写 flex:1 0 100% /
+  // flex:1 1 auto）都会把「更多」挤到独占一行或第三行：页头 66→164px，375px 以下
+  // 「首屏见脸」从 3 张掉到 0 张。所以这条不许被删。
+  assert.match(
+    tiny,
+    /\.masthead-main\s*\{[^}]*display:\s*contents/,
+    "≤380px 应给 .masthead-main 写 display:contents（brand/tab/「更多」各自参与 .masthead 排列）"
+  );
   assert.match(
     tiny,
     /\.masthead-main \.seg-series\s*\{[^}]*flex:\s*1 0 100%/,
@@ -253,5 +260,19 @@ test("≤380px：系列 tab 落到第二行，但品牌与「更多」留在第�
     tiny,
     /\.steps button\s*\{[^}]*padding:\s*8px 6px/,
     "≤380px 步骤条按钮内边距应收窄（英文第 3 步标签最长，360px 上会横向滚动）"
+  );
+  // 360px en：步骤条第 3 枚按钮右边缘 366 > 360 → 6px 横向滚动。断点取 340px 而非 320px
+  // （差 6px 的不只是 320 那一档，321~340 同样放不下）。更窄则让步骤条自己横向滚动。
+  const tiny340 = mediaBlock(340);
+  assert.ok(tiny340, "≤340px 的断点块不许被删");
+  assert.match(
+    tiny340,
+    /\.steps button\s*\{[^}]*padding:\s*8px 3px/,
+    "≤340px 步骤条按钮内边距应收到 8px 3px（三个按钮共省 18px）"
+  );
+  assert.match(
+    tiny340,
+    /\.steps\s*\{[^}]*overflow-x:\s*auto/,
+    "≤340px 允许步骤条横向滚动（再窄就不收内边距了）"
   );
 });

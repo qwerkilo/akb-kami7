@@ -402,11 +402,14 @@ test("系列短标签在三种语言里都是**同一名字的缩写**（不是�
       const v = I18N[lang][k];
       return typeof v === "function" ? v() : v;
     };
-    for (const [short, long] of [
-      ["series_48g_short", "series_48g"],
-      ["series_saka_short", "series_saka"],
-      ["series_love_short", "series_love"],
-    ]) {
+    // 系列键对从字典里派生（`series_*_short` ↔ `series_*`），不写死列表 ——
+    // 写死的话「加第 4 个系列时新键会自动进来」就是假的：i18n 侧加了键，这里不会去看。
+    const shortKeys = Object.keys(I18N[lang])
+      .filter((k) => /^series_.*_short$/.test(k))
+      .sort();
+    assert.ok(shortKeys.length > 0, `${lang} 一个 series_*_short 键都没有`);
+    for (const short of shortKeys) {
+      const long = short.replace(/_short$/, "");
       const s = String(t(short));
       const l = String(t(long));
       assert.ok(s.length > 0, `${lang} ${short} 是空的`);

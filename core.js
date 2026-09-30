@@ -804,24 +804,7 @@
       // 还要跨轮去重：同一个人出现在两轮 → screenTiers 会把他放进两层
       // → 对决里同一张脸出现两次、海报出现重复。应用自己产生不了这种数据
       // （toggleCut 要求 id 在本轮 pool 里），但手改存档可以。
-      const seen = new Set();
-      // 还要按**计划**夹每轮人数：每轮划掉的一半是 screenRounds(size).cuts 定的
-      // （第 r 轮上限 = cuts[r]），超出的轮次整个丢掉。少了这道夹子，越界形状有两个来源：
-      // ① 旧扁平 cut 迁移时把全部 id 塞进第一轮（正常玩法产生不了，迁移会）；② 手改存档。
-      // 后果不是「数据脏」而是**同一屏两个数字打架** —— 提交按钮按计划算、细条按实际层级算。
-      const quotas = screenRounds(size).cuts;
-      const cut = (nested ? nested : [flat])
-        .slice(0, quotas.length)
-        .map((ids, r) =>
-          (Array.isArray(ids) ? ids : []).filter((x) => {
-            if (typeof x !== "string" || !selected.includes(x) || seen.has(x))
-              return false;
-            seen.add(x);
-            return true;
-          })
-        )
-        .map((ids, r) => ids.slice(0, quotas[r]))
-        .filter((ids) => ids.length);
+      const cut = clampCut(selected, nested ? nested : [flat], size);
       return {
         size,
         selected,
@@ -894,6 +877,36 @@
   // 保留组剩 SCREEN_STOP 人就停：4 人以下组内排序的边际收益极小
   // （保 3 → 3 题 vs 保 4 → 5 题，差 2 题却少一个完整名次）。
   const SCREEN_STOP = 4;
+
+  // 划除数据的**唯一清洗口**：三层都要夹，缺一层就有看得见的症状。
+  //   ① 成员归属 —— 划掉的人必须在已选里；
+  //   ② 跨轮去重 —— 同一人出现在两轮会被 screenTiers 放进两层（对决里同一张脸出现两次、
+  //      海报出现重复）；
+  //   ③ 每轮人数 —— 上限是 screenRounds(size).cuts[r]（每轮划掉的一半）。
+  // 越界形状的来源：旧扁平 cut 迁移（把全部 id 塞进第一轮）、手改存档、以及
+  // session.setSize 缩小档位（selected 被截断、cut 却留着旧档位的 id）。
+  // 后果不是「数据脏」而是**同一屏两个数字打架**：提交按钮按计划算、细条按实际层级算。
+  // deserializeState（load 路径）与 session.setSize（运行路径）都必须过这里 ——
+  // 只在 load 路径夹，setSize 之后仍然会分叉。
+  function clampCut(selected, cutRounds, size) {
+    const sel = Array.isArray(selected) ? selected : [];
+    const quotas = screenRounds(size).cuts;
+    const rounds = Array.isArray(cutRounds) ? cutRounds : [];
+    const seen = new Set();
+    const out = [];
+    rounds.slice(0, quotas.length).forEach((ids, r) => {
+      const kept = (Array.isArray(ids) ? ids : [])
+        .filter((x) => {
+          if (typeof x !== "string" || !sel.includes(x) || seen.has(x))
+            return false;
+          seen.add(x);
+          return true;
+        })
+        .slice(0, quotas[r]); // 第 r 轮上限（两件事一趟做完：过滤 + 截断）
+      if (kept.length) out.push(kept); // 空轮次丢掉（否则 screenTiers 会多一层空的）
+    });
+    return out;
+  }
 
   // 一档位完整筛到停的轮次计划
   function screenRounds(size) {
@@ -1151,6 +1164,7 @@
     screenRounds,
     screenStep,
     screenTiers,
+    clampCut,
     tierQuestionMax,
     tierProgress,
     worstCase,
