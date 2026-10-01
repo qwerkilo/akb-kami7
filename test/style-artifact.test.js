@@ -406,6 +406,18 @@ test("刻度：令牌存在，且刻度外的字面量只许减不许增（棘�
     "19px",
     "30px",
   ];
+  // KNOWN_SPACE 里逐项注明**归属**，这样下一次重排知道该动哪个、而不是看着像一坨：
+  //   5px  → chip 内边距 / 卡片 gap / tray 提示上边距 / classic 卡片名下边距（既有）
+  //   7px  → 窄屏团头与期生头内边距（既有）+ 档位段按钮横向内边距（**本批的例外**：
+  //          14px 时英文「Ranked 40」被裁 78px，改回 8px 则 en × 贴纸皮 × 40 档
+  //          差 1px 装不下；刻度与窄屏横账冲突时预算优先）
+  //   10px → tray 行间距（既有）
+  //   13px → 细进度条文字（既有）
+  //   14px → 既有（我一度以为 14 是 4 的倍数所以不在清单里 —— 它不是，
+  //          14 / 4 = 3.5，棘轮红了一次才发现）
+  //   18px / 22px / 30px → 结果页/资料卡区块间距（既有）
+  // 全清要动全层数值（改 padding 就是改版面），要连桌面宽度的验证一起做 ——
+  // 本仓的验证面只有窄屏与页头矩阵，所以这批只清了本轮自己引入的。
   const KNOWN_SPACE = [
     "5px",
     "7px",
@@ -970,5 +982,47 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
     search[0],
     /rosterEntered\(\)/,
     "renderSearch 末尾也要调 rosterEntered()"
+  );
+});
+
+// ---- 遗留④：两个兜底定时器必须钉在对应的动画时长上 ----
+// 此前只断言「setTimeout(clear, 数字) 存在」，于是 `setTimeout(done, 4)` 那个变异
+// 全绿（切换转场会在动画开始前就被摘掉 / 揭幕克隆层会被提前抠掉）。
+// 现在按「兜底 ≥ 该动画时长 + 余量」来断，且动画时长取自令牌而不是写死数字。
+test("兜底定时器：切屏转场与揭幕的清理窗口都 ≥ 对应动画时长 + 余量", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const shared = blockVars(":root {");
+  const tok = (name) => parseFloat(shared[name]);
+
+  // ① 切屏转场：.phase.enter 用 --dur-mid，兜底 clear 必须比它长出一截
+  const phaseAnim =
+    /\.phase\.enter \{[^}]*animation:\s*phaseIn\s+var\(--(dur-\w+)\)/.exec(css);
+  assert.ok(phaseAnim, "缺 .phase.enter 的 phaseIn 动画（或它没走令牌）");
+  const show = /function show\(phase\) \{([\s\S]*?)\n  \}/.exec(app)[1];
+  const clearMs = Number(/setTimeout\(clear,\s*(\d+)\)/.exec(show)[1]);
+  const needPhase = tok(`--${phaseAnim[1]}`) + 100;
+  assert.ok(
+    clearMs >= needPhase,
+    `切屏转场兜底 ${clearMs}ms < ${phaseAnim[1]} ${needPhase - 100}ms + 100ms 余量`
+  );
+
+  // ② 揭幕：克隆的 transition 里最长的那条决定窗口
+  const clone = /\.unveil img \{([\s\S]*?)\}/.exec(css)[1];
+  const durs = [...clone.matchAll(/var\(--(dur-\w+)\)/g)].map((m) =>
+    tok(`--${m[1]}`)
+  );
+  assert.ok(durs.length >= 2, "揭幕克隆的 transition 应同时含位移与淡出");
+  const longest = Math.max(...durs);
+  const unveil = /function unveil\(\) \{([\s\S]*?)\n  \}/.exec(app)[1];
+  const doneMs = Number(/setTimeout\(done,\s*(\d+)\)/.exec(unveil)[1]);
+  assert.ok(
+    doneMs >= longest + 100,
+    `揭幕兜底 ${doneMs}ms < 最长 transition ${longest}ms + 100ms 余量`
+  );
+  // 两条清理路径都要在：animationend 治正常路径，定时器治降级路径
+  assert.match(
+    unveil,
+    /addEventListener\("transitionend", done, \{ once: true \}\)/,
+    "揭幕必须同时有 transitionend 清理（只有定时器的话克隆层会闪一下才消失）"
   );
 });
