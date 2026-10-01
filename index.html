@@ -162,30 +162,38 @@
     <nav class="steps" id="steps" data-i18n-aria-label="steps_label">
       <button type="button" data-step="pick" aria-current="step">
         <span class="step-no" aria-hidden="true">1</span
-        ><span data-i18n="step_pick">挑人</span>
+        ><span class="step-label" data-i18n="step_pick">挑人</span>
         <b id="step-pick-n">0/7</b>
       </button>
       <span class="steps-sep" aria-hidden="true">›</span>
       <button type="button" data-step="duel" disabled>
         <span class="step-no" aria-hidden="true">2</span
-        ><span data-i18n="step_duel">对决</span>
+        ><span class="step-label" data-i18n="step_duel">对决</span>
         <b id="step-duel-n" hidden></b>
       </button>
       <span class="steps-sep" aria-hidden="true">›</span>
       <button type="button" data-step="result" disabled>
         <span class="step-no" aria-hidden="true">3</span
-        ><span data-i18n="step_result">出图</span>
+        ><span class="step-label" data-i18n="step_result">出图</span>
       </button>
     </nav>
 
     <main>
       <!-- 1. pick -->
       <section id="phase-pick" class="phase">
+        <!-- 引导卡压成一行：正文进原生 details（零 JS、可键盘）。此前它占 199px，
+             把第一张成员卡顶到第 738px —— 新访客的首屏看不到产品（工单 02）。 -->
         <div class="coach" id="coach" hidden>
-          <div class="coach-txt">
-            <b id="coach-title"></b>
+          <details class="coach-more">
+            <summary>
+              <b id="coach-title"></b>
+              <span class="coach-q" aria-hidden="true">?</span>
+              <span class="visually-hidden" data-i18n="coach_more"
+                >展开说明</span
+              >
+            </summary>
             <p id="coach-body"></p>
-          </div>
+          </details>
           <button
             type="button"
             class="ghost"
@@ -248,60 +256,76 @@
               圈内 40
             </button>
           </div>
-          <div
-            class="seg seg-filter"
-            role="radiogroup"
-            data-i18n-aria-label="filter_label"
-          >
-            <button
-              role="radio"
-              aria-checked="true"
-              data-filter="all"
-              data-i18n="filter_all"
-            >
-              全部
-            </button>
-            <button
-              role="radio"
-              aria-checked="false"
-              data-filter="current"
-              data-i18n="filter_current"
-            >
-              现役
-            </button>
-            <button
-              role="radio"
-              aria-checked="false"
-              data-filter="former"
-              data-i18n="filter_former"
-            >
-              已毕业
-            </button>
-          </div>
-          <label class="group-pick">
-            <span class="visually-hidden" data-i18n="group_label">团体</span>
-            <select id="group-filter">
-              <option value="all" data-i18n="all_groups">全部团体</option>
-            </select>
-          </label>
-          <label class="group-pick">
-            <span class="visually-hidden" data-i18n="gen_label">期生</span>
-            <select id="gen-filter">
-              <option value="all" data-i18n="gen_all">全部期生</option>
-            </select>
-          </label>
-          <label class="search">
-            <span class="visually-hidden" data-i18n="search_label"
-              >搜索成员</span
-            >
-            <input
-              id="search"
-              type="search"
-              data-i18n-placeholder="search_ph"
-              placeholder="搜索名字（汉字/假名/昵称）"
-              autocomplete="off"
-            />
-          </label>
+          <!-- 9 个筛选控件收成一行（工单 02）：档位留在行内，状态/团体/期生/搜索
+             进这个原生 details。id 一个都没动，所以 app.js 的绑定与下拉刷新照旧。 -->
+          <details class="filter-panel">
+            <summary class="filter-trigger">
+              <span data-i18n="filter_label">筛选</span>
+              <span
+                class="filter-sum"
+                id="filter-sum"
+                aria-hidden="true"
+              ></span>
+            </summary>
+            <div class="filter-body">
+              <div
+                class="seg seg-filter"
+                role="radiogroup"
+                data-i18n-aria-label="filter_label"
+              >
+                <button
+                  role="radio"
+                  aria-checked="true"
+                  data-filter="all"
+                  data-i18n="filter_all"
+                >
+                  全部
+                </button>
+                <button
+                  role="radio"
+                  aria-checked="false"
+                  data-filter="current"
+                  data-i18n="filter_current"
+                >
+                  现役
+                </button>
+                <button
+                  role="radio"
+                  aria-checked="false"
+                  data-filter="former"
+                  data-i18n="filter_former"
+                >
+                  已毕业
+                </button>
+              </div>
+              <label class="group-pick">
+                <span class="visually-hidden" data-i18n="group_label"
+                  >团体</span
+                >
+                <select id="group-filter">
+                  <option value="all" data-i18n="all_groups">全部团体</option>
+                </select>
+              </label>
+              <label class="group-pick">
+                <span class="visually-hidden" data-i18n="gen_label">期生</span>
+                <select id="gen-filter">
+                  <option value="all" data-i18n="gen_all">全部期生</option>
+                </select>
+              </label>
+              <label class="search">
+                <span class="visually-hidden" data-i18n="search_label"
+                  >搜索成员</span
+                >
+                <input
+                  id="search"
+                  type="search"
+                  data-i18n-placeholder="search_ph"
+                  placeholder="搜索名字（汉字/假名/昵称）"
+                  autocomplete="off"
+                />
+              </label>
+            </div>
+          </details>
         </div>
 
         <div id="roster" class="roster" tabindex="-1"></div>

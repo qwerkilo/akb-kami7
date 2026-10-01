@@ -496,3 +496,108 @@ test("品牌装饰条：高度随字号，窄屏留出了条的位置（不许�
     `窄屏块里应同时有 .kami 与 .kami.long，只找到 ${seen} 处`
   );
 });
+
+// ---- 工单 02：首屏见脸的几何判据（第一张成员卡 top ≤ 400）只有浏览器能量，
+// 而 E2E 脚本不入仓 —— 所以这里守**形状与形状之间的关系**。改这几处而不同步
+// 下面的断言，会让新访客的首屏又看不到产品（此前 738px，视口 844 的 87%）。
+const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+
+test("引导卡：正文在原生 details 里，默认只占一行", () => {
+  const details = /<details class="coach-more">([\s\S]*?)<\/details>/.exec(
+    html
+  );
+  assert.ok(
+    details,
+    'index.html 缺 <details class="coach-more">（引导卡正文要收进去）'
+  );
+  assert.match(
+    details[1],
+    /id="coach-body"/,
+    "#coach-body 必须在 coach-more 里"
+  );
+  assert.match(
+    details[1],
+    /<summary>/,
+    "coach-more 缺 <summary>（默认展开会占版面）"
+  );
+  // 「知道了」必须排在 </details> **之后**：放进 summary 的话，点击它会先
+  // 折叠 details（而不是关掉引导卡）—— 这种错在浏览器里才看得出来。
+  const block =
+    /<div class="coach" id="coach"[\s\S]*?<\/div>\s*(?=<div class="resume")/.exec(
+      html
+    );
+  assert.ok(block, "找不到引导卡区块");
+  const closeAt = block[0].indexOf("</details>");
+  const okAt = block[0].indexOf('data-act="coach-ok"');
+  assert.ok(closeAt > 0, "引导卡区块里找不到 </details>");
+  assert.ok(
+    okAt > closeAt,
+    "「知道了」按钮必须排在 </details> 之后（放进 summary 会被点击折叠吞掉）"
+  );
+});
+
+test("筛选面板：状态/团体/期生/搜索都在 details 里，工具条只剩两件", () => {
+  const panel = /<details class="filter-panel">([\s\S]*?)<\/details>/.exec(
+    html
+  );
+  assert.ok(panel, 'index.html 缺 <details class="filter-panel">');
+  for (const id of ["group-filter", "gen-filter", "search"]) {
+    assert.match(
+      panel[1],
+      new RegExp(`id="${id}"`),
+      `#${id} 必须在筛选面板里（行宽放不下 9 个控件）`
+    );
+  }
+  assert.match(panel[1], /class="seg seg-filter"/, ".seg-filter 必须在面板里");
+  // 工具条里只该剩档位段与触发按钮
+  const bar =
+    /<div class="toolbar">([\s\S]*?)<\/div>\s*\n\s*<div id="roster"/.exec(html);
+  assert.ok(bar, "找不到 .toolbar 区块");
+  const outside = bar[1].replace(panel[0], "");
+  assert.match(outside, /class="seg seg-size"/, "档位段应留在工具条行内");
+  assert.ok(!/id="search"/.test(outside), "搜索框还在工具条行内");
+});
+
+test("窄屏横账：档位段基准为 0 且段内不换行（英文 288 + 触发 147 > 358）", () => {
+  const seg = /\.toolbar > \.seg-size \{([^}]*)\}/.exec(css);
+  assert.ok(seg, "style.css 缺 .toolbar > .seg-size 规则");
+  // flex 基准必须是 0：容器是 flex-wrap: wrap，换行按**基准尺寸**决定，
+  // 基准 auto 时（内容 288）还没轮到收缩就先换行了 —— 我第一版就写成了 1 1 auto。
+  assert.match(
+    seg[1],
+    /flex:\s*1 1 0/,
+    "档位段的 flex 基准必须是 0（1 1 0），否则英文界面会换行成两行"
+  );
+  assert.match(seg[1], /min-width:\s*0/, "档位段需要 min-width: 0 才能收缩");
+  assert.match(seg[1], /overflow-x:\s*auto/, "档位段需要段内横向滚动兜底");
+  assert.match(
+    css,
+    /\.toolbar > \.seg-size\.seg \{[^}]*flex-wrap:\s*nowrap/,
+    "段内不能换行（.seg 默认 wrap，会把三个按钮折成两行）"
+  );
+});
+
+test("窄屏：步骤条标签不换行（en「Screen / Duel」曾把步骤条从 57 顶到 77）", () => {
+  const narrow = mediaBlock(560);
+  assert.ok(narrow, "缺 ≤560px 断点块");
+  const btn = /\.steps button \{([^}]*)\}/.exec(narrow);
+  assert.ok(btn, "≤560px 块里缺 .steps button 规则");
+  assert.match(btn[1], /white-space:\s*nowrap/, "窄屏步骤条必须 nowrap");
+  assert.match(
+    html,
+    /class="step-label"/,
+    "index.html 缺 .step-label 包裹（否则省略号无处可施）"
+  );
+});
+
+test("托盘不透明（半透明会让名册卡片从下面透出并与提示文字重叠）", () => {
+  for (const skin of ["classic", "sticker"]) {
+    const v = blockVars(`[data-skin="${skin}"] {`);
+    assert.ok(v["--tray-bg"], `${skin} 块缺 --tray-bg`);
+    assert.doesNotMatch(
+      v["--tray-bg"],
+      /rgba\([^)]*0?\.\d+\)/,
+      `${skin} 的 --tray-bg 是半透明的（${v["--tray-bg"]}）—— 名册卡片会透出并与提示文字重叠`
+    );
+  }
+});

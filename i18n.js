@@ -158,6 +158,7 @@
       coach_body: (n) =>
         `① 在下面选满 ${n} 位 ② 划掉一半挑出你最想排前面的，再两两对决定下顺序 ③ 生成海报。选满后按钮会亮起，进度会自动保存。`,
       coach_ok: "知道了",
+      coach_more: "展开说明",
       picked_of: (n, m) => `已选 ${n} / ${m} 位`,
       picked_full: "选满啦！下一步先筛一遍",
       start_est: (n) => `开始排序（约 ${n} 题）`,
@@ -332,6 +333,7 @@
       coach_body: (n) =>
         `① Choose ${n} members below ② Cut half away to keep the ones you most want ranked, then duel them to fix the order ③ Generate your poster. The button lights up when full; progress saves automatically.`,
       coach_ok: "Got it",
+      coach_more: "Show details",
       picked_of: (n, m) => `${n} / ${m} picked`,
       picked_full: "All set! Next: screen your picks",
       start_est: (n) => `Start ranking (~${n} questions)`,
@@ -513,6 +515,7 @@
       coach_body: (n) =>
         `① 下から ${n} 人を選ぶ ② 半数を外して残したい人だけを残し、1対1で順番を決める ③ ポスターを生成。選び終わるとボタンが光ります。進行状況は自動保存。`,
       coach_ok: "了解",
+      coach_more: "詳細を見る",
       picked_of: (n, m) => `${n}/${m}人選択中`,
       picked_full: "選び終わりました。次は絞り込みです",
       start_est: (n) => `並べ替え開始（約${n}問）`,

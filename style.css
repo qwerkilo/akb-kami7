@@ -74,7 +74,7 @@
   --thumb-border: 0;
   --slot-radius: 6px;
   --row-radius: 10px;
-  --tray-bg: rgba(237, 239, 243, 0.94);
+  --tray-bg: var(--card);
   --tray-border-top: 0;
   --poster-card-stroke: 0px;
 }
@@ -117,7 +117,7 @@
   --thumb-border: 2px solid var(--ink);
   --slot-radius: 10px;
   --row-radius: 14px;
-  --tray-bg: var(--floor);
+  --tray-bg: var(--card);
   --tray-border-top: 2px solid var(--ink);
   --poster-card-stroke: 3px;
 }
@@ -305,6 +305,68 @@ main {
   gap: 10px 14px;
   margin-bottom: 14px;
 }
+/* 筛选面板（工单 02）：9 个控件原本在这个 flex 里排成 4 行（176px）。
+   现在状态/团体/期生/搜索进原生 details，展开时另起一行 —— 关着的时候不占版面。 */
+.toolbar > .seg-size {
+  /* 英文档位段是 288px（显示品牌名），加上触发按钮 147 就超过 358 的行宽 → 换行成两行。
+     与系列 tab 同一套路：段内可收缩 + 横向滚动，触发按钮固定宽度不参与压缩。
+     **flex 基准必须是 0**（1 1 0 而不是 1 1 auto）：容器是 flex-wrap: wrap，
+     换行按各项的**基准尺寸**决定，基准 auto 时这一项要 288 + 触发 147 = 449 > 358，
+     于是还没轮到收缩就先换行了 —— 我第一版写 1 1 auto 就是这个坑。 */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.toolbar > .seg-size.seg {
+  /* 段内不换行而横向滚动：.seg 默认 wrap，在 197px 里会把三个按钮折成两行 */
+  flex-wrap: nowrap;
+}
+.toolbar > .seg-size::-webkit-scrollbar {
+  display: none;
+}
+.filter-trigger {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font: 800 var(--t2) / 1 var(--font-ui);
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+.filter-trigger::-webkit-details-marker {
+  display: none;
+}
+.filter-panel[open] .filter-trigger {
+  border-color: var(--pink);
+}
+.filter-sum {
+  color: var(--muted);
+  font-weight: 700;
+}
+.filter-panel[open] {
+  flex-basis: 100%;
+}
+.filter-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  width: 100%;
+  padding: 10px 12px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.filter-body .search {
+  flex: 1 1 100%;
+}
 .group-pick select {
   border: var(--border);
   border-radius: 12px;
@@ -360,7 +422,9 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 13px 16px;
+  /* 窄屏收内边距：13px 时每个头 47px，而首屏要放两个（团 + 期生）。
+     真值由 /tmp/opencode 的首屏判据（第一张卡 top ≤ 400）守着。 */
+  padding: 7px 12px;
   border: 0;
   background: var(--card);
   text-align: left;
@@ -1231,6 +1295,54 @@ main {
 }
 .coach {
   background: var(--pink-soft);
+  /* 引导卡压成一行（工单 02）：正文收进原生 details，标题行与「知道了」同行。
+     此前整卡 199px，把第一张成员卡顶到第 738px —— 新访客首屏看不到产品。 */
+  align-items: center;
+  padding: 7px 10px;
+}
+.coach-more {
+  flex: 1;
+  min-width: 0;
+}
+.coach-more > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  cursor: pointer;
+  list-style: none;
+}
+/* 标题过长时省略而不是换行：en 的「Pick your Kami 7 in 3 steps」在 390px 上
+   换行会把第一张成员卡顶出首屏判据（≤400）。 */
+.coach-more > summary > b {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 800 var(--t2) / 1.4 var(--font-ui);
+}
+.coach-more > summary::-webkit-details-marker {
+  display: none;
+}
+.coach-q {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font: 800 11px / 1 var(--font-ui);
+  opacity: 0.65;
+}
+.coach-more[open] .coach-q {
+  background: currentColor;
+  color: var(--pink-soft);
+  opacity: 1;
+}
+.coach-more #coach-body {
+  margin: 8px 0 2px;
 }
 .resume {
   background: var(--picked-bg);
@@ -1258,12 +1370,13 @@ main {
 .pick-progress {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: var(--card);
   border: var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  padding: 10px 14px;
+  /* 10px 时整块 78px。首屏预算要留给脸（工单 02 的判据是第一张卡 top ≤ 400）。 */
+  padding: 8px 12px;
   margin-top: 12px;
 }
 .ring-wrap svg {
@@ -1771,6 +1884,35 @@ main {
   box-shadow: var(--shadow);
 }
 @media (max-width: 560px) {
+  /* 名册网格在窄屏收 4~6px（行距 12 → 8、上内边距 14 → 8）：英文界面下
+     第一张卡原本比中文多 2px，正好卡在「首屏见脸」判据（≤400）的边界上外。 */
+  .gen-body {
+    gap: 8px 8px;
+    padding-top: 8px;
+  }
+  /* 窄屏的纵向节奏收 4px：引导卡/进度/工具条三处块间外边距合计 38px，
+     而「首屏见脸」的判据（第一张成员卡 top ≤ 400）差的就是这十几 px。
+     只在窄屏收 —— 桌面的节奏不动。 */
+  .coach,
+  .resume,
+  .pick-progress {
+    margin-top: 8px;
+  }
+  .toolbar {
+    margin-bottom: 8px;
+  }
+  /* 步骤条第 2 枚的标签（en「Screen / Duel」）在 122px 宽的按钮里会换行，
+     步骤条因此从 57 涨到 77px。窄屏一律不换行 + 收字号 —— 步骤条是横账的一部分，
+     长起来会顶出「首屏见脸」的判据（第一张成员卡 top ≤ 400）。 */
+  .steps button {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .steps button .step-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .masthead {
     position: relative;
   }
@@ -1886,7 +2028,7 @@ main {
     gap: 4px;
   }
   /* 目标版式：第一行 = 品牌（左）+「更多」（右），第二行 = 系列 tab 整行。
-     之前两版都没 achieving：
+     之前两版都没达到：
        ① `.masthead-main { flex: 1 0 100% }` —— 把 main 顶成占满整行，兄弟节点
           .masthead-side（里面是「更多」）被挤到第三行，页头 66 → 164px，
           375px 以下首屏可见的名册卡从 3 张掉到 0（AGENTS.md 明列的「首屏见脸」归零）。
