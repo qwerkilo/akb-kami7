@@ -601,3 +601,88 @@ test("托盘不透明（半透明会让名册卡片从下面透出并与提示�
     );
   }
 });
+
+// ---- 工单 03：三个关键时刻 + 层级段。几何/时长只有浏览器能量，E2E 不入仓，
+// 所以这里守「形状」与「时长只有令牌一个出处」。 ----
+test("动效：三个关键时刻的动画都在，且时长取令牌不写死秒数", () => {
+  for (const kf of ["cardIn", "phaseIn", "tierFlip"]) {
+    assert.match(
+      css,
+      new RegExp(`@keyframes\\s+${kf}\\b`),
+      `缺 @keyframes ${kf}`
+    );
+  }
+  // 进场 stagger：--i 由 cardHTML 写入，错开步长 × 上限 ≤ --dur-slow
+  const card = /\.card \{([^}]*)\}/.exec(css);
+  assert.ok(card, "缺 .card 规则");
+  assert.match(
+    card[1],
+    /animation:\s*cardIn\s+(\S+)\s+var\(--ease\)\s+both/,
+    ".card 的进场动画必须用令牌时长"
+  );
+  assert.match(
+    card[1],
+    /animation-delay:\s*calc\(var\(--i,\s*0\)\s*\*\s*([\d.]+)ms\)/,
+    ".card 必须按 --i 错开入场（stagger）"
+  );
+  const shared = blockVars(":root {");
+  const slow = parseFloat(shared["--dur-slow"]);
+  const step = Number(/animation-delay:[^;]*\*\s*([\d.]+)ms/.exec(card[1])[1]);
+  assert.ok(
+    step * 8 <= slow,
+    `8 张卡的错开上限 ${step * 8}ms 超过 --dur-slow ${slow}ms`
+  );
+  // 点选反馈：选中态要换底色，所以 transition 里必须有 background。
+  // **必须遍历所有 .card 块**：文件顶部还有一块 .card（放进场动画的），
+  // 用 indexOf(".card {") 取到的是它 —— 我第一版就这么写的，判据自己错了。
+  const cardBlocks = [...css.matchAll(/(^|\n)\.card\s*\{([^}]*)\}/g)].map(
+    (m) => m[2]
+  );
+  const withTransition = cardBlocks.filter((b) => /transition:/.test(b));
+  assert.ok(withTransition.length >= 1, "找不到带 transition 的 .card 规则");
+  assert.ok(
+    withTransition.some((b) => /transition:[^;]*background/.test(b)),
+    ".card 的 transition 必须含 background —— 选中态换底色是点选反馈的主要可读信号"
+  );
+  // 切屏转场
+  const enter = /\.phase\.enter\s*\{([^}]*)\}/.exec(css);
+  assert.ok(enter, "缺 .phase.enter（切屏转场靠这个类触发一次入场）");
+  assert.match(
+    enter[1],
+    /animation:\s*phaseIn\s+var\(--dur-mid\)/,
+    "切屏转场必须取 --dur-mid"
+  );
+  // id 与类都要守：app.js 按 id 取元素、CSS 按类上样式，只守一个会漏 ——
+  // 「把类改名」那个变异就是这么活下来的（id 还在、样式全丢，页面只是少了装饰）。
+  assert.match(
+    html,
+    /class="duel-tiers" id="duel-tiers"/,
+    "#duel-tiers 要同时带 id 与 .duel-tiers 类（app.js 按 id 取、CSS 按类上样式）"
+  );
+  assert.match(
+    css,
+    /\.duel-tiers i\.now\s*\{/,
+    "style.css 缺 .duel-tiers i.now（当前段的样式）"
+  );
+});
+
+test("动效：过渡时长没有写死的秒数（令牌是唯一出处，棘轮）", () => {
+  // 本批把 4 处写死的 0.12s / 0.15s / 0.18s / 0.25s / 0.2s 换成了令牌。
+  // 再出现写死的秒数就是回退 —— 清单外的写法一律红。
+  const decls = css
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .matchAll(/(^|[;{])\s*transition\s*:\s*([^;}]+)/g);
+  const offenders = [];
+  for (const m of decls) {
+    // 值里允许有 var(--dur-*)，但不允许同时出现字面秒/毫秒
+    const v = m[2];
+    const literal = v.match(/\b\d*\.?\d+(ms|s)\b/g) || [];
+    if (literal.length)
+      offenders.push(`transition: ${v.trim().replace(/\s+/g, " ")}`);
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    `过渡里还有写死的时长：${offenders.join(" | ")}`
+  );
+});

@@ -144,9 +144,29 @@
   const seriesGroups = () => GROUPS.filter((g) => g.series === series);
 
   /* ---------------- phase switching ---------------- */
+  let entering = null;
   function show(phase) {
     for (const id of ["pick", "screen", "duel", "result"]) {
       $(`#phase-${id}`).hidden = id !== phase;
+    }
+    // 切屏转场（工单 03）：给刚显示的相位加一次 .enter，动画播完摘掉 ——
+    // 留着会在每次渲染时重播，而同一个相位可能被渲染很多次。
+    // reduced-motion 下 CSS 把它归零，但仍然要摘类，否则动画事件不来。
+    if (entering) {
+      entering.classList.remove("enter");
+      entering = null;
+    }
+    const shown = $(`#phase-${phase}`);
+    if (shown) {
+      shown.classList.add("enter");
+      entering = shown;
+      const clear = () => {
+        shown.classList.remove("enter");
+        if (entering === shown) entering = null;
+      };
+      shown.addEventListener("animationend", clear, { once: true });
+      // 降级模式下没有 animationend（动画被关掉），兜底摘掉
+      setTimeout(clear, 400);
     }
     // 对决时把页头与步骤条整体收起：这一步要的是两张脸，不是导航
     // （工单 03 / ADR-0019；页头里的语言/皮肤切换在返回挑人页后仍可用）
@@ -183,10 +203,13 @@
       : t("people", node.count);
   }
 
-  function cardHTML(m, showGroup) {
-    const i = snap.selected.indexOf(m.id);
+  function cardHTML(m, showGroup, i) {
+    const sel = snap.selected.indexOf(m.id);
     const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
-    return `<button class="card" data-id="${m.id}" aria-pressed="${i >= 0}" data-order="${i + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
+    // --i 是进场 stagger 的下标（工单 03）。不传时为 0：搜索结果与
+    // 折叠段里的卡片不需要错开入场。
+    const idx = i === undefined ? 0 : i;
+    return `<button class="card" style="--i:${Math.min(idx, 8)}" data-id="${m.id}" aria-pressed="${sel >= 0}" data-order="${sel + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
       <span class="info" role="button" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
       <span class="nm">${esc(m.name)}</span>
@@ -207,7 +230,7 @@
         <span class="gen-count">${countText(sec)}</span>
         <span class="gen-picked">${sec.picked ? t("picked", sec.picked) : ""}</span>
       </button>
-      <div class="gen-body" id="${secUid}" ${open ? "" : "hidden"}>${open ? sec.members.map((m) => cardHTML(m)).join("") : ""}</div>
+      <div class="gen-body" id="${secUid}" ${open ? "" : "hidden"}>${open ? sec.members.map((m, k) => cardHTML(m, false, k)).join("") : ""}</div>
     </section>`;
   }
 
@@ -622,6 +645,32 @@
         snap.duel.tier + 1,
         snap.duel.tiers
       );
+    // 层级段：一共 tiers 组、现在第 tier+1 组、已答 tierAnswered / 组内上限 tierMax
+    const tiers = $("#duel-tiers");
+    if (tiers) {
+      const n = Math.max(1, snap.duel.tiers || 1);
+      const now = Math.min(snap.duel.tier || 0, n - 1);
+      let html = "";
+      for (let i = 0; i < n; i++)
+        html += `<i class="${i < now ? "done" : i === now ? "now" : ""}"></i>`;
+      // 组内进度：当前段的 --fill（渐变填充，不改尺寸）
+      if (html && snap.duel.tierMax) {
+        const pct = Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round(
+              ((snap.duel.tierAnswered || 0) / snap.duel.tierMax) * 100
+            )
+          )
+        );
+        html = html.replace(
+          'class="now"',
+          `class="now" style="--fill:${pct}%"`
+        );
+      }
+      tiers.innerHTML = html;
+    }
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));

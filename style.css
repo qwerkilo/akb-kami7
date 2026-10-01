@@ -28,6 +28,83 @@
   --ease: cubic-bezier(0.2, 0, 0.1, 1);
 }
 
+/* ---- 三个关键时刻（ADR-0020 §4 / 工单 03）----
+   进场 stagger、点选反馈、切屏转场。时长一律取令牌（--dur-*），不写死秒数 ——
+   写死就是「每处自己定」，那正是本项目动效没有系统的根因。
+   prefers-reduced-motion 的归零在文件末尾那个通用块里（锚定守卫守着它）。 */
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes phaseIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tierFlip {
+  from {
+    opacity: 0.35;
+    transform: scaleX(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 进场 stagger：--i 由 cardHTML 按下标写入，最多 8 档（再往后用户等得没耐心）。
+   18ms × 8 + 160ms ≈ 304ms，在 --dur-slow（320ms）之内。 */
+.card {
+  animation: cardIn 160ms var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 18ms);
+}
+
+/* 切屏转场：相位由 show() 切 hidden，加一个 .enter 类触发一次入场。
+   只播一次 —— animation 填的是 both，播完就留在终态。 */
+.phase.enter {
+  animation: phaseIn var(--dur-mid) var(--ease) both;
+}
+
+/* 对决页的层级分隔：细条里本来只有「第 t/n 组」这行文字，40 档要走 106 题，
+   视觉上没有任何分组感 —— 一排小段把「一共几组 / 现在第几组」画出来。 */
+.duel-tiers {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex: none;
+}
+.duel-tiers i {
+  display: block;
+  width: 10px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.duel-tiers i.done {
+  background: var(--ink);
+}
+/* 当前段用渐变表示「组内第几题」（--fill 由 renderDuel 写）。
+   不用改宽度：那些段是 flex 里的等宽小条，改宽度会把整排挤变形。 */
+.duel-tiers i.now {
+  background: linear-gradient(
+    90deg,
+    var(--peach) var(--fill, 0%),
+    var(--line) 0
+  );
+  animation: tierFlip var(--dur-mid) var(--ease) both;
+}
+
 /* [hidden] 必须赢：作者样式里的 display（.masthead/.steps 等都有）会盖掉 UA 样式表的
    [hidden]{display:none} —— 同一个坑踩了两次（#phase-duel、页头/步骤条），这里钉死 */
 [hidden] {
@@ -444,7 +521,7 @@ main {
   border-right: 2px solid var(--ink);
   border-bottom: 2px solid var(--ink);
   transform: rotate(-45deg);
-  transition: transform 0.18s ease;
+  transition: transform var(--dur-mid) var(--ease);
   flex: none;
 }
 .gen-head[aria-expanded="true"] .chev,
@@ -510,9 +587,15 @@ main {
   gap: 5px;
   text-align: var(--card-align);
   box-shadow: var(--shadow-soft);
+  /* 时长取令牌而不是写死 0.12s；background 是点选反馈的关键属性 ——
+     选中态要换底色（var(--picked-bg)），没有它就只是位移，读不出「选上了」。
+     我第一版把这条另起一条新规则插在文件顶部，被这条原规则盖掉了，
+     算出来的 transitionProperty 仍是 transform, box-shadow —— 顺序问题，
+     CSS 里「后写的赢」不是「更具体的赢」。 */
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
 }
 .card:active {
   transform: translate(2px, 2px);
@@ -746,7 +829,7 @@ main {
   height: 100%;
   width: 0;
   background: var(--mint);
-  transition: width 0.25s ease;
+  transition: width var(--dur-slow) var(--ease);
 }
 .duel {
   display: grid;
@@ -771,8 +854,8 @@ main {
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
   text-align: center;
   min-width: 0;
 }
@@ -1476,8 +1559,8 @@ main {
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 0.2s,
-    transform 0.2s;
+    opacity var(--dur-mid) var(--ease),
+    transform var(--dur-mid) var(--ease);
   z-index: 210;
   max-width: 90vw;
   text-align: center;

@@ -383,6 +383,10 @@
             ><span id="duel-max">14</span><span data-i18n="duel_end"> 题</span>
           </p>
           <div class="bar"><i id="duel-bar"></i></div>
+          <!-- 层级段（工单 03）：细条里本来只有「第 t/n 组」这行文字，40 档要走
+               106 题，视觉上没有任何分组感。这一排小段把「一共几组 / 走到第几组」
+               与「组内第几题」画出来；纯装饰，语义仍由 duel-extra 的文字承担。 -->
+          <span class="duel-tiers" id="duel-tiers" aria-hidden="true"></span>
           <span class="duel-extra" id="duel-extra"></span>
         </div>
         <div class="duel-head">
