@@ -90,7 +90,10 @@
 
 /* 进场 stagger：--i 由 cardHTML 按下标写入，最多 8 档（再往后用户等得没耐心）。
    18ms × 8 + 160ms ≈ 304ms，在 --dur-slow（320ms）之内。 */
-.card {
+/* 进场 stagger 挂在 .roster.enter 上（不是 .card 上）：只有**进入挑人步**这一
+   次才播，之后搜索/筛选/切档位引起的重渲不再整表淡入 —— 效率区不该每次按键
+   都有装饰。.enter 由 show("pick") 加、动画结束或 400ms 兜底摘掉。 */
+.roster.enter .card {
   animation: cardIn var(--dur-fast) var(--ease) both;
   animation-delay: calc(min(var(--i, 0), 8) * var(--stagger-step));
 }

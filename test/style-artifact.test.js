@@ -914,3 +914,61 @@ test("对决细条：必须能换行（层级段占满一行时不换行会把�
     "--fill 必须用 @property 注册成 <percentage>，否则 --fill 的 transition 不生效"
   );
 });
+
+// ---- 遗留②：进场 stagger 只在「进入挑人步」时播一次，搜索/筛选/切档位不重播 ----
+test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且清理窗口够宽", () => {
+  // 挂在 .card 上 → 每次重渲名册（搜索去抖、切状态/团体/期生、切档位、切系列）
+  // 整表淡入一遍；名册 258 张卡，效率区不该每次按键都有装饰。
+  assert.doesNotMatch(
+    css,
+    /(^|\n)\.card \{[^}]*animation:/,
+    ".card 上不许有 animation（每次重渲都会重播）—— 进场动画必须挂在 .roster.enter .card 上"
+  );
+  const enter = /\.roster\.enter \.card \{([\s\S]*?)\}/.exec(css);
+  assert.ok(enter, "缺 .roster.enter .card（进场动画的挂载点）");
+  assert.match(enter[1], /animation:\s*cardIn var\(--dur-(fast|mid|slow)\)/);
+
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  // 标志由 show() 置、由渲染消费 —— 不能在 show() 里加类 + 定时摘类，
+  // 冷加载时名册渲染晚于那个窗口就会整个不播（实测三次进入有一次不播）。
+  assert.match(
+    app,
+    /rosterEntering = phase === "pick"/,
+    "show() 必须按相位置 rosterEntering"
+  );
+  const entered = /function rosterEntered\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(entered, "找不到 rosterEntered()");
+  assert.match(
+    entered[1],
+    /const wanted = rosterEntering;\s*\n\s*rosterEntering = false;/,
+    "rosterEntered 必须消费标志（否则下一次重渲会重播）"
+  );
+  assert.match(entered[1], /classList\.add\("enter"\)/, "必须加 .roster.enter");
+  const ms = Number(
+    /setTimeout\(\(\) => el\.classList\.remove\("enter"\), (\d+)\)/.exec(
+      entered[1]
+    )[1]
+  );
+  // 理论最坏 = 单卡时长 + 8 档错开；窗口要在这个之上留余量（冷加载主线程被占时
+  // 动画还在延迟相位就被摘类 → 整批 cancelled）
+  const shared = blockVars(":root {");
+  const need =
+    parseFloat(shared["--dur-fast"]) + 8 * parseFloat(shared["--stagger-step"]);
+  assert.ok(
+    ms >= need + 200,
+    `清理窗口 ${ms}ms 离理论最坏 ${need}ms 太近（要留 ≥200ms 余量）`
+  );
+  // 两条渲染路径都要消费标志，否则标志会漏给下一次渲染
+  const roster = /function renderRoster\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.match(
+    roster[1],
+    /rosterEntered\(\)/,
+    "renderRoster 末尾必须调 rosterEntered()"
+  );
+  const search = /function renderSearch\([\s\S]*?\n  \}/.exec(app);
+  assert.match(
+    search[0],
+    /rosterEntered\(\)/,
+    "renderSearch 末尾也要调 rosterEntered()"
+  );
+});

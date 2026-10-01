@@ -145,6 +145,9 @@
 
   /* ---------------- phase switching ---------------- */
   let entering = null;
+  // 「即将进入挑人步」：renderRoster 渲染完才消费它，见 show() 里的注释
+  let rosterEntering = false;
+
   function show(phase) {
     for (const id of ["pick", "screen", "duel", "result"]) {
       $(`#phase-${id}`).hidden = id !== phase;
@@ -177,6 +180,16 @@
       // 降级模式下没有 animationend（动画被关掉），兜底摘掉
       setTimeout(clear, 400);
     }
+    // 名册的进场 stagger 只在**进入挑人步**时播一次。此前挂在 .card 上，于是
+    // 每次重渲名册（搜索去抖、切状态/团体/期生、切档位、切系列）整表都淡入
+    // 一遍 —— 名册有 258 张卡，效率区不该每次按键都有 ~165ms 的装饰
+    // （ADR-0020：效率区「一屏做完一步、不加装饰」）。
+    //
+    // 这里只置标志，**由渲染本身决定要不要加类**：我第一版在 show() 里加类并
+    // 用 400ms 兜底摘类，冷缓存下名册渲染晚于 400ms → 卡片在窗口之后创建 →
+    // 根本没有动画（实测两次进入一次没播）。
+    rosterEntering = phase === "pick";
+    $("#roster")?.classList.remove("enter");
     // 对决时把页头与步骤条整体收起：这一步要的是两张脸，不是导航
     // （工单 03 / ADR-0019；页头里的语言/皮肤切换在返回挑人页后仍可用）
     const chrome = phase === "duel";
@@ -285,6 +298,24 @@
     }
     roster.innerHTML =
       html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
+    rosterEntered();
+  }
+
+  // 进场 stagger 的开关：卡片**已经存在**之后才加 .roster.enter，
+  // 所以卡片一插入就是动画的起点（CSS 里 .roster.enter .card 才有 animation）。
+  // 400ms 后摘掉（比最坏错开 144ms + 单卡 120ms 宽裕），摘掉后重渲不再有动画。
+  function rosterEntered() {
+    const el = $("#roster");
+    const wanted = rosterEntering;
+    rosterEntering = false;
+    if (!el) return;
+    el.classList.remove("enter");
+    if (!wanted) return;
+    el.classList.add("enter");
+    // 窗口取 600ms 而非理论最坏 264ms（单卡 120 + 8 档错开 144）：本机冷加载时
+    // 主线程被字体与脚本占住，动画还在延迟相位就被摘类 → 整批 cancelled
+    // （实测三次进入有一次整个不播）。余量比贴着理论值重要。
+    setTimeout(() => el.classList.remove("enter"), 600);
   }
 
   BY_ID.forEach((m) => {
@@ -296,6 +327,7 @@
     roster.innerHTML = hits.length
       ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map((m) => cardHTML(m, true)).join("")}</div>`
       : `<p class="empty">${t("empty_search", esc(snap.query))}</p><p class="hint">${t("empty_search_hint")}</p>`;
+    rosterEntered();
   }
 
   function toggleGroup(secId) {
