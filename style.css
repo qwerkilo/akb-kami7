@@ -28,6 +28,27 @@
   --ease: cubic-bezier(0.2, 0, 0.1, 1);
 }
 
+/* ---- 揭幕（签名时刻，工单 04）----
+   两张脸从对决页的位置飞到海报位置并淡出。用 transform + opacity，
+   时长取 --dur-slow（320ms，在 ≤400ms 的判据之内）。 */
+.unveil {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 300;
+}
+.unveil img {
+  position: fixed;
+  object-fit: cover;
+  transform-origin: 0 0;
+  transition:
+    transform var(--dur-slow) var(--ease),
+    opacity var(--dur-mid) linear;
+}
+#poster-img {
+  animation: phaseIn var(--dur-slow) var(--ease) both;
+}
+
 /* ---- 三个关键时刻（ADR-0020 §4 / 工单 03）----
    进场 stagger、点选反馈、切屏转场。时长一律取令牌（--dur-*），不写死秒数 ——
    写死就是「每处自己定」，那正是本项目动效没有系统的根因。

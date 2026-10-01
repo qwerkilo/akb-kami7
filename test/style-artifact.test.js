@@ -686,3 +686,61 @@ test("动效：过渡时长没有写死的秒数（令牌是唯一出处，棘�
     `过渡里还有写死的时长：${offenders.join(" | ")}`
   );
 });
+
+// ---- 工单 04：揭幕（签名时刻）。它 100% 靠浏览器（几何 + 时长），E2E 不入仓，
+// 所以仓内守三件「删了就静默坏掉」的事：样式在、钩子接上了、清理路径在。 ----
+test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () => {
+  const layer = /\.unveil \{([^}]*)\}/.exec(css);
+  assert.ok(layer, "style.css 缺 .unveil（揭幕克隆层）");
+  assert.match(
+    layer[1],
+    /pointer-events:\s*none/,
+    "克隆层必须 pointer-events:none，否则会挡住结果页"
+  );
+  const img = /\.unveil img \{([^}]*)\}/.exec(css);
+  assert.ok(img, "style.css 缺 .unveil img");
+  assert.match(
+    img[1],
+    /transform-origin:\s*0 0/,
+    "揭幕用 transform 缩放，起点必须是 0 0"
+  );
+  const shared = blockVars(":root {");
+  const slow = parseFloat(shared["--dur-slow"]);
+  assert.ok(slow <= 400, `--dur-slow ${slow}ms 超过揭幕 400ms 的上限`);
+  assert.match(
+    img[1],
+    new RegExp(`transform var\\(--dur-slow\\)`),
+    "揭幕的位移必须取 --dur-slow（写死秒数就会与令牌脱钩）"
+  );
+  // 克隆必须淡出：位移到了终点但仍是不透明的话，两张脸就永久盖在海报上 ——
+  // 「只改掉 opacity 那一行」这个变异最初就是这么活下来的。
+  assert.match(
+    img[1],
+    /opacity var\(--dur-mid\)/,
+    "揭幕的克隆必须淡出（否则两张脸停在海报上，像两张照片贴在海报角上）"
+  );
+  // 清理路径：transitionend + 兜底定时器，两条都要在（降级时动画不来，只有兜底）
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const fn = /function unveil\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(fn, "app.js 里找不到 unveil()（揭幕没接线？）");
+  assert.match(
+    fn[1],
+    /transitionend/,
+    "unveil 必须监听 transitionend 来清理克隆层"
+  );
+  assert.match(
+    fn[1],
+    /setTimeout\(done,\s*\d+\)/,
+    "unveil 必须有兜底定时器（降级时动画事件不来）"
+  );
+  assert.match(
+    app,
+    /captureUnveil\(\);[^\n]*\n?\s*show\("result"\)/,
+    'captureUnveil 必须在 show("result") 之前调用（之后对决页已隐藏，取不到位置）'
+  );
+  assert.match(
+    app,
+    /#poster-img[\s\S]{0,80}\.src = canvas\.toDataURL[\s\S]{0,80}\n\s*unveil\(\)/,
+    "unveil 必须在海报有像素之后调用（否则飞过去是一片空白）"
+  );
+});
