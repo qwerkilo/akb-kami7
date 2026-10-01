@@ -2,6 +2,7 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const I18N = require("../i18n.js");
 
 // 产物不变式：style.css 两款皮肤的令牌块必须键集相同。
 // 曾经贴纸块多出 --placeholder/--placeholder-ink，而 :root 兜底挂在贴纸块上
@@ -617,20 +618,30 @@ test("动效：三个关键时刻的动画都在，且时长取令牌不写死�
   assert.ok(card, "缺 .card 规则");
   assert.match(
     card[1],
-    /animation:\s*cardIn\s+(\S+)\s+var\(--ease\)\s+both/,
-    ".card 的进场动画必须用令牌时长"
+    /animation:\s*cardIn\s+var\(--dur-(fast|mid|slow)\)\s+var\(--ease\)\s+both/,
+    ".card 的进场动画必须用令牌时长（此前是 (\\S+) 捕获组，160ms 这种写死值照样过）"
   );
   assert.match(
     card[1],
-    /animation-delay:\s*calc\(var\(--i,\s*0\)\s*\*\s*([\d.]+)ms\)/,
-    ".card 必须按 --i 错开入场（stagger）"
+    /animation-delay:\s*calc\(min\(var\(--i,\s*0\),\s*(\d+)\)\s*\*\s*var\(--stagger-step\)\)/,
+    ".card 必须按 --i 错开入场（stagger），且封顶写在 CSS 里（min(var(--i), N)）"
   );
   const shared = blockVars(":root {");
   const slow = parseFloat(shared["--dur-slow"]);
-  const step = Number(/animation-delay:[^;]*\*\s*([\d.]+)ms/.exec(card[1])[1]);
+  const fast = parseFloat(shared["--dur-fast"]);
+  const cap = Number(/min\(var\(--i,\s*0\),\s*(\d+)\)/.exec(card[1])[1]);
+  const step = parseFloat(shared["--stagger-step"]);
+  // 界要卡在**总时长**上：单卡时长 + cap 档错开 ≤ --dur-slow
   assert.ok(
-    step * 8 <= slow,
-    `8 张卡的错开上限 ${step * 8}ms 超过 --dur-slow ${slow}ms`
+    fast + step * cap <= slow,
+    `${cap} 档错开后的总时长 ${fast + step * cap}ms 超过 --dur-slow ${slow}ms`
+  );
+  // 封顶数不许在 app.js 里再存一份（此前 8 在 JS 与测试里各一份，改一处另一处不响）
+  const appJs = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.doesNotMatch(
+    appJs,
+    /Math\.min\(\s*idx\s*,\s*\d+\s*\)/,
+    "stagger 的封顶数只能存在于 CSS（min(var(--i), N)），app.js 不该再限一次"
   );
   // 点选反馈：选中态要换底色，所以 transition 里必须有 background。
   // **必须遍历所有 .card 块**：文件顶部还有一块 .card（放进场动画的），
@@ -669,16 +680,18 @@ test("动效：三个关键时刻的动画都在，且时长取令牌不写死�
 test("动效：过渡时长没有写死的秒数（令牌是唯一出处，棘轮）", () => {
   // 本批把 4 处写死的 0.12s / 0.15s / 0.18s / 0.25s / 0.2s 换成了令牌。
   // 再出现写死的秒数就是回退 —— 清单外的写法一律红。
+  // 过渡与动画都要看，简写与长写形式（transition-duration / animation-delay）
+  // 都要看 —— 上一版只扫 `transition:` 简写，于是 `animation: cardIn 160ms`
+  // 与 `transition-duration: 0.3s` 都在守卫视野之外（两轴都指认了这条）。
   const decls = css
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .matchAll(/(^|[;{])\s*transition\s*:\s*([^;}]+)/g);
+    .matchAll(/(^|[;{])\s*(transition|animation)(-[a-z]+)?\s*:\s*([^;}]+)/g);
   const offenders = [];
   for (const m of decls) {
-    // 值里允许有 var(--dur-*)，但不允许同时出现字面秒/毫秒
-    const v = m[2];
-    const literal = v.match(/\b\d*\.?\d+(ms|s)\b/g) || [];
+    const v = m[4];
+    const literal = v.match(/(?<![-\w.])\d*\.?\d+(ms|s)\b/g) || [];
     if (literal.length)
-      offenders.push(`transition: ${v.trim().replace(/\s+/g, " ")}`);
+      offenders.push(`${m[2]}${m[3] || ""}: ${v.trim().replace(/\s+/g, " ")}`);
   }
   assert.deepEqual(
     offenders,
@@ -742,5 +755,162 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
     app,
     /#poster-img[\s\S]{0,80}\.src = canvas\.toDataURL[\s\S]{0,80}\n\s*unveil\(\)/,
     "unveil 必须在海报有像素之后调用（否则飞过去是一片空白）"
+  );
+});
+
+// ---- 两轴审查补的接线守卫。此前这三条都是「只定义未接线也全绿」： ----
+test("接线：切屏转场、层级段、海报淡入三处都必须真的被调用", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  // 切屏转场：类加上、事件判来源、兜底定时器三件都在
+  const show = /function show\(phase\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(show, "找不到 show()");
+  assert.match(
+    show[1],
+    /classList\.add\("enter"\)/,
+    "show() 必须给新相位加 .enter"
+  );
+  assert.match(
+    show[1],
+    /ev\.target !== shown/,
+    "clear 必须判事件来源（子元素的 animationend 会冒泡）"
+  );
+  assert.match(
+    show[1],
+    /setTimeout\(clear,\s*\d+\)/,
+    "必须有兜底定时器（降级时动画事件不来）"
+  );
+  // 层级段：必须真的往 #duel-tiers 里写，且翻转只在换组时
+  const duel = /function renderDuel\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(duel, "找不到 renderDuel()");
+  assert.match(duel[1], /\$\("#duel-tiers"\)/, "renderDuel 必须取 #duel-tiers");
+  assert.match(
+    duel[1],
+    /classList\.toggle\(\s*"flip"/,
+    "翻转必须按「组号变了」触发，不能每题都播（整排每次渲染都重建）"
+  );
+  assert.match(duel[1], /lastTierIdx/, "必须记住上一次的组号");
+  assert.match(
+    duel[1],
+    /lastTierIdx !== null && lastTierIdx !== nowIdx/,
+    "必须与上一次的组号比较"
+  );
+  assert.match(
+    app,
+    /let lastTierIdx = null/,
+    "lastTierIdx 必须在模块作用域（跨渲染记忆）"
+  );
+  assert.match(duel[1], /--fill/, "必须写 --fill（组内进度）");
+  // 海报淡入：CSS 规则在，且 unveil 之后会被重新触发（像素到达才显影）
+  assert.match(
+    css,
+    /#poster-img \{[^}]*animation: phaseIn var\(--dur-slow\)/,
+    "缺 #poster-img 的淡入"
+  );
+  // 裸 `.map(cardHTML)` 会把 (element, index, array) 三个参数全传进去，
+  // 第三参 i 收到数组 → Math.min(array, N) = NaN → `--i: NaN` 是**已定义**的
+  // 自定义属性，var(--i, 0) 的兜底不生效 → calc(NaN * 18ms) 整条失效 →
+  // animation-delay 静默回退 initial，且控制台无任何报错（两轴都指认了这条）。
+  assert.doesNotMatch(
+    app,
+    /\.map\(cardHTML\)/,
+    "app.js 里出现裸 .map(cardHTML)：第三个参数会是数组，--i 变 NaN 且静默失效"
+  );
+  // 筛选摘要：工单 02 明写「筛选按钮显示当前命中数」，此前是死节点（app.js 零引用）
+  assert.match(
+    app,
+    /function paintFilterSum\(\)/,
+    "app.js 里没有 paintFilterSum"
+  );
+  const painted = /function paintFilterSum\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.match(painted[1], /filter-sum/, "paintFilterSum 必须写 #filter-sum");
+  assert.match(
+    app,
+    /paintFilters[\s\S]{0,400}paintFilterSum\(\)/,
+    "paintFilters 必须调用 paintFilterSum"
+  );
+  // 调用点也要守：paintFilters 里有摘要逻辑，但 renderChrome 不调它的话
+  // 摘要永远停在初值（「摘掉 renderChrome 里的 paintFilters()」这个变异最初存活）
+  const chrome = /function renderChrome\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(chrome, "找不到 renderChrome()");
+  assert.match(
+    chrome[1],
+    /paintFilters\(\)/,
+    "renderChrome 必须调 paintFilters（否则摘要不更新）"
+  );
+  for (const lang of ["zh", "en", "ja"]) {
+    assert.ok(I18N[lang].filter_sum, `${lang} 缺 filter_sum 文案`);
+  }
+});
+
+test("层级段：当前格用 --pink 而非 --peach（贴纸皮下 --peach 压 --line 只有 1.02:1）", () => {
+  const now = /\.duel-tiers i\.now \{([\s\S]*?)\}/.exec(css);
+  assert.ok(now, "缺 .duel-tiers i.now");
+  assert.match(
+    now[1],
+    /var\(--pink\)/,
+    "当前格填充必须用 --pink（两款皮肤同值，白底 4.56:1）"
+  );
+  assert.doesNotMatch(
+    now[1],
+    /var\(--peach\)/,
+    "当前格填充不能用 --peach（贴纸皮是浅色 #ffb4a2）"
+  );
+  // 图形对比度下限 3:1（与对比度守卫同一套计算）
+  for (const skin of ["classic", "sticker"]) {
+    const v = blockVars(`[data-skin="${skin}"] {`);
+    const cr = contrast(v["--pink"], v["--card"]);
+    assert.ok(
+      cr >= 3,
+      `${skin}: --pink 压 --card 只有 ${cr}:1（图形下限 3:1）`
+    );
+  }
+});
+
+// ---- 两轴审查的第二轮补的守卫（都是「静默坏掉且别的缝测不到」那类）----
+test("窄屏让位：摘要隐藏但信息进可及名；档位段三语言装得下", () => {
+  const narrow = mediaBlock(560);
+  assert.match(
+    narrow,
+    /\.filter-sum \{[^}]*display:\s*none/,
+    "≤560px 必须隐藏 .filter-sum（它会把触发按钮从 147 撑到 186，档位段被挤到装不下）"
+  );
+  assert.match(
+    narrow,
+    /\.toolbar > \.seg-size button \{[^}]*padding:\s*8px 7px/,
+    "窄屏必须收档位段按钮的内边距，否则英文「Ranked 40」被裁 78px 且滚动条被藏"
+  );
+  // 摘要收起后信息不能丢：挂到触发按钮的可及名上
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  assert.match(
+    app,
+    /paintFilterSum[\s\S]{0,700}filter-trigger"[\s\S]{0,200}setAttribute\(\s*"aria-label"/,
+    "摘要被 CSS 隐藏后必须把同一句话挂到 .filter-trigger 的 aria-label 上"
+  );
+  // 揭幕：appendChild 之后必须强制一次样式重算，否则浏览器不保证产生 transition
+  const unveilFn = /function unveil\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.match(
+    unveilFn[1],
+    /void layer\.offsetHeight/,
+    "unveil 必须在 rAF 之前强制一次样式重算（否则 transition 可能压根不产生）"
+  );
+});
+
+test("对决细条：必须能换行（层级段占满一行时不换行会把兄弟挤成 0 宽）", () => {
+  const thin = /\.duel-thin \{([\s\S]*?)\}/.exec(css);
+  assert.ok(thin, "缺 .duel-thin");
+  assert.match(thin[1], /flex-wrap:\s*wrap/, ".duel-thin 必须 flex-wrap: wrap");
+  // 层级段要独占一行（flex-basis: 100%），否则它从「第 t/n 组」那行文字里扣宽度
+  const tiers = /\.duel-tiers \{([\s\S]*?)\}/.exec(css);
+  assert.ok(tiers, "缺 .duel-tiers");
+  assert.match(
+    tiers[1],
+    /flex:\s*1 0 100%/,
+    "层级段要独占一行（flex-basis:100%）"
+  );
+  // 组内进度必须可过渡：自定义属性默认不可动画，要 @property 注册
+  assert.match(
+    css,
+    /@property\s+--fill\s*\{[\s\S]*?syntax:\s*"<percentage>"/,
+    "--fill 必须用 @property 注册成 <percentage>，否则 --fill 的 transition 不生效"
   );
 });

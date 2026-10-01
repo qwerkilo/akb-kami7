@@ -164,7 +164,12 @@
     if (shown) {
       shown.classList.add("enter");
       entering = shown;
-      const clear = () => {
+      const clear = (ev) => {
+        // 必须判事件来源：animationend 会从子元素冒泡，而名册卡自己有
+        // cardIn 入场动画 —— 不判的话切屏转场会被**第一张卡的动画结束**摘掉，
+        // 相位动画还在跑就提前归位（本机因为 258 张卡的 stagger 拖慢主线程
+        // 才没看出来，快的机器上会切）。
+        if (ev && ev.target !== shown) return;
         shown.classList.remove("enter");
         if (entering === shown) entering = null;
       };
@@ -210,10 +215,11 @@
   function cardHTML(m, showGroup, i) {
     const sel = snap.selected.indexOf(m.id);
     const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
-    // --i 是进场 stagger 的下标（工单 03）。不传时为 0：搜索结果与
-    // 折叠段里的卡片不需要错开入场。
-    const idx = i === undefined ? 0 : i;
-    return `<button class="card" style="--i:${Math.min(idx, 8)}" data-id="${m.id}" aria-pressed="${sel >= 0}" data-order="${sel + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
+    // --i 是进场 stagger 的下标（工单 03）。不传时为 0：搜索结果不需要错开入场。
+    // **封顶在 CSS 里**（min(var(--i), 8)），JS 只传原始下标 —— 此前 8 这个数
+    // 在 app.js 与测试里各存一份，改了一处另一处不响。
+    const idx = typeof i === "number" ? i : 0;
+    return `<button class="card" style="--i:${idx}" data-id="${m.id}" aria-pressed="${sel >= 0}" data-order="${sel + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
       <span class="info" role="button" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
       <span class="nm">${esc(m.name)}</span>
@@ -301,8 +307,12 @@
     const body = sec.querySelector(".gen-body");
     const open = S.toggleOpen(secId);
     if (open) {
+      // 显式包一层：把 cardHTML 直接交给 .map 会把 (element, index, array) 三个
+      // 参数全传进去，第三参 i 收到的是**数组** → Math.min(array, 8) = NaN →
+      // `--i: NaN` 是已定义的自定义属性，var(--i, 0) 的兜底不生效 →
+      // calc(NaN * 18ms) 整条失效，animation-delay 静默回退 initial，且无报错。
       body.innerHTML = (viewSection(secId)?.members || [])
-        .map(cardHTML)
+        .map((m) => cardHTML(m))
         .join("");
       body.hidden = false;
     } else {
@@ -515,6 +525,32 @@
   function paintFilters() {
     sync();
     paintSeg(".seg-filter", "filter", snap.filter);
+    paintFilterSum();
+  }
+
+  // 筛选按钮上的摘要：折叠面板收起时，「筛选生效了」在按钮上要看得见。
+  // 数字取当前筛选下的名册人数（core.rosterView 的投影，不是 DOM 数出来的）。
+  function paintFilterSum() {
+    const el = $("#filter-sum");
+    if (!el) return;
+    const view = rosterView();
+    const n =
+      view.mode === "search"
+        ? view.hits.length
+        : view.nodes.reduce(
+            (sum, node) =>
+              sum + node.sections.reduce((a, s) => a + s.members.length, 0),
+            0
+          );
+    el.textContent = t("filter_sum", n);
+    // 窄屏用 CSS 隐藏了摘要（.filter-sum { display: none }，因为它会挤掉档位段
+    // 的宽度），所以把同一句话挂到触发按钮的可及名上 —— 信息不丢，只是不占视觉宽度。
+    const btn = $(".filter-trigger");
+    if (btn)
+      btn.setAttribute(
+        "aria-label",
+        `${t("filter_label")} · ${t("filter_sum", n)}`
+      );
   }
 
   function paintTitle() {
@@ -630,6 +666,7 @@
     return true;
   }
 
+  let lastTierIdx = null;
   function renderDuel() {
     sync();
     if (snap.phase === "result") return navigate("advance");
@@ -652,6 +689,17 @@
     // 层级段：一共 tiers 组、现在第 tier+1 组、已答 tierAnswered / 组内上限 tierMax
     const tiers = $("#duel-tiers");
     if (tiers) {
+      // 翻转只在**换组**时来一次：整排每次渲染都重建，不判一下就会每答一题
+      // 都播一次 200ms 的装饰（效率区的每次点击不该有这种东西）。
+      const nowIdx = Math.min(
+        snap.duel.tier || 0,
+        Math.max(1, snap.duel.tiers || 1) - 1
+      );
+      tiers.classList.toggle(
+        "flip",
+        lastTierIdx !== null && lastTierIdx !== nowIdx
+      );
+      lastTierIdx = nowIdx;
       const n = Math.max(1, snap.duel.tiers || 1);
       const now = Math.min(snap.duel.tier || 0, n - 1);
       let html = "";
@@ -855,6 +903,10 @@
       layer.appendChild(img);
     }
     document.body.appendChild(layer);
+    // 强制一次样式重算再进 rAF 改 transform：浏览器**不保证**在 appendChild 与
+    // rAF 回调之间做过重算，不这么做 transition 可能压根不产生（两轴都实测到
+    // 隔离复现里 0 条动画；真实应用里因为图片解码恰好触发了重算才侥幸在跑）。
+    void layer.offsetHeight;
     const done = () => layer.remove();
     layer.addEventListener("transitionend", done, { once: true });
     setTimeout(done, 700);

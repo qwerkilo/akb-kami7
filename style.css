@@ -25,6 +25,10 @@
   --dur-fast: 120ms;
   --dur-mid: 200ms;
   --dur-slow: 320ms;
+  /* 进场错开：步长与档数上限也进令牌。此前步长 18ms 写死在 animation-delay、
+  档数上限 8 写死在 app.js 的 Math.min(idx, 8) 与测试里各一份，
+  两者漂了没人发现（注释写「最大错开 90ms」而实算是 144ms）。 */
+  --stagger-step: 18ms;
   --ease: cubic-bezier(0.2, 0, 0.1, 1);
 }
 
@@ -87,8 +91,8 @@
 /* 进场 stagger：--i 由 cardHTML 按下标写入，最多 8 档（再往后用户等得没耐心）。
    18ms × 8 + 160ms ≈ 304ms，在 --dur-slow（320ms）之内。 */
 .card {
-  animation: cardIn 160ms var(--ease) both;
-  animation-delay: calc(var(--i, 0) * 18ms);
+  animation: cardIn var(--dur-fast) var(--ease) both;
+  animation-delay: calc(min(var(--i, 0), 8) * var(--stagger-step));
 }
 
 /* 切屏转场：相位由 show() 切 hidden，加一个 .enter 类触发一次入场。
@@ -100,10 +104,19 @@
 /* 对决页的层级分隔：细条里本来只有「第 t/n 组」这行文字，40 档要走 106 题，
    视觉上没有任何分组感 —— 一排小段把「一共几组 / 现在第几组」画出来。 */
 .duel-tiers {
+  /* 另起一行：此前它与「第 t/n 组 · 约 M 分钟」抢同一行的宽度，
+     三语言 × 390/360/340 共 9 个组合全部被压成省略号 —— 而那行字正是
+     ADR-0019 层级语义唯一的文字载体，且多层级只有 40 档才有。 */
   display: flex;
   gap: 3px;
   align-items: center;
-  flex: none;
+  flex: 1 0 100%;
+  padding-top: 2px;
+}
+@property --fill {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
 }
 .duel-tiers i {
   display: block;
@@ -118,12 +131,22 @@
 /* 当前段用渐变表示「组内第几题」（--fill 由 renderDuel 写）。
    不用改宽度：那些段是 flex 里的等宽小条，改宽度会把整排挤变形。 */
 .duel-tiers i.now {
+  /* 用 --pink 不用 --peach：--pink 两款皮肤同值（#e4007f），压白底 4.56:1；
+     --peach 在贴纸皮是浅色 #ffb4a2，压 --line 只有 1.02:1 —— 「现在第几组」
+     这个唯一信号在一款皮肤里等于没有（两轴都指认了这条）。 */
   background: linear-gradient(
     90deg,
-    var(--peach) var(--fill, 0%),
+    var(--pink) var(--fill, 0%),
     var(--line) 0
   );
-  animation: tierFlip var(--dur-mid) var(--ease) both;
+  /* 只在**换组**时播一次翻转：整个 tiers 每次渲染都重建 innerHTML，
+     挂在这里的 animation 会随每答一题重播一次（两轴都指认了这条 ——
+     效率区的每次点击都不该有 200ms 的装饰）。组内进度改对 --fill 做过渡，
+     于是「翻的是第几格、格内第几题走多满」两件事各归各的。 */
+  transition: --fill var(--dur-fast) linear;
+}
+.duel-tiers.flip i.now {
+  animation: tierFlip var(--dur-fast) var(--ease) both;
 }
 
 /* [hidden] 必须赢：作者样式里的 display（.masthead/.steps 等都有）会盖掉 UA 样式表的
@@ -232,7 +255,9 @@ body {
   margin: 0;
   background: var(--floor);
   color: var(--ink);
-  font: 15px/1.6 var(--font-ui);
+  /* 正文 16px（ADR-0020 §2 字阶）。此前是 15px：两张工单都把它「顺延到本批」，
+     而本批已经结束 —— 两轴都把这条列为净欠账。窄屏横账按 12 状态矩阵复核过。 */
+  font: 16px/1.6 var(--font-ui);
 }
 
 button,
@@ -776,7 +801,7 @@ main {
   box-shadow: var(--shadow-sm);
 }
 .tray.shake {
-  animation: shake 0.35s ease;
+  animation: shake var(--dur-slow) var(--ease);
 }
 @keyframes shake {
   0%,
@@ -1837,6 +1862,7 @@ main {
 }
 .duel-thin {
   display: flex;
+  flex-wrap: wrap; /* 层级段是 flex-basis:100% 的一行，不换行会把兄弟挤成 0 宽 */
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
@@ -2002,8 +2028,47 @@ main {
   .pick-progress {
     margin-top: 8px;
   }
+  /* 首屏判据要在**三语言 × 两款皮肤**下都成立，而不只经典皮：贴纸皮的
+     .coach-q 圆点把引导卡撑到 60px（经典皮 56px），英文档位段那行 46（44），
+     合起来让 en × 贴纸皮的第一张卡落在 405 —— 差 5px 越界，而工单 02 当时
+     只量了经典皮就写下了「两款皮肤都满足」。下面两条在窄屏再收 6px。 */
+  .coach {
+    padding: 5px 10px;
+  }
+  .gen-body {
+    padding-top: 6px;
+  }
+  /* 筛选摘要在窄屏让位：接上摘要后触发按钮从 147 涨到 186px（en「1134」），
+     档位段被挤到 158px 而内容 236px —— 「Ranked 40」被裁 78px 且滚动条被藏。
+     收起态的提示由触发按钮的 aria-label 承担（信息不丢，只是不占视觉宽度）。 */
+  .filter-sum {
+    display: none;
+  }
+  /* 档位段按钮收内边距：14px → 7px，每枚省 14px，三枚刚好补上摘要挤掉的宽度。
+     英文「16 members」是三档里最宽的，判据是「段内容 ≤ 段可见宽」。 */
+  .toolbar > .seg-size button {
+    padding: 8px 7px;
+    /* 字号也降一档（13 → 12，仍在字阶刻度内）：只收内边距的话，
+       en × 贴纸皮 × 40 档在 390px 上差 1px 装不下，而那 1px 是四舍五入级的
+       余量（按钮宽在 50/76/67 之间浮动），靠它等于赌运气。 */
+    font-size: 12px;
+  }
+  /* 段内 gap 6 → 4（两个间隙各省 2px）：正文 16px 之后 en × 贴纸皮 × 40 档
+     差 1px 装不下（202 vs 201），那 1px 是四舍五入级的余量，不能靠它。 */
+  .toolbar > .seg-size {
+    gap: 4px;
+  }
+  .filter-trigger {
+    /* 横向内边距 12 → 10：给档位段留出舍入余量，免得 en × 贴纸皮 × 40 档
+       靠 1px 的亚像素差过关（刻度棘轮不让我写 11px，而 10 反而多省 2px）。 */
+    padding: 8px 10px;
+  }
   .toolbar {
     margin-bottom: 8px;
+    /* 列间距 14 → 12：档位段与触发按钮在 en × 贴纸皮 × 40 档上总需 359px 而
+       可用 358px，差 1px 就装不下（按钮宽在 50/76/67 之间亚像素浮动）。
+       省这 2px 是为了不再往里赌舍入。 */
+    column-gap: 12px;
   }
   /* 步骤条第 2 枚的标签（en「Screen / Duel」）在 122px 宽的按钮里会换行，
      步骤条因此从 57 涨到 77px。窄屏一律不换行 + 收字号 —— 步骤条是横账的一部分，
