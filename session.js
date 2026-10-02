@@ -67,9 +67,49 @@
       return !!m && m.series === series;
     }
 
+    // ---- 「按系列隔离的状态」这个形状的唯一出处 ----
+    // 此前它在 save / remember / boot / 切系列恢复 四处各自列举（读盘方向 loadSeries 也
+    // 交回这里），而漏接一个字段的后果是「刷新前后相反」或「切系列就丢」。
+    // deeperRound 是本仓的**第三例**（前两例是 selected 与 duel）——
+    // 症状：同一状态下 F5 刷新前后相反，或者切一次系列这个决定就变了。
+    // 新增按系列字段只改这两个函数。
+    function toRecord(src) {
+      return {
+        size: src.size,
+        selected: src.selected.slice(),
+        duel: src.duel.tiers.length
+          ? {
+              tiers: src.duel.tiers.map((x) => x.slice()),
+              answers: src.duel.answers.slice(),
+            }
+          : null,
+        cut: src.cut.slice(),
+        deeperRound: src.deeperRound,
+      };
+    }
+
+    // 记录 → state。boot 与切系列恢复共用；duel 交给 setDuel（它负责归一化空形状）。
+    function fromRecord(rec) {
+      // rec 为 null = 这个系列没有存档（首次访问）。默认形状在这里给，不在读盘处
+      // 再列举一份 —— 那正是「同一个形状两个家」的最小复现。
+      const r = rec || { size: 7, selected: [], duel: null, cut: [] };
+      state.size = r.size;
+      state.selected = (r.selected || []).slice();
+      state.cut = (r.cut || []).slice();
+      state.deeperRound = r.deeperRound || 0;
+      setDuel(r.duel);
+    }
+
+    // 筛选态归零（三处清零里共有的那两行）。范围差异（要不要连带清已选/对决）、
+    // 要不要 save、返回什么，都留在调用点。
+    function clearScreening() {
+      state.cut = [];
+      state.deeperRound = 0;
+    }
+
     function loadSeries(s) {
       const st = CORE.deserializeState(read(stateKey(s)) || "");
-      if (!st) return { size: 7, selected: [], duel: null, cut: [] };
+      if (!st) return null; // 没有存档时形状交给 fromRecord 的默认值，不在这里列举
       const selected = st.selected.filter((id) => inSeries(id, s));
       let duel = st.duel;
       if (duel && duel.tiers.flat().some((id) => !inSeries(id, s))) duel = null;
@@ -87,37 +127,13 @@
     }
 
     function save() {
-      write(
-        stateKey(state.series),
-        CORE.serializeState({
-          size: state.size,
-          selected: state.selected,
-          duel: state.duel.tiers.length
-            ? { tiers: state.duel.tiers, answers: state.duel.answers }
-            : null,
-          cut: state.cut,
-          deeperRound: state.deeperRound,
-        })
-      );
+      write(stateKey(state.series), CORE.serializeState(toRecord(state)));
     }
 
     function remember() {
-      store[state.series] = {
-        size: state.size,
-        selected: state.selected.slice(),
-        duel: state.duel.tiers.length
-          ? {
-              tiers: state.duel.tiers.map((x) => x.slice()),
-              answers: state.duel.answers.slice(),
-            }
-          : null,
-        cut: state.cut.slice(),
-        // 「我为这一轮点过继续细分」也是**按系列**的状态：漏了它，切一次系列这个
-        // 决定就变了（切回来变成「本轮已完整、可提交」），而 F5 刷新又会从 localStorage
-        // 读回来 → 同一状态下「刷新前后相反」。写档的 write() 一直有它，只有这份
-        // 内存 store 漏了 —— 两份形状不一致的典型。
-        deeperRound: state.deeperRound,
-      };
+      // 形状由 toRecord 统一给出 —— 这份内存 store 曾经漏过 deeperRound（写档的
+      // write() 一直有它），于是「刷新前后相反」。两份形状不一致的典型。
+      store[state.series] = toRecord(state);
     }
 
     function setDuel(d) {
@@ -142,8 +158,7 @@
     function clearDuel() {
       const had = state.duel.tiers.length > 0;
       state.duel = emptyDuel();
-      state.cut = [];
-      state.deeperRound = 0;
+      clearScreening();
       return had;
     }
 
@@ -219,8 +234,7 @@
 
     function resetScreening() {
       if (!state.cut.length && !state.deeperRound) return false;
-      state.cut = [];
-      state.deeperRound = 0;
+      clearScreening();
       save();
       return true;
     }
@@ -237,11 +251,7 @@
       state.posterStyle = savedStyle;
     }
     for (const s of SERIES) store[s] = loadSeries(s);
-    state.size = store[state.series].size;
-    state.selected = store[state.series].selected.slice();
-    state.cut = (store[state.series].cut || []).slice();
-    state.deeperRound = store[state.series].deeperRound || 0;
-    setDuel(store[state.series].duel);
+    fromRecord(store[state.series]);
 
     function snapshot() {
       const duel = state.duel;
@@ -320,16 +330,12 @@
       state.series = next;
       write(CORE.PREF_KEYS.series, next);
       const st = store[next];
-      state.size = st.size;
-      state.selected = st.selected.slice();
       state.filter = "all";
       state.group = "all";
       state.generation = "all";
       state.query = "";
       state.open = new Set();
-      state.cut = (st.cut || []).slice();
-      state.deeperRound = st.deeperRound || 0;
-      setDuel(st.duel);
+      fromRecord(st);
       return true;
     }
 
@@ -425,8 +431,7 @@
       if (!had) return false;
       state.selected = [];
       state.duel = emptyDuel();
-      state.cut = [];
-      state.deeperRound = 0;
+      clearScreening();
       save();
       return true;
     }

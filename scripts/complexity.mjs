@@ -34,6 +34,12 @@ try {
   }
 }
 
+// 身份 = **函数名 + 文件**，行号区间只是元数据。
+// 早先身份用 lizard 的整串 `name@start-end@file`，于是任何改动行数的提交（比如在文件
+// 上面加几行）都会把老热点报成「NEW」—— 本项目已因此误报过一次
+// （stay / bioDict / main 三个老热点的 CCN 一点没变，只是行号挪了）。
+const KEY = /^(.+?)@(\d+)-(\d+)@(.+)$/;
+
 const offenders = new Map();
 for (const line of out.split("\n")) {
   // lizard 的列序是 NLOC CCN token PARAM length location —— **7 列**。
@@ -44,17 +50,27 @@ for (const line of out.split("\n")) {
   if (!m) continue;
   const [, , ccn, , , , sym] = m;
   if (Number(ccn) <= THRESHOLD) continue;
-  offenders.set(sym, Number(ccn)); // 同一个函数可能被列两次（多语言扫描），Set 顺手去重
+  const at = KEY.exec(sym);
+  if (!at) continue;
+  const [, name, from, to, file] = at;
+  const key = `${name}@${file}`;
+  const prev = offenders.get(key);
+  // 同一个函数可能被列两次（多语言扫描）；同名取 CCN 更高者，区间照记
+  if (!prev || Number(ccn) > prev.ccn)
+    offenders.set(key, { ccn: Number(ccn), from, to, file, name });
 }
 
 const list = [...offenders.entries()].sort(
-  (a, b) => b[1] - a[1] || a[0].localeCompare(b[0])
+  (a, b) => b[1].ccn - a[1].ccn || a[0].localeCompare(b[0])
 );
-const cur = list.map(([s, c]) => `${c}\t${s}`).join("\n") + "\n";
+const cur =
+  list.map(([k, v]) => `${v.ccn}\t${k}\t${v.from}-${v.to}`).join("\n") + "\n";
 
 if (update) {
   writeFileSync(BASELINE, cur);
-  console.log(`✓ 基线已更新（${list.length} 处 CCN>${THRESHOLD}）`);
+  console.log(
+    `✓ 基线已更新（${list.length} 处 CCN>${THRESHOLD}，身份=名字@文件）`
+  );
   process.exit(0);
 }
 
@@ -66,31 +82,33 @@ if (!existsSync(BASELINE)) {
   process.exit(0);
 }
 
+// 基线行：`CCN<TAB>名字@文件<TAB>起-止`。兼容旧格式（`CCN<TAB>名字@起-止@文件`）：
+// 那时行号混在身份里，无法与新格式逐字比较，所以格式一换就要求重新落基线。
 const base = new Map(
   readFileSync(BASELINE, "utf8")
     .split("\n")
     .filter(Boolean)
     .map((l) => l.split("\t"))
-    .map(([c, s]) => [s, Number(c)])
+    .map(([c, k]) => [k, Number(c)])
 );
 
-const added = list.filter(([s]) => !base.has(s));
-const worse = list.filter(([s, c]) => base.has(s) && c > base.get(s));
-const better = list.filter(([s, c]) => base.has(s) && c < base.get(s));
+const added = list.filter(([k]) => !base.has(k));
+const worse = list.filter(([k, v]) => base.has(k) && v.ccn > base.get(k));
+const better = list.filter(([k, v]) => base.has(k) && v.ccn < base.get(k));
 
 console.log(`CCN>${THRESHOLD}：当前 ${list.length} 处，基线 ${base.size} 处`);
-for (const [s, c] of list)
+for (const [k, v] of list)
   console.log(
-    `  ${base.has(s) ? (c > base.get(s) ? "↑" : c < base.get(s) ? "↓" : " ") : "NEW"} ${c}\t${s}`
+    `  ${base.has(k) ? (v.ccn > base.get(k) ? "↑" : v.ccn < base.get(k) ? "↓" : " ") : "NEW"} ${v.ccn}\t${k}\t${v.from}-${v.to}`
   );
 if (better.length)
   console.log(
-    `\n↓ 降了：${better.map(([s, c]) => `${s} ${base.get(s)}→${c}`).join("、")}`
+    `\n↓ 降了：${better.map(([k, v]) => `${k} ${base.get(k)}→${v.ccn}`).join("、")}`
   );
 
 if (added.length || worse.length) {
   console.error(
-    `\n✗ 复杂度热点新增或变高：${[...added, ...worse].map(([s, c]) => `${s} ${base.get(s) ?? "—"}→${c}`).join("、")}`
+    `\n✗ 复杂度热点新增或变高：${[...added, ...worse].map(([k, v]) => `${k} ${base.get(k) ?? "—"}→${v.ccn}`).join("、")}`
   );
   process.exit(1);
 }

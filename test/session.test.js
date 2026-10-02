@@ -1,3 +1,5 @@
+const fs = require("node:fs");
+const path = require("node:path");
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const session = require("../session.js");
@@ -1130,5 +1132,73 @@ test("缩小档位会清空筛选进度：旧档位的 cut 不会残留（按钮
     core.tierQuestionMax(S.snapshot().selected, S.snapshot().cut, sc.round),
     strip,
     "按钮题数与细条题数一致（候选 2 之后两者同源，不再可能分叉）"
+  );
+});
+
+// ---- 「每系列状态」这个形状只能有两个家（架构扫描候选 8）----
+// 形状是 `{size, selected, duel, cut, deeperRound}`，此前在 session.js 里被各自列举 5 次
+// （loadSeries / save / remember / boot / switchSeries），而这个 bug 类已翻车三次 ——
+// session.js:115-118 的注释写明 deeperRound 是「第三例」。
+// 注意不能盯单个字段名（state.size 在到处用），要盯**多字段字面量**这个形状本身。
+test("每系列状态的字段形状只有三个家：初始 state、toRecord、fromRecord", () => {
+  const src = fs.readFileSync(path.join(__dirname, "..", "session.js"), "utf8");
+  // 形状特征：duel / cut / deeperRound 三个键出现在同一个对象字面量里
+  // [^{}] 是必要的：没有它，正则会跨过对象字面量的 } 一路找到后面的 deeperRound，
+  // 于是 snapshot 里那个 duel: duelView 也被算成一处（我第一版就这么误报过）。
+  const shape = /(duel:[^{}]{0,160}?cut:[^{}]{0,80}?deeperRound:)/g;
+  const bodies = new Map();
+  for (const name of ["toRecord", "fromRecord"]) {
+    const fn = new RegExp(`function ${name}\\([\\s\\S]*?\\n  \\}`).exec(src);
+    assert.ok(fn, `session.js 里要有 ${name}()`);
+    bodies.set(name, fn[0]);
+  }
+  // 第三个家是**初始 state 种子** —— 它不是抄来的副本，是这个形状的定义本身
+  // （session.js:28 那处），所以漏接不可能从它这里发生。守卫守的是「长出第四个」。
+  const seed = src.slice(0, src.indexOf("function loadSeries"));
+  let hits = 0;
+  let m;
+  while ((m = shape.exec(src))) {
+    hits++;
+    const inHelper =
+      seed.includes(m[1]) || [...bodies.values()].some((b) => b.includes(m[1]));
+    assert.ok(
+      inHelper,
+      `第 ${hits} 处多字段形状出现在 初始 state / toRecord / fromRecord 之外 —— ` +
+        `形状又长回第 ${hits} 个家（这正是 deeperRound 漏接的那次事故）`
+    );
+  }
+  assert.ok(
+    hits >= 1,
+    "形状一个都没匹配到，守卫本身失效了（正则要跟着代码改）"
+  );
+});
+
+test("resetScreening 之后「继续细分」的门必须重新可用（clearScreening 要一起清 deeperRound）", () => {
+  // 漏清 deeperRound 的症状要走到「第二次到达轮次边界」才显形：stale 的轮次号 > 0
+  // 会把边界永久压掉，于是「继续细分」按钮再也不出现 = 静默逼着划到底。
+  const S = make();
+  // 必须先 setSize(16)：默认档位是 7，而 toggleSelect 拒绝超出档位的选择 ——
+  // 我第一版忘了这步，于是「16 档」其实还是 7 档，划一轮就撞到 4 人下限直接停，
+  // canRecurse 恒假，测试红在错误的原因上。
+  S.setSize(16);
+  const pick = (n) => {
+    for (let i = 1; i <= n; i++) S.toggleSelect(`a${i}`);
+  };
+  pick(16);
+  const cutHalf = () => {
+    // 16 档计划 [8,4]：第 1 轮划 8
+    for (const id of ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"])
+      S.toggleCut(id);
+  };
+  cutHalf();
+  assert.equal(S.snapshot().screening.canRecurse, true, "第 1 轮边界可递归");
+  assert.equal(S.enterNextRound(), true);
+  // 回到第 1 轮：重置筛选
+  assert.equal(S.resetScreening(), true);
+  cutHalf();
+  assert.equal(
+    S.snapshot().screening.canRecurse,
+    true,
+    "重置后再次到达同一边界，「继续细分」必须还在（deeperRound 被 stale 值压掉了）"
   );
 });
