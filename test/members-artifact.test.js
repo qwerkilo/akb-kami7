@@ -26,6 +26,7 @@ const GROUP_COUNTS = {
   "=LOVE": 12,
   "≠ME": 12,
   "≒JOY": 13,
+  "モーニング娘。": 51,
 };
 const GROUP_ORDER = [
   "AKB48",
@@ -41,6 +42,7 @@ const GROUP_ORDER = [
   "=LOVE",
   "≠ME",
   "≒JOY",
+  "モーニング娘。",
 ];
 const SERIES_OF = {
   AKB48: "48g",
@@ -56,6 +58,7 @@ const SERIES_OF = {
   "=LOVE": "love",
   "≠ME": "love",
   "≒JOY": "love",
+  "モーニング娘。": "morning",
 };
 
 function loadSimplified() {
@@ -115,7 +118,7 @@ test("每个分段带 series 且与团体对应", () => {
     );
     seen.add(section.series);
   }
-  assert.deepEqual([...seen].sort(), ["48g", "love", "sakamichi"]);
+  assert.deepEqual([...seen].sort(), ["48g", "love", "morning", "sakamichi"]);
 });
 
 test("simplified.js 折叠表结构合法且覆盖常见简体字", () => {
@@ -294,4 +297,28 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
     !/^def (cdx_rows|wayback_photo|commons_photo)\(/m.test(love),
     "love_members 里不该还有这三段的定义"
   );
+});
+
+test("早安：一系列一团、18 期可筛、成员数落在区间", () => {
+  // 人数区间而不是精确值：上游会动（卒业/加入），而「抓到 3 个人」那种塌陷
+  // 必须让产物测试红 —— 源门只挡「相对基线腰斩」，首次生成时它根本不响。
+  const secs = loadGroups().filter((g) => g.series === "morning");
+  assert.equal(secs.length, 1, "早安应是一系列一团（ADR-0021）");
+  assert.equal(secs[0].group, "モーニング娘。");
+  const members = secs[0].members;
+  assert.ok(
+    members.length >= 40 && members.length <= 60,
+    `早安成员数 ${members.length} 不在 [40, 60]`
+  );
+  assert.equal(
+    members.filter((m) => m.status === "current").length,
+    members.length - members.filter((m) => m.status !== "current").length
+  );
+  // 期生是筛选字段，早安有 18 期 —— 缺了期生就等于「按期筛」这个功能对早安失效
+  const gens = new Set(members.map((m) => m.generation).filter(Boolean));
+  assert.ok(gens.size >= 10, `早安只认出 ${gens.size} 种期生`);
+  // 毕业成员必须带毕业日（站内资料卡按它分组）
+  for (const m of members.filter((x) => x.status !== "current")) {
+    assert.match(m.end || "", /^\d{4}(\.\d{2}\.\d{2})?$/, `${m.name} 缺毕业日`);
+  }
 });

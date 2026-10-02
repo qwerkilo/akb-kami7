@@ -17,6 +17,7 @@ from functools import partial
 from PIL import Image, ImageOps
 
 import love_members
+import morningmusume_members
 import roster
 from wiki import api, get, wikitext
 
@@ -637,6 +638,24 @@ def default_dirs():
     return {"root": ROOT, "orig": ORIG, "full": FULL, "thumb": THUMB}
 
 
+def _load_series(label, loader, fetch_url):
+    """装一个非 48G/坂道 的系列。返回 (members, urls)。
+
+    抛异常就整体中止 —— 绝不「一个系列失败就只写其余系列」：脚本末尾的
+    prune_unused 会把不在新名册里的图片直接删掉。三个系列各调一次，所以
+    main 里不该把这三段摊开（那一摊把 CCN 推到棘轮之上）。
+    """
+    if not loader:
+        return [], {}
+    try:
+        return loader(lambda url: fetch_url(url).decode("utf-8", "replace"))
+    except Exception as e:
+        raise SystemExit(
+            f"{label}系列抓取失败（{e}）；为避免误删已有数据与图片，本次不写入。"
+            f"网络恢复后重试即可；本脚本不会在{label}失败时降级只写其余系列。"
+        )
+
+
 def main(
     argv=None,
     dirs=None,
@@ -644,45 +663,43 @@ def main(
     api_fn=api,
     fetch_url=get,
     love_loader=None,
+    morning_loader=None,
 ):
     no_dl, force, accept_drop = parse_args(argv)
     dirs = dirs or default_dirs()
     if love_loader is None:
         love_loader = love_members.load
+    if morning_loader is None:
+        morning_loader = morningmusume_members.load
     for d in (dirs["orig"], dirs["full"], dirs["thumb"]):
         os.makedirs(d, exist_ok=True)
 
     members = merge_members(load_rows(fetch_page))
     print(f"members after dedupe: {len(members)}")
 
-    problems = roster_problems(members, read_baseline(dirs["root"]))
+    love, love_urls = _load_series("等爱", love_loader, fetch_url)
+    morning, morning_urls = _load_series("早安", morning_loader, fetch_url)
+
+    all_members = members + love + morning
+
+    # 规模门必须排在**三个 loader 之后**：基线的 groups 里含等爱与早安的团，
+    # 而门若紧跟在 48G/坂道 之后，那些团还没被加载 —— 每次都算「一个成员都没解析到」
+    # 并中止。真实抓取才发现这条（等爱上线后没人真跑过一次完整抓取）。
+    problems = roster_problems(all_members, read_baseline(dirs["root"]))
     if problems:
         detail = "；".join(problems)
         if not accept_drop:
             raise SystemExit(
-                f"48G/坂道 名册异常（{detail}）。为避免 prune_unused 删掉已有图片，本次不写入。"
+                f"名册异常（{detail}）。为避免 prune_unused 删掉已有图片，本次不写入。"
                 "确认是上游真的少了人，再加 --accept-drop 放行。"
             )
         print(f"[--accept-drop] 放行名册异常：{detail}", file=sys.stderr)
 
-    love = []
-    love_urls = {}
-    if love_loader:
-        try:
-            love, love_urls = love_loader(
-                lambda url: fetch_url(url).decode("utf-8", "replace")
-            )
-        except Exception as e:
-            raise SystemExit(
-                f"等爱系列抓取失败（{e}）；为避免误删已有数据与图片，本次不写入。"
-                "网络恢复后重试即可；本脚本不会在等爱失败时降级只写 48G/坂道。"
-            )
-
-    all_members = members + love
     assign_ids(all_members)
 
     urls = image_urls(member_files(members), api_fn)
     urls.update(love_urls)
+    urls.update(morning_urls)
     report_missing_info(resolve_missing(members, urls))
 
     paths = collect_paths(all_members, urls, no_dl, fetch_url, dirs["orig"])
@@ -695,7 +712,11 @@ def main(
         )
     )
 
-    sections = build_sections(members) + love_members.build_sections(love)
+    sections = (
+        build_sections(members)
+        + love_members.build_sections(love)
+        + morningmusume_members.build_sections(morning)
+    )
     write_members_js(sections, os.path.join(dirs["root"], "members.js"))
     simplified = build_simplified([m["name"] for m in all_members])
     if simplified is not None:

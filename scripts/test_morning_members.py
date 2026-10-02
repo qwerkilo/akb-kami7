@@ -92,6 +92,18 @@ class NickTests(unittest.TestCase):
             ("めいちゃん", ["めいち", "めいさん", "パンダちゃん"]),
         )
 
+    def test_first_line_is_cleaned_too(self):
+        """真实抓取抓到的缺陷：中澤裕子的昵称格里带 <ref group="注">…</ref>，
+        只洗别名那几行会让它漏进产物。而「昵称 == 姓名时丢掉」是**姓名格**的规则，
+        昵称格里昵称就该等于姓名（リンリン），不能一起丢。"""
+        cell = (
+            'ゆうちゃん<ref group="注">主に、石黒彩・飯田圭織・安倍なつみ・保田圭が使用する。</ref>'
+            "<br />ゆうちゃん"
+        )
+        nick, alias = mm.parse_nick(cell)
+        self.assertEqual(nick, "ゆうちゃん")
+        self.assertEqual(alias, [])
+
     def test_nick_without_br_is_a_single_value(self):
         self.assertEqual(mm.parse_nick("はだicals"), ("はだicals", []))
 
@@ -320,6 +332,12 @@ class BuildMembersTests(unittest.TestCase):
         self.assertEqual(m["generation"], "1期生")
         self.assertNotIn(m["file"], self.urls)
 
+    def test_from_comes_from_wikipedia_for_former_members(self):
+        """毕业成员不在官网上，而 Wikipedia 的毕业表**有**出身地那一列 ——
+        真实抓取时 51 人里 40 人 from 为空，就是因为只接了官网那一路。"""
+        m = self.by_name["福田明日香"]
+        self.assertEqual(m["bio"]["from"], "東京都")
+
     def test_kana_comes_from_wikipedia_because_the_official_list_has_none(self):
         """官网列表页只有日文名与罗马字名，**没有假名** —— 假名只能来自 Wikipedia 的
         `{{Display none|…/}}`（调研说「早安没有假名列」，实测它藏在姓名格里）。"""
@@ -391,8 +409,13 @@ class BuildSectionsTests(unittest.TestCase):
         # 段 label 直接用团名（期生是成员字段，不再像等爱那样把 GENERATION 塞进段）
         self.assertEqual(secs[0]["label"], "モーニング娘。")
         self.assertTrue(secs[0]["members"])
+        # 订正我最初写下的假设：我曾断言「期生是筛选字段，不进产物」——**错**。
+        # 早安有 18 期，「按期生筛」要求期生逐人存（等爱只有一期才把它塞进段 label）。
         for m in secs[0]["members"]:
-            self.assertNotIn("generation", m, "期生是筛选字段，不进产物")
+            self.assertTrue(m.get("generation"), f"{m['name']} 丢了期生")
+        # 昵称别名也要进产物 —— 它是搜索 haystack 的一部分（grilling R1-Q3）
+        nonaka = [m for m in secs[0]["members"] if m["name"] == "野中美希"][0]
+        self.assertEqual(nonaka["nick_aliases"], ["のなちゃん"])
 
 
 if __name__ == "__main__":

@@ -783,6 +783,7 @@ class MainGateIntegrationTests(unittest.TestCase):
                 api_fn=fake_api,
                 fetch_url=lambda url: png_bytes,
                 love_loader=lambda fetch: ([], {}),
+                morning_loader=lambda fetch: ([], {}),
             )
             before_js = open(os.path.join(td, "members.js"), encoding="utf-8").read()
             before_files = sorted(os.listdir(dirs["full"])), sorted(os.listdir(dirs["thumb"]))
@@ -798,6 +799,7 @@ class MainGateIntegrationTests(unittest.TestCase):
                     api_fn=fake_api,
                     fetch_url=lambda url: png_bytes,
                     love_loader=lambda fetch: ([], {}),
+                    morning_loader=lambda fetch: ([], {}),
                 )
             self.assertIn("SDN48", str(ctx.exception))
             after_js = open(os.path.join(td, "members.js"), encoding="utf-8").read()
@@ -843,6 +845,7 @@ class MainGateIntegrationTests(unittest.TestCase):
                 api_fn=fake_api,
                 fetch_url=lambda url: png_bytes,
                 love_loader=lambda fetch: ([], {}),
+                morning_loader=lambda fetch: ([], {}),
             )
             fetch_members.main(fetch_page=good_pages, **kwargs)
             with self.assertRaises(SystemExit):
@@ -891,6 +894,7 @@ class MainIntegrationTests(unittest.TestCase):
                 api_fn=fake_api,
                 fetch_url=lambda url: png_bytes,
                 love_loader=lambda fetch: ([], {}),
+                morning_loader=lambda fetch: ([], {}),
             )
 
             members_js = os.path.join(td, "members.js")
@@ -914,6 +918,7 @@ class MainIntegrationTests(unittest.TestCase):
                 api_fn=fake_api,
                 fetch_url=no_download,
                 love_loader=lambda fetch: ([], {}),
+                morning_loader=lambda fetch: ([], {}),
             )
             with open(members_js, encoding="utf-8") as fh:
                 self.assertEqual(fh.read(), raw)
@@ -941,6 +946,7 @@ class MainIntegrationTests(unittest.TestCase):
                     api_fn=lambda **params: {"query": {"pages": {}}},
                     fetch_url=lambda url: b"",
                     love_loader=failing_loader,
+                    morning_loader=lambda fetch: ([], {}),
                 )
             msg = str(ctx.exception)
             self.assertIn("等爱系列抓取失败", msg)
@@ -988,6 +994,7 @@ class LoveIntegrationTests(unittest.TestCase):
                 api_fn=fake_api,
                 fetch_url=lambda url: png_bytes,
                 love_loader=love_stub,
+                morning_loader=lambda fetch: ([], {}),
             )
             with open(os.path.join(td, "members.js"), encoding="utf-8") as fh:
                 sections = json.loads(
@@ -1183,3 +1190,181 @@ class CompressMembersTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MorningSeriesPipelineTests(unittest.TestCase):
+    """早安是**第三个系列槽**。契约与等爱一致：loader 返回 (members, urls)，
+    失败就 SystemExit 整体中止 —— 绝不「一个系列失败就只写另两个」。"""
+
+    # 既有测试里的 fake_api / png_bytes / EMPTY_PAGE 都是各方法内的局部变量，
+    # 这里自备一份，免得依赖别的测试的实现细节。
+    EMPTY_PAGE = "<html><body></body></html>"
+
+    def fake_api(self, **params):
+        return {}
+
+    def png_bytes(self, url):
+        from PIL import Image
+        import io
+
+        buf = io.BytesIO()
+        Image.new("RGB", (60, 80), (200, 180, 160)).save(buf, "PNG")
+        return buf.getvalue()
+
+    def _dirs(self, td):
+        dirs = fetch_members.default_dirs()
+        for key in ("root", "orig", "full", "thumb"):
+            dirs[key] = os.path.join(td, key)
+            os.makedirs(dirs[key], exist_ok=True)
+        return dirs
+
+    def _morning_stub(self, fetch):
+        return (
+            [
+                {
+                    "name": "野中美希",
+                    "kana": "のなか みき",
+                    "nick": "ちぇる",
+                    "nick_aliases": ["のなちゃん"],
+                    "status": "current",
+                    "group": "モーニング娘。",
+                    "series": "morning",
+                    "generation": "12期生",
+                    "file": "morningmusume:モーニング娘。:野中美希",
+                    "img": False,
+                },
+                {
+                    "name": "福田明日香",
+                    "kana": "ふくだ あすか",
+                    "nick": "明日香",
+                    "nick_aliases": [],
+                    "status": "former",
+                    "group": "モーニング娘。",
+                    "series": "morning",
+                    "generation": "1期生",
+                    "end": "1999.04.18",
+                    "file": "morningmusume:モーニング娘。:福田明日香",
+                    "img": False,
+                },
+            ],
+            {"morningmusume:モーニング娘。:野中美希": "https://x/a.webp"},
+        )
+
+    def test_third_slot_writes_a_section(self):
+        with tempfile.TemporaryDirectory() as td:
+            dirs = self._dirs(td)
+            fetch_members.main(
+                dirs=dirs,
+                fetch_page=lambda page: self.EMPTY_PAGE,
+                api_fn=self.fake_api,
+                fetch_url=lambda url: self.png_bytes(url),
+                love_loader=lambda fetch: ([], {}),
+                morning_loader=self._morning_stub,
+            )
+            raw = open(os.path.join(dirs["root"], "members.js"), encoding="utf-8").read()
+            secs = json.loads(raw.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n"))
+            series = {s["series"] for s in secs}
+            self.assertIn("morning", series, "早安那一段没写进 members.js")
+            mm = [s for s in secs if s["series"] == "morning"]
+            self.assertEqual(len(mm), 1, "早安是一系列一团")
+            self.assertEqual(mm[0]["group"], "モーニング娘。")
+            self.assertEqual({m["name"] for m in mm[0]["members"]}, {"野中美希", "福田明日香"})
+
+    def test_ids_span_all_three_series_without_colliding(self):
+        with tempfile.TemporaryDirectory() as td:
+            dirs = self._dirs(td)
+            fetch_members.main(
+                dirs=dirs,
+                fetch_page=lambda page: self.EMPTY_PAGE,
+                api_fn=self.fake_api,
+                fetch_url=lambda url: self.png_bytes(url),
+                love_loader=lambda fetch: (
+                    [
+                        {
+                            "name": "藤吉夏鈴",
+                            "kana": "ふじよし かりる",
+                            "nick": "かりる",
+                            "status": "current",
+                            "group": "=LOVE",
+                            "series": "love",
+                            "generation": "1期生",
+                            "file": "love:=LOVE:藤吉夏鈴",
+                            "img": False,
+                        }
+                    ],
+                    {},
+                ),
+                morning_loader=self._morning_stub,
+            )
+            raw = open(os.path.join(dirs["root"], "members.js"), encoding="utf-8").read()
+            secs = json.loads(raw.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n"))
+            ids = [m["id"] for s in secs for m in s["members"]]
+            self.assertEqual(len(ids), len(set(ids)), "id 撞车了")
+            by_name = {m["name"]: m["id"] for s in secs for m in s["members"]}
+            self.assertTrue(by_name["野中美希"].startswith("m"), by_name["野中美希"])
+
+    def test_morning_failure_aborts_instead_of_silently_dropping_the_series(self):
+        def failing(fetch):
+            raise OSError("helloproject 502")
+
+        with tempfile.TemporaryDirectory() as td:
+            dirs = self._dirs(td)
+            with self.assertRaises(SystemExit) as ctx:
+                fetch_members.main(
+                    dirs=dirs,
+                    fetch_page=lambda page: self.EMPTY_PAGE,
+                    api_fn=self.fake_api,
+                    fetch_url=lambda url: self.png_bytes(url),
+                    love_loader=lambda fetch: ([], {}),
+                    morning_loader=failing,
+                )
+            msg = str(ctx.exception)
+            self.assertIn("早安", msg)
+            self.assertNotIn("晨", msg.split("抓取失败")[0][-1:])
+
+    def test_main_signature_exposes_the_third_slot(self):
+        import inspect
+
+        self.assertIn("morning_loader", inspect.signature(fetch_members.main).parameters)
+
+    def test_morning_module_is_importable_and_exposes_the_contract(self):
+        import morningmusume_members as mmm
+
+        for fn in ("load", "build_sections", "build_members", "parse_list", "parse_detail"):
+            self.assertTrue(hasattr(mmm, fn), fn)
+
+
+class GateSeesEverySeriesTests(unittest.TestCase):
+    """源的规模门必须在**三个 loader 都跑完之后**才算人数。
+
+    这是一条真实抓取才发现的缺陷：门原本紧跟在 48G/坂道 之后，而基线的
+    `groups` 里含等爱三团 —— 那时它们还没被加载，于是每次都算「一个成员都没解析到」
+    并中止。等爱上线后**没人真跑过一次完整抓取**，所以一直没暴露。
+    """
+
+    BASELINE = {
+        "counts": {"AKB48": 400},
+        "love_counts": {"=LOVE": 12},
+        "groups": {"AKB48", "=LOVE"},
+        "total": 400,
+    }
+
+    def test_groups_from_a_later_series_are_not_called_disappeared(self):
+        members = [{"name": "a", "group": "AKB48"}] * 400
+        members += [{"name": "b", "group": "=LOVE", "status": "current"}] * 12
+        self.assertEqual(fetch_members.roster_problems(members, self.BASELINE), [])
+
+    def test_a_later_series_that_really_is_empty_is_still_caught(self):
+        """门挪位之后，早安/等爱抓到 0 人这一条判据不能失效。"""
+        members = [{"name": "a", "group": "AKB48"}] * 400
+        problems = fetch_members.roster_problems(members, self.BASELINE)
+        self.assertTrue(problems, "等爱被换成 0 人，门必须响")
+        self.assertTrue(any("=LOVE" in p for p in problems))
+
+    def test_main_runs_the_gate_after_all_three_loaders(self):
+        """把顺序钉住：门在 main() 里必须排在三个 loader 之后。"""
+        import inspect
+
+        src = inspect.getsource(fetch_members.main)
+        gate = src.index("roster_problems(")
+        self.assertLess(src.index("all_members = members + love + morning"), gate)

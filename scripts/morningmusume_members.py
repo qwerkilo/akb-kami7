@@ -12,7 +12,9 @@
 
 全部为纯函数（fixture 驱动测试）；网络经注入的 text fetcher 访问，测试离线。
 """
+import json
 import re
+import urllib.parse
 
 import photo_chain
 import roster
@@ -122,7 +124,11 @@ def parse_nick(cell, name=None):
     lines = [ln for ln in lines if ln.strip()]
     if not lines:
         return ("", [])
-    first = lines[0].strip()
+    # **第一行也要洗**：真实数据里昵称格带 <ref group="注">…</ref> 的共用昵称注记
+    # （中澤裕子就是），只洗别名那几行会让它漏进产物 —— 抓取后由产物测试抓到。
+    # 不传 name 过滤：那是给**姓名格**的规则（`{{Small|（のなか みき）}}` 与正式名重复），
+    # 而昵称格里「昵称 == 姓名」是常见情形（リンリン），丢掉就没人显示了。
+    first = clean(lines[0])
     rest = []
     for ln in lines[1:]:
         ln = clean(ln, name=name)
@@ -375,7 +381,7 @@ def parse_wiki_members(wikitext):
 
 # ── 官网解析（工单 03）───────────────────────────────────────────────────
 
-OFFICIAL_BASE = "https://helloproject.com/morningmusume/"
+SITE = "https://helloproject.com"
 LIST_PATH = "/morningmusume/"
 
 # 详情页的 `<dl><dt>字段名</dt><dd>值</dd></dl>` → 站内 bio 的键。
@@ -459,13 +465,20 @@ def norm_name(name):
 
 
 def build_bio(detail, wiki_row):
-    """bio 由官网详情页给，Wikipedia 只补官网没有的（期生不进 bio，它是筛选字段）。"""
+    """bio 由官网详情页给，Wikipedia 补官网没有的。
+
+    ⚠️ 毕业成员**不在官网上**，所以 `from`（出身地）必须能从 Wikipedia 取到 ——
+    真实抓取时 51 人里 40 人的 from 是空的，原因就是只接了官网那一路。
+    期生不进 bio：它是筛选字段，不是资料。
+    """
     bio = {}
     for key in ("birth", "blood", "from", "hobby", "skill"):
         if detail.get(key):
             bio[key] = detail[key]
     if wiki_row.get("birth") and not bio.get("birth"):
         bio["birth"] = wiki_row["birth"]
+    if wiki_row.get("from") and not bio.get("from"):
+        bio["from"] = wiki_row["from"]
     return bio
 
 
@@ -523,7 +536,7 @@ def _merge_one(item, w):
     rec = _base_record(name, w, nick, nick_aliases)
     rec.update(_optional_fields(detail, w))
     photo = item.get("photo")
-    url = OFFICIAL_BASE.rstrip("/") + photo if photo else ""
+    url = SITE + photo if photo else ""
     return rec, url
 
 
@@ -579,15 +592,19 @@ def build_sections(members):
     期生留在成员记录上（等爱只有一期，才把 GENERATION 塞进段）。"""
     if not members:
         return []
-    return [roster.section(GROUP, SERIES, GROUP, members)]
+    # optional 里要多带两个字段，理由与等爱相反：
+    # - generation：早安有 18 期，「按期生筛」必须逐人存（等爱只有一期，期生在段 label 上）
+    # - nick_aliases：进搜索用的 haystack（grilling R1-Q3：昵称只显示第一个，其余仍要能被搜到）
+    # roster.project 的可选字段集默认只有 bio，带不进来就等于字段被静默丢掉。
+    return [roster.section(GROUP, SERIES, GROUP, members, optional=("bio", "generation", "nick_aliases"))]
 
 
 def load(fetch, warn=print):
     """抓官网列表 + 每人详情 + Wikipedia 两表 + 毕业照片。返回 (members, urls)。"""
-    listing = parse_list(fetch(OFFICIAL_BASE + LIST_PATH))
+    listing = parse_list(fetch(SITE + LIST_PATH))
     official = {}
     for item in listing:
-        detail = parse_detail(fetch(OFFICIAL_BASE + item["path"].lstrip("/")))
+        detail = parse_detail(fetch(SITE + item["path"]))
         merged = dict(item)
         merged["detail"] = detail
         official[item["name"]] = merged
@@ -601,9 +618,9 @@ def load(fetch, warn=print):
 
 
 def wiki_wikitext(title, fetch):
-    import json
-    import urllib.parse
-
+    """取条目的 wikitext 原文。API 回的 wikitext 是 `{"*": "…"}`，
+    少取一层就会把 dict 当字符串往下传（我第一版就那样，报的是
+    'dict' object has no attribute 'find'）。"""
     query = photo_chain.WIKI_API + "?" + urllib.parse.urlencode(
         {"action": "parse", "page": title, "prop": "wikitext", "format": "json"}
     )
@@ -611,4 +628,4 @@ def wiki_wikitext(title, fetch):
         data = json.loads(fetch(query))
     except Exception:
         return ""
-    return ((data.get("parse") or {}).get("wikitext") or "")
+    return (data.get("parse") or {}).get("wikitext", {}).get("*", "")

@@ -7420,19 +7420,6 @@ window.AKB_GROUPS = [
     }
    },
    {
-    "id": "mb3afba78c3",
-    "name": "桜井愛莉咲",
-    "kana": "さくらい ありさ",
-    "nick": "りさにゃ",
-    "status": "current",
-    "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.11.07",
-     "from": "東京都"
-    }
-   },
-   {
     "id": "m266604dda6",
     "name": "佐々木希美",
     "kana": "ささき のぞみ",
@@ -7509,6 +7496,20 @@ window.AKB_GROUPS = [
      "birth": "2011.11.08",
      "from": "愛知県"
     }
+   },
+   {
+    "id": "mb3afba78c3",
+    "name": "桜井愛莉咲",
+    "kana": "さくらい ありさ",
+    "nick": "りさにゃ",
+    "status": "former",
+    "end": "2026.09.30",
+    "img": true,
+    "bio": {
+     "birth": "2003.11.07",
+     "from": "東京都"
+    },
+    "leave": "活動辞退"
    },
    {
     "id": "me7a56cee65",
@@ -18260,8 +18261,8 @@ window.AKB_GROUPS = [
     "name": "山口陽世",
     "kana": "やまぐち はるよ",
     "nick": "",
-    "status": "current",
-    "end": null,
+    "status": "former",
+    "end": "2026.08.27",
     "img": true,
     "bio": {
      "birth": "2004.02.23",
@@ -19241,6 +19242,892 @@ window.AKB_GROUPS = [
      "height": "162.5cm",
      "blood": "O型"
     }
+   }
+  ]
+ },
+ {
+  "group": "モーニング娘。",
+  "series": "morning",
+  "label": "モーニング娘。",
+  "members": [
+   {
+    "id": "m1ae91e50f5",
+    "name": "石川華望",
+    "kana": "いしかわ はなの",
+    "nick": "はな",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2013.09.09",
+     "blood": "A型",
+     "from": "広島県",
+     "hobby": "冷蔵庫チェック、食べること",
+     "skill": "ダンス、愛犬の肉球の匂いを当てること"
+    },
+    "generation": "18期生",
+    "nick_aliases": [
+     "はなのん",
+     "のんのん"
+    ]
+   },
+   {
+    "id": "m180a3cbc8a",
+    "name": "井上春華",
+    "kana": "いのうえ はるか",
+    "nick": "はるさん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2006.05.06",
+     "blood": "A型",
+     "from": "京都府",
+     "hobby": "映画館へ行くこと、チョコミントのスイーツを食べること、マラソン",
+     "skill": "ポップコーンのLサイズを完食できる。"
+    },
+    "generation": "17期生"
+   },
+   {
+    "id": "m0893912d9e",
+    "name": "岡村ほまれ",
+    "kana": "おかむら ほまれ",
+    "nick": "ほまたん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.05.09",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "文房具集め、美味しい焼肉屋さんを見つける",
+     "skill": "水を飲む時にいい音が出ます。"
+    },
+    "generation": "15期生",
+    "nick_aliases": [
+     "ほまちゃん"
+    ]
+   },
+   {
+    "id": "m226b5a36cd",
+    "name": "小田さくら",
+    "kana": "おだ さくら",
+    "nick": "小田ちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1999.03.12",
+     "blood": "A型",
+     "from": "神奈川県",
+     "hobby": "歌うこと、食べること、猫を触ること、音楽鑑賞、ライブ鑑賞、アニメ鑑賞、舞台鑑賞、バラエティ鑑賞、お笑い鑑賞、セルフジェルネイル",
+     "skill": "フラダンス、エモーショナル童謡、人と話すこと"
+    },
+    "generation": "11期生",
+    "nick_aliases": [
+     "おださく",
+     "さくらっきょ"
+    ]
+   },
+   {
+    "id": "m15e238dd5a",
+    "name": "櫻井梨央",
+    "kana": "さくらい りお",
+    "nick": "らいりー",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.11.11",
+     "blood": "O型",
+     "from": "東京都",
+     "hobby": "アイドル鑑賞、ゲーム、ファッションコーディネート",
+     "skill": "スティッチの声マネ、指パッチン、人の長所を見つけること"
+    },
+    "generation": "16期生"
+   },
+   {
+    "id": "m1aa4e80c27",
+    "name": "杉原明紗",
+    "kana": "すぎはら めいさ",
+    "nick": "めーさ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2011.12.20",
+     "blood": "不明",
+     "from": "兵庫県",
+     "hobby": "お菓子作り、お菓子を食べること、釣り、ライブ鑑賞、ゲーム、すごろく、百人一首、鉄棒",
+     "skill": "ダンス、アクロバット"
+    },
+    "generation": "18期生"
+   },
+   {
+    "id": "m58b37f2cee",
+    "name": "鈴木もあ",
+    "kana": "すずき もあ",
+    "nick": "もあ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2013.04.12",
+     "blood": "A型",
+     "from": "神奈川県",
+     "hobby": "紙スクイーズを作ること",
+     "skill": "持ち物の持ち主あて"
+    },
+    "generation": "18期生",
+    "nick_aliases": [
+     "すーも"
+    ]
+   },
+   {
+    "id": "m86b4c3cab2",
+    "name": "野中美希",
+    "kana": "のなか みき",
+    "nick": "ちぇる",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1999.10.07",
+     "blood": "A型",
+     "from": "静岡県静岡市、アメリカ",
+     "hobby": "筋トレ、美容、読書、バスケ観戦、作曲、愛犬と遊ぶこと",
+     "skill": "英語、ピアノ、ドラえもんの声真似"
+    },
+    "generation": "12期生",
+    "nick_aliases": [
+     "のなちゃん"
+    ]
+   },
+   {
+    "id": "m92e341e962",
+    "name": "安田美結",
+    "kana": "やすだ みゆ",
+    "nick": "みゆちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2012.04.19",
+     "blood": "Ｏ型",
+     "from": "大分県",
+     "hobby": "ガチャガチャ集め、コスメ集め",
+     "skill": "水泳、クラリネット、習字"
+    },
+    "generation": "18期生",
+    "nick_aliases": [
+     "みゆみゆ"
+    ]
+   },
+   {
+    "id": "md4944bb09c",
+    "name": "山﨑愛生",
+    "kana": "やまざき めい",
+    "nick": "めいちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.06.28",
+     "blood": "B型",
+     "from": "北海道",
+     "hobby": "アニメ鑑賞、セルフネイル、リズムゲーム",
+     "skill": "気配を消して人に近づく"
+    },
+    "generation": "15期生",
+    "nick_aliases": [
+     "めいち",
+     "めいさん",
+     "パンダちゃん"
+    ]
+   },
+   {
+    "id": "mab70d027fc",
+    "name": "弓桁朱琴",
+    "kana": "ゆみげた あこ",
+    "nick": "げったー",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.07.08",
+     "blood": "A型",
+     "from": "静岡県(浜松市生まれ静岡市育ち)",
+     "hobby": "梅、ミュージカル鑑賞",
+     "skill": "熱血エール(応援団長経験有)"
+    },
+    "generation": "17期生"
+   },
+   {
+    "id": "maf8fbf6624",
+    "name": "安倍なつみ",
+    "kana": "あべ なつみ",
+    "nick": "なっち",
+    "status": "former",
+    "end": "2004.01.25",
+    "img": true,
+    "bio": {
+     "birth": "1981.08.10",
+     "from": "北海道"
+    },
+    "generation": "1期生",
+    "nick_aliases": [
+     "なちみ"
+    ]
+   },
+   {
+    "id": "mb1d2539db6",
+    "name": "飯窪春菜",
+    "kana": "いいくぼ はるな",
+    "nick": "はるなん",
+    "status": "former",
+    "end": "2018.12.16",
+    "img": true,
+    "bio": {
+     "birth": "1994.11.07",
+     "from": "東京都"
+    },
+    "generation": "10期生"
+   },
+   {
+    "id": "mcb7420c4fe",
+    "name": "飯田圭織",
+    "kana": "いいだ かおり",
+    "nick": "かおりん",
+    "status": "former",
+    "end": "2005.01.30",
+    "img": false,
+    "bio": {
+     "birth": "1981.08.08",
+     "from": "北海道"
+    },
+    "generation": "1期生"
+   },
+   {
+    "id": "mcd84da4fa7",
+    "name": "生田衣梨奈",
+    "kana": "いくた えりな",
+    "nick": "えりぽん",
+    "status": "former",
+    "end": "2025.07.08",
+    "img": true,
+    "bio": {
+     "birth": "1997.07.07",
+     "from": "福岡県"
+    },
+    "generation": "9期生",
+    "nick_aliases": [
+     "えり",
+     "生田"
+    ]
+   },
+   {
+    "id": "m5e65c05095",
+    "name": "石川梨華",
+    "kana": "いしかわ りか",
+    "nick": "りかちゃん",
+    "status": "former",
+    "end": "2005.05.07",
+    "img": true,
+    "bio": {
+     "birth": "1985.01.19",
+     "from": "神奈川県"
+    },
+    "generation": "4期生",
+    "nick_aliases": [
+     "チャーミー"
+    ]
+   },
+   {
+    "id": "mfac8126b1a",
+    "name": "石黒彩",
+    "kana": "いしぐろ あや",
+    "nick": "あやっぺ",
+    "status": "former",
+    "end": "2000.01.07",
+    "img": false,
+    "bio": {
+     "birth": "1978.05.12",
+     "from": "北海道"
+    },
+    "generation": "1期生"
+   },
+   {
+    "id": "m17636aa2b0",
+    "name": "石田亜佑美",
+    "kana": "いしだ あゆみ",
+    "nick": "だーいし",
+    "status": "former",
+    "end": "2024.12.06",
+    "img": true,
+    "bio": {
+     "birth": "1997.01.07",
+     "from": "宮城県"
+    },
+    "generation": "10期生",
+    "nick_aliases": [
+     "あゆみん",
+     "ウィーラー"
+    ]
+   },
+   {
+    "id": "m72de6d7c87",
+    "name": "市井紗耶香",
+    "kana": "いちい さやか",
+    "nick": "市井ちゃん",
+    "status": "former",
+    "end": "2000.05.21",
+    "img": false,
+    "bio": {
+     "birth": "1983.12.31",
+     "from": "千葉県"
+    },
+    "generation": "2期生",
+    "nick_aliases": [
+     "さやりん"
+    ]
+   },
+   {
+    "id": "m38c36e515b",
+    "name": "尾形春水",
+    "kana": "おがた はるな",
+    "nick": "はーちん",
+    "status": "former",
+    "end": "2018.06.20",
+    "img": false,
+    "bio": {
+     "birth": "1999.02.15",
+     "from": "大阪府"
+    },
+    "generation": "12期生"
+   },
+   {
+    "id": "m93076177f4",
+    "name": "小川麻琴",
+    "kana": "おがわ まこと",
+    "nick": "まこっちゃん",
+    "status": "former",
+    "end": "2006.08.27",
+    "img": false,
+    "bio": {
+     "birth": "1987.10.29",
+     "from": "新潟県"
+    },
+    "generation": "5期生"
+   },
+   {
+    "id": "m52b379adb3",
+    "name": "加賀楓",
+    "kana": "かが かえで",
+    "nick": "かえでぃー",
+    "status": "former",
+    "end": "2022.12.10",
+    "img": false,
+    "bio": {
+     "birth": "1999.11.30",
+     "from": "東京都"
+    },
+    "generation": "13期生",
+    "nick_aliases": [
+     "かがちゃん",
+     "かっちゃん"
+    ]
+   },
+   {
+    "id": "m8896b61899",
+    "name": "加護亜依",
+    "kana": "かご あい",
+    "nick": "加護ちゃん",
+    "status": "former",
+    "end": "2004.08.01",
+    "img": true,
+    "bio": {
+     "birth": "1988.02.07",
+     "from": "奈良県"
+    },
+    "generation": "4期生",
+    "nick_aliases": [
+     "あいぼん"
+    ]
+   },
+   {
+    "id": "mf9a3263f56",
+    "name": "亀井絵里",
+    "kana": "かめい えり",
+    "nick": "亀ちゃん",
+    "status": "former",
+    "end": "2010.12.15",
+    "img": false,
+    "bio": {
+     "birth": "1988.12.23",
+     "from": "東京都"
+    },
+    "generation": "6期生",
+    "nick_aliases": [
+     "えり",
+     "えりりん"
+    ]
+   },
+   {
+    "id": "ma800cf2bea",
+    "name": "北川莉央",
+    "kana": "きたがわ りお",
+    "nick": "おんちゃん",
+    "status": "former",
+    "end": "2025.12.27",
+    "img": false,
+    "bio": {
+     "birth": "2004.03.16",
+     "from": "東京都"
+    },
+    "generation": "15期生",
+    "nick_aliases": [
+     "莉央ちゃん"
+    ]
+   },
+   {
+    "id": "m38d815e14e",
+    "name": "久住小春",
+    "kana": "くすみ こはる",
+    "nick": "小春",
+    "status": "former",
+    "end": "2009.12.06",
+    "img": false,
+    "bio": {
+     "birth": "1992.07.15",
+     "from": "新潟県"
+    },
+    "generation": "7期生"
+   },
+   {
+    "id": "mbb01fca5f6",
+    "name": "工藤遥",
+    "kana": "くどう はるか",
+    "nick": "くどぅー",
+    "status": "former",
+    "end": "2017.12.11",
+    "img": true,
+    "bio": {
+     "birth": "1999.10.27",
+     "from": "埼玉県"
+    },
+    "generation": "10期生",
+    "nick_aliases": [
+     "ハルちゃん",
+     "どぅー"
+    ]
+   },
+   {
+    "id": "m1c1bc28056",
+    "name": "紺野あさ美",
+    "kana": "こんの あさみ",
+    "nick": "こんこん",
+    "status": "former",
+    "end": "2006.07.23",
+    "img": false,
+    "bio": {
+     "birth": "1987.05.07",
+     "from": "北海道"
+    },
+    "generation": "5期生",
+    "nick_aliases": [
+     "こんちゃん"
+    ]
+   },
+   {
+    "id": "m770f270d62",
+    "name": "後藤真希",
+    "kana": "ごとう まき",
+    "nick": "ごっちん",
+    "status": "former",
+    "end": "2002.09.23",
+    "img": false,
+    "bio": {
+     "birth": "1985.09.23",
+     "from": "東京都"
+    },
+    "generation": "3期生",
+    "nick_aliases": [
+     "ごっつぁん",
+     "ゴマキ"
+    ]
+   },
+   {
+    "id": "mfe43b25c4d",
+    "name": "佐藤優樹",
+    "kana": "さとう まさき",
+    "nick": "まさき",
+    "status": "former",
+    "end": "2021.12.13",
+    "img": false,
+    "bio": {
+     "birth": "1999.05.07",
+     "from": "北海道"
+    },
+    "generation": "10期生",
+    "nick_aliases": [
+     "まーちゃん",
+     "まさキング"
+    ]
+   },
+   {
+    "id": "m5103bb21c8",
+    "name": "鞘師里保",
+    "kana": "さやし りほ",
+    "nick": "さやし",
+    "status": "former",
+    "end": "2015.12.31",
+    "img": true,
+    "bio": {
+     "birth": "1998.05.28",
+     "from": "広島県"
+    },
+    "generation": "9期生",
+    "nick_aliases": [
+     "りほりほ",
+     "ヤッシー"
+    ]
+   },
+   {
+    "id": "m2900ab1243",
+    "name": "ジュンジュン",
+    "kana": "じゅんじゅん",
+    "nick": "ジュンジュン",
+    "status": "former",
+    "end": "2010.12.15",
+    "img": true,
+    "bio": {
+     "birth": "1988.01.11",
+     "from": "中国]] 湖南省"
+    },
+    "generation": "8期生"
+   },
+   {
+    "id": "mc224787f88",
+    "name": "鈴木香音",
+    "kana": "すずき かのん",
+    "nick": "ズッキ",
+    "status": "former",
+    "end": "2016.05.31",
+    "img": false,
+    "bio": {
+     "birth": "1998.08.05",
+     "from": "愛知県"
+    },
+    "generation": "9期生"
+   },
+   {
+    "id": "m254d4c6724",
+    "name": "高橋愛",
+    "kana": "たかはし あい",
+    "nick": "愛ちゃん",
+    "status": "former",
+    "end": "2011.09.30",
+    "img": true,
+    "bio": {
+     "birth": "1986.09.14",
+     "from": "福井県"
+    },
+    "generation": "5期生"
+   },
+   {
+    "id": "m7adb8d6e2e",
+    "name": "田中れいな",
+    "kana": "たなか れいな",
+    "nick": "れいな",
+    "status": "former",
+    "end": "2013.05.21",
+    "img": true,
+    "bio": {
+     "birth": "1989.11.11",
+     "from": "福岡県"
+    },
+    "generation": "6期生",
+    "nick_aliases": [
+     "れーな",
+     "れいにゃ",
+     "田中っち",
+     "たなさたん"
+    ]
+   },
+   {
+    "id": "m7cc72478b8",
+    "name": "辻希美",
+    "kana": "つじ のぞみ",
+    "nick": "辻ちゃん",
+    "status": "former",
+    "end": "2004.08.01",
+    "img": false,
+    "bio": {
+     "birth": "1987.06.17",
+     "from": "東京都"
+    },
+    "generation": "4期生",
+    "nick_aliases": [
+     "のの",
+     "のん"
+    ]
+   },
+   {
+    "id": "mddbbb9373a",
+    "name": "中澤裕子",
+    "kana": "なかざわ ゆうこ",
+    "nick": "ゆうちゃん",
+    "status": "former",
+    "end": "2001.04.15",
+    "img": false,
+    "bio": {
+     "birth": "1973.06.19",
+     "from": "京都府"
+    },
+    "generation": "1期生",
+    "nick_aliases": [
+     "中澤姐さん"
+    ]
+   },
+   {
+    "id": "mf28e9519d8",
+    "name": "新垣里沙",
+    "kana": "にいがき りさ",
+    "nick": "ガキさん",
+    "status": "former",
+    "end": "2012.05.18",
+    "img": false,
+    "bio": {
+     "birth": "1988.10.20",
+     "from": "神奈川県"
+    },
+    "generation": "5期生",
+    "nick_aliases": [
+     "お豆ちゃん"
+    ]
+   },
+   {
+    "id": "m8c1b44a951",
+    "name": "羽賀朱音",
+    "kana": "はが あかね",
+    "nick": "あかねちん",
+    "status": "former",
+    "end": "2025.12.05",
+    "img": true,
+    "bio": {
+     "birth": "2002.03.07",
+     "from": "長野県"
+    },
+    "generation": "12期生",
+    "nick_aliases": [
+     "はがちゃん",
+     "ちん"
+    ]
+   },
+   {
+    "id": "m8eaa6a6a6f",
+    "name": "福田明日香",
+    "kana": "ふくだ あすか",
+    "nick": "明日香",
+    "status": "former",
+    "end": "1999.04.18",
+    "img": false,
+    "bio": {
+     "birth": "1984.12.17",
+     "from": "東京都"
+    },
+    "generation": "1期生",
+    "nick_aliases": [
+     "ふくちゃん"
+    ]
+   },
+   {
+    "id": "m09a267f9fb",
+    "name": "譜久村聖",
+    "kana": "ふくむら みずき",
+    "nick": "ふくちゃん",
+    "status": "former",
+    "end": "2023.11.29",
+    "img": true,
+    "bio": {
+     "birth": "1996.10.30",
+     "from": "東京都"
+    },
+    "generation": "9期生",
+    "nick_aliases": [
+     "みず☆ポン",
+     "みーちゃん",
+     "ふくぬらさん"
+    ]
+   },
+   {
+    "id": "m3642726bae",
+    "name": "藤本美貴",
+    "kana": "ふじもと みき",
+    "nick": "ミキティ",
+    "status": "former",
+    "end": "2007.06.01",
+    "img": true,
+    "bio": {
+     "birth": "1985.02.26",
+     "from": "北海道"
+    },
+    "generation": "6期生"
+   },
+   {
+    "id": "m358582c382",
+    "name": "牧野真莉愛",
+    "kana": "まきの まりあ",
+    "nick": "まりあ",
+    "status": "former",
+    "end": "2026.06.24",
+    "img": true,
+    "bio": {
+     "birth": "2001.02.02",
+     "from": "愛知県"
+    },
+    "generation": "12期生"
+   },
+   {
+    "id": "m827ab145ba",
+    "name": "道重さゆみ",
+    "kana": "みちしげ さゆみ",
+    "nick": "さゆ",
+    "status": "former",
+    "end": "2014.11.26",
+    "img": false,
+    "bio": {
+     "birth": "1989.07.13",
+     "from": "山口県"
+    },
+    "generation": "6期生",
+    "nick_aliases": [
+     "さゆみん",
+     "ちゃゆ",
+     "しげさん",
+     "みにしげさん"
+    ]
+   },
+   {
+    "id": "mef5b3f6cb7",
+    "name": "光井愛佳",
+    "kana": "みつい あいか",
+    "nick": "愛佳",
+    "status": "former",
+    "end": "2012.05.18",
+    "img": false,
+    "bio": {
+     "birth": "1993.01.12",
+     "from": "滋賀県"
+    },
+    "generation": "8期生",
+    "nick_aliases": [
+     "みっつぃー"
+    ]
+   },
+   {
+    "id": "m670968997f",
+    "name": "森戸知沙希",
+    "kana": "もりと ちさき",
+    "nick": "ちぃちゃん",
+    "status": "former",
+    "end": "2022.06.20",
+    "img": false,
+    "bio": {
+     "birth": "2000.02.19",
+     "from": "栃木県"
+    },
+    "generation": "14期生",
+    "nick_aliases": [
+     "ちぃ",
+     "もりとち",
+     "ちぃこ"
+    ]
+   },
+   {
+    "id": "m20c33d8c8b",
+    "name": "矢口真里",
+    "kana": "やぐち まり",
+    "nick": "やぐっちゃん",
+    "status": "former",
+    "end": "2005.04.14",
+    "img": true,
+    "bio": {
+     "birth": "1983.01.20",
+     "from": "神奈川県"
+    },
+    "generation": "2期生",
+    "nick_aliases": [
+     "やぐっつぁん",
+     "まりっぺ"
+    ]
+   },
+   {
+    "id": "ma50538c911",
+    "name": "保田圭",
+    "kana": "やすだ けい",
+    "nick": "圭ちゃん",
+    "status": "former",
+    "end": "2003.05.05",
+    "img": false,
+    "bio": {
+     "birth": "1980.12.06",
+     "from": "千葉県"
+    },
+    "generation": "2期生",
+    "nick_aliases": [
+     "ケメ子"
+    ]
+   },
+   {
+    "id": "m5f80d38a17",
+    "name": "横山玲奈",
+    "kana": "よこやま れいな",
+    "nick": "よっさん",
+    "status": "former",
+    "end": "2025.12.05",
+    "img": false,
+    "bio": {
+     "birth": "2001.02.22",
+     "from": "埼玉県"
+    },
+    "generation": "13期生",
+    "nick_aliases": [
+     "よこやん",
+     "よこ"
+    ]
+   },
+   {
+    "id": "m00244ee8bb",
+    "name": "吉澤ひとみ",
+    "kana": "よしざわ ひとみ",
+    "nick": "よっすぃー",
+    "status": "former",
+    "end": "2007.05.06",
+    "img": false,
+    "bio": {
+     "birth": "1985.04.12",
+     "from": "埼玉県"
+    },
+    "generation": "4期生",
+    "nick_aliases": [
+     "ヨッシー",
+     "よっちゃん"
+    ]
+   },
+   {
+    "id": "mfe73ae0f5e",
+    "name": "リンリン",
+    "kana": "りんりん",
+    "nick": "リンリン",
+    "status": "former",
+    "end": "2010.12.15",
+    "img": false,
+    "bio": {
+     "birth": "1991.03.11",
+     "from": "中国 浙江省"
+    },
+    "generation": "8期生"
    }
   ]
  }

@@ -6,6 +6,93 @@
   "use strict";
 
   const values = {
+    "冷蔵庫チェック、食べること": {
+      zh: "检查冰箱、吃东西",
+      en: "Fridge check, eating",
+    },
+    "ダンス、愛犬の肉球の匂いを当てること": {
+      zh: "跳舞、闻宠物肉球的气味",
+      en: "Dancing, guessing which pet has the meatball smell",
+    },
+    "映画館へ行くこと、チョコミントのスイーツを食べること、マラソン": {
+      zh: "去电影院、吃薄荷巧克力甜点、马拉松",
+      en: "Going to the movies, chocolate-mint desserts, marathons",
+    },
+    "ポップコーンのLサイズを完食できる。": {
+      zh: "能把 L 号爆米花全部吃完。",
+      en: "Can finish an L-size popcorn.",
+    },
+    "文房具集め、美味しい焼肉屋さんを見つける": {
+      zh: "收集文具、找好吃的烤肉店",
+      en: "Collecting stationery, finding good yakiniku places",
+    },
+    "水を飲む時にいい音が出ます。": {
+      zh: "喝水时会发出好听的声音。",
+      en: "Makes a nice sound when drinking water.",
+    },
+    "歌うこと、食べること、猫を触ること、音楽鑑賞、ライブ鑑賞、アニメ鑑賞、舞台鑑賞、バラエティ鑑賞、お笑い鑑賞、セルフジェルネイル":
+      {
+        zh: "唱歌、吃饭、摸猫、听音乐、看现场演出、看动画、看舞台、看综艺、看搞笑节目、自凝胶美甲",
+        en: "Singing, eating, petting cats, music, live shows, anime, theatre, variety, comedy, gel nails",
+      },
+    "フラダンス、エモーショナル童謡、人と話すこと": {
+      zh: "草裙舞、演唱情感童谣、与���交谈",
+      en: "Hula dancing, emotional nursery rhymes, talking with people",
+    },
+    "アイドル鑑賞、ゲーム、ファッションコーディネート": {
+      zh: "看偶像、玩游戏、时尚搭配",
+      en: "Idol watching, games, fashion coordination",
+    },
+    "スティッチの声マネ、指パッチン、人の長所を見つけること": {
+      zh: "模仿史迪奇、指补丁、发现别人的长处",
+      en: "Doing a Stitch voice, finger patches, spotting people's strengths",
+    },
+    "お菓子作り、お菓子を食べること、釣り、ライブ鑑賞、ゲーム、すごろく、百人一首、鉄棒":
+      {
+        zh: "做点心、吃点心、钓鱼、看现场演出、游戏、双六、玩百人一首、玩单杠",
+        en: "Making sweets, eating sweets, fishing, live shows, games, sugoroku, karuta, playground bars",
+      },
+    "ダンス、アクロバット": { zh: "跳舞、杂技", en: "Dancing, acrobatics" },
+    紙スクイーズを作ること: {
+      zh: "做纸 squeezes 玩具",
+      en: "Making paper squeezes",
+    },
+    持ち物の持ち主あて: {
+      zh: "猜猜东西是谁的",
+      en: "Guessing who belongings belong to",
+    },
+    "筋トレ、美容、読書、バスケ観戦、作曲、愛犬と遊ぶこと": {
+      zh: "健身、美容、读书、看篮球赛、作曲、和爱犬玩",
+      en: "Workouts, beauty, reading, watching basketball, composing, playing with her dog",
+    },
+    "英語、ピアノ、ドラえもんの声真似": {
+      zh: "英语、钢琴、模仿哆啦A梦",
+      en: "English, piano, imitating Doraemon",
+    },
+    "ガチャガチャ集め、コスメ集め": {
+      zh: "收集扭蛋、收集化妆品",
+      en: "Collecting gachapon, collecting cosmetics",
+    },
+    "水泳、クラリネット、習字": {
+      zh: "游泳、单簧管、书法",
+      en: "Swimming, clarinet, calligraphy",
+    },
+    "アニメ鑑賞、セルフネイル、リズムゲーム": {
+      zh: "看动画、自助美甲、音乐游戏",
+      en: "Anime, DIY nails, rhythm games",
+    },
+    気配を消して人に近づく: {
+      zh: "悄悄靠近别人",
+      en: "Sneaking up on people quietly",
+    },
+    "梅、ミュージカル鑑賞": {
+      zh: "梅花、看音乐剧",
+      en: "Ume plum blossoms, watching musicals",
+    },
+    "熱血エール(応援団長経験有)": {
+      zh: "热血应援（有当过应援团长的经验）",
+      en: "Fighting-cheer squad member (former squad leader)",
+    },
     "舞台・ミュージカル観劇 レトロ(ファッション・巡り・収集)　動物の赤ちゃんをみること！！":
       {
         zh: "观看舞台剧与音乐剧，复古风（穿搭、巡游、收藏），看动物幼崽！！",
