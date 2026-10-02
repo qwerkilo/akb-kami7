@@ -6,7 +6,11 @@ import json
 import re
 import urllib.parse
 
+import photo_chain
 import roster
+
+# 从共享模块 re-export：本模块的 wiki_wikitext 与既有测试都按 love_members.WIKI_API 找它
+WIKI_API = photo_chain.WIKI_API
 
 SERIES = "love"
 GROUP_ORDER = ["=LOVE", "≠ME", "≒JOY"]
@@ -18,7 +22,6 @@ SITES = {
     "≒JOY": {"base": "https://nearly-equal-joy.jp", "kind": "joy"},
 }
 LIST_PATH = "/feature/profile"
-WIKI_API = "https://ja.wikipedia.org/w/api.php"
 
 LOVE_ITEM = re.compile(
     r'<a href="[^"]*?(/feature/[a-z_0-9]+)"[^>]*>\s*<p class="thumb"><img[^>]*?url\(([^)]+)\)[^>]*></p>\s*</a>\s*<div class="txtSide">\s*<p class="name">\s*([^<]+?)\s*<span class="yomi">([^<]+)</span>',
@@ -183,46 +186,6 @@ def wiki_wikitext(title, fetch):
     return json.loads(fetch(url))["parse"]["wikitext"]["*"]
 
 
-def cdx_rows(url, fetch, limit=6, prefix=False):
-    params = {
-        "url": url,
-        "output": "json",
-        "limit": str(limit),
-        "filter": "statuscode:200",
-        "collapse": "digest",
-    }
-    if prefix:
-        params["matchType"] = "prefix"
-    query = "http://web.archive.org/cdx/search/cdx?" + urllib.parse.urlencode(params)
-    try:
-        rows = json.loads(fetch(query) or "[]")
-    except Exception:
-        return []
-    return rows[1:] if rows else []
-
-
-def wayback_photo(url, fetch):
-    rows = cdx_rows(url, fetch, limit=1)
-    if not rows:
-        return None
-    return "https://web.archive.org/web/{}id_/{}".format(rows[0][1], url)
-
-
-def commons_photo(name, fetch):
-    query = WIKI_API + "?" + urllib.parse.urlencode(
-        {"action": "query", "titles": name, "prop": "pageimages", "pithumbsize": "800", "format": "json"}
-    )
-    try:
-        data = json.loads(fetch(query))
-    except Exception:
-        return None
-    for page in data.get("query", {}).get("pages", {}).values():
-        src = (page.get("thumbnail") or {}).get("source")
-        if src:
-            return src
-    return None
-
-
 def archived_photo_pairs(html):
     """归档列表页里的 {规范化姓名: 原始照片 URL}；容忍 #popup 锚点与 SNS 列表拆块。"""
     out = {}
@@ -253,7 +216,7 @@ def archived_list_photos(group, fetch):
     site = SITES[group]
     list_url = site["base"] + LIST_PATH
     out = {}
-    for row in cdx_rows(list_url, fetch, limit=8):
+    for row in photo_chain.cdx_rows(list_url, fetch, limit=8):
         ts = row[1]
         try:
             html = fetch("https://web.archive.org/web/{}id_/{}".format(ts, list_url))
@@ -329,9 +292,9 @@ def resolve_former_photos(members, urls, fetch, warn=print):
             photo = photos.get(norm_name(m["name"]))
             resolved = None
             if photo:
-                resolved = wayback_photo(photo, fetch)
+                resolved = photo_chain.wayback_photo(photo, fetch)
             if not resolved:
-                resolved = commons_photo(m["name"], fetch)
+                resolved = photo_chain.commons_photo(m["name"], fetch)
             if resolved:
                 urls[m["file"]] = resolved
             else:

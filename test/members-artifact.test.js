@@ -254,3 +254,44 @@ test("img 标志与站内图片文件一致（img:true ⟺ full 与 thumb 都在
     `img 标志与站内文件不一致：${mismatch.slice(0, 5).join("、")}`
   );
 });
+
+test("照片回退链：与站点无关的三段在共享模块，与站点有关的留在 loader（工单 01）", () => {
+  const chain = fs.readFileSync(
+    path.join(__dirname, "..", "scripts", "photo_chain.py"),
+    "utf8"
+  );
+  const love = fs.readFileSync(
+    path.join(__dirname, "..", "scripts", "love_members.py"),
+    "utf8"
+  );
+
+  // 共享模块里只允许这三段 —— 站点有关的（archived_*）编码的是某个站的 HTML 形状
+  const defs = [...chain.matchAll(/^def (\w+)/gm)].map((m) => m[1]).sort();
+  assert.deepEqual(
+    defs,
+    ["cdx_rows", "commons_photo", "wayback_photo"],
+    "photo_chain.py 只该有与站点无关的三段（多了说明站点相关的漏进来了，少了说明共享的没搬干净）"
+  );
+  for (const siteBound of ["archived_photo_pairs", "archived_list_photos"]) {
+    assert.ok(
+      !chain.includes(siteBound),
+      `${siteBound} 是站点相关的，不该在共享模块`
+    );
+    assert.ok(
+      love.includes(siteBound),
+      `${siteBound} 丢了 —— 它编码的是等爱旧站的 HTML 形状`
+    );
+  }
+
+  // 等爱必须真的用上共享模块（否则「搬走」只是复制，两条链会各自漂移）
+  for (const fn of ["cdx_rows", "wayback_photo", "commons_photo"]) {
+    assert.ok(
+      love.includes(`photo_chain.${fn}(`),
+      `love_members 必须调 photo_chain.${fn}()，不能自己留一份`
+    );
+  }
+  assert.ok(
+    !/^def (cdx_rows|wayback_photo|commons_photo)\(/m.test(love),
+    "love_members 里不该还有这三段的定义"
+  );
+});

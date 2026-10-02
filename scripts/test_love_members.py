@@ -132,25 +132,6 @@ class ParseWikiTests(unittest.TestCase):
 
 
 class PhotoFallbackTests(unittest.TestCase):
-    def test_wayback_photo_uses_first_snapshot(self):
-        def fetch(url):
-            return json.dumps([
-                ["urlkey", "timestamp", "original"],
-                ["x", "20220525051254", "orig"],
-            ])
-        self.assertEqual(
-            love_members.wayback_photo("https://nearly-equal-joy.jp/image/profile/fukuyama_moeka.jpg", fetch),
-            "https://web.archive.org/web/20220525051254id_/https://nearly-equal-joy.jp/image/profile/fukuyama_moeka.jpg",
-        )
-
-    def test_wayback_photo_none_without_snapshot(self):
-        self.assertIsNone(love_members.wayback_photo("https://x/y.jpg", lambda url: "[]"))
-
-    def test_commons_photo(self):
-        def fetch(url):
-            return json.dumps({"query": {"pages": {"1": {"thumbnail": {"source": "https://upload/c.jpg"}}}}})
-        self.assertEqual(love_members.commons_photo("齊藤なぎさ", fetch), "https://upload/c.jpg")
-
     def test_resolve_former_photos_falls_back_to_archived_list_then_commons(self):
         archived_list = LOVE_LIST_FIXTURE.replace(
             "otani_emiri", "satake_nonno"
