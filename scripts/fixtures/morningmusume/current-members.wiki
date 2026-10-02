@@ -1,0 +1,53 @@
+|- style="line-height:1.25em;"
+! style="padding-left:1em; white-space:nowrap" |名前
+! style="white-space:nowrap" class="unsortable" |ニックネーム<ref name=":2">{{Cite web|和書|title=モーニング娘。'{{年数|2000|1|1}}：プロフィール |url=https://helloproject.com/morningmusume/#Member|work=ハロー!プロジェクト オフィシャルサイト |accessdate=2026-04-27}}</ref>
+! style="padding-left:1em; white-space:nowrap" |生年月日{{R|:2}}<br />（現年齢）
+! class="unsortable" |血液型{{R|:2}}
+! style="white-space:nowrap" |出身地{{R|:2}}
+! style="padding-right:17px" |加入年月日
+! style="padding-right:17px" |加入期
+! class="unsortable" |メンバーカラー
+! style="white-space:nowrap" class="unsortable" |色種
+! class="unsortable" style="padding-right:2.5em; padding-left:2.5em;" |特記事項{{R|:2}}
+|-
+| style="white-space:nowrap" |{{Display none|のなか みき/}}[[野中美希]]<br />{{Small|（のなか みき）}}
+| style="white-space:nowrap" |ちぇる<br />のなちゃん
+| style="white-space:nowrap" |1999年10月{{Display none|0}}7日{{Center|（{{年数|1999|10|7}}歳）}}
+| style="white-space:nowrap" |A型
+| {{Display none|しずおかけん/}}[[静岡県]]
+| style="white-space:nowrap" |2014年{{Display none|0}}9月30日
+| style="white-space:nowrap" |{{Center|12期}}
+| style="white-space:nowrap" |パープル<ref>{{Cite web|和書|url=https://www.youtube.com/watch?v=6Em_tdOBJ08|title=モーニング娘。’15工藤 遥と12期メンバーのGRADATIONグッズ紹介|work=UF Goods Land|date=2015-03-12|accessdate=2015-03-12}}</ref>
+| <div style="background:#582C83; border:solid 1px silver">&nbsp;</div>
+|リーダー
+|-
+| style="white-space:nowrap" |{{Display none|おだ さくら/}}[[小田さくら]]<br />{{Small|（おだ さくら）}}
+| style="white-space:nowrap" |小田ちゃん<br />おださく<br />さくらっきょ
+| style="white-space:nowrap" |1999年{{Display none|0}}3月12日{{Center|（{{年数|1999|3|12}}歳）}}
+| style="white-space:nowrap" |A型
+| {{Display none|かながわけん/}}[[神奈川県]]
+| style="white-space:nowrap" |2012年{{Display none|0}}9月14日
+| style="white-space:nowrap" |{{Center|11期}}
+| style="white-space:nowrap" |ラベンダー<ref>{{Cite tweet|author=つんく |user=tsunkuboy |number=279553909457043456 |title=ラベンダーやで。|date=2012-12-14 |accessdate=2025-11-19 }}</ref>
+| <div style="background:#A05EB5; border:solid 1px silver">&nbsp;</div>
+| style="white-space:nowrap" |サブリーダー<br />元[[ハロプロ研修生]]<br />2026年12月11日卒業予定
+|-
+| style="white-space:nowrap" |{{Display none|おかむら ほまれ/}}[[岡村ほまれ]]<br />{{Small|（おかむら ほまれ）}}
+| style="white-space:nowrap" |ほまちゃん<br />ほまたん
+| style="white-space:nowrap" |2005年{{Display none|0}}5月{{Display none|0}}9日{{Center|（{{年数|2005|5|9}}歳）}}
+| style="white-space:nowrap" |A型
+| {{Display none|とうきょうと/}}[[東京都]]
+| rowspan="2" style="white-space:nowrap" |2019年{{Display none|0}}6月22日
+| rowspan="2" style="white-space:nowrap" |{{Center|15期}}
+| style="white-space:nowrap" |デイジー{{R|:4}}
+| <div style="background:#FDDA24; border:solid 1px silver">&nbsp;</div>
+|
+|-
+| style="white-space:nowrap" |{{Display none|やまざき めい/}}[[山﨑愛生]]<br />{{Small|（やまざき めい）}}
+| style="white-space:nowrap" |めいちゃん<br />めいち<br />めいさん<br />パンダちゃん
+| style="white-space:nowrap" |2005年{{Display none|0}}6月28日{{Center|（{{年数|2005|6|28}}歳）}}
+| style="white-space:nowrap" |B型
+| {{Display none|ほっかいどう/}}[[北海道]]
+| style="white-space:nowrap" |ブルー<ref name="18kic">{{Cite web|和書|url=https://www.youtube.com/watch?v=28kEmyKT9tc|title=モーニング娘。'26 18期メンバー【メンバーカラー発表サプライズ!!】|work=モーニング娘。|date=2026-07-08|accessdate=2026-07-08}}</ref>{{Efn2|加入当初のメンバーカラーは{{legend2|#00B140|ブライトグリーン|border=solid 1px #000000}}。変更は2026年7月8日に発表され同年8月8日から適用。}}
+| <div style="background:#0033A0; border:solid 1px silver">&nbsp;</div>
+| style="white-space:nowrap" |元ハロプロ研修生北海道

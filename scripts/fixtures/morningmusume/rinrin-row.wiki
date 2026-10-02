@@ -1,0 +1,25 @@
+|- style="line-height:1.25em"
+! style="padding-left:1em; white-space:nowrap" |名前
+! style="white-space:nowrap" class="unsortable" |ニックネーム
+! style="padding-left:1em; white-space:nowrap" |生年月日<br />（現年齢）
+! class="unsortable" |血液型
+! style="white-space:nowrap" |出身地
+! style="padding-left:1em; white-space:nowrap" |加入年月日
+!加入期
+! style="padding-right:1px; white-space:nowrap" |卒業・脱退日<br />（発表日）<br />卒業公演の開催地
+! style="padding-left:1em; padding-right:17px; white-space:nowrap" |在籍日数
+! style="white-space:nowrap" class="unsortable" |メンバーカラー
+! style="white-space:nowrap" class="unsortable" |色種
+! style="padding-right:17px; white-space:nowrap" class="unsortable" |ハロプロへの在籍状況
+! style="white-space:nowrap" class="unsortable" |在籍時の年齢<br />加入-卒業
+|-
+|-
+| style="white-space:nowrap" |{{Display none|りんりん/}}[[リンリン (1991年生の歌手)|リンリン]]<br />{{Small|（銭琳）}}
+| style="white-space:nowrap" |リンリン
+| style="white-space:nowrap" |1991年{{Display none|0}}3月11日{{Center|（{{年数|1991|3|11}}歳）}}
+| style="white-space:nowrap" |B型
+| {{Display none|ちゅうごく せっこうしょう/}}中国 {{Nowrap|[[浙江省]]}}
+|8期<br/>{{Efn2|留学生}}
+| style="white-space:nowrap" |エメラルドグリーン
+| <div style="background:#00b379; border:solid 1px silver">&nbsp;</div>
+| style="white-space:nowrap" |16歳 - 19歳

@@ -1,0 +1,369 @@
+"""早安少女家族（モーニング娘。）成员数据：ja.wikipedia 主条目 + 官网详情页。
+
+只做**解析**：拆表、清洗、投影。装配与网络在 build 层（见同文件下半部分）。
+
+与等爱（love_members）的关系：照片回退链共享 `photo_chain`，但**解析完全不能复用**
+—— 早安的表格有三处硬差异，实测把等爱的 parse_wiki_members 套上来得到 0 人：
+
+1. 生年月日不写成 `{{生年月日と年齢|…}}`，而是 `1999年{{Display none|0}}7日{{Center|(…)}}`；
+2. 出身地整格被 `{{Display none|…/}}[[静岡県]]` 包着，不是以 `[都道府県]$` 结尾；
+3. **表里有 rowspan="2"**（加入年月日与加入期会合并相邻两行），于是有的行只有 8 格，
+   按位置取列会串位 —— 必须先做行展开。
+
+全部为纯函数（fixture 驱动测试）；网络经注入的 text fetcher 访问，测试离线。
+"""
+import re
+
+SERIES = "morning"
+GROUP = "モーニング娘。"
+WIKI_PAGE = "モーニング娘。"
+
+# 站内约定：期生写「N期生」。原表的「12期」/「1期」都要归一到这个形状。
+GEN_RE = re.compile(r"(\d+)\s*期")
+
+DATE_RE = re.compile(r"(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日")
+
+
+def _strip_invisible(text):
+    """去掉 {{Display none|…}}（它的内容是对屏幕阅读器隐藏的，不属于字段值）"""
+    prev = None
+    while prev != text:
+        prev = text
+        text = re.sub(r"\{\{Display none\|[^}]*\}\}", "", text)
+    return text
+
+
+def _drop_named_templates(text, names):
+    r"""按**花括号配平**剥掉指定名字的模板。
+
+    正则治不了这个：`{{Efn2|加入当初のメンバーカラーは{{legend2|#00B140|…}}。変更は…}}`
+    里含嵌套模板，`\{\{Efn2\|.*?\}\}\}` 会在第一个 `}}` 收尾、留下尾巴
+    （实测留下 `ブルー。変更は2026年8月8日から適用。}}` 这种）。
+    """
+    for name in names:
+        while True:
+            start = text.find("{{" + name)
+            if start < 0:
+                break
+            i = start + 2
+            # depth 从 2 起：`{{` 的两个花括号已被 start 跳过，
+            # 深度 1 的话只会消耗掉第一个 }、给每个表头留一个尾巴。
+            depth = 2
+            while i < len(text) and depth:
+                if text[i] == "{":
+                    depth += 1
+                elif text[i] == "}":
+                    depth -= 1
+                i += 1
+            text = text[:start] + text[i:]
+    return text
+
+
+def _strip_refs(text):
+    """去掉 <ref>…</ref> 与 {{Efn2|…}} / {{R|:2}} 之类的脚注噪声。"""
+    prev = None
+    while prev != text:
+        prev = text
+        text = re.sub(r"<ref[^>]*>.*?</ref>", "", text, flags=re.S)
+        text = _drop_named_templates(text, ("Efn2", "R"))
+    return text
+
+
+def _strip_templates(text):
+    """去掉剩余的 {{…}}：取第一个位置参数，或无参数时取空。"""
+    prev = None
+    while prev != text:
+        prev = text
+        m = re.search(r"\{\{([^{}]*)\}\}", text)
+        if not m:
+            break
+        inner = m.group(1)
+        arg = inner.split("|")[1] if "|" in inner else ""
+        text = text[: m.start()] + arg + text[m.end() :]
+    return text
+
+
+_LINK = re.compile(r"\[\[([^\]|]*)(?:\|([^\]]*))?\]\]")
+
+
+def clean(cell, name=None):
+    """把一个单元格洗成可用的纯文本：去脚注 → 拆管道链接 → 去残留模板 → 去标签。"""
+    text = _strip_refs(_strip_invisible(cell))
+    # 链接：带显示文字的取显示文字，否则取标题（去掉 disambiguator 的括号）
+    def link(m):
+        target, label = m.group(1), m.group(2)
+        if label:
+            return label
+        return re.sub(r"\s*\(.*?\)\s*$", "", target)
+
+    text = _LINK.sub(link, text)
+    text = _strip_templates(text)
+    text = re.sub(r"<br\s*/?>", "\n", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = text.replace("&nbsp;", " ")
+    lines = [ln.strip() for ln in text.split("\n")]
+    lines = [ln for ln in lines if ln]
+    if name:
+        lines = [ln for ln in lines if ln != name]
+    return "\n".join(lines)
+
+
+def parse_nick(cell, name=None):
+    """昵称一格可能多行（`ちぇる<br />のなちゃん`）。
+
+    grilling R1-Q3：显示第一个，其余作为**别名**返回 —— 它们要进搜索用的 haystack，
+    但不显示（资料显示卡只放一行）。
+    """
+    lines = [ln.strip() for ln in cell.replace("<br />", "\n").replace("<br/>", "\n").split("\n")]
+    lines = [ln for ln in lines if ln.strip()]
+    if not lines:
+        return ("", [])
+    first = lines[0].strip()
+    rest = []
+    for ln in lines[1:]:
+        ln = clean(ln, name=name)
+        if ln and ln != first and ln != name:
+            rest.append(ln)
+    return (first, rest)
+
+
+def first_line(cell_text):
+    """姓名格是 `{{Display none|のなか みき/}}[[野中美希]]<br />{{Small|（のなか みき）}}` ——
+    正式名是第一行，`{{Display none|…/}}` 里是假名，`{{Small|(…)}` 是重复的假名注记。
+    站内姓名要正式名，假名另存，所以只取第一行。"""
+    lines = [ln.strip() for ln in (cell_text or "").split("\n")]
+    lines = [ln for ln in lines if ln]
+    return lines[0] if lines else ""
+
+
+def kana_of(cell_text):
+    """从姓名格里取假名：`{{Display none|のなか みき/}}` 里那一份。
+    早安的表没有独立的假名列，假名只在这个被隐藏的块里。"""
+    m = re.search(r"\{\{Display none\|([^}/]+)/\}\}", cell_text or "")
+    return m.group(1).strip() if m else ""
+
+
+def _header_name(text):
+    """表头可能写成 `! style="…" |名前`，也可能写成 `!加入期`（无属性无分隔符），
+    后者要先把前导的 ! 剥掉，否则列名会变成「!加入期」而对不上 COLUMN_NORM。"""
+    """表头单元格的显示名：去掉 style/class 属性与 <br />，再压空白。"""
+    text = _strip_refs(text)
+    text = text.lstrip("!").strip()
+    text = re.sub(r"<br\s*/?>", "", text)
+    text = re.sub(r"\{\{[^{}]*\}\}", "", text)
+    text = re.sub(r"\s+", "", text)
+    return text
+
+
+def _split_attrs(text):
+    """在**花括号深度 0** 的第一个 | 处切开属性与内容。
+
+    不能直接 partition：格内容里自带 |（`{{Display none|しずおかけん/}}`），
+    那样会把模板劈开、留下 `しずおかけん/}}静岡県` 这种残渣（我第一版就这么写的，
+    现役表的每一格都脏）。
+    """
+    depth = 0
+    for i, ch in enumerate(text):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth = max(0, depth - 1)
+        elif ch == "|" and depth == 0:
+            return text[:i], text[i + 1 :]
+    # 整段都没有深度 0 的 | → 这格**没有属性**，全部都是内容
+    # （出身地那格就是这种：唯一的 | 在 {{Display none|…/}} 里面）
+    return "", text
+
+
+def _row_cells(lines):
+    """把 `|-` 之后的行解析成 (rowspan, 单元格文本) 序列。"""
+    cells = []
+    for line in lines:
+        if not line.startswith("|"):
+            continue
+        head, rest = _split_attrs(line[1:])
+        span = re.search(r'rowspan\s*=\s*"?(\d+)"?', head)
+        cells.append((int(span.group(1)) if span else 1, rest))
+    return cells
+
+
+NEWLINE = chr(10)  # 换行符：wikitext 是 CRLF 的场合也要能切
+DO_CLEAN = [True]
+
+
+def _read_header(lines):
+    """返回 (列名列表, 表头之后的行号)。
+
+    扫到第一行 `!` 之前，什么都可能出现在前面：`{|class=…`、行分隔 `|-`、
+    **section 标题 `=== メンバー ===`**（parse_wiki_members 按标题切完再传进来）。
+    所以只认「第一行 `!`」，不能拿 `{|`/`|-` 当终止条件 —— 我第一版那么写，
+    遇到 section 标题就再也到不了表头，width=0、解析出零人（红了 19 条才发现）。
+    """
+    i = 0
+    while i < len(lines) and not lines[i].startswith("!"):
+        i += 1
+    header = []
+    while i < len(lines) and lines[i].startswith("!"):
+        header.append(_header_name(lines[i].split("|", 1)[1] if "|" in lines[i] else lines[i]))
+        i += 1
+    return header, i
+
+
+def _read_blocks(lines, start):
+    """表头之后按 `|-` 切成数据块；`|}` 收尾。"""
+    blocks, cur = [], []
+    for line in lines[start:]:
+        if line.startswith("|-"):
+            if cur:
+                blocks.append(cur)
+            cur = []
+        elif line.startswith("|}"):
+            break
+        else:
+            cur.append(line)
+    if cur:
+        blocks.append(cur)
+    return blocks
+
+
+def split_rows(text, do_clean=True):
+    """把一张 wikitable 拆成「与表头等宽的行」，rowspan 向下填充。
+
+    这是早安与等爱最本质的差异：等爱可以按 `\\n|-` 盲切后逐块解析，早安不行 ——
+    `rowspan="2"` 会让某些行少两格，按位置取列就串位（实测把某人的出身地当成了姓名）。
+    """
+    DO_CLEAN[0] = do_clean
+    lines = text.split(NEWLINE)
+    header, i = _read_header(lines)
+    return _fill_rows(_read_blocks(lines, i), header)
+
+
+def _fill_rows(blocks, header):
+    """把切出来的块展开成与表头等宽的行，rowspan 向下填充。
+
+    早安表里「加入年月日」与「加入期」会横跨相邻两行，于是后一行少两格；
+    不填充就按位置取列，会把某人的出身地当成姓名（调研时真的取错过）。
+    """
+    width = len(header)
+    rows = []
+    carry = {}
+    for block in blocks:
+        cells = _row_cells(block)
+        out = {}
+        col = 0
+        ci = 0
+        while col < width:
+            if col in carry:
+                left, val = carry[col]
+                out[header[col]] = val
+                if left <= 1:
+                    del carry[col]
+                else:
+                    carry[col] = (left - 1, val)
+                col += 1
+                continue
+            if ci < len(cells):
+                span, raw = cells[ci]
+                ci += 1
+                val = clean(raw) if DO_CLEAN[0] else raw.strip()
+                if DO_CLEAN[0] and header[col] in COLUMN_NORM:
+                    val = COLUMN_NORM[header[col]](val)
+                out[header[col]] = val
+                if span > 1:
+                    carry[col] = (span - 1, val)
+                col += 1
+                continue
+            out[header[col]] = ""
+            col += 1
+        rows.append(out)
+    return rows
+
+
+def _date(text):
+    m = DATE_RE.search(text or "")
+    if not m:
+        return ""
+    return "{}.{}.{}".format(m.group(1), m.group(2).zfill(2), m.group(3).zfill(2))
+
+
+def _generation(text):
+    m = GEN_RE.search(text or "")
+    return "{}期生".format(m.group(1)) if m else ""
+
+
+# 表里这几列有固定语义，归一后 cell() 直接给投影值（日期一律 YYYY.MM.DD，
+# 期生一律「N期生」—— 原表里「{{Center|12期}}」与裸「1期」两种写法混用）
+COLUMN_NORM = {
+    "名前": first_line,
+    "生年月日（現年齢）": _date,
+    "生年月日": _date,
+    "加入年月日": _date,
+    "加入期": _generation,
+    "卒業・脱退日（発表日）卒業公演の開催地": _date,
+}
+
+
+def raw_row(text):
+    """与 split_rows 同构，但**不清洗**单元格 —— 给多行的昵称用。"""
+    return split_rows(text, do_clean=False)
+
+
+def cell(row, name):
+    return row.get(name, "")
+
+
+raw_cell = cell  # split_rows(clean=False) 时格本来就是原文，两者同义
+
+
+def _members_from_table(text, status):
+    """字段取**清洗后**的行（姓名/日期/期生都已归一），昵称取**原始行** ——
+    昵称要按 `<br />` 拆行，清洗过就看不出有几行了。
+    注意**不要在这里再归一一次**：格值已经是 YYYY.MM.DD / N期生，
+    再过一次 _date 会认不出（它的正则只认「1999年10月7日」这种原表形状）。"""
+    out = []
+    rows = split_rows(text)
+    raws = raw_row(text)
+    header_name = "名前"
+    for row, raw in zip(rows, raws):
+        name = row.get(header_name, "")
+        if not name:
+            continue
+        nick, aliases = parse_nick(raw.get("ニックネーム", ""), name=name)
+        out.append(
+            {
+                "name": name,
+                "kana": kana_of(raw.get(header_name, "")),
+                "nick": nick,
+                "nick_aliases": aliases,
+                "status": status,
+                "generation": row.get("加入期", ""),
+                # 键名要一字不差 —— 表头是「生年月日（現年齢）」（现年龄），
+                # 我曾写成「（年齢）」于是永远取不到值
+                "birth": row.get("生年月日（現年齢）", "")
+                or row.get("生年月日", ""),
+                "blood": row.get("血液型", ""),
+                "from": row.get("出身地", ""),
+                "end": row.get("卒業・脱退日（発表日）卒業公演の開催地", ""),
+            }
+        )
+    return out
+
+
+CURRENT_MARK = "=== メンバー ==="
+FORMER_MARK = "=== 過去のメンバー ==="
+
+
+def parse_wiki_members(wikitext):
+    """两表合成一份名单。状态来自「出现在哪张表里」——
+    早安官方对离开的说法分「卒業」与「脱退」，站内一律记 former（grilling R1-Q2），
+    所以「ハロプロへの在籍状況」那一列不参与状态判定。"""
+    ci = wikitext.find(CURRENT_MARK)
+    fi = wikitext.find(FORMER_MARK)
+    if ci < 0:
+        return []
+    if fi < 0:
+        fi = len(wikitext)
+    # 現在の表は 現在の表のセクション内；過去の表は 過去のメンバー配下の卒業表
+    cur_text = wikitext[ci:fi]
+    former_text = wikitext[fi:]
+    return _members_from_table(cur_text, "current") + _members_from_table(former_text, "former")
