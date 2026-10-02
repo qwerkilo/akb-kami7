@@ -1232,3 +1232,26 @@ test("session 认识的系列集合 = core.SERIES_KEYS（加系列不能只改 c
     );
   }
 });
+
+test("按系列的存档键覆盖每一个系列（工单 06）", () => {
+  // 既有那条只查「有某个 akb:state:v2:* 键」，而 PREF_KEYS.state 是按 id 生成的
+  // —— 加第四个系列时如果 id 拼错或漏了，那条守卫照样通过。这里逐个系列查。
+  const core = require("../core.js");
+  const storage = memoryStorage();
+  const S = make(storage);
+  // switchSeries 里的 remember() 只更新**内存** store，落盘靠 save()，
+  // 而 save() 由变更操作触发 —— 所以每个系列里都要真的选一个人，键才会出现。
+  const prefix = { "48g": "a", sakamichi: "s", love: "l", morning: "m" };
+  for (const id of Object.keys(core.SERIES_KEYS)) {
+    if (id !== S.snapshot().series) S.switchSeries(id);
+    assert.equal(S.toggleSelect(prefix[id] + "1"), true, `${id} 选不中成员`);
+  }
+  const keys = [...storage._map.keys()];
+  for (const id of Object.keys(core.SERIES_KEYS)) {
+    const want = core.PREF_KEYS.state(id);
+    assert.ok(
+      keys.includes(want),
+      `没有 ${id} 的存档键 ${want}；实际写了 ${keys.filter((k) => k.startsWith("akb:state"))}`
+    );
+  }
+});

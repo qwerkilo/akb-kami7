@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const core = require("../core.js");
 
 function loadGroups() {
   const src = fs.readFileSync(path.join(__dirname, "..", "members.js"), "utf8");
@@ -320,5 +321,68 @@ test("早安：一系列一团、18 期可筛、成员数落在区间", () => {
   // 毕业成员必须带毕业日（站内资料卡按它分组）
   for (const m of members.filter((x) => x.status !== "current")) {
     assert.match(m.end || "", /^\d{4}(\.\d{2}\.\d{2})?$/, `${m.name} 缺毕业日`);
+  }
+});
+
+function crossSeriesNameCollisions() {
+  const seen = new Map();
+  for (const sec of loadGroups()) {
+    for (const m of sec.members) {
+      const key = core.normalizeName(m.name);
+      if (!seen.has(key)) seen.set(key, []);
+      seen.get(key).push({ sec, m });
+    }
+  }
+  const out = [];
+  for (const [key, hits] of seen) {
+    if (hits.length < 2) continue;
+    const series = new Set(hits.map((h) => h.sec.series));
+    if (series.size < 2) continue; // 同一系列内多段（跨团兼任）不算
+    out.push({
+      key,
+      name: hits[0].m.name,
+      series: [...series].join("/"),
+      kanaCount: new Set(hits.map((h) => h.m.kana)).size,
+    });
+  }
+  return out;
+}
+
+test("现役成员不得跨系列重复；已知的同名不同人按名单放行（ADR-0021 的自动化兑现）", () => {
+  // ADR-0021 说「重叠」是本站**不会报错**的隐患：同一个人在两个系列里各有一份档案，
+  // 产物测试与源门都不会响。加这条守卫时它立刻抓到一对同名：
+  //   HKT48 的 音嶋莉沙（毕业） / =LOVE 的 音嶋莉沙（现役）—— 两个人，同名同假名读音。
+  // 所以判据是「**现役**不得跨系列重复」：一个现役同时出现在两个系列的现役名册里
+  // 一定是重复档案；而「某系列的毕业者」与「另一系列的现役」同名是现实，不是缺陷。
+  const KNOWN_DIFFERENT_PEOPLE = new Set(["音嶋莉沙"]);
+  const active = new Map();
+  const dupes = [];
+  for (const sec of loadGroups()) {
+    for (const m of sec.members) {
+      if (m.status !== "current") continue;
+      const key = core.normalizeName(m.name);
+      if (active.has(key))
+        dupes.push(`${m.name}（${active.get(key)} / ${sec.series}）`);
+      else active.set(key, sec.series);
+    }
+  }
+  assert.deepEqual(dupes, [], `现役跨系列重复：${dupes.join("、")}`);
+
+  // 同名的「不同人」要**显式**放行，且必须同假名读音 —— 否则它就是重复档案。
+  // 新增同名对时这条会红，逼人确认它是两个人而不是抓漏了。
+  const collisions = crossSeriesNameCollisions();
+  const unreviewed = collisions
+    .filter((x) => !KNOWN_DIFFERENT_PEOPLE.has(x.key))
+    .map((x) => `${x.name} 跨 ${x.series} 同名`);
+  assert.deepEqual(unreviewed, [], "跨系列同名未复核");
+  // 放行名单里的每一对都必须是「同假名读音的两个人」，不是重复档案。
+  // ⚠️ 这条**今天不会红**（数据里没有「同名但假名不同」的对）—— 它是**棘轮**，
+  // 对未来数据生效，不是当下的检查。别把它当「已验证」写进提交信息。
+  for (const x of collisions.filter((c) => KNOWN_DIFFERENT_PEOPLE.has(c.key))) {
+    assert.equal(
+      x.kanaCount,
+      1,
+      `${x.name} 在放行名单里但假名读音不同 —— 那就不是同一个人`
+    );
   }
 });

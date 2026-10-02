@@ -190,18 +190,18 @@ test("窄屏页头：系列 tab 的长短标签切换规则还在（删了就会
   );
 });
 
-test("窄屏页头：≤380px 有把系列 tab 另起一行的规则（更窄时不得切掉半个 tab）", () => {
-  const tiny = mediaBlock(380);
+test("窄屏页头：≤439px 有把系列 tab 另起一行的规则（更窄时不得切掉半个 tab）", () => {
+  const tiny = mediaBlock(439);
   // 选择器可能是列表（`.masthead,\n  .masthead-main {`），所以不能要求 .masthead 紧跟 {
   assert.match(
     tiny,
     /\.masthead\b[^{}]*\{[^}]*flex-wrap:\s*wrap/,
-    "≤380px 页头应允许换行"
+    "≤439px 页头应允许换行"
   );
   assert.match(
     tiny,
     /\.masthead-main \.seg-series\s*\{[^}]*flex:\s*1 0 100%/,
-    "≤380px 系列 tab 应独占一行"
+    "≤439px 系列 tab 应独占一行"
   );
 });
 
@@ -233,12 +233,12 @@ test("窄屏页头：离线胶囊缩成「更多」角上的点（84px 横向成
   );
 });
 
-test("≤380px：系列 tab 落到第二行，但品牌与「更多」留在第一行（display:contents 换行）", () => {
-  const tiny = mediaBlock(380);
+test("≤439px：系列 tab 落到第二行，但品牌与「更多」留在第一行（display:contents 换行）", () => {
+  const tiny = mediaBlock(439);
   assert.match(
     tiny,
     /\.masthead-main\s*\{[^}]*display:\s*contents/,
-    "≤380px 应让 main 的子元素直接参与 .masthead 排列（否则「更多」被挤到第三行、页头 66→164px）"
+    "≤439px 应让 main 的子元素直接参与 .masthead 排列（否则「更多」被挤到第三行、页头 66→164px）"
   );
   assert.match(
     tiny,
@@ -251,17 +251,17 @@ test("≤380px：系列 tab 落到第二行，但品牌与「更多」留在第�
   assert.match(
     tiny,
     /\.masthead-main\s*\{[^}]*display:\s*contents/,
-    "≤380px 应给 .masthead-main 写 display:contents（brand/tab/「更多」各自参与 .masthead 排列）"
+    "≤439px 应给 .masthead-main 写 display:contents（brand/tab/「更多」各自参与 .masthead 排列）"
   );
   assert.match(
     tiny,
     /\.masthead-main \.seg-series\s*\{[^}]*flex:\s*1 0 100%/,
-    "≤380px 系列 tab 应独占一行"
+    "≤439px 系列 tab 应独占一行"
   );
   assert.match(
     tiny,
     /\.steps button\s*\{[^}]*padding:\s*8px 6px/,
-    "≤380px 步骤条按钮内边距应收窄（英文第 3 步标签最长，360px 上会横向滚动）"
+    "≤439px 步骤条按钮内边距应收窄（英文第 3 步标签最长，360px 上会横向滚动）"
   );
   // 360px en：步骤条第 3 枚按钮右边缘 366 > 360 → 6px 横向滚动。断点取 340px 而非 320px
   // （差 6px 的不只是 320 那一档，321~340 同样放不下）。更窄则让步骤条自己横向滚动。
