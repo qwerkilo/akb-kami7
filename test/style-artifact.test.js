@@ -1083,3 +1083,97 @@ test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是�
     "三语都要有这个键（i18n 守卫另外查孤儿键与三语互异）"
   );
 });
+
+test("折叠段：类名前缀只从 sectionHTML 一处产出（架构扫描候选 6）", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  // sectionHTML 是唯一的模板：level 只决定前缀与 data 属性名
+  const tpl = /function sectionHTML\(o\) \{[\s\S]*?\n  \}/.exec(app);
+  assert.ok(tpl, "app.js 里要有 sectionHTML(o)");
+  for (const frag of [
+    'o.level === "grp" ? "grp" : "gen"',
+    'o.level === "grp" ? "group" : "sec"',
+  ]) {
+    assert.ok(tpl[0].includes(frag), `模板里要出现 ${frag}`);
+  }
+  // 扫仓根的**产品代码**（不是只 app.js，也不是 test/ —— 扫 test/ 会匹配到守卫
+  // 自己的字面量，扫全仓会匹配到测试里拼的字符串样例）
+  const root = path.join(__dirname, "..");
+  const outside = fs
+    .readdirSync(root)
+    .filter((f) => f.endsWith(".js"))
+    .filter((f) => {
+      const body = fs.readFileSync(path.join(root, f), "utf8");
+      return f !== "app.js" && /<section class="(gen|grp)/.test(body);
+    });
+  assert.equal(
+    outside.length,
+    0,
+    `这些产品文件里手写了折叠段形状：${outside.join("、")}`
+  );
+  const rest = app.replace(tpl[0], "");
+  // 只盯 <section class="gen|grp" 这个折叠段形状 —— 搜结果里那个 class="gen-body"
+  // 是当普通容器用的（不是折叠段），不能误伤（我第一版写成 class="gen 就误报了）。
+  for (const cls of ['<section class="gen', '<section class="grp']) {
+    assert.ok(
+      !rest.includes(cls),
+      `${cls} 在 sectionHTML 之外出现 —— 两层形状又各自写了一遍（候选 6 的原形状）`
+    );
+  }
+  // 两个 toggle 必须在同一个实现里
+  assert.ok(
+    /function toggleSection\(level, key, content\)/.test(app),
+    "要有 toggleSection(level, key, content)"
+  );
+  // 团体段的折叠键是 `g:<团名>` —— 渲染侧与折叠侧此前各写一遍字面量，
+  // 而两边不一致的后果是「点了没反应」（我重构时真的踩到：toggle 翻的是别的键）。
+  // ensureOpen() 直接调 S.toggleOpen 是合法的（自动展开首段，不翻 UI），所以
+  // 这里盯的是 `g:` 这个约定字符串的份数，不是 toggleOpen 的调用点。
+  assert.ok(
+    /function openKey\(level, key\)/.test(app),
+    "存储键的约定要有唯一出处 openKey()"
+  );
+  // 剥掉注释再数：守卫扫全文含注释是本仓踩过的坑（注释里带引号写键名会误伤），
+  // 而我上面那段解释「此前两处字面量」的注释里就正好有两个 `"g:" +`。
+  const appNoComment = app
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  const gLiterals = (appNoComment.match(/"g:"\s*\+/g) || []).length;
+  assert.equal(
+    gLiterals,
+    1,
+    `"g:" + 拼接出现 ${gLiterals} 次 —— 约定应该恰好只在 openKey 里一次：` +
+      `删掉它会让渲染侧与折叠侧用不同的键，点折叠没反应（实测过）`
+  );
+
+  // level 必须真的派生出类名前缀，而不是在某处写死一个
+  const tgl =
+    /function toggleSection\(level, key, content\) \{[\s\S]*?\n  \}/.exec(app);
+  assert.ok(tgl, "找不到 toggleSection()");
+  assert.ok(
+    /const c = level === "grp" \? "grp" : "gen";/.test(tgl[0]),
+    "toggleSection 必须按 level 派生类名前缀"
+  );
+  // 展开态必须来自参数，不是常量
+  assert.ok(
+    /const open = o\.open;/.test(tpl[0]),
+    "sectionHTML 的展开态必须来自 o.open"
+  );
+  // 「是不是嵌套的」必须真的读筛选状态
+  const nested = /function nested\(\) \{[\s\S]*?\n  \}/.exec(app);
+  assert.ok(nested, "找不到 nested()");
+  assert.ok(
+    /snap\.group === "all"/.test(nested[0]),
+    "nested() 必须读 snap.group —— 写死 true/false 就是把层级绑死在猜的上面"
+  );
+});
+
+test("折叠段：两层的段名同号（1px 差不是层级信号）", () => {
+  const css = fs.readFileSync(path.join(__dirname, "..", "style.css"), "utf8");
+  const block = /\.gen-name,\s*\n\.grp-name \{([^}]*)\}/.exec(css);
+  assert.ok(block, "两层段名要在同一个规则块里");
+  assert.equal(
+    (block[1].match(/\d+px/g) || []).length,
+    1,
+    `字号只能有一个（读到 ${block[1].trim()}）—— 此前是 16px / 17px 两处写死`
+  );
+});

@@ -577,11 +577,10 @@ main {
 .grp-head[aria-expanded="true"] .chev {
   transform: rotate(45deg);
 }
-.gen-name {
-  font: 900 16px/1.2 var(--font-jp);
-}
+/* 两层的段名同号 —— 原来 16px / 17px 是同一个老提交里顺手写的，1px 不成层级信号 */
+.gen-name,
 .grp-name {
-  font: 900 17px/1.2 var(--font-jp);
+  font: 900 16px/1.2 var(--font-jp);
 }
 .gen-count,
 .grp-count {

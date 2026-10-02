@@ -242,19 +242,64 @@
 
   let secSeq = 0;
 
-  function sectionHTML(sec) {
-    const secUid = `gen-${++secSeq}`;
-    const open = snap.open.includes(sec.id);
-    const sub = snap.group === "all" ? " sub" : "";
-    return `<section class="gen${sub}" data-sec="${esc(sec.id)}">
-      <button class="gen-head" aria-expanded="${open}" aria-controls="${secUid}">
+  // 「这一层是不是嵌套的」：没选定具体团体时，期生段挂在团体段下面。
+  // 原来这个判据藏在 sectionHTML 里读 snap.group，现在提到调用处显式传。
+  function nested() {
+    return snap.group === "all";
+  }
+
+  // 一个折叠段。level 只决定类名前缀与 data 属性名，其余形状两级完全一样 ——
+  // 之前这是四套实现（两个渲染器 + 两个 toggle + 两个徽章循环）。
+  // `sub` 由渲染的地方显式给出（顶层团体里的期生段是嵌套的），不再从筛选状态反推。
+  function sectionHTML(o) {
+    const open = o.open;
+    return `<section class="${o.level === "grp" ? "grp" : "gen"}${o.sub ? " sub" : ""}" data-${
+      o.level === "grp" ? "group" : "sec"
+    }="${esc(o.id)}">
+      <button class="${o.level === "grp" ? "grp" : "gen"}-head" aria-expanded="${open}" aria-controls="${o.uid}">
         <i class="chev" aria-hidden="true"></i>
-        <span class="gen-name">${esc(sec.label)}</span>
-        <span class="gen-count">${countText(sec)}</span>
-        <span class="gen-picked">${sec.picked ? t("picked", sec.picked) : ""}</span>
+        <span class="${o.level === "grp" ? "grp" : "gen"}-name">${esc(o.label)}</span>
+        <span class="${o.level === "grp" ? "grp" : "gen"}-count">${countText(o.node)}</span>
+        <span class="${o.level === "grp" ? "grp" : "gen"}-picked">${o.picked ? t("picked", o.picked) : ""}</span>
       </button>
-      <div class="gen-body" id="${secUid}" ${open ? "" : "hidden"}>${open ? sec.members.map((m, k) => cardHTML(m, false, k)).join("") : ""}</div>
+      <div class="${o.level === "grp" ? "grp" : "gen"}-body" id="${o.uid}" ${open ? "" : "hidden"}>${o.body}</div>
     </section>`;
+  }
+
+  // 期生段：一张可折叠的卡片列表
+  function genSectionHTML(sec, sub) {
+    const open = snap.open.includes(sec.id);
+    return sectionHTML({
+      level: "gen",
+      sub,
+      id: sec.id,
+      uid: `gen-${++secSeq}`,
+      label: sec.label,
+      picked: sec.picked,
+      node: sec,
+      open,
+      body: open
+        ? sec.members.map((m, k) => cardHTML(m, false, k)).join("")
+        : "",
+    });
+  }
+
+  // 团体段：body 是它下面的期生段
+  function grpSectionHTML(node) {
+    const open = snap.open.includes(openKey("grp", node.group));
+    const body = open
+      ? node.sections.map((s) => genSectionHTML(s, nested())).join("")
+      : "";
+    return sectionHTML({
+      level: "grp",
+      id: node.group,
+      uid: "grp-" + esc(node.group),
+      label: node.group,
+      picked: node.picked,
+      node,
+      open,
+      body,
+    });
   }
 
   function viewSection(id) {
@@ -280,21 +325,15 @@
     const twoLevel = view.mode === "tree";
     const html = [];
     for (const node of view.nodes) {
-      const body = node.sections.map(sectionHTML).join("");
-      if (!twoLevel) {
-        html.push(body);
+      if (twoLevel) {
+        // 两级：团体段是顶层，它下面的期生段是嵌套的
+        html.push(grpSectionHTML(node));
         continue;
       }
-      const open = snap.open.includes(node.id);
-      html.push(`<section class="grp" data-group="${esc(node.group)}">
-        <button class="grp-head" aria-expanded="${open}" aria-controls="grp-${esc(node.group)}">
-          <i class="chev" aria-hidden="true"></i>
-          <span class="grp-name">${esc(node.group)}</span>
-          <span class="grp-count">${countText(node)}</span>
-          <span class="grp-picked">${node.picked ? t("picked", node.picked) : ""}</span>
-        </button>
-        <div class="grp-body" id="grp-${esc(node.group)}" ${open ? "" : "hidden"}>${open ? body : ""}</div>
-      </section>`);
+      // 只有一层（选定了某个团体，或搜结果之外的状态）：期生段直接铺在名册里
+      html.push(
+        node.sections.map((sec) => genSectionHTML(sec, nested())).join("")
+      );
     }
     roster.innerHTML =
       html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
@@ -330,52 +369,55 @@
     rosterEntered();
   }
 
-  function toggleGroup(secId) {
-    const sec = [...roster.querySelectorAll(".gen")].find(
-      (el) => el.dataset.sec === secId
+  // 折叠/展开一个段。两级同一个算法：定位 → 取内容 → 切 hidden → 写 aria-expanded。
+  // 折叠态的存储键：团体段记在 `g:<团名>` 下，期生段记在段 id 下 —— 与
+  // grpSectionHTML / genSectionHTML 里读 snap.open 用的是同一个约定（合成一处前，
+  // toggleGroupNode 用的 `"g:" + name` 与渲染侧的 "g:" + node.group 是两处字面量）。
+  function openKey(level, key) {
+    return level === "grp" ? "g:" + key : key;
+  }
+
+  function toggleSection(level, key, content) {
+    const sec = roster.querySelector(
+      level === "grp" ? `.grp[data-group="${key}"]` : `.gen[data-sec="${key}"]`
     );
     if (!sec) return;
-    const head = sec.querySelector(".gen-head");
-    const body = sec.querySelector(".gen-body");
-    const open = S.toggleOpen(secId);
+    const c = level === "grp" ? "grp" : "gen";
+    const head = sec.querySelector(`.${c}-head`);
+    const body = sec.querySelector(`.${c}-body`);
+    const open = S.toggleOpen(openKey(level, key));
     if (open) {
+      body.innerHTML = content();
+      body.hidden = false;
+    } else {
+      body.hidden = true;
+      body.innerHTML = "";
+    }
+    head.setAttribute("aria-expanded", open);
+    // 原来这里还有一段「折叠后把视口滚回该段」的补偿。它是**死代码**：
+    // #phase-pick 是 min-height 而非固定高，名册容器随内容长高，
+    // `.roster` 的 overflow-y:auto 永远不触发（实测 scrollHeight === clientHeight、
+    // scrollTop 恒 0），所以两层都没生效过 —— grill 时我把它当成「团体层缺补偿」
+    // 是错的。真要滚回该 scrollIntoView 或滚 window，不是 scrollTop。
+  }
+
+  function toggleGroup(secId) {
+    toggleSection("gen", secId, () =>
       // 显式包一层：把 cardHTML 直接交给 .map 会把 (element, index, array) 三个
       // 参数全传进去，第三参 i 收到的是**数组** → Math.min(array, 8) = NaN →
       // `--i: NaN` 是已定义的自定义属性，var(--i, 0) 的兜底不生效 →
       // calc(NaN * 18ms) 整条失效，animation-delay 静默回退 initial，且无报错。
-      body.innerHTML = (viewSection(secId)?.members || [])
-        .map((m) => cardHTML(m))
-        .join("");
-      body.hidden = false;
-    } else {
-      body.hidden = true;
-      body.innerHTML = "";
-    }
-    head.setAttribute("aria-expanded", open);
-    if (
-      !open &&
-      head.getBoundingClientRect().top < roster.getBoundingClientRect().top
-    ) {
-      roster.scrollTop = sec.offsetTop;
-    }
+      (viewSection(secId)?.members || []).map((m) => cardHTML(m)).join("")
+    );
   }
 
   function toggleGroupNode(name) {
-    const sec = roster.querySelector(`.grp[data-group="${name}"]`);
-    if (!sec) return;
-    const head = sec.querySelector(".grp-head");
-    const body = sec.querySelector(".grp-body");
-    const key = "g:" + name;
-    const open = S.toggleOpen(key);
-    if (open) {
+    toggleSection("grp", name, () => {
       const node = rosterView().nodes.find((n) => n.group === name);
-      body.innerHTML = node ? node.sections.map(sectionHTML).join("") : "";
-      body.hidden = false;
-    } else {
-      body.hidden = true;
-      body.innerHTML = "";
-    }
-    head.setAttribute("aria-expanded", open);
+      return node
+        ? node.sections.map((s) => genSectionHTML(s, nested())).join("")
+        : "";
+    });
   }
 
   function toggleMember(id) {
@@ -405,14 +447,18 @@
       grpPicked.set(node.group, node.picked);
       for (const sec of node.sections) secPicked.set(sec.id, sec.picked);
     }
-    roster.querySelectorAll(".gen").forEach((sec) => {
-      const n = secPicked.get(sec.dataset.sec) || 0;
-      sec.querySelector(".gen-picked").textContent = n ? t("picked", n) : "";
-    });
-    roster.querySelectorAll(".grp").forEach((sec) => {
-      const n = grpPicked.get(sec.dataset.group) || 0;
-      sec.querySelector(".grp-picked").textContent = n ? t("picked", n) : "";
-    });
+    for (const [level, picked] of [
+      ["gen", secPicked],
+      ["grp", grpPicked],
+    ]) {
+      const key = level === "grp" ? "group" : "sec";
+      roster.querySelectorAll(`.${level}`).forEach((sec) => {
+        const n = picked.get(sec.dataset[key]) || 0;
+        sec.querySelector(`.${level}-picked`).textContent = n
+          ? t("picked", n)
+          : "";
+      });
+    }
     roster.classList.toggle("full", snap.selected.length >= pick);
     renderTray();
     renderSteps();
