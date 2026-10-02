@@ -499,12 +499,19 @@ def read_baseline(root):
         if not isinstance(sections, list):
             raise ValueError("segments is not a list")
         counts = {}
+        love_counts = {}
         for sec in sections:
             if not isinstance(sec, dict) or not isinstance(sec.get("members"), list):
                 raise ValueError("section is not a dict with a members list")
             group = sec["group"]
+            # 等爱三团**不在** GROUP_ORDER 里（那是 48G/坂道的抓取清单），但基线必须
+            # 读它们 —— 否则「团消失」「腰斩」两条判据对等爱恒假，而等爱抓到 0 人时
+            # love_members 只 print 一行、build_sections 把空团静默丢掉、prune_unused
+            # 照删图片，脚本 exit 0（整组从站点上消失）。
             if group in GROUP_ORDER:
                 counts[group] = counts.get(group, 0) + len(sec["members"])
+            else:
+                love_counts[group] = love_counts.get(group, 0) + len(sec["members"])
         if not counts:
             # 解析成功但一个 GROUP_ORDER 团体都没认出来（例如产物只剩等爱分段）：
             # 当成「读不到基线」处理，否则 total:0 会让门静默失效又不出声
@@ -512,7 +519,13 @@ def read_baseline(root):
     except (OSError, ValueError, KeyError, TypeError, IndexError) as e:
         print(f"读不到 {path} 的基线名册（{type(e).__name__}）——本次不校验名册规模")
         return None
-    return {"counts": counts, "groups": set(counts), "total": sum(counts.values())}
+    return {
+        "counts": counts,
+        # 等爱走逐团规则（它们人少，「总数跌 60%」对它们没有意义）
+        "love_counts": love_counts,
+        "groups": set(counts) | set(love_counts),
+        "total": sum(counts.values()),
+    }
 
 
 # 名册规模相对基线跌到这个比例就停：上游整页失败/格式变动都会落到这里，
@@ -542,7 +555,10 @@ def roster_problems(new_members, baseline):
     gone = sorted(baseline["groups"] - set(counts))
     if gone:
         problems.append("这些团体这次一个成员都没解析到：" + "、".join(gone))
-    for g, n0 in sorted(baseline["counts"].items()):
+    # 逐团下限对 48G/坂道与等爱一视同仁 —— 判据与「抓什么」无关，才不会漏掉新来源
+    for g, n0 in sorted(
+        list(baseline["counts"].items()) + list(baseline.get("love_counts", {}).items())
+    ):
         n1 = counts.get(g, 0)
         if n1 < n0 * ROSTER_GROUP_LIMIT:
             problems.append(f"{g} 从 {n0} 人掉到 {n1} 人（低于基线的一半）")

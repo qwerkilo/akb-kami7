@@ -581,6 +581,60 @@ class RosterGateTests(unittest.TestCase):
         # 必须盯「团体消失」那句本身：逐团下限的消息里也有团名，只 any(团名) 会被它满足
         self.assertTrue(any("一个成员都没解析到" in p for p in problems), problems)
 
+    def test_love_groups_are_covered_too(self):
+        """等爱三团也在门的范围内（架构扫描候选 3）。
+
+        以前 read_baseline 用 `if group in GROUP_ORDER` 过滤，而等爱不在 GROUP_ORDER 里
+        → 基线里根本没有等爱 → 「团消失」「腰斩」两条判据对等爱恒假。而等爱唯一的门
+        是 try/except，只挡「抛异常」：抓到 0 人时 love_members 只 print 一行，
+        build_sections 把空团静默丢掉，prune_unused 照删图片，脚本 exit 0。
+        """
+        base = self._baseline(["AKB48", "SKE48"], 200)
+        base["love_counts"] = {"=LOVE": 30, "≠ME": 20, "≒JOY": 10}
+        # groups 是并集（与 read_baseline 的真实形状一致）—— 我第一版只加 love_counts
+        # 而没加 groups，于是「团消失」那条判据在测试里不响，看起来像门没生效
+        base["groups"] = base["groups"] | set(base["love_counts"])
+
+        # ① 等爱三团这次一个成员都没解析到 → 必须报，哪怕 48G/坂道 完全健康
+        members = self._members({"AKB48": 100, "SKE48": 100})
+        problems = fetch_members.roster_problems(members, base)
+        self.assertTrue(
+            any("=LOVE" in p and "一个成员都没解析到" in p for p in problems),
+            problems,
+        )
+        # ② 等爱某团腰斩 → 逐团下限也要管到等爱
+        half = self._members({"AKB48": 100, "SKE48": 100, "=LOVE": 5})
+        problems = fetch_members.roster_problems(half, base)
+        self.assertTrue(any("=LOVE" in p and "一半" in p for p in problems), problems)
+        # ③ 等爱健康时不该多报（总分判据仍只看 48G/坂道）
+        ok = self._members(
+            {"AKB48": 100, "SKE48": 100, "=LOVE": 30, "≠ME": 20, "≒JOY": 10}
+        )
+        self.assertEqual(fetch_members.roster_problems(ok, base), [])
+
+    def test_read_baseline_keeps_love_sections(self):
+        """read_baseline 必须把等爱分段也读进来（否则上面的判据无从比对）。"""
+        import json
+        import tempfile
+
+        sections = [
+            {"group": "AKB48", "members": [{"n": 1}] * 60},
+            {"group": "SKE48", "members": [{"n": 1}] * 40},
+            {"group": "=LOVE", "members": [{"n": 1}] * 30},
+            {"group": "≠ME", "members": [{"n": 1}] * 20},
+            {"group": "≒JOY", "members": [{"n": 1}] * 10},
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            # read_baseline 收的是**目录**（它自己拼 members.js）—— 我第一版传了整个
+            # 路径，于是变成 dir/members.js/members.js → NotADirectoryError → 返回 None
+            with open(td + "/members.js", "w", encoding="utf-8") as fh:
+                fh.write("window.AKB_GROUPS = " + json.dumps(sections) + ";\n")
+            base = fetch_members.read_baseline(td)
+        self.assertEqual(base["counts"], {"AKB48": 60, "SKE48": 40})
+        self.assertEqual(base["love_counts"], {"=LOVE": 30, "≠ME": 20, "≒JOY": 10})
+        # 总分判据仍只算 48G/坂道（等爱人少，走逐团规则）
+        self.assertEqual(base["total"], 100)
+
     def test_halved_group_is_a_problem(self):
         # 基线每团 100 人：AKB48 掉到 40（低于一半）→ 该团被点名，总数判据不响
         base = self._baseline(["AKB48", "SKE48"], 200)
@@ -621,7 +675,10 @@ class ReadBaselineTests(unittest.TestCase):
         with open(os.path.join(td, "members.js"), "w", encoding="utf-8") as fh:
             fh.write("window.AKB_GROUPS = " + body + ";\n")
 
-    def test_ignores_love_sections(self):
+    def test_love_sections_go_to_their_own_bucket(self):
+        # 这条测试原来叫 test_ignores_love_sections，断言「等爱分段被完全忽略」——
+        # 那正是候选 3 的缺陷：基线里没有等爱，于是「团消失」「腰斩」对等爱恒假。
+        # 现在等爱进 love_counts，总分判据仍只看 48G/坂道。
         with tempfile.TemporaryDirectory() as td:
             self._write(
                 td,
@@ -635,7 +692,9 @@ class ReadBaselineTests(unittest.TestCase):
             )
             base = fetch_members.read_baseline(td)
             self.assertEqual(base["total"], 2)
-            self.assertEqual(base["groups"], {"AKB48"})
+            self.assertEqual(base["love_counts"], {"=LOVE": 1, "≒JOY": 3})
+            # 「团消失」要看得见等爱，所以 groups 是并集；总分仍只算 48G/坂道
+            self.assertEqual(base["groups"], {"AKB48", "=LOVE", "≒JOY"})
 
     def test_sums_multiple_sections_of_one_group(self):
         with tempfile.TemporaryDirectory() as td:
