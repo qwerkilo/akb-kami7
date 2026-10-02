@@ -14,7 +14,11 @@
 """
 import re
 
+import photo_chain
+import roster
+
 SERIES = "morning"
+FILE_PREFIX = "morningmusume"
 GROUP = "モーニング娘。"
 WIKI_PAGE = "モーニング娘。"
 
@@ -367,3 +371,244 @@ def parse_wiki_members(wikitext):
     cur_text = wikitext[ci:fi]
     former_text = wikitext[fi:]
     return _members_from_table(cur_text, "current") + _members_from_table(former_text, "former")
+
+
+# ── 官网解析（工单 03）───────────────────────────────────────────────────
+
+OFFICIAL_BASE = "https://helloproject.com/morningmusume/"
+LIST_PATH = "/morningmusume/"
+
+# 详情页的 `<dl><dt>字段名</dt><dd>值</dd></dl>` → 站内 bio 的键。
+# 早安的官网**没有**身長与星座（两个源都没有，见 grilling R1-Q4），所以不留空键；
+# 「座右の銘」「アンバサダー」「資格」「好きな音楽ジャンル」站内也没有对应字段 ——
+# 带进 bio 只会变成没人消费的数据。
+DETAIL_MAP = {
+    "ニックネーム": "nick_raw",
+    "生年月日": "birth",
+    "血液型": "blood",
+    "出身地": "from",
+    "趣味": "hobby",
+    "特技": "skill",
+}
+
+_PANEL = re.compile(
+    r'<div class="MemberPanel">.*?href="([^"]+)"[^>]*>.*?'
+    r'<img src="([^"]+)"[^>]*>.*?'
+    r'<div class="MemberPanel__nameJa[^"]*">([^<]+)</div>'
+    r'(?:<div class="MemberPanel__nameEn[^"]*">([^<]*)</div>)?',
+    re.S,
+)
+_ROLE = re.compile(r'<div class="MemberPanel__role">([^<]*)</div>')
+_DT_DD = re.compile(r"<dt[^>]*>\s*([^<]+?)\s*</dt>\s*<dd[^>]*>(.*?)</dd>", re.S)
+_TAG = re.compile(r"<[^>]+>")
+
+
+def parse_list(html):
+    """官网列表页 → [{path, photo, name, name_en, role}]。
+
+    照片 URL 是内容哈希（`/upload/images/<sha256>.webp`），**不含姓名信息**，
+    所以只能靠「同一个 panel 内 img 与姓名相邻」配对，不能靠 URL 反查。
+    """
+    out = []
+    for m in _PANEL.finditer(html):
+        path, photo, name, name_en = m.group(1), m.group(2), m.group(3), m.group(4) or ""
+        # role 在姓名之前出现，单独在 panel 范围内找
+        panel = html[m.start() : m.end()]
+        role = _ROLE.search(panel)
+        out.append(
+            {
+                "path": path,
+                "photo": photo,
+                "name": name.strip(),
+                "name_en": name_en.strip(),
+                "role": role.group(1).strip() if role else "",
+            }
+        )
+    return out
+
+
+def parse_detail(html):
+    """官网详情页 → {站内键: 值}。只保留 DETAIL_MAP 里的字段。"""
+    out = {}
+    for label, value in _DT_DD.findall(html):
+        key = DETAIL_MAP.get(_TAG.sub("", label).strip())
+        if not key:
+            continue
+        out[key] = _TAG.sub("", value).strip()
+    if "birth" in out:
+        out["birth"] = _date(out["birth"])
+    return out
+
+
+def _nick_split(raw):
+    """官网把多个昵称写成顿号分隔（`ちぇる、のなちゃん`），
+    Wikipedia 写成 `<br />` 分行 —— 两种都收敛成「显示第一个 + 其余进别名」。"""
+    if not raw:
+        return "", []
+    parts = [p.strip() for p in re.split(r"[、,，]", raw) if p.strip()]
+    if not parts:
+        return "", []
+    return parts[0], parts[1:]
+
+
+# ── 装配（工单 03）───────────────────────────────────────────────────────
+
+def norm_name(name):
+    """姓名归一：去掉空白与括号注记，让「野中 美希」与「野中美希」认成同一人。"""
+    return re.sub(r"[\s　（）()]+", "", name or "")
+
+
+def build_bio(detail, wiki_row):
+    """bio 由官网详情页给，Wikipedia 只补官网没有的（期生不进 bio，它是筛选字段）。"""
+    bio = {}
+    for key in ("birth", "blood", "from", "hobby", "skill"):
+        if detail.get(key):
+            bio[key] = detail[key]
+    if wiki_row.get("birth") and not bio.get("birth"):
+        bio["birth"] = wiki_row["birth"]
+    return bio
+
+
+def _pick_nick(detail, w):
+    """昵称取舍：官网优先，都没有就空。
+
+    官网写顿号分隔（`ちぇる、のなちゃん`），Wikipedia 写 `<br />` 分行 ——
+    两种都收敛成「显示第一个 + 其余进别名」（grilling R1-Q3）。Wikipedia 那边
+    已经拆好，直接用。
+    """
+    nick, aliases = _nick_split(detail.get("nick_raw") or "")
+    if nick:
+        return nick, aliases
+    return w.get("nick") or "", list(w.get("nick_aliases") or [])
+
+
+def _base_record(name, w, nick, nick_aliases):
+    """必在的字段。期生与状态只来自 Wikipedia（官网没有这两项）。"""
+    return {
+        "name": name,
+        "kana": w.get("kana") or "",
+        "nick": nick,
+        "nick_aliases": nick_aliases,
+        "status": w.get("status") or "current",
+        "group": GROUP,
+        "series": SERIES,
+        "generation": w.get("generation") or "",
+        "file": "{}:{}:{}".format(FILE_PREFIX, GROUP, name),
+    }
+
+
+def _optional_fields(detail, w):
+    """毕业日与 bio —— 有才带（站里 `if (value)` 才入行，缺就是少一行）。"""
+    extra = {}
+    if w.get("end"):
+        extra["end"] = w["end"]
+    bio = build_bio(detail, w)
+    if bio:
+        extra["bio"] = bio
+    return extra
+
+
+def _merge_one(item, w):
+    """合并一个人的两个来源，成一条记录。
+
+    官网给昵称/资料/照片，Wikipedia 给期生与毕业状态 —— 谁都有对方没有的东西：
+    官网**只有现役**，Wikipedia 才有毕业者；反过来 Wikipedia 的表若还没更新，
+    新人只在官网上。
+    """
+    name = item.get("name") or w.get("name") or ""
+    if not name:
+        return None, None
+    detail = item.get("detail") or {}
+    nick, nick_aliases = _pick_nick(detail, w)
+    rec = _base_record(name, w, nick, nick_aliases)
+    rec.update(_optional_fields(detail, w))
+    photo = item.get("photo")
+    url = OFFICIAL_BASE.rstrip("/") + photo if photo else ""
+    return rec, url
+
+
+def build_members(official, wiki):
+    """official: {姓名: parse_list 项（含 detail）}；wiki: parse_wiki_members 的结果。
+    返回 (members, urls) —— 照片放在 urls 里按 file 键索引，与 love_members 同契约
+    （fetch_members 靠 urls 下载，不要发明第二个形状）。
+
+    两源按姓名归一后合并，任一侧独有的都要留下。
+    """
+    by_name = {norm_name(k): v for k, v in official.items()}
+    wiki_by_norm = {norm_name(m["name"]): m for m in wiki}
+    members, urls = [], {}
+    for key in dict.fromkeys([*by_name.keys(), *wiki_by_norm.keys()]):
+        rec, url = _merge_one(by_name.get(key) or {}, wiki_by_norm.get(key) or {})
+        if not rec:
+            continue
+        members.append(rec)
+        if url:
+            urls[rec["file"]] = url
+    return members, urls
+
+
+def resolve_former_photos(members, urls, fetch, warn=print):
+    """毕业成员的头像。**早安这里与等爱不同**：等爱能从旧列表页快照里配出「姓名 → 照片」，
+    早安**不能** —— 实测 2023-01-08 的旧列表页快照里，`img/artist/s/<sha1>.jpg` 那批图
+    是 ameblo 的**博客缩略图**，`#artist_photo` 那一批是**专辑封面**，页面上**没有**
+    逐成员的照（子代理给的「旧列表页提取」这条路对本快照不成立）。
+
+    所以链只有两节：Wikipedia Commons → （若已知照片 URL）Wayback 取图。
+    取不到就 warn —— 站里会显示占位卡，但没人知道是谁缺了。
+
+    ⚠️ 这意味着毕业成员的照片覆盖率**大概率不高**，缺口集中在 1~5 期。
+    真正的缺口名单要等工单 04 的真实抓取（见 spec 的验收）。
+    """
+    for m in members:
+        if m["status"] != "former" or m["file"] in urls:
+            continue
+        resolved = photo_chain.commons_photo(m["name"], fetch)
+        if not resolved and m.get("photo_url"):
+            resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
+        if resolved:
+            urls[m["file"]] = resolved
+        else:
+            # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
+            # 只有连站内文件都没有的才真的显示占位。
+            warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
+    return members, urls
+
+
+def build_sections(members):
+    """早安是**一系列一团**，且期生有 18 期 —— 所以不分组，段 label 用团名本身；
+    期生留在成员记录上（等爱只有一期，才把 GENERATION 塞进段）。"""
+    if not members:
+        return []
+    return [roster.section(GROUP, SERIES, GROUP, members)]
+
+
+def load(fetch, warn=print):
+    """抓官网列表 + 每人详情 + Wikipedia 两表 + 毕业照片。返回 (members, urls)。"""
+    listing = parse_list(fetch(OFFICIAL_BASE + LIST_PATH))
+    official = {}
+    for item in listing:
+        detail = parse_detail(fetch(OFFICIAL_BASE + item["path"].lstrip("/")))
+        merged = dict(item)
+        merged["detail"] = detail
+        official[item["name"]] = merged
+    print("モーニング娘。: {} 人（官网）".format(len(official)))
+    text = wiki_wikitext(WIKI_PAGE, fetch)
+    wiki = parse_wiki_members(text)
+    print("モーニング娘。: {} 人（Wikipedia）".format(len(wiki)))
+    members, urls = build_members(official, wiki)
+    resolve_former_photos(members, urls, fetch, warn)
+    return members, urls
+
+
+def wiki_wikitext(title, fetch):
+    import json
+    import urllib.parse
+
+    query = photo_chain.WIKI_API + "?" + urllib.parse.urlencode(
+        {"action": "parse", "page": title, "prop": "wikitext", "format": "json"}
+    )
+    try:
+        data = json.loads(fetch(query))
+    except Exception:
+        return ""
+    return ((data.get("parse") or {}).get("wikitext") or "")

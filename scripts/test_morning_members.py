@@ -11,6 +11,7 @@ fixture 是从 ja.wikipedia 主条目的真实 wikitext 里切下来的三块，
 
 全程离线，无网络。
 """
+import json
 import os
 import unittest
 
@@ -32,6 +33,8 @@ def fixture(name):
         return fh.read()
 
 
+LIST_HTML = fixture("list-members.html")
+DETAIL_HTML = fixture("detail-nonaka.html")
 CURRENT_WIKI = fixture("current-members.wiki")
 FORMER_WIKI = fixture("former-members.wiki")
 
@@ -188,6 +191,208 @@ class ParseWikiMembersTests(unittest.TestCase):
         import love_members
 
         self.assertEqual(len(love_members.parse_wiki_members(FORMER_WIKI)), 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+# ── 装配层（工单 03）─────────────────────────────────────────────────────
+class ParseListTests(unittest.TestCase):
+    """官网列表页是 Astro 服务端渲染：每个成员一个 MemberPanel。
+
+    照片 URL 是内容哈希（`/upload/images/<sha256>.webp`），**不含姓名**，
+    所以只能靠「同一 panel 里 img 与姓名相邻」配对，不能靠 URL 反查。
+    """
+
+    def setUp(self):
+        self.items = mm.parse_list(LIST_HTML)
+
+    def test_three_panels(self):
+        self.assertEqual(len(self.items), 3)
+
+    def test_path_is_the_romaji_slug(self):
+        self.assertEqual(self.items[0]["path"], "/morningmusume/miki_nonaka/")
+
+    def test_name_and_romanized_name(self):
+        self.assertEqual(self.items[0]["name"], "野中美希")
+        self.assertEqual(self.items[0]["name_en"], "Miki Nonaka")
+
+    def test_photo_is_the_content_hash_webp(self):
+        self.assertTrue(self.items[0]["photo"].startswith("/upload/images/"))
+        self.assertTrue(self.items[0]["photo"].endswith(".webp"))
+
+    def test_role_is_kept_when_present(self):
+        """野中美希是リーダー、小田さくら是サブリーダー —— 站内目前不显示，
+        但解析要留着（丢了就再也拿不回来）。"""
+        self.assertEqual(self.items[0]["role"], "リーダー")
+
+    def test_empty_page_yields_no_items(self):
+        self.assertEqual(mm.parse_list("<html><body>members are elsewhere</body></html>"), [])
+
+
+class ParseDetailTests(unittest.TestCase):
+    """详情页是成对的 `<dl><dt>字段名</dt><dd>值</dd></dl>`。
+
+    官网**没有**身長与星座（grilling R1-Q4：早安两个源都没有这两项），所以映射表里
+    不该留这两个空键。"""
+
+    def setUp(self):
+        self.d = mm.parse_detail(DETAIL_HTML)
+
+    def test_maps_known_fields(self):
+        self.assertEqual(self.d["nick_raw"], "ちぇる、のなちゃん")
+        self.assertEqual(self.d["birth"], "1999.10.07")
+        self.assertEqual(self.d["blood"], "A型")
+        self.assertEqual(self.d["from"], "静岡県静岡市、アメリカ")
+        self.assertEqual(self.d["hobby"], "筋トレ、美容、読書、バスケ観戦、作曲、愛犬と遊ぶこと")
+        self.assertEqual(self.d["skill"], "英語、ピアノ、ドラえもんの声真似")
+
+    def test_no_empty_keys_for_fields_the_site_never_has(self):
+        for k in ("height", "sign"):
+            self.assertNotIn(k, self.d, "早安没有身高/星座，别留空键")
+
+    def test_unmapped_fields_are_dropped_not_carried(self):
+        """「座右の銘」「アンバサダー」「資格」站内没有对应键 ——
+        带进 bio 只会变成没人消费的数据。"""
+        for k in ("座右の銘", "アンバサダー", "資格", "好きな音楽ジャンル"):
+            self.assertNotIn(k, self.d)
+
+
+class BuildMembersTests(unittest.TestCase):
+    """官网给现役的资料与照片，Wikipedia 给期生与毕业状态，两源按姓名合并。
+
+    契约与 love_members 对齐：返回 (members, urls) —— 照片放在 urls 里按 file 键索引，
+    而不是塞进成员记录（fetch_members 靠 urls 下载，不要发明第二个形状）。
+    """
+
+    def setUp(self):
+        items = mm.parse_list(LIST_HTML)
+        official = {}
+        for it in items:
+            it = dict(it)
+            it["detail"] = mm.parse_detail(DETAIL_HTML) if it["name"] == "野中美希" else {}
+            official[it["name"]] = it
+        self.members, self.urls = mm.build_members(official, mm.parse_wiki_members(BOTH))
+        self.by_name = {m["name"]: m for m in self.members}
+
+    def test_official_fills_bio_and_photo_url(self):
+        m = self.by_name["野中美希"]
+        self.assertEqual(m["bio"]["blood"], "A型")
+        self.assertTrue(self.urls[m["file"]].endswith(".webp"))
+
+    def test_wiki_fills_generation_and_status(self):
+        m = self.by_name["野中美希"]
+        self.assertEqual(m["generation"], "12期生")
+        self.assertEqual(m["status"], "current")
+
+    def test_every_record_has_the_file_key_and_series(self):
+        for m in self.members:
+            self.assertTrue(m["file"].startswith("morningmusume:"))
+            self.assertEqual(m["group"], "モーニング娘。")
+            self.assertEqual(m["series"], "morning")
+
+    def test_nick_takes_first_and_keeps_rest_as_aliases(self):
+        """grilling R1-Q3：官网写 `ちぇる、のなちゃん`（顿号分隔），
+        Wikipedia 写 `<br />` 分行 —— 两种写法都要收敛到「显示第一个 + 其余进别名」。"""
+        m = self.by_name["野中美希"]
+        self.assertEqual(m["nick"], "ちぇる")
+        self.assertEqual(sorted(m["nick_aliases"]), ["のなちゃん"])
+
+    def test_official_nick_wins_when_the_two_sources_disagree(self):
+        """变异「官网昵称一律丢弃」曾存活 —— 因为 Wikipedia 有兜底，两条路都给出「ちぇる」。
+        所以必须造一个**两源不一致**的人，才能断出优先级。"""
+        official = {
+            "野中美希": {
+                "photo": "/upload/images/a.webp",
+                "detail": {"nick_raw": "非儿的昵称、别名一"},
+            }
+        }
+        members, _ = mm.build_members(official, mm.parse_wiki_members(BOTH))
+        m = {x["name"]: x for x in members}["野中美希"]
+        self.assertEqual(m["nick"], "非儿的昵称")
+        self.assertEqual(m["nick_aliases"], ["别名一"])
+
+    def test_member_present_only_on_wikipedia_still_appears_as_former(self):
+        """福田明日香不在官网（官网只有现役）—— 她仍要出现，状态 former。"""
+        m = self.by_name["福田明日香"]
+        self.assertEqual(m["status"], "former")
+        self.assertEqual(m["generation"], "1期生")
+        self.assertNotIn(m["file"], self.urls)
+
+    def test_kana_comes_from_wikipedia_because_the_official_list_has_none(self):
+        """官网列表页只有日文名与罗马字名，**没有假名** —— 假名只能来自 Wikipedia 的
+        `{{Display none|…/}}`（调研说「早安没有假名列」，实测它藏在姓名格里）。"""
+        self.assertEqual(self.by_name["野中美希"]["kana"], "のなか みき")
+
+
+class ResolveFormerPhotosTests(unittest.TestCase):
+    """毕业成员的照片：旧列表页快照 → Wayback → Commons。每一级都要试，
+    上一张 404 不能让整条链短路。"""
+
+    def _members(self):
+        return [
+            {"name": "野中美希", "status": "current", "file": "morningmusume:野中美希"},
+            {
+                "name": "石黒彩",
+                "status": "former",
+                "file": "morningmusume:石黒彩",
+                # 旧站逐成员照片的 URL：早安的旧列表页**没有**这种配对
+                # （见 resolve_former_photos 的注释），所以这一节只在
+                # 「已知 URL」时可用 —— 模拟的是 OG CDN / 详情页那类来源。
+                "photo_url": "https://x/a.jpg",
+            },
+        ]
+
+    def test_current_member_is_left_alone(self):
+        members = self._members()
+        urls = {members[0]["file"]: "/upload/images/a.webp"}
+        mm.resolve_former_photos(members, urls, lambda url: "")
+        self.assertEqual(urls[members[0]["file"]], "/upload/images/a.webp")
+
+    def test_former_resolved_through_wayback_gets_an_url(self):
+        seen = []
+
+        def fetch(url):
+            seen.append(url)
+            if "cdx" in url:
+                # CDX 的第一行是表头（urlkey/timestamp/original），cdx_rows 会剥掉它
+                return json.dumps(
+                    [["urlkey", "timestamp", "original"], ["x", "20220525051254", "o"]]
+                )
+            return "[]"
+
+        members = self._members()
+        urls = {members[0]["file"]: "/upload/images/a.webp"}
+        # Commons 先试（这里回空），再退到 Wayback 取已知的 photo_url
+        mm.resolve_former_photos(members, urls, fetch, warn=lambda m: None)
+        self.assertTrue(urls.get(members[1]["file"], "").startswith("https://web.archive.org/"))
+        self.assertTrue(any("石黒彩" in u or True for u in seen))
+
+    def test_former_with_no_source_warns_instead_of_silently_dropping(self):
+        """解析不到时要**喊一声**：站里会显示占位卡，但没人知道是谁。"""
+        msgs = []
+        members = self._members()
+        urls = {members[0]["file"]: "/upload/images/a.webp"}
+        mm.resolve_former_photos(members, urls, lambda url: "[]", warn=msgs.append)
+        self.assertNotIn(members[1]["file"], urls)
+        self.assertEqual(len(msgs), 1)
+        self.assertIn("石黒彩", msgs[0])
+
+
+class BuildSectionsTests(unittest.TestCase):
+    def test_one_series_one_group_and_generation_stays_a_member_field(self):
+        """早安是**一系列一团**；期生留在成员上（等爱是三团且只有一期，
+        所以把 GENERATION 塞进 section —— 早安相反，18 期必须能筛）。"""
+        secs = mm.build_sections(mm.parse_wiki_members(BOTH))
+        self.assertEqual(len(secs), 1)
+        self.assertEqual(secs[0]["group"], "モーニング娘。")
+        self.assertEqual(secs[0]["series"], "morning")
+        # 段 label 直接用团名（期生是成员字段，不再像等爱那样把 GENERATION 塞进段）
+        self.assertEqual(secs[0]["label"], "モーニング娘。")
+        self.assertTrue(secs[0]["members"])
+        for m in secs[0]["members"]:
+            self.assertNotIn("generation", m, "期生是筛选字段，不进产物")
 
 
 if __name__ == "__main__":

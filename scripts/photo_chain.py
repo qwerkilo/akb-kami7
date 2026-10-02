@@ -46,7 +46,12 @@ def commons_photo(name, fetch):
         data = json.loads(fetch(query))
     except Exception:
         return None
-    for page in data.get("query", {}).get("pages", {}).values():
+    # 返回值未必是预期的形状：实测端点在异常时会回 JSON 数组而不是对象，
+    # 而原来只把 json.loads 包在 try 里，后面的 .get 就抛出去了 ——
+    # 抓取路径上抛异常会让整条早安装配停摆。取不到就当没有。
+    if not isinstance(data, dict):
+        return None
+    for page in (data.get("query") or {}).get("pages", {}).values():
         src = (page.get("thumbnail") or {}).get("source")
         if src:
             return src

@@ -93,6 +93,13 @@ class CommonsPhotoCharacterizationTests(unittest.TestCase):
     def test_malformed_or_erroring_payload_yields_none(self):
         self.assertIsNone(photo_chain.commons_photo("x", lambda url: "not json"))
 
+    def test_json_that_is_not_an_object_yields_none(self):
+        """端点在异常时会回 JSON 数组而不是对象。原来只把 json.loads 包进 try，
+        后面的 .get 就抛出去了 —— 抓取路径上抛异常会让整条装配停摆。"""
+        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "[]"))
+        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "[1, 2]"))
+        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "null"))
+
         def boom(url):
             raise OSError("commons down")
 
