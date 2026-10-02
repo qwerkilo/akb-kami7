@@ -781,6 +781,11 @@
     );
   }
 
+  // 点一张脸之后**故意**推迟 160ms 才落盘：让 `.fighter.picked` 的位移+缩放
+  // 被看到 —— 否则「我选了这张」只有一帧，160 档（40 档 106 题）会看不清自己在选谁。
+  // 代价是这段时间内所有对决命令都被冻结（闩见下），撤回按钮在这期间是 disabled
+  // （`canUndo` 为 false），而键盘的 Z/Backspace 原先**完全静默** —— 现在补一句提示。
+  const PICK_CONFIRM_MS = 160;
   let answering = false;
   function answer(leftWins) {
     if (answering || !canDuelInput()) return;
@@ -799,11 +804,14 @@
         if (ms.celebrate) toast(t("halfway"));
       }
       navigate("advance");
-    }, 160);
+    }, PICK_CONFIRM_MS);
   }
 
   function undo() {
     if (!canDuelInput()) return;
+    // 这 160ms 里 `canUndo` 是 false（答案还没落盘），所以撤回按钮是 disabled
+    // —— 用户看得见对等物；键盘没有，于是给它一句提示，别让按键悄悄消失。
+    if (answering) return toast(t("duel_undo_pending"));
     if (!S.undo()) return;
     navigate("advance");
   }

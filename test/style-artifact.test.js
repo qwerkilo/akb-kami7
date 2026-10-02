@@ -1026,3 +1026,49 @@ test("兜底定时器：切屏转场与揭幕的清理窗口都 ≥ 对应动画
     "揭幕必须同时有 transitionend 清理（只有定时器的话克隆层会闪一下才消失）"
   );
 });
+test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是决策，不是裸字面量）", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const i18n = fs.readFileSync(path.join(__dirname, "..", "i18n.js"), "utf8");
+  assert.match(app, /const PICK_CONFIRM_MS = \d+;/, "延迟要有具名常量");
+  assert.doesNotMatch(
+    app,
+    /\}, \d+\);\s*\n  \}\s*\n\s*function undo/,
+    "不许再有裸的 setTimeout 毫秒字面量"
+  );
+  assert.equal(
+    (i18n.match(/duel_undo_pending:/g) || []).length,
+    3,
+    "三语都要有这个键（i18n 守卫另外查孤儿键与三语互异）"
+  );
+});
+
+test("对决：撤回在「答案未落盘」的窗口里必须给出反馈（键道路径没有 disabled 对等物）", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const undoFn = /function undo\(\) \{[\s\S]*?\n  \}/.exec(app);
+  assert.ok(undoFn, "app.js 里要有 undo()");
+  assert.match(
+    undoFn[0],
+    /if \(answering\) return toast\(t\("duel_undo_pending"\)\);/,
+    "undo() 必须先判 answering 并提示 —— 撤回按钮在那 160ms 里是 disabled（canUndo 为 false），键盘没有对等物"
+  );
+  assert.ok(
+    undoFn[0].indexOf("answering") < undoFn[0].indexOf("S.undo()"),
+    "answering 的判定必须在 S.undo() 之前"
+  );
+});
+
+test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是决策，不是裸字面量）", () => {
+  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const i18n = fs.readFileSync(path.join(__dirname, "..", "i18n.js"), "utf8");
+  assert.match(app, /const PICK_CONFIRM_MS = \d+;/, "延迟要有具名常量");
+  assert.doesNotMatch(
+    app,
+    /\}, \d+\);\s*\n  \}\s*\n\s*function undo/,
+    "不许再有裸的 setTimeout 毫秒字面量"
+  );
+  assert.equal(
+    (i18n.match(/duel_undo_pending:/g) || []).length,
+    3,
+    "三语都要有这个键（i18n 守卫另外查孤儿键与三语互异）"
+  );
+});

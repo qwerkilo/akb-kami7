@@ -242,6 +242,7 @@
       duel_extra: (p, n, m, t, tn) =>
         tn > 1 ? `第 ${t}/${tn} 组 · 约 ${m} 分钟` : `约 ${m} 分钟`,
       undo: "撤回上一题",
+      duel_undo_pending: "本题还没记录好",
       reselect: "重新选人",
       keys: "键盘可用 ← → 选择，Z 撤回",
       pick_who: (name) => `选 ${name}`,
@@ -417,6 +418,7 @@
       duel_extra: (p, n, m, t, tn) =>
         tn > 1 ? `Group ${t}/${tn} · ~${m} min left` : `~${m} min left`,
       undo: "Undo last",
+      duel_undo_pending: "This answer is not recorded yet",
       reselect: "Pick again",
       keys: "← → to choose, Z to undo",
       pick_who: (name) => `Choose ${name}`,
@@ -601,6 +603,7 @@
       duel_extra: (p, n, m, t, tn) =>
         tn > 1 ? `第${t}/${tn}グループ ・ 残り約${m}分` : `残り約${m}分`,
       undo: "1つ戻す",
+      duel_undo_pending: "この回答はまだ記録されていません",
       reselect: "選び直す",
       keys: "キーボード：← → で選択、Z で戻す",
       pick_who: (name) => `${name}を選ぶ`,
