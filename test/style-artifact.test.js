@@ -755,8 +755,9 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
   );
   assert.match(
     fn[1],
-    /setTimeout\(done,\s*\d+\)/,
-    "unveil 必须有兜底定时器（降级时动画事件不来）"
+    /playOnce\(layer, "transition", \{[\s\S]*?selfOnly: false/,
+    "unveil 必须经 playOnce 收尾且 selfOnly:false（过渡挂在克隆层的 img 上，" +
+      "它们的 transitionend 冒泡上来就算完成；兜底定时器在 playOnce 里）"
   );
   assert.match(
     app,
@@ -778,18 +779,12 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
   assert.ok(show, "找不到 show()");
   assert.match(
     show[1],
-    /classList\.add\("enter"\)/,
-    "show() 必须给新相位加 .enter"
+    /playOnce\(shown, "animation", \{[\s\S]*?cls: "enter"/,
+    "show() 必须经 playOnce 给新相位播一次 .enter（事件判来源与兜底都在里面）"
   );
-  assert.match(
-    show[1],
-    /ev\.target !== shown/,
-    "clear 必须判事件来源（子元素的 animationend 会冒泡）"
-  );
-  assert.match(
-    show[1],
-    /setTimeout\(clear,\s*\d+\)/,
-    "必须有兜底定时器（降级时动画事件不来）"
+  assert.ok(
+    /function playOnce\(/.test(app),
+    "切屏转场的兜底在 playOnce 里（降级时动画事件不来）"
   );
   // 层级段：必须真的往 #duel-tiers 里写，且翻转只在换组时
   const duel = /function renderDuel\(\) \{([\s\S]*?)\n  \}/.exec(app);
@@ -955,21 +950,19 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
     /const wanted = rosterEntering;\s*\n\s*rosterEntering = false;/,
     "rosterEntered 必须消费标志（否则下一次重渲会重播）"
   );
-  assert.match(entered[1], /classList\.add\("enter"\)/, "必须加 .roster.enter");
-  const ms = Number(
-    /setTimeout\(\(\) => el\.classList\.remove\("enter"\), (\d+)\)/.exec(
-      entered[1]
-    )[1]
+  assert.match(
+    entered[1],
+    /playOnce\(el, "animation", \{ cls: "enter", sample: "\.card"/,
+    "必须经 playOnce 加 .roster.enter，且取样 .card —— 动画挂在卡片上，" +
+      "读 .roster 自身拿到的时长是 0"
   );
-  // 理论最坏 = 单卡时长 + 8 档错开；窗口要在这个之上留余量（冷加载主线程被占时
-  // 动画还在延迟相位就被摘类 → 整批 cancelled）
+  // 清理窗口不再写死毫秒：playOnce 从 CSS 读「单卡时长 + 8 档错开」再加统一余量。
+  // 窗口够不够宽这件事由「兜底时长从 CSS 实际读出」那条守卫断（它断
+  // MOTION_MARGIN_MS ≥ 200 且要求取样覆盖 stagger）—— 这里只钉住取样选择器。
   const shared = blockVars(":root {");
   const need =
     parseFloat(shared["--dur-fast"]) + 8 * parseFloat(shared["--stagger-step"]);
-  assert.ok(
-    ms >= need + 200,
-    `清理窗口 ${ms}ms 离理论最坏 ${need}ms 太近（要留 ≥200ms 余量）`
-  );
+  assert.ok(need > 0, `理论最坏时长算不出来（${need}ms），CSS 令牌变了？`);
   // 两条渲染路径都要消费标志，否则标志会漏给下一次渲染
   const roster = /function renderRoster\(\) \{([\s\S]*?)\n  \}/.exec(app);
   assert.ok(roster, "找不到 renderRoster()");
@@ -1000,41 +993,52 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
 // 此前只断言「setTimeout(clear, 数字) 存在」，于是 `setTimeout(done, 4)` 那个变异
 // 全绿（切换转场会在动画开始前就被摘掉 / 揭幕克隆层会被提前抠掉）。
 // 现在按「兜底 ≥ 该动画时长 + 余量」来断，且动画时长取自令牌而不是写死数字。
-test("兜底定时器：切屏转场与揭幕的清理窗口都 ≥ 对应动画时长 + 余量", () => {
+test("兜底时长从 CSS 实际读出，且两条清理路径都在（事件 + 定时器）", () => {
   const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  const shared = blockVars(":root {");
-  const tok = (name) => parseFloat(shared[name]);
-
-  // ① 切屏转场：.phase.enter 用 --dur-mid，兜底 clear 必须比它长出一截
-  const phaseAnim =
-    /\.phase\.enter \{[^}]*animation:\s*phaseIn\s+var\(--(dur-\w+)\)/.exec(css);
-  assert.ok(phaseAnim, "缺 .phase.enter 的 phaseIn 动画（或它没走令牌）");
-  const show = /function show\(phase\) \{([\s\S]*?)\n  \}/.exec(app)[1];
-  const clearMs = Number(/setTimeout\(clear,\s*(\d+)\)/.exec(show)[1]);
-  const needPhase = tok(`--${phaseAnim[1]}`) + 100;
+  const play =
+    /function playOnce\(el, kind, opts = \{\}\) \{[\s\S]*?\n  \}/.exec(app);
+  assert.ok(play, "app.js 里要有 playOnce(el, kind, opts)");
+  // ① 兜底不再写死毫秒：它由 getComputedStyle 读出的实际时长 + 统一余量决定
   assert.ok(
-    clearMs >= needPhase,
-    `切屏转场兜底 ${clearMs}ms < ${phaseAnim[1]} ${needPhase - 100}ms + 100ms 余量`
+    /getComputedStyle\(/.test(app) && /function motionMs\(/.test(app),
+    "motionMs() 必须从 getComputedStyle 读实际时长"
   );
-
-  // ② 揭幕：克隆的 transition 里最长的那条决定窗口
-  const clone = /\.unveil img \{([\s\S]*?)\}/.exec(css)[1];
-  const durs = [...clone.matchAll(/var\(--(dur-\w+)\)/g)].map((m) =>
-    tok(`--${m[1]}`)
-  );
-  assert.ok(durs.length >= 2, "揭幕克隆的 transition 应同时含位移与淡出");
-  const longest = Math.max(...durs);
-  const unveil = /function unveil\(\) \{([\s\S]*?)\n  \}/.exec(app)[1];
-  const doneMs = Number(/setTimeout\(done,\s*(\d+)\)/.exec(unveil)[1]);
-  assert.ok(
-    doneMs >= longest + 100,
-    `揭幕兜底 ${doneMs}ms < 最长 transition ${longest}ms + 100ms 余量`
-  );
-  // 两条清理路径都要在：animationend 治正常路径，定时器治降级路径
   assert.match(
-    unveil,
-    /addEventListener\("transitionend", done, \{ once: true \}\)/,
-    "揭幕必须同时有 transitionend 清理（只有定时器的话克隆层会闪一下才消失）"
+    play[0],
+    /setTimeout\([\s\S]*?motionMs\([\s\S]*?\+ MOTION_MARGIN_MS\)/,
+    "兜底定时器必须 = 实际时长 + 统一余量"
+  );
+  const margin = Number(/const MOTION_MARGIN_MS = (\d+);/.exec(app)[1]);
+  // 名册的窗口 = 单卡时长 + 错开 + 余量，而它必须 ≥ 理论最坏（单卡 + 8 档错开）
+  // 再加 200ms —— 余量因此要盖住错开总量再加 200ms。这条判据从令牌派生，
+  // 令牌一改它自动跟着收紧（此前是拿写死的 600ms 去比同一个式子）。
+  const shared2 = blockVars(":root {");
+  const stagger = 8 * parseFloat(shared2["--stagger-step"]);
+  // ③ getComputedStyle 返回的是**秒**（"0.2s"），换算漏了 → 兜底从 450ms 掉到 250ms，
+  // 动画被提前摘掉。这条只有浏览器看得见（实测相位 186→25ms、名册 477→109ms），
+  // node 守卫只能断形状：换算必须在。
+  const mm = /function motionMs\([\s\S]*?\n  \}/.exec(app);
+  assert.ok(mm, "找不到 motionMs()");
+  assert.ok(
+    /\*\s*1000/.test(mm[0]) && /endsWith\("ms"\)/.test(mm[0]),
+    "motionMs 必须把 getComputedStyle 的秒换算成毫秒（漏了会让兜底早太多）"
+  );
+  assert.ok(
+    margin >= stagger + 200,
+    `统一余量 ${margin}ms < 错开总量 ${stagger}ms + 200ms —— ` +
+      `名册窗口会短于「理论最坏 + 200ms」（本仓此前用 600ms 达到同一效果）`
+  );
+  // ② 两条清理路径都要在：事件治正常路径，定时器治降级（动画被关掉时事件不来）
+  assert.match(play[0], /addEventListener\(event, finish\)/, "必须监听事件");
+  assert.ok(
+    play[0].includes("removeEventListener(event, finish)"),
+    "必须**自己解绑** —— {once:true} 会被第一个冒泡到的事件消耗掉，" +
+      "于是事件判据永远等不到自己那趟，清理退化成定时器（实测：卡片 +714ms 先到）"
+  );
+  assert.doesNotMatch(
+    app.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""),
+    /once:\s*true/,
+    "代码里不许再有 { once: true } 的动画/过渡监听（注释里可以）"
   );
 });
 test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是决策，不是裸字面量）", () => {

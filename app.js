@@ -144,6 +144,62 @@
   const seriesGroups = () => GROUPS.filter((g) => g.series === series);
 
   /* ---------------- phase switching ---------------- */
+  // ---- 「动一次，然后保证它一定停下来」的唯一出处 ----
+  // 兜底时长从 CSS 实际读：元素（或取样后代）的 animation/transition 时长 + 最大延迟
+  // 再加统一余量。取样选择器是必需的 —— 名册的动画挂在 .card 上，挂在 .roster 自身
+  // 读出来是 0。读实际值而不是写死毫秒，令牌一改这里自动跟着走。
+  // 余量按「stagger 的错开总量 + 200ms」取：名册的窗口是 单卡时长 + 错开 + 余量，
+  // 所以余量必须盖住错开再加 200ms（本仓此前用写死的 600ms 达到同一效果）。
+  // 250 不够 —— 那是 120 + 250 = 370ms，而理论最坏 + 200ms 是 464ms。
+  const MOTION_MARGIN_MS = 350;
+
+  function motionMs(el, kind, sample) {
+    const t = sample ? el.querySelector(sample) : el;
+    if (!t) return 0;
+    const cs = getComputedStyle(t);
+    const prop = kind === "transition" ? "transition" : "animation";
+    const max = (v) =>
+      Math.max(
+        0,
+        ...String(v || "0s")
+          .split(",")
+          // getComputedStyle 返回的是**秒**（"0.2s" / "200ms"），必须换算成毫秒 ——
+          // 我第一版直接 parseFloat，兜底从 450ms 变成 250ms，动画被提前摘掉。
+          .map((x) => {
+            const n = parseFloat(x);
+            if (!Number.isFinite(n)) return 0;
+            return x.trim().endsWith("ms") ? n : n * 1000;
+          })
+      );
+    return max(cs[prop + "Duration"]) + max(cs[prop + "Delay"]);
+  }
+
+  // 关键：**自己解绑**，不用 `{ once: true }`。那会被第一个冒泡到 el 的事件消耗掉 ——
+  // 名册卡的 cardIn 早于相位自己的 phaseIn 结束，于是事件判据永远等不到自己那趟，
+  // 清理退化成定时器：那条判据被装它的 `{once:true}` 自我击败。
+  // 实测（在 clear 里挂日志）：先 +714ms 被 card/cardIn 调用并被判据挡回，
+  // 再 +756ms 被定时器调用。
+  // opts: {cls 加上并收尾时摘掉, sample 取样选择器, onDone 收尾动作,
+  //        selfOnly 默认 true = 只认自己身上的事件（揭幕那种过渡在子元素上的传 false）}
+  function playOnce(el, kind, opts = {}) {
+    if (!el) return;
+    if (opts.cls) el.classList.add(opts.cls);
+    const event = kind === "transition" ? "transitionend" : "animationend";
+    let settled = false;
+    const finish = (ev) => {
+      if (settled) return;
+      // 子元素冒泡上来的事件不算 —— 名册卡自己有 cardIn，别的相位层也有自己的动画
+      if (ev && opts.selfOnly !== false && ev.target !== el) return;
+      settled = true;
+      el.removeEventListener(event, finish);
+      if (opts.cls) el.classList.remove(opts.cls);
+      if (opts.onDone) opts.onDone();
+    };
+    el.addEventListener(event, finish);
+    setTimeout(finish, motionMs(el, kind, opts.sample) + MOTION_MARGIN_MS);
+    return finish;
+  }
+
   let entering = null;
   // 「即将进入挑人步」：renderRoster 渲染完才消费它，见 show() 里的注释
   let rosterEntering = false;
@@ -165,20 +221,14 @@
     }
     const shown = $(`#phase-${phase}`);
     if (shown) {
-      shown.classList.add("enter");
       entering = shown;
-      const clear = (ev) => {
-        // 必须判事件来源：animationend 会从子元素冒泡，而名册卡自己有
-        // cardIn 入场动画 —— 不判的话切屏转场会被**第一张卡的动画结束**摘掉，
-        // 相位动画还在跑就提前归位（本机因为 258 张卡的 stagger 拖慢主线程
-        // 才没看出来，快的机器上会切）。
-        if (ev && ev.target !== shown) return;
-        shown.classList.remove("enter");
-        if (entering === shown) entering = null;
-      };
-      shown.addEventListener("animationend", clear, { once: true });
-      // 降级模式下没有 animationend（动画被关掉），兜底摘掉
-      setTimeout(clear, 400);
+      playOnce(shown, "animation", {
+        cls: "enter",
+        // 降级模式下没有 animationend（动画被关掉），兜底由 playOnce 负责
+        onDone: () => {
+          if (entering === shown) entering = null;
+        },
+      });
     }
     // 名册的进场 stagger 只在**进入挑人步**时播一次。此前挂在 .card 上，于是
     // 每次重渲名册（搜索去抖、切状态/团体/期生、切档位、切系列）整表都淡入
@@ -350,11 +400,11 @@
     if (!el) return;
     el.classList.remove("enter");
     if (!wanted) return;
-    el.classList.add("enter");
-    // 窗口取 600ms 而非理论最坏 264ms（单卡 120 + 8 档错开 144）：本机冷加载时
-    // 主线程被字体与脚本占住，动画还在延迟相位就被摘类 → 整批 cancelled
-    // （实测三次进入有一次整个不播）。余量比贴着理论值重要。
-    setTimeout(() => el.classList.remove("enter"), 600);
+    // 动画挂在 .card 上（.roster.enter .card），所以取样选择器给 ".card"，
+    // 时长由 playOnce 从 CSS 读出再加统一余量 —— 此前这里写死 600ms。
+    // 余量要紧贴不得：本机冷加载时主线程被字体与脚本占住，动画还在延迟相位
+    // 就被摘类 → 整批 cancelled（实测三次进入有一次整个不播）。
+    playOnce(el, "animation", { cls: "enter", sample: ".card" });
   }
 
   BY_ID.forEach((m) => {
@@ -993,9 +1043,12 @@
     // rAF 回调之间做过重算，不这么做 transition 可能压根不产生（两轴都实测到
     // 隔离复现里 0 条动画；真实应用里因为图片解码恰好触发了重算才侥幸在跑）。
     void layer.offsetHeight;
-    const done = () => layer.remove();
-    layer.addEventListener("transitionend", done, { once: true });
-    setTimeout(done, 700);
+    // 过渡挂在克隆层里的 img 上，所以它们的 transitionend 冒泡上来就算完成
+    // （selfOnly:false）；收尾动作是移除克隆层本身。
+    playOnce(layer, "transition", {
+      onDone: () => layer.remove(),
+      selfOnly: false,
+    });
     requestAnimationFrame(() => {
       for (const img of layer.children) {
         img.style.transform = "none";
