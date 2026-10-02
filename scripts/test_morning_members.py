@@ -184,7 +184,12 @@ class ParseWikiMembersTests(unittest.TestCase):
         self.assertEqual(y["birth"], "1999.10.07")
         self.assertEqual(y["nick"], "ちぇる")
         self.assertEqual(y["nick_aliases"], ["のなちゃん"])
-        self.assertNotIn("height", y)
+        # 订正我当初写下的断言：我曾断言「height 不进 member」—— **改**。
+        # ℃-ute 的源里**有**身高列（モーニング娘。没有），而站内身高要出现在资料卡上，
+        # 所以它必须一路走到成员记录再由 build_bio 决定要不要带（决定 3：
+        # 「有就显示、没有就不占位」）。空串而不是缺键 —— 缺键会让
+        # `assertNotIn` 这类形状断言变成在测实现细节。
+        self.assertEqual(y["height"], "", "モーニング娘。的源没有身高列，应为空串")
         self.assertNotIn("sign", y)
 
     def test_former_end_date_is_carried_to_the_member(self):
@@ -420,3 +425,69 @@ class BuildSectionsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ── 工单 01：℃-ute 的 parse（按团配置节标记，复用モーニング娘。的解析器）────
+CUTE_DISSOLVED_WIKI = fixture("cute-dissolved-members.wiki")   # 解散时全员（5 人）
+CUTE_PAST_WIKI = fixture("cute-past-members.wiki")             # 更早离团（3 人）
+CUTE_WIKI = CUTE_DISSOLVED_WIKI + "\n" + CUTE_PAST_WIKI
+
+
+class CuteSectionTests(unittest.TestCase):
+    """℃-ute 已 2017 年解散，所以条目里**没有现役节** —— 两张表都是毕业者。
+    这一点不是特判，是数据本来的样子：モーニング娘。仍然有现役节。"""
+
+    def test_group_config_declares_both_markers_and_page(self):
+        cfg = mm.GROUPS["℃-ute"]
+        self.assertTrue(cfg["page"], "每个团都要有条目名")
+        self.assertEqual(len(cfg["former"]), 2, "解散时应有两张毕业表")
+        self.assertEqual(cfg["current"], [], "℃-ute 没有现役节")
+
+    def test_everyone_is_former(self):
+        got = mm.parse_wiki_members(CUTE_WIKI, "℃-ute")
+        self.assertTrue(got, "解析出 0 人")
+        self.assertEqual({m["status"] for m in got}, {"former"})
+
+    def test_both_tables_contribute(self):
+        names = {m["name"] for m in mm.parse_wiki_members(CUTE_WIKI, "℃-ute")}
+        # 解散时的 5 人 + 更早的 3 人
+        self.assertEqual(len(names), 8, sorted(names))
+        self.assertTrue("矢島舞美" in names, "解散时的成员")
+        self.assertTrue("村上愛" in names, "更早离团的成员")
+
+    def test_source_section_is_recorded(self):
+        """「解散时」那张表**没有毕业日列**，所以那 5 人的 end 必然空 ——
+        但必须知道是「源里没有」而不是「解析失败」，否则下游无法解释。"""
+        got = {m["name"]: m for m in mm.parse_wiki_members(CUTE_WIKI, "℃-ute")}
+        self.assertEqual(got["矢島舞美"]["from_section"], "解散時のメンバー")
+        self.assertEqual(got["村上愛"]["from_section"], "過去に在籍していたメンバー")
+
+    def test_graduation_date_present_only_where_the_column_exists(self):
+        got = {m["name"]: m for m in mm.parse_wiki_members(CUTE_WIKI, "℃-ute")}
+        # 「過去に在籍していた」那张有「卒業・脱退日卒業公演会場」列
+        self.assertRegex(got["村上愛"]["end"], r"^\d{4}\.\d{2}\.\d{2}$", got["村上愛"]["end"])
+        # 「解散時の」那张没有这一列 —— 空是事实，不许编
+        self.assertEqual(got["矢島舞美"]["end"], "")
+
+    def test_height_is_parsed_but_not_in_bio(self):
+        """身高只有「解散時」那张表有。落 member.height，**不进 bio** ——
+        站内身高只出现在资料卡，与血型/出身地同一层（决定 3）。"""
+        got = {m["name"]: m for m in mm.parse_wiki_members(CUTE_WIKI, "℃-ute")}
+        self.assertEqual(got["矢島舞美"]["height"], "166cm")
+        self.assertEqual(got["村上愛"]["height"], "", "没有身高的要空字符串，不要 undefined")
+        self.assertTrue("bio" not in got["矢島舞美"], "parse 层不产 bio")
+
+    def test_no_generation_column_means_no_generation(self):
+        got = {m["name"]: m for m in mm.parse_wiki_members(CUTE_WIKI, "℃-ute")}
+        for m in got.values():
+            self.assertEqual(m["generation"], "", "℃-ute 没有期生")
+
+    def test_unknown_group_falls_back_to_the_default_instead_of_crashing(self):
+        """传一个没配过的团名不该抛 —— 装配层会先跑一遍全系列。"""
+        self.assertEqual(mm.parse_wiki_members(CUTE_WIKI, "不存在的团"), [])
+
+    def test_morning_still_works_after_the_refactor(self):
+        got = mm.parse_wiki_members(BOTH, "モーニング娘。")
+        names = {m["name"] for m in got}
+        self.assertTrue("野中美希" in names and "福田明日香" in names, sorted(names))
+        self.assertTrue(any(m["status"] == "current" for m in got), "モーニング娘。仍有现役节")

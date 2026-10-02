@@ -1,0 +1,57 @@
+=== 解散時のメンバー ===
+{| class="sortable wikitable" style="font-size:95%; text-align:center; line-height:1.4em; margin-right:0"
+|- style="line-height:1.25em"
+! style="padding-left:1em; white-space:nowrap" |名前
+! style="padding-left:1em; white-space:nowrap" |生年月日<br />（現年齢）
+! class="unsortable" |血液型
+! style="white-space:nowrap" |身長
+! class="unsortable" |出身地
+! class="unsortable" |メンバーカラー
+! class="unsortable" |旧メンバーカラー
+! class="unsortable" style="padding-right:2.5em; padding-left:2.5em;" |備考
+|-
+| style="white-space:nowrap" |{{Display none|やじま まいみ/}}[[矢島舞美]]<br />{{Small|（やじま まいみ）}}
+| style="white-space:nowrap" |1992年2月7日{{Center|（{{年数|1992|2|7}}歳）}}
+| style="white-space:nowrap" |O型
+| style="white-space:nowrap" |166cm<ref>{{cite web ja |url=https://www.up-front-works.jp/cutehistory/profile/yazima.html|title=矢島舞美｜メンバープロフィール｜°C-uteスペシャル大百科サイト|accessdate=2022-08-16}}</ref>
+| {{Display none|さいたまけん/}}[[埼玉県]]
+| style="white-space:nowrap" |{{Colorbox|Red}}<br /> レッド
+| style="white-space:nowrap" |{{Colorbox|LightPink}}<br />ライトピンク
+| style="text-align:left; white-space:nowrap" |リーダー<br />解散後はタレントとして活動。
+|-
+| style="white-space:nowrap" |{{Display none|なかじま さき/}}[[中島早貴]]<br />{{Small|（なかじま さき）}}
+| style="white-space:nowrap" |1994年2月5日{{Center|（{{年数|1994|2|5}}歳）}}
+| style="white-space:nowrap" |O型
+| style="white-space:nowrap" |156cm<ref>{{cite web ja |url=https://www.up-front-works.jp/cutehistory/profile/nakazima.html|title=中島早貴｜メンバープロフィール｜°C-uteスペシャル大百科サイト|accessdate=2022-08-16}}</ref>
+| {{Display none|さいたまけん/}}[[埼玉県]]
+| style="white-space:nowrap" |{{Colorbox|Skyblue}}<br />スカイブルー
+| style="white-space:nowrap" |{{Colorbox|Orange}}<br />オレンジ
+| style="text-align:left; white-space:nowrap" |2021年12月31日から芸能活動を一時休止。
+|-
+| style="white-space:nowrap" |{{Display none|すずき あいり/}}[[鈴木愛理 (歌手)|鈴木愛理]]<br />{{Small|（すずき あいり）}}
+| style="white-space:nowrap" |1994年4月12日{{Center|（{{年数|1994|4|12}}歳）}}
+| style="white-space:nowrap" |B型
+| style="white-space:nowrap" |161cm<ref>{{cite web ja |url=https://www.up-front-works.jp/cutehistory/profile/suzuki.html|title=鈴木愛理｜メンバープロフィール｜°C-uteスペシャル大百科サイト|accessdate=2022-08-16}}</ref>
+| {{Display none|ちばけん/}}[[千葉県]]
+| style="white-space:nowrap" |{{Colorbox|Lightpink}}<br /> ライトピンク
+| style="white-space:nowrap" |{{Colorbox|Green}}<br />グリーン
+| style="text-align:left; white-space:nowrap" |解散後はソロとして歌手活動を継続。
+|-
+| style="white-space:nowrap" |{{Display none|おかい ちさと/}}[[岡井千聖]]<br />{{Small|（おかい ちさと）}}
+| style="white-space:nowrap" |1994年6月21日{{Center|（{{年数|1994|6|21}}歳）}}
+| style="white-space:nowrap" |A型
+| style="white-space:nowrap" |152cm<ref>{{cite web ja |url=https://www.up-front-works.jp/cutehistory/profile/okai.html|title=岡井千聖｜メンバープロフィール｜°C-uteスペシャル大百科サイト|accessdate=2022-08-16}}</ref>
+| {{Display none|さいたまけん/}}[[埼玉県]]
+| style="white-space:nowrap" |{{Colorbox|Green}}<br />グリーン
+| style="white-space:nowrap" |{{Colorbox|Blue}}<br />ブルー
+| style="text-align:left; white-space:nowrap" |2020年4月30日、[[引退#芸能界|芸能界を引退]]。
+|-
+| style="white-space:nowrap" |{{Display none|はぎわら まい/}}[[萩原舞 (歌手)|萩原舞]]<br />{{Small|（はぎわら まい）}}
+| style="white-space:nowrap" |1996年2月7日{{Center|（{{年数|1996|2|7}}歳）}}
+| style="white-space:nowrap" |AB型
+| style="white-space:nowrap" |158cm<ref>{{cite web ja |url=https://www.up-front-works.jp/cutehistory/profile/hagiwara.html|title=萩原舞｜メンバープロフィール｜°C-uteスペシャル大百科サイト|accessdate=2022-08-16}}</ref>
+| {{Display none|さいたまけん/}}[[埼玉県]]
+| style="white-space:nowrap" |{{Colorbox|Yellow}}<br /> イエロー
+| style="white-space:nowrap" |{{Colorbox|Purple}}<br />パープル
+| style="text-align:left; white-space:nowrap" |解散と同時に芸能界を引退。
+|}

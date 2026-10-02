@@ -1,0 +1,39 @@
+=== 過去に在籍していたメンバー ===
+{| class="sortable wikitable" style="font-size:95%; text-align:center; line-height:1.4em; margin-right:0"
+|- style="line-height:1.25em"
+! style="padding-left:1em; white-space:nowrap" |名前
+! style="padding-left:1em; white-space:nowrap" |生年月日<br />（現年齢）
+! class="unsortable" |血液型
+! class="unsortable" |出身地
+! style="padding-left:1em; white-space:nowrap" |加入年月日
+! style="padding-right:1px; white-space:nowrap" |卒業・脱退日<br />卒業公演会場
+! class="unsortable" |メンバーカラー
+! class="unsortable" style="padding-right:2.5em; padding-left:2.5em;" |備考
+|-
+| style="white-space:nowrap" |{{Display none|むらかみ めぐみ/}}[[村上愛]]<br />{{Small|（むらかみ めぐみ）}}
+| style="white-space:nowrap" |1992年6月6日{{Center|（{{年数|1992|6|6}}歳）}}
+| style="white-space:nowrap" |A型
+| {{Display none|さいたまけん/}}[[埼玉県]]
+| style="white-space:nowrap" |2005年{{Display none|0}}6月11日
+| style="white-space:nowrap" |2006年10月31日<br />卒業公演なし
+| style="white-space:nowrap" |{{Colorbox|SkyBlue}}<br /> スカイブルー
+| style="text-align:left; white-space:nowrap" |学業に専念するためグループを脱退。同時に芸能界も引退。
+|-
+| style="white-space:nowrap" |{{Display none|ありはら かんな/}}[[栞菜|有原栞菜]]<br />{{Small|（ありはら かんな）}}
+| style="white-space:nowrap" |1993年6月15日{{Center|（{{年数|1993|6|15}}歳）}}
+| style="white-space:nowrap" |A型
+| {{Display none|かながわけん/}}[[神奈川県]]
+| style="white-space:nowrap" |2006年{{Display none|0}}1月{{Display none|0}}2日
+| style="white-space:nowrap" |2009年7月9日<br />卒業公演なし
+| style="white-space:nowrap" |{{Colorbox|Red}}<br /> レッド
+| style="text-align:left; white-space:nowrap" |持病の[[外反母趾]]悪化のためグループを脱退。
+|-
+| style="white-space:nowrap" |{{Display none|うめだ えりか/}}[[梅田えりか]]<br />{{Small|（うめだ えりか）}}
+| style="white-space:nowrap" |1991年5月24日{{Center|（{{年数|1991|5|24}}歳）}}
+| style="white-space:nowrap" |A型
+| {{Display none|かながわけん/}}[[神奈川県]]
+| style="white-space:nowrap" |2005年{{Display none|0}}6月11日
+| style="white-space:nowrap" |2009年10月25日<br />[[NHK大阪ホール]]
+| style="white-space:nowrap" |{{Colorbox|Yellow}}<br /> イエロー
+| style="text-align:left; white-space:nowrap" |ファッションモデルへの転身のため卒業。
+|}

@@ -310,6 +310,9 @@ COLUMN_NORM = {
     "加入年月日": _date,
     "加入期": _generation,
     "卒業・脱退日（発表日）卒業公演の開催地": _date,
+    # ℃-ute「過去に在籍していたメンバー」那张表的列名**少了中间的括号**，
+    # 两个源对毕业日的叫法不一样 —— 不归一的话那 3 人的 end 会是日文原文。
+    "卒業・脱退日卒業公演会場": _date,
 }
 
 
@@ -325,7 +328,7 @@ def cell(row, name):
 raw_cell = cell  # split_rows(clean=False) 时格本来就是原文，两者同义
 
 
-def _members_from_table(text, status):
+def _members_from_table(text, status, from_section=""):
     """字段取**清洗后**的行（姓名/日期/期生都已归一），昵称取**原始行** ——
     昵称要按 `<br />` 拆行，清洗过就看不出有几行了。
     注意**不要在这里再归一一次**：格值已经是 YYYY.MM.DD / N期生，
@@ -353,30 +356,78 @@ def _members_from_table(text, status):
                 or row.get("生年月日", ""),
                 "blood": row.get("血液型", ""),
                 "from": row.get("出身地", ""),
-                "end": row.get("卒業・脱退日（発表日）卒業公演の開催地", ""),
+                "end": row.get("卒業・脱退日（発表日）卒業公演の開催地", "")
+                or row.get("卒業・脱退日卒業公演会場", ""),
+                # 身長只有 ℃-ute 那两张表有；モーニング娘。的源里没有这一列。
+                # 落 member.height 而不进 bio —— 站内身高只出现在资料卡（决定 3）。
+                "height": row.get("身長", ""),
+                # 记下这张人来自哪个节：「解散時」那张表**没有毕业日列**，
+                # 那 5 人的 end 必然空 —— 不记来源的话，下游分不清
+                # 「源里没有这一列」与「解析失败」。
+                "from_section": from_section.strip("= ").strip(),
             }
         )
     return out
 
 
-CURRENT_MARK = "=== メンバー ==="
-FORMER_MARK = "=== 過去のメンバー ==="
+# 每个团的**节配置**。加团 = 加一行，而不是往代码里堆第三个布尔。
+#
+# current / former 放的是**节标题原文**（条目里的写法），解析器按它们切文本。
+# 「出现在哪个节」决定 status —— 站内只有 current / former 两值
+# （grilling R1-Q2：卒業 与 脱退 一律 former），所以不引入第三个状态。
+#
+# ⚠️ ℃-ute 的 current 是**空列表**：它 2017 年就解散了，条目里根本没有现役节，
+# 两张表都是毕业者（解散时全员 + 更早离团的人）。这不是特判，是数据本来的样子 ——
+# 硬写「若无现役节就当全员毕业」会掩盖「某个团真的漏了现役节」这种源故障。
+GROUPS = {
+    "モーニング娘。": {
+        "page": "モーニング娘。",
+        "current": ["=== メンバー ==="],
+        "former": ["=== 過去のメンバー ==="],
+    },
+    "℃-ute": {
+        "page": "℃-ute",
+        "current": [],
+        "former": ["=== 解散時のメンバー ===", "=== 過去に在籍していたメンバー ==="],
+    },
+}
+
+DEFAULT_GROUP = "モーニング娘。"
 
 
-def parse_wiki_members(wikitext):
-    """两表合成一份名单。状态来自「出现在哪张表里」——
-    早安官方对离开的说法分「卒業」与「脱退」，站内一律记 former（grilling R1-Q2），
-    所以「ハロプロへの在籍状況」那一列不参与状态判定。"""
-    ci = wikitext.find(CURRENT_MARK)
-    fi = wikitext.find(FORMER_MARK)
-    if ci < 0:
+def _section_span(text, mark, following):
+    """一个节的文本范围：从 mark 到 following 里的第一个标记为止（缺则到文末）。"""
+    start = text.find(mark)
+    if start < 0:
+        return None
+    ends = [text.find(m, start + len(mark)) for m in following]
+    ends = [e for e in ends if e > start]
+    return text[start : min(ends) if ends else len(text)]
+
+
+def parse_wiki_members(wikitext, group=DEFAULT_GROUP):
+    """按团解析一张条目，返回该团的成员列表。
+
+    状态来自「出现在哪个节」—— 官方对离开的说法分「卒業」与「脱退」，站内一律
+    former（grilling R1-Q2），所以「ハロプロへの在籍状況」那一列不参与判定。
+
+    传一个没配过的团名返回空列表而不抛：装配层会先按全系列配置跑一遍，
+    缺配置要静默跳过而不是让整条抓取停摆。
+    """
+    cfg = GROUPS.get(group)
+    if not cfg:
         return []
-    if fi < 0:
-        fi = len(wikitext)
-    # 現在の表は 現在の表のセクション内；過去の表は 過去のメンバー配下の卒業表
-    cur_text = wikitext[ci:fi]
-    former_text = wikitext[fi:]
-    return _members_from_table(cur_text, "current") + _members_from_table(former_text, "former")
+    marks = list(cfg["current"]) + list(cfg["former"])
+    out = []
+    for mark in cfg["current"]:
+        span = _section_span(wikitext, mark, marks)
+        if span:
+            out += _members_from_table(span, "current", mark)
+    for mark in cfg["former"]:
+        span = _section_span(wikitext, mark, marks)
+        if span:
+            out += _members_from_table(span, "former", mark)
+    return out
 
 
 # ── 官网解析（工单 03）───────────────────────────────────────────────────
