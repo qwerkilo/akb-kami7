@@ -67,6 +67,9 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
       "love-7": "推し 7",
       "love-16": "选拔组",
       "love-40": "圈内",
+      "morning-7": "推し7",
+      "morning-16": "选拔组",
+      "morning-40": "圈内",
     },
     en: {
       "48g-7": "Kami 7",
@@ -78,6 +81,9 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
       "love-7": "Oshi 7",
       "love-16": "Senbatsu",
       "love-40": "Ranked",
+      "morning-7": "Modeshi 7",
+      "morning-16": "Senbatsu",
+      "morning-40": "Ranked",
     },
     ja: {
       "48g-7": "神7",
@@ -89,11 +95,14 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
       "love-7": "推し7",
       "love-16": "選抜",
       "love-40": "圏内",
+      "morning-7": "推し7",
+      "morning-16": "選抜",
+      "morning-40": "圏内",
     },
   };
   for (const lang of ["zh", "en", "ja"]) {
     const t = (k) => I18N[lang][k];
-    for (const series of ["48g", "sakamichi", "love"]) {
+    for (const series of ["48g", "sakamichi", "love", "morning"]) {
       for (const size of [7, 16, 40]) {
         const n = core.names(series, size, t);
         const where = `${lang}/${series}/${size}`;
@@ -108,7 +117,7 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
         assert.ok(n.title.endsWith(n.brand), `${where}/title=${n.title}`);
         assert.match(
           n.fileBase,
-          /^(48group|sakamichi|love)_(kami7|7fukujin|16|40|7)$/
+          /^(48group|sakamichi|love|morningmusume)_(kami7|7fukujin|16|40|7|modeshi7)$/
         );
       }
     }
@@ -170,6 +179,13 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
   // 动态家族：键在代码里由前缀拼出来的（bio_、series_、pwa_ 的平台指引步骤…）
   const dynamic =
     /^(bio_|series_|title_prefix_|photo_src|leave_|pwa_(ios|android|macos|other)_s|pwa_guide_title_)/;
+  // 每个系列的命名键全部由 core.SERIES_KEYS 查表取出（加系列 = 加一行，不堆三元），
+  // 所以静态 grep 看不到它们 —— **从表里自己推导**，而不是把 brand_ 前缀整个放行
+  // （那样以后真写出第二个没人用的 brand_* 键也不会被守卫抓到）。
+  const core = require("../core.js");
+  for (const row of Object.values(core.SERIES_KEYS)) {
+    for (const v of Object.values(row)) refs.add(v);
+  }
   const unreferenced = Object.keys(I18N.zh).filter(
     (k) => !refs.has(k) && !dynamic.test(k)
   );

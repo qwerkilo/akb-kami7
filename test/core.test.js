@@ -2197,14 +2197,14 @@ test("存档：跨轮重复的 id 只保留首次出现（否则同一人进两�
 // → tab 只剩 158px，而长标签三语分别 201/254/212（en「=LOVE Family」右边缘到 457 >
 // 视口 390）。所以 tab 必须有短形，且短形不得比长形更长 —— 否则窄屏那条 CSS
 // 规则在替一个不存在的「短」标签兜底，第三个 tab 就又会被切掉。
-test("短标签：三语 × 三系列都存在、非空、且不长于长标签", () => {
+test("短标签：三语 × 四个系列都存在、非空、且不长于长标签", () => {
   const I18N = require("../i18n.js");
   for (const lang of ["zh", "en", "ja"]) {
     const t = (k) => {
       const v = I18N[lang][k];
       return typeof v === "function" ? v() : v;
     };
-    for (const series of ["48g", "sakamichi", "love"]) {
+    for (const series of ["48g", "sakamichi", "love", "morning"]) {
       const n = core.names(series, 7, t);
       const where = `${lang}/${series}`;
       assert.ok(n.seriesShort, `${where} 缺 seriesShort`);
@@ -2230,7 +2230,16 @@ test("短标签：三语的 tab 总长都在 158px 预算内（长短标签必�
       0
     );
   const I18N = require("../i18n.js");
-  const CAP = 7;
+  // 上限按 2026-10-02 的实测重校（390px × 三语，四个 tab 全装得下）：
+  //   zh 45+42+42+42=171px  en 40+47+60+36=183px  ja 45+42+55+55=197px
+  // 换算成本测试的单位模型（CJK/假名 1、拉丁与数字 0.5、每按钮 16px 内边距）后
+  // 最紧的是 ja 9.5，取 10 留一点余量。
+  //
+  // ⚠️ **这个上限随系列数变化**：以前是三个 tab（ja 6.5）。加第四个系列时若真装不下，
+  // 先量 390px 的 seg.scrollWidth，而不是拍脑袋改这个数 —— 上一版 7 是按更早的布局
+  // 校准的，而那个布局里 seg 只有 154px；现在 seg 会按需取宽，四个 tab 正好放下。
+  // 像素级的判据在仓外的浏览器探针与 E2E 里（node 测不到 px）。
+  const CAP = 10;
   for (const lang of ["zh", "en", "ja"]) {
     const t = (k) => {
       const v = I18N[lang][k];
@@ -2240,14 +2249,14 @@ test("短标签：三语的 tab 总长都在 158px 预算内（长短标签必�
     // 只把其中一个短标签换回长标签，单个可能仍在上限内（en「=LOVE Family」6 单位），
     // 但三个加起来就超了。
     const sum = (pick) =>
-      ["48g", "sakamichi", "love"].reduce(
+      ["48g", "sakamichi", "love", "morning"].reduce(
         (n, series) => n + units(pick(core.names(series, 7, t))),
         0
       );
     const shortU = sum((n) => n.seriesShort);
     assert.ok(
       shortU <= CAP,
-      `${lang} 短标签总长 ${shortU} 单位 > 上限 ${CAP}（${["48g", "sakamichi", "love"].map((x) => core.names(x, 7, t).seriesShort).join(" / ")}）`
+      `${lang} 短标签总长 ${shortU} 单位 > 上限 ${CAP}（${["48g", "sakamichi", "love", "morning"].map((x) => core.names(x, 7, t).seriesShort).join(" / ")}）`
     );
     // 顺带钉住「长标签确实超预算」—— 校准用的前提，写成断言才不会悄悄失真
     const longU = sum((n) => n.seriesLabel);
@@ -2523,4 +2532,59 @@ test("同一条不变式在正常形状下也成立（40 档划一轮 → 138）
     core.tierProgress(tiers, 0).max
   );
   assert.equal(core.tierQuestionMax(sel, cut, 1), 138);
+});
+
+test("names() 认识第四个系列（早安），且三语各字段齐全", () => {
+  const I18N = require("../i18n.js");
+  const t = (lang) => (k) => {
+    const v = I18N[lang][k];
+    return typeof v === "function" ? v() : v;
+  };
+  // 7 档品牌名「Modeshi 7 / 推し7」只有按系列那一个分支要改；
+  // 16 档（选拔组）与 40 档（圈内）四个系列共用，别动。
+  assert.deepEqual(core.names("morning", 7, t("zh")), {
+    brand: "推し7",
+    seriesLabel: "早安少女家族",
+    seriesShort: "早安",
+    title: "我的早安少女家族 推し7",
+    eyebrow: "早安少女家族 好き顔ソート",
+    shareTags: "#モーニング娘。 #好き顔ソート",
+    posterTags: "#モーニング娘。  #好き顔ソート",
+    fileBase: "morningmusume_modeshi7",
+  });
+  assert.equal(core.names("morning", 16, t("en")).brand, "Senbatsu");
+  assert.equal(core.names("morning", 40, t("en")).brand, "Ranked");
+  assert.equal(core.names("morning", 16, t("en")).fileBase, "morningmusume_16");
+  assert.equal(core.names("morning", 40, t("en")).fileBase, "morningmusume_40");
+  assert.equal(core.names("morning", 7, t("en")).seriesShort, "MM");
+  assert.equal(core.names("morning", 7, t("ja")).seriesShort, "モー娘");
+  assert.equal(
+    core.names("morning", 7, t("en")).title,
+    "My Morning Musume Modeshi 7"
+  );
+});
+
+test("names() 的四个系列每个字段都非空（缺一个字段就会静默出空串）", () => {
+  const I18N = require("../i18n.js");
+  for (const lang of ["zh", "en", "ja"]) {
+    const t = (k) => {
+      const v = I18N[lang][k];
+      return typeof v === "function" ? v() : v;
+    };
+    for (const series of ["48g", "sakamichi", "love", "morning"]) {
+      for (const size of [7, 16, 40]) {
+        const n = core.names(series, size, t);
+        for (const [k, v] of Object.entries(n)) {
+          assert.ok(
+            typeof v === "string" && v.length > 0,
+            `${lang}/${series}/${size} 的 ${k} 是空的`
+          );
+        }
+        assert.ok(
+          n.fileBase.startsWith(core.SERIES_KEYS[series].filePrefix),
+          `${series} 的 filePrefix 不对`
+        );
+      }
+    }
+  }
 });

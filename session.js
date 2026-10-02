@@ -10,7 +10,10 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (CORE) {
   "use strict";
 
-  const SERIES = ["48g", "sakamichi", "love"];
+  // 系列 id 的单一出处是 core.SERIES_KEYS（加系列 = 加一行）。原来这里另抄了一份
+  // 三个 id 的数组，于是加第四个系列时会「能切但切不动」—— switchSeries 的
+  // `SERIES.includes(next)` 直接 return false，点击静默无反应。
+  const SERIES = Object.keys(CORE.SERIES_KEYS);
   const SIZES = [7, 16, 40];
   const SKINS = ["classic", "sticker"];
   const LANGS = ["zh", "en", "ja"];

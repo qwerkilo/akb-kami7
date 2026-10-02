@@ -21,6 +21,10 @@ for (let i = 1; i <= 40; i++) MEMBERS.push({ id: `a${i}`, series: "48g" });
 for (let i = 1; i <= 40; i++)
   MEMBERS.push({ id: `s${i}`, series: "sakamichi" });
 for (let i = 1; i <= 40; i++) MEMBERS.push({ id: `l${i}`, series: "love" });
+// 第四个系列（早安）。前缀按工单定的 m —— 加系列时忘了加夹具，
+// 「session 认得这个系列吗」那条测试会以「toggleSelect 返回 false」的形式失败，
+// 症状看起来像成员归属错了而不是夹具缺了。
+for (let i = 1; i <= 40; i++) MEMBERS.push({ id: `m${i}`, series: "morning" });
 const BY_ID = new Map(MEMBERS.map((m) => [m.id, m]));
 const byId = (id) => BY_ID.get(id);
 
@@ -1201,4 +1205,30 @@ test("resetScreening 之后「继续细分」的门必须重新可用（clearScr
     true,
     "重置后再次到达同一边界，「继续细分」必须还在（deeperRound 被 stale 值压掉了）"
   );
+});
+
+test("session 认识的系列集合 = core.SERIES_KEYS（加系列不能只改 core）", () => {
+  // 加第四个系列时我漏了 session.js 里另抄的那份 id 数组，于是
+  // switchSeries 的 SERIES.includes(next) 直接 false、**点击静默无反应** ——
+  // 七处缝一条都不覆盖（app.js 的接线是对的，错在 session 返回 false）。
+  // 现在 SERIES 从 core.SERIES_KEYS 派生，这条测试钉住派生关系本身。
+  // 每个系列都要造出真实的成员（夹具前缀 a/s/l/m），否则空团的边界会空转。
+  const core = require("../core.js");
+  const byPrefix = { "48g": "a", sakamichi: "s", love: "l", morning: "m" };
+  const ids = Object.keys(core.SERIES_KEYS);
+  for (const id of ids) {
+    const S = make();
+    // switchSeries 对「切到当前系列」返回 false 是正确的守卫（那不是切换），
+    // 所以先切到别的再切回来 —— 否则第一个 id 永远失败。
+    if (id === S.snapshot().series) {
+      assert.equal(S.switchSeries(ids.find((x) => x !== id)), true);
+    }
+    assert.equal(S.switchSeries(id), true, `${id} 切不过去`);
+    assert.equal(S.snapshot().series, id);
+    assert.equal(
+      S.toggleSelect(byPrefix[id] + "1"),
+      true,
+      `${id} 的夹具没有真实成员（前缀 ${byPrefix[id]}）`
+    );
+  }
 });

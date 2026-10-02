@@ -532,50 +532,72 @@
   }
 
   // ---- 命名（随系列/档位变化的品牌、标题、标签与文件名；文案仍来自 i18n） ----
+  // 每个系列的**全部**命名差异都收在这一张表里。加系列 = 加一行，
+  // 而不是再往嵌套三元里塞一层 —— 三个系列时那串三元已经 CCN 12（棘轮红线），
+  // 加第四个必超。牌位相关的键（选拔组 / 圈内 / 神7）四个系列共用，不在这里分叉。
+  const SERIES_KEYS = {
+    "48g": {
+      brand7: "brand_7",
+      label: "series_48g",
+      short: "series_48g_short",
+      tag: "#48Group",
+      filePrefix: "48group",
+      titlePrefix: "title_prefix_48g",
+      slug7: "kami7",
+    },
+    sakamichi: {
+      brand7: "brand_7fukujin",
+      label: "series_saka",
+      short: "series_saka_short",
+      tag: "#Sakamichi",
+      filePrefix: "sakamichi",
+      titlePrefix: "title_prefix_saka",
+      slug7: "7fukujin",
+    },
+    love: {
+      brand7: "brand_7oshi",
+      label: "series_love",
+      short: "series_love_short",
+      tag: "#イコノイジョイ",
+      filePrefix: "love",
+      titlePrefix: "title_prefix_love",
+      slug7: "7",
+    },
+    // 早安没有「选拔组」文化 —— 7 档叫 Modeshi 7（推し 7），
+    // 那是它唯一能与「7」对话的制度（grilling R2-Q1）。
+    morning: {
+      brand7: "brand_7modeshi",
+      label: "series_morning",
+      short: "series_morning_short",
+      tag: "#モーニング娘。",
+      filePrefix: "morningmusume",
+      titlePrefix: "title_prefix_morning",
+      slug7: "modeshi7",
+    },
+  };
+
   function names(series, size, t) {
-    const saka = series === "sakamichi";
-    const love = series === "love";
+    const k = SERIES_KEYS[series] || SERIES_KEYS["48g"];
+    // 注意这三个 t(...) 各自独立成句（而不是 t(cond ? "brand_40" : …)）：
+    // 死键守卫的 grep 是 `\bt\(\s*"key"`，键写在调用实参的三元里它就看不见了 ——
+    // 我第一版写成 `t(size === 40 ? …)`，brand_16/brand_40 立刻变成「无人引用的键」。
     const brand =
-      size === 40
-        ? t("brand_40")
-        : size === 16
-          ? t("brand_16")
-          : love
-            ? t("brand_7oshi")
-            : saka
-              ? t("brand_7fukujin")
-              : t("brand_7");
-    const seriesLabel = t(
-      love ? "series_love" : saka ? "series_saka" : "series_48g"
-    );
+      size === 40 ? t("brand_40") : size === 16 ? t("brand_16") : t(k.brand7);
+    const seriesLabel = t(k.label);
     // 窄屏用的短标签：390px 放不下全长（en「=LOVE Family」右边缘到 457 > 视口 390），
     // 而品牌还随系列变宽（神7 79 / 7福神 123 / 推し 7 132），所以 tab 必须有短形。
-    const seriesShort = t(
-      love
-        ? "series_love_short"
-        : saka
-          ? "series_saka_short"
-          : "series_48g_short"
-    );
-    const tag = love ? "#イコノイジョイ" : saka ? "#Sakamichi" : "#48Group";
-    const filePrefix = love ? "love" : saka ? "sakamichi" : "48group";
-    const titleKey = love
-      ? "title_prefix_love"
-      : saka
-        ? "title_prefix_saka"
-        : "title_prefix_48g";
+    const seriesShort = t(k.short);
+    const tag = k.tag;
     return {
       brand,
       seriesLabel,
       seriesShort,
-      title: `${t(titleKey)} ${brand}`,
+      title: `${t(k.titlePrefix)} ${brand}`,
       eyebrow: `${seriesLabel} 好き顔ソート`,
       shareTags: `${tag} #好き顔ソート`,
       posterTags: `${tag}  #好き顔ソート`,
       fileBase:
-        size === 7
-          ? `${filePrefix}_${love ? "7" : saka ? "7fukujin" : "kami7"}`
-          : `${filePrefix}_${size}`,
+        size === 7 ? `${k.filePrefix}_${k.slug7}` : `${k.filePrefix}_${size}`,
     };
   }
 
@@ -1158,6 +1180,7 @@
   }
 
   return {
+    SERIES_KEYS,
     normalizeName,
     haystack,
     romanize,

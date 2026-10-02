@@ -1181,3 +1181,30 @@ test("折叠段：两层的段名同号（1px 差不是层级信号）", () => {
     `字号只能有一个（读到 ${block[1].trim()}）—— 此前是 16px / 17px 两处写死`
   );
 });
+
+test("系列 tab 与 core.SERIES_KEYS 双向一致（加系列漏了哪一头都会红）", () => {
+  const core = require("../core.js");
+  const tabs = [...html.matchAll(/data-series="([^"]+)"/g)].map((m) => m[1]);
+  const known = Object.keys(core.SERIES_KEYS);
+
+  // 只查一边都不够：tab 多出来（=CORE 不认识）会让 applyStatic 切到没有命名的系列，
+  // 表里有而 tab 没有则整个系列在界面上不存在。两边都要。
+  assert.deepEqual(
+    tabs,
+    known,
+    `index.html 的系列 tab [${tabs}] 与 SERIES_KEYS [${known}] 不一致`
+  );
+  assert.equal(new Set(tabs).size, tabs.length, "系列 tab 有重复");
+
+  // 每个 tab 的按钮体必须是「会被 applyStatic 覆写」的普通文本 —— 放子元素会被抹掉
+  for (const id of known) {
+    const block = html.match(
+      new RegExp(`data-series="${id}"[^>]*>\\s*([^<]*?)\\s*</button`)
+    );
+    assert.ok(block, `index.html 里找不到 data-series="${id}" 的按钮`);
+    assert.ok(
+      !block[1].includes("<"),
+      `data-series="${id}" 的按钮体含标签 —— applyStatic 每次用 textContent 覆写，会被抹掉`
+    );
+  }
+});
