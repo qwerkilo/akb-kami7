@@ -972,10 +972,21 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
   );
   // 两条渲染路径都要消费标志，否则标志会漏给下一次渲染
   const roster = /function renderRoster\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(roster, "找不到 renderRoster()");
+  // 必须是**最后一条语句**，不是「函数体里出现过」—— 架构扫描候选 4：
+  // 原来的 /rosterEntered\(\)/ 只验任意位置，于是把它从末尾挪到第一行（末尾那次删掉）
+  // 245 个用例全绿，那恰好复现 34d7377 修掉的原缺陷（卡片在窗口之后创建 → 整个不播）。
+  // 顺序有语义，所以这条要锚在末尾。
   assert.match(
     roster[1],
-    /rosterEntered\(\)/,
-    "renderRoster 末尾必须调 rosterEntered()"
+    /rosterEntered\(\);\s*$/,
+    "rosterEntered() 必须是 renderRoster 的最后一条语句（它是「本次渲染播入场」的信号，位置有语义）"
+  );
+  // 而且必须排在写 innerHTML 之后 —— 卡片先存在，加类才是动画起点
+  assert.ok(
+    roster[1].indexOf("roster.innerHTML") <
+      roster[1].lastIndexOf("rosterEntered()"),
+    "必须先写 innerHTML 再调 rosterEntered()"
   );
   const search = /function renderSearch\([\s\S]*?\n  \}/.exec(app);
   assert.match(
