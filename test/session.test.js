@@ -1127,8 +1127,8 @@ test("缩小档位会清空筛选进度：旧档位的 cut 不会残留（按钮
   assert.equal(sc.tiers.flat().length, 16, "层级并集 = 已选 16 人");
   const strip = sc.tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
   assert.equal(
-    core.tierQuestionMax(16, sc.round),
+    core.tierQuestionMax(S.snapshot().selected, S.snapshot().cut, sc.round),
     strip,
-    "按钮题数与细条题数一致"
+    "按钮题数与细条题数一致（候选 2 之后两者同源，不再可能分叉）"
   );
 });

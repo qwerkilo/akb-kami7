@@ -1286,7 +1286,7 @@
     sub.dataset.need = String(sc.canCut);
     sub.textContent = sc.complete
       ? // 用「实际已划的轮数」，不是完整计划：筛得浅题数反而多
-        t("start_est", CORE.tierQuestionMax(snap.selected.length, sc.round))
+        t("start_est", CORE.tierQuestionMax(snap.selected, sc.cut, sc.round))
       : t("screen_min", sc.canCut);
     const more = $("#screen-more");
     // 只有「本轮已划够、且还能再划」时才给递归入口（主动决定要不要继续细分）

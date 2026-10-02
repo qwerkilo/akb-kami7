@@ -888,9 +888,15 @@
   // 后果不是「数据脏」而是**同一屏两个数字打架**：提交按钮按计划算、细条按实际层级算。
   // deserializeState（load 路径）与 session.setSize（运行路径）都必须过这里 ——
   // 只在 load 路径夹，setSize 之后仍然会分叉。
+  // 配额必须按**实际已选人数**算，不能按档位：`screenStep` 拿的是实际人数（少于档位
+  // 也要能排），两套基准会让夹出来的层级下一步根本不认 —— 表现为「同一屏两个数字打架」。
   function clampCut(selected, cutRounds, size) {
     const sel = Array.isArray(selected) ? selected : [];
-    const quotas = screenRounds(size).cuts;
+    const basis = Math.min(
+      typeof size === "number" ? size : sel.length,
+      sel.length
+    );
+    const quotas = screenRounds(basis).cuts;
     const rounds = Array.isArray(cutRounds) ? cutRounds : [];
     const seen = new Set();
     const out = [];
@@ -992,17 +998,23 @@
   }
 
   // 题数上限 = 各层级组大小之和（筛到哪一轮决定问多少题）
-  function tierQuestionMax(size, maxRounds) {
-    const { cuts } = screenRounds(size);
-    const used = cuts.slice(
-      0,
-      typeof maxRounds === "number" ? maxRounds : cuts.length
+  // 筛选按钮上的「约 N 题」是**预测**：本轮填满之后会是什么题数。
+  // 预测与实际（tierProgress 用 screenTiers 算）必须一致，所以两边必须用**同一个基准** ——
+  // 池子大小（实际已选人数），不是档位。少选的存档形状下两者曾算出两个数（34 vs 49）。
+  // 注意 `roundsDone` 是「已完成轮数」（screenStep 的 round）；按钮只在 complete 时显示
+  // 题数，那时预测恰好等于实际 —— 这条恒等由 core.test.js 钉住。
+  function tierQuestionMax(selected, cutRounds, roundsDone) {
+    const pool = (Array.isArray(selected) ? selected : []).length;
+    const { cuts } = screenRounds(pool);
+    const done = typeof roundsDone === "number" ? roundsDone : cuts.length;
+    const used = cuts.slice(0, done);
+    // 层级 = [最内层保留组, ...各轮划掉组（倒序）]；kept 按「实际用了几轮」算 ——
+    // 筛得浅题数反而多，所以不能拿完整计划的 kept。
+    const kept = pool - used.reduce((a, b) => a + b, 0);
+    return [kept, ...used.slice().reverse()].reduce(
+      (sum, n) => sum + worstCase(n),
+      0
     );
-    // 层级 = [最内层保留组, ...各轮划掉组（倒序）]。
-    // 注意 kept 要按「实际用了几轮」算，不是完整计划的 kept —— 筛得浅题数反而多。
-    const kept = size - used.reduce((a, b) => a + b, 0);
-    const sizes = [kept, ...used.slice().reverse()];
-    return sizes.reduce((sum, n) => sum + worstCase(n), 0);
   }
 
   // 逐层排序：对手只来自同一层级（跨层级比较会推翻「保留组占据前 K 名」）

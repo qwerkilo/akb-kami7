@@ -319,11 +319,14 @@ test("haystack：无折叠表时仍追加罗马字", () => {
 });
 
 test("持久化：序列化往返与损坏数据安全丢弃", () => {
+  // 夹具要用**够得到的形状**：原来写 selected 只有 2 人却带 16 档与一轮划除，而按实际
+  // 已选人数算 2 人的计划是空的（screenRounds(2).cuts === []），夹子于是把 cut 清掉。
+  // 选 7 人 / 7 档、划 3 人 —— 与生产里第一轮筛除同形。
   const state = {
-    size: 16,
-    selected: ["a", "b"],
-    duel: { tiers: [["a", "b", "c"]], answers: [true] },
-    cut: [["b"]],
+    size: 7,
+    selected: ["a", "b", "c", "d", "e", "f", "g"],
+    duel: { tiers: [["a", "b", "c", "d"]], answers: [true] },
+    cut: [["e", "f", "g"]],
   };
   assert.deepEqual(core.deserializeState(core.serializeState(state)), {
     ...state,
@@ -340,17 +343,21 @@ test("持久化：序列化往返与损坏数据安全丢弃", () => {
       deeperRound: 0, // 旧存档没有这个字段 → 0
     }
   );
+  // 下面两条的夹具原来只有 1~2 个已选，而夹子的配额按**实际已选人数**算
+  // （screenRounds(1..2).cuts 都是 []），于是整轮被丢 —— 夹具是够不到的形状。
+  // 与本测试后半段那条 40 档的注释同理：规则是对的，夹具要换成合法形状才测得到意图。
+  const seven = ["a", "b", "c", "d", "e", "f", "g"];
   // 划除落在已选之外（脏存档）要被过滤掉
   assert.deepEqual(
     core.deserializeState(
-      JSON.stringify({ v: 1, size: 7, selected: ["a"], cut: [["a", "zz"]] })
+      JSON.stringify({ v: 1, size: 7, selected: seven, cut: [["a", "zz"]] })
     ).cut,
     [["a"]]
   );
   // 旧格式（平面 id 数组）→ 迁移成「全在第一轮」
   assert.deepEqual(
     core.deserializeState(
-      JSON.stringify({ v: 1, size: 7, selected: ["a", "b"], cut: ["b"] })
+      JSON.stringify({ v: 1, size: 7, selected: seven, cut: ["b"] })
     ).cut,
     [["b"]]
   );
@@ -2013,13 +2020,31 @@ test("筛选层级：名次由内到外填，越早划的组越靠后", () => {
 });
 
 test("筛选题数：各层级组大小之和，不是档位的函数", () => {
-  assert.equal(core.tierQuestionMax(7), 8); // [4,3] → 5+3
-  assert.equal(core.tierQuestionMax(16), 27); // [4,4,8] → 5+5+17
-  assert.equal(core.tierQuestionMax(40), 106); // [3,2,5,10,20] → 3+1+8+25+69
+  // 完整走完计划的三个档位（架构扫描候选 2 之后 tierQuestionMax 按**实际层级**算，
+  // 不再从「档位 + 轮数」重算计划，所以这里用「已选 + 各轮划除」表达同一份规格）
+  // 各轮的 id 必须**互不重叠** —— 我第一版用 ids(n) 各轮都从头切，于是第 2 轮全在
+  // 第 1 轮里，screenTiers 去重后层级变成 [8,4,8]，算出来 39 而不是 27（测试自己写错）。
+  const ids = (n) => Array.from({ length: n }, (_, i) => "a" + (i + 1));
+  const from = (start, n) => ids(n).map((_, i) => "a" + (start + i + 1));
+  assert.equal(core.tierQuestionMax(ids(7), [from(0, 3)], 1), 8); // [4,3] → 5+3
+  assert.equal(core.tierQuestionMax(ids(16), [from(0, 8), from(8, 4)], 2), 27); // [4,4,8] → 5+5+17
+  assert.equal(
+    core.tierQuestionMax(
+      ids(40),
+      [from(0, 20), from(20, 10), from(30, 5), from(35, 2)],
+      4
+    ),
+    106
+  ); // [3,2,5,10,20]
   // 同一档位筛到不同轮次 → 不同题数：只划一轮是 [20,20] → 138，划满四轮 → 106
-  assert.equal(core.tierQuestionMax(40, 1), 138);
+  assert.equal(core.tierQuestionMax(ids(40), [from(0, 20)], 1), 138); // [20,20] → 69+69
   assert.ok(
-    core.tierQuestionMax(40, 1) > core.tierQuestionMax(40),
+    core.tierQuestionMax(ids(40), [from(0, 20)], 1) >
+      core.tierQuestionMax(
+        ids(40),
+        [from(0, 20), from(20, 10), from(30, 5), from(35, 2)],
+        4
+      ),
     "筛得浅题数反而多"
   );
 });
@@ -2342,8 +2367,9 @@ test("脏存档：**超额**形状夹过之后，按钮题数与细条题数不�
     assert.ok(s, `${size} 档脏存档应被接受`);
     const tiers = core.screenTiers(sel, s.cut);
     const actual = tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
-    // 按钮用 tierQuestionMax(size, sc.round) —— sc.round 就是 cut 的轮数
-    const shown = core.tierQuestionMax(size, s.cut.length);
+    // 按钮侧：从**同一个层级集合**算（架构扫描候选 2 之后 tierQuestionMax 不再从
+    // 「档位 + 轮数」重算计划，所以它与细条不可能再分叉）
+    const shown = core.tierQuestionMax(sel, s.cut, s.cut.length);
     assert.equal(
       shown,
       actual,
@@ -2410,8 +2436,8 @@ test("clampCut 验收：把旧档位的 cut 夹到新档位后，提交按钮与
   const step = core.screenStep(16, clamped, 0);
   const tiers = core.screenTiers(sel16, clamped);
   const strip = tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
-  // 按钮侧用的就是 screenStep 的轮数（app.js 传 sc.round）
-  const shown = core.tierQuestionMax(16, step.round);
+  // 按钮侧：与细条同一个层级集合（app.js 传 snap.selected + sc.cut）
+  const shown = core.tierQuestionMax(sel16, clamped, clamped.length);
   assert.equal(
     shown,
     strip,
@@ -2419,26 +2445,82 @@ test("clampCut 验收：把旧档位的 cut 夹到新档位后，提交按钮与
   );
 });
 
-test("脏存档：少划的轮次仍会让两个口径不等，但那时按钮走门槛文案（complete=false），用户看不见", () => {
+test("脏存档：少划的轮次下两个口径**也**恒等（候选 2 之后不可能分叉）", () => {
   const sel = ids(40, "m");
   const cut = [sel.slice(0, 20), sel.slice(20, 30), sel.slice(30, 31)]; // 第 3 轮只划 1（计划 5）
   const step = core.screenStep(40, cut, 0);
-  assert.equal(
-    step.complete,
-    false,
-    "少划 ⇒ 不可提交 ⇒ 按钮显示门槛文案而不是题数"
-  );
   const tiers = core.screenTiers(sel, cut);
   const strip = tiers.reduce((sum, g) => sum + core.worstCase(g.length), 0);
-  const shown = core.tierQuestionMax(40, cut.length);
+  const shown = core.tierQuestionMax(sel, cut, 2);
+  // 这条测试原来断言 **notEqual** —— 那时按钮按计划重算、细条按实际层级算，两个实现
+  // 分叉。现在两边同基准了，但**恒等式只在按钮真的显示题数时成立**：complete 为假时
+  // 按钮走「至少留 N 人」门槛文案，用户看不见题数（这条断言因此从「确实不等」改成
+  // 「complete 时恒等、否则按钮不显示题数」）。
+  assert.equal(step.complete, false, "少划 ⇒ 不可提交");
   assert.notEqual(
     shown,
     strip,
-    "这个形状下两个口径确实不等（所以上一条不能说「恒等」）"
+    "少划时按钮不显示题数，所以两者可以不等（这里钉住前提）"
   );
-  // 但它必须是「按钮低估」而不是「按钮高估」—— 低估时用户点进去才发现题数更多。
-  assert.ok(
-    shown < strip,
-    `按钮 ${shown} 应低于细条 ${strip}（按钮按计划、细条按实际）`
+  // 补足第 3 轮之后（同基准）两个口径必须一致
+  const full = [sel.slice(0, 20), sel.slice(20, 30), sel.slice(30, 35)];
+  const step2 = core.screenStep(40, full, 0);
+  assert.equal(step2.complete, true, "补足计划最后一轮即可提交");
+  assert.equal(
+    core.tierQuestionMax(sel, full, full.length),
+    core.tierProgress(core.screenTiers(sel, full), 0).max,
+    "complete 时按钮题数 == 细条上限"
   );
+});
+
+test("clampCut 必须按**实际已选人数**夹，而不是档位（否则夹出来的层级计划下一步根本不认）", () => {
+  const sel = Array.from({ length: 16 }, (_, i) => "a" + (i + 1));
+  const cut = [sel.slice()]; // 第 1 轮划掉全部 16 人
+  // 40 档的计划第 1 轮上限是 20 → 按档位夹会放行 16；16 人的计划上限是 8 → 应夹到 8
+  assert.deepEqual(
+    core.clampCut(sel, cut, 40).map((r) => r.length),
+    [8],
+    "按档位夹 → [16]，它与 screenStep（按实际人数）分叉，下一轮 canCut 会算错"
+  );
+  assert.deepEqual(
+    core.clampCut(sel, cut, 16).map((r) => r.length),
+    [8]
+  );
+});
+
+test("按钮题数与细进度条上限必须同源（少选 + 扁平 cut 的存档形状）", () => {
+  // 这个形状必须走 deserializeState 才真实 —— 裸 cut 会被 clampCut 夹掉一轮配额
+  // （我第一版直接手写 cut，于是按钮按 16 人算、细条按未夹的 [0,16] 算，差 15；
+  //  生产里 cut 一定被夹过，所以那条差值走不到界面）。
+  const sel = Array.from({ length: 16 }, (_, i) => "a" + (i + 1));
+  const st = core.deserializeState(
+    JSON.stringify({
+      v: 1,
+      size: 40,
+      selected: sel,
+      cut: [sel.slice()],
+      duel: null,
+    })
+  );
+  assert.deepEqual(
+    st.cut.map((r) => r.length),
+    [8],
+    "按实际已选人数夹（16 人的第 1 轮上限是 8，不是 40 档的 20）"
+  );
+  const tiers = core.screenTiers(st.selected, st.cut);
+  const bar = core.tierProgress(tiers, 0).max;
+  const btn = core.tierQuestionMax(st.selected, st.cut, st.cut.length);
+  assert.equal(btn, bar, `按钮 ${btn} vs 细条 ${bar} —— 同一屏两个数字打架`);
+  assert.equal(btn, 34);
+});
+
+test("同一条不变式在正常形状下也成立（40 档划一轮 → 138）", () => {
+  const sel = Array.from({ length: 40 }, (_, i) => "a" + (i + 1));
+  const cut = [sel.slice(0, 20)];
+  const tiers = core.screenTiers(sel, cut);
+  assert.equal(
+    core.tierQuestionMax(sel, cut, 1),
+    core.tierProgress(tiers, 0).max
+  );
+  assert.equal(core.tierQuestionMax(sel, cut, 1), 138);
 });
