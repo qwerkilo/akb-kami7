@@ -530,6 +530,10 @@ def build_bio(detail, wiki_row):
         bio["birth"] = wiki_row["birth"]
     if wiki_row.get("from") and not bio.get("from"):
         bio["from"] = wiki_row["from"]
+    # 身高：只有℃-ute 那两张表有。决定 3「有就显示、没有就不占位」——
+    # 空串直接不写进 bio，产物里就不会有这一键（资料卡少一行可以，造假值不行）。
+    if wiki_row.get("height") and not bio.get("height"):
+        bio["height"] = wiki_row["height"]
     return bio
 
 
@@ -591,14 +595,39 @@ def _merge_one(item, w):
     return rec, url
 
 
-def build_members(official, wiki):
-    """official: {姓名: parse_list 项（含 detail）}；wiki: parse_wiki_members 的结果。
+def build_members_from_wiki(pages):
+    """只从 Wikipedia 装配（{团: wikitext}）。
+
+    官网只覆盖モーニング娘。，其余团（如已解散的℃-ute）没有官网页面，
+    所以它们的成员**全部**来自 Wikipedia。这里和 build_members 共用 _merge_one，
+    免得出现第二套合并规则。
+    """
+    members, urls = [], {}
+    for group, text in pages.items():
+        for m in parse_wiki_members(text, group):
+            rec, _url = _merge_one({}, m)
+            if not rec:
+                continue
+            rec["group"] = group
+            rec["series"] = SERIES
+            members.append(rec)
+    return members
+
+
+def build_members(official, pages):
+    """official: {姓名: parse_list 项（含 detail）}；pages: {团: 该团条目的 wikitext}。
     返回 (members, urls) —— 照片放在 urls 里按 file 键索引，与 love_members 同契约
     （fetch_members 靠 urls 下载，不要发明第二个形状）。
 
-    两源按姓名归一后合并，任一侧独有的都要留下。
+    两源按姓名归一后合并，任一侧独有的都要留下。多个团时合并是**跨团**的：
+    一个人理论上可能在两个团各有一份档案（ADR-0021 说的重叠），这里按姓名归到一条，
+    但 group 字段要跟着走 —— 否则段 label 会张冠李戴。
     """
     by_name = {norm_name(k): v for k, v in official.items()}
+    wiki = []
+    for group, text in pages.items():
+        for m in parse_wiki_members(text, group):
+            wiki.append(dict(m, group=group))
     wiki_by_norm = {norm_name(m["name"]): m for m in wiki}
     members, urls = [], {}
     for key in dict.fromkeys([*by_name.keys(), *wiki_by_norm.keys()]):
@@ -643,28 +672,53 @@ def build_sections(members):
     期生留在成员记录上（等爱只有一期，才把 GENERATION 塞进段）。"""
     if not members:
         return []
-    # optional 里要多带两个字段，理由与等爱相反：
-    # - generation：早安有 18 期，「按期生筛」必须逐人存（等爱只有一期，期生在段 label 上）
+    # 按团分段，段的顺序跟 GROUPS 的配置顺序走 —— 稳定顺序才有可断言的产物。
+    # optional 里要多带三个字段，理由与等爱相反：
+    # - generation：モーニング娘。有 18 期，「按期生筛」必须逐人存（等爱只有一期，期生在段 label 上）
     # - nick_aliases：进搜索用的 haystack（grilling R1-Q3：昵称只显示第一个，其余仍要能被搜到）
+    # - height：身高只在 bio 里且「有就显示」—— 空串由 build_bio 剔掉，不会进产物
     # roster.project 的可选字段集默认只有 bio，带不进来就等于字段被静默丢掉。
-    return [roster.section(GROUP, SERIES, GROUP, members, optional=("bio", "generation", "nick_aliases"))]
+    optional = ("bio", "generation", "nick_aliases")
+    out = []
+    for group in GROUPS:
+        rows = [m for m in members if m.get("group") == group]
+        if not rows:
+            continue
+        out.append(roster.section(group, SERIES, group, rows, optional=optional))
+    # 配置里没有的团（不该有，但要能看见而不是静默丢掉）
+    stray = {m.get("group") for m in members} - set(GROUPS)
+    if stray:
+        raise ValueError("这些团没配在 GROUPS 里：{}".format(sorted(stray)))
+    return out
 
 
-def load(fetch, warn=print):
-    """抓官网列表 + 每人详情 + Wikipedia 两表 + 毕业照片。返回 (members, urls)。"""
-    listing = parse_list(fetch(SITE + LIST_PATH))
+# 官网只覆盖这个团：℃-ute 2017 年就解散了、官网首页那 7 个现役团里没有它，
+# 猜过的路径全 404（决定 8）。它的成员全部来自 Wikipedia。
+OFFICIAL_GROUPS = ["モーニング娘。"]
+OFFICIAL_PATHS = {"モーニング娘。": LIST_PATH}
+
+
+def load(fetch, warn=print, photo=True):
+    """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。"""
     official = {}
-    for item in listing:
-        detail = parse_detail(fetch(SITE + item["path"]))
-        merged = dict(item)
-        merged["detail"] = detail
-        official[item["name"]] = merged
-    print("モーニング娘。: {} 人（官网）".format(len(official)))
-    text = wiki_wikitext(WIKI_PAGE, fetch)
-    wiki = parse_wiki_members(text)
-    print("モーニング娘。: {} 人（Wikipedia）".format(len(wiki)))
-    members, urls = build_members(official, wiki)
-    resolve_former_photos(members, urls, fetch, warn)
+    for group in OFFICIAL_GROUPS:
+        listing = parse_list(fetch(SITE + OFFICIAL_PATHS[group]))
+        for item in listing:
+            detail = parse_detail(fetch(SITE + item["path"]))
+            merged = dict(item)
+            merged["detail"] = detail
+            merged["group"] = group
+            official[item["name"]] = merged
+        print("{}: {} 人（官网）".format(group, len(official)))
+
+    members, urls = [], {}
+    pages = {}
+    for group, cfg in GROUPS.items():
+        pages[group] = wiki_wikitext(cfg["page"], fetch)
+        print("{}: {} 人（Wikipedia）".format(group, len(parse_wiki_members(pages[group], group))))
+    members, urls = build_members(official, pages)
+    if photo:
+        resolve_former_photos(members, urls, fetch, warn)
     return members, urls
 
 

@@ -290,7 +290,7 @@ class BuildMembersTests(unittest.TestCase):
             it = dict(it)
             it["detail"] = mm.parse_detail(DETAIL_HTML) if it["name"] == "野中美希" else {}
             official[it["name"]] = it
-        self.members, self.urls = mm.build_members(official, mm.parse_wiki_members(BOTH))
+        self.members, self.urls = mm.build_members(official, {"モーニング娘。": BOTH})
         self.by_name = {m["name"]: m for m in self.members}
 
     def test_official_fills_bio_and_photo_url(self):
@@ -325,7 +325,7 @@ class BuildMembersTests(unittest.TestCase):
                 "detail": {"nick_raw": "非儿的昵称、别名一"},
             }
         }
-        members, _ = mm.build_members(official, mm.parse_wiki_members(BOTH))
+        members, _ = mm.build_members(official, {"モーニング娘。": BOTH})
         m = {x["name"]: x for x in members}["野中美希"]
         self.assertEqual(m["nick"], "非儿的昵称")
         self.assertEqual(m["nick_aliases"], ["别名一"])
@@ -407,7 +407,7 @@ class BuildSectionsTests(unittest.TestCase):
     def test_one_series_one_group_and_generation_stays_a_member_field(self):
         """早安是**一系列一团**；期生留在成员上（等爱是三团且只有一期，
         所以把 GENERATION 塞进 section —— 早安相反，18 期必须能筛）。"""
-        secs = mm.build_sections(mm.parse_wiki_members(BOTH))
+        secs = mm.build_sections(mm.build_members_from_wiki({"モーニング娘。": BOTH}))
         self.assertEqual(len(secs), 1)
         self.assertEqual(secs[0]["group"], "モーニング娘。")
         self.assertEqual(secs[0]["series"], "morning")
@@ -430,7 +430,16 @@ if __name__ == "__main__":
 # ── 工单 01：℃-ute 的 parse（按团配置节标记，复用モーニング娘。的解析器）────
 CUTE_DISSOLVED_WIKI = fixture("cute-dissolved-members.wiki")   # 解散时全员（5 人）
 CUTE_PAST_WIKI = fixture("cute-past-members.wiki")             # 更早离团（3 人）
-CUTE_WIKI = CUTE_DISSOLVED_WIKI + "\n" + CUTE_PAST_WIKI
+# 同样要自己补 section 标题 —— fixture 只切了表本身（与早安那两个一致）。
+# ⚠️ 我第一版切 fixture 时从标记**本身**开始，于是 fixture 自带标题、再补一次就
+# 重复，span 只剩标题行、解析出 0 人。症状是「全员毕业」那几条报 KeyError，
+# 看着像配置没生效。
+CUTE_WIKI = (
+    "=== 解散時のメンバー ===\n"
+    + CUTE_DISSOLVED_WIKI
+    + "\n=== 過去に在籍していたメンバー ===\n"
+    + CUTE_PAST_WIKI
+)
 
 
 class CuteSectionTests(unittest.TestCase):
@@ -491,3 +500,99 @@ class CuteSectionTests(unittest.TestCase):
         names = {m["name"] for m in got}
         self.assertTrue("野中美希" in names and "福田明日香" in names, sorted(names))
         self.assertTrue(any(m["status"] == "current" for m in got), "モーニング娘。仍有现役节")
+
+
+# ── 工单 02：装配（一个系列两个团 + 全员毕业）────────────────────────────
+CUTE_WIKI_PAGES = {
+    "モーニング娘。": BOTH,
+    "℃-ute": CUTE_WIKI,
+}
+
+
+class TwoGroupSectionTests(unittest.TestCase):
+    def test_one_series_two_sections_labelled_by_group(self):
+        got = mm.build_members_from_wiki(CUTE_WIKI_PAGES)
+        secs = mm.build_sections(got)
+        self.assertEqual([s["group"] for s in secs], ["モーニング娘。", "℃-ute"])
+        self.assertEqual({s["series"] for s in secs}, {"morning"})
+        # 注意：这里用的是**夹具**，不是真实抓取的人数（真实抓取是 51 人，
+        # 那要等工单 03）。所以比的是**相对**形状，不钉绝对数字。
+        self.assertEqual(len(secs[0]["members"]), 6, "モーニング娘。夹具 6 行")
+        self.assertTrue(secs[0]["members"], "两段都不能是空的")
+        self.assertTrue(
+            any(m["name"] == "野中美希" for m in secs[0]["members"]), "现役要在"
+        )
+        self.assertEqual(len(secs[1]["members"]), 8, "℃-ute 夹具 8 人")
+
+    def test_cute_members_are_all_former(self):
+        got = mm.build_members_from_wiki(CUTE_WIKI_PAGES)
+        cute = [m for m in got if m["group"] == "℃-ute"]
+        self.assertEqual(len(cute), 8)
+        self.assertEqual({m["status"] for m in cute}, {"former"})
+
+    def test_each_section_is_one_group_and_its_label_is_that_group(self):
+        """团名落在**段**上（label + series），不是成员字段 —— 我第一版把
+        断言写在成员上，于是 KeyError: 'group'。段 label 是站内「按团筛」的唯一依据，
+        所以要钉的是段这一层。"""
+        secs = mm.build_sections(mm.build_members_from_wiki(CUTE_WIKI_PAGES))
+        for sec in secs:
+            self.assertEqual(sec["label"], sec["group"])
+            self.assertEqual(sec["series"], "morning")
+        self.assertEqual(len(secs), 2, "两个团两段，不能把两个团塞进一段")
+
+    def setUp(self):
+        secs = mm.build_sections(mm.build_members_from_wiki(CUTE_WIKI_PAGES))
+        self.by_group = {s["group"]: s for s in secs}
+
+    def test_height_reaches_the_projection_for_the_group_that_has_it(self):
+        """决定 3：「有就显示、没有就不占位」。dissolved 表有身高、past 表没有。"""
+        members = self.by_group["℃-ute"]["members"]
+        with_h = [m["bio"]["height"] for m in members if "height" in (m.get("bio") or {})]
+        self.assertEqual(sorted(with_h), ["152cm", "156cm", "158cm", "161cm", "166cm"])
+
+    def test_height_absent_is_omitted_entirely_not_written_as_empty(self):
+        """「没有就不占位」= 产物里**没有这个键**，而不是有键但值是空串 ——
+        资料卡要按有没有真值来决定要不要输出这一行。"""
+        kami = self.by_group["モーニング娘。"]["members"]
+        self.assertEqual([m for m in kami if "height" in (m.get("bio") or {})], [])
+        cute = self.by_group["℃-ute"]["members"]
+        no_h = [m for m in cute if "height" not in (m.get("bio") or {})]
+        self.assertEqual({m["name"] for m in no_h}, {"村上愛", "有原栞菜", "梅田えりか"})
+
+    def test_a_group_missing_from_the_config_fails_loudly(self):
+        """没配在 GROUPS 里的团要**报错**而不是静默消失 —— 静默丢掉的症状是
+        「某团从站点上不见了，而脚本 exit 0」，那正是源门当初要堵的那类事故
+        （抓取 0 人 → build_sections 丢段 → prune_unused 删图）。
+        变异验证时这条变异存活过（当时没有测试喂未配置的团），所以补上。
+        """
+        rows = mm.parse_wiki_members(CUTE_WIKI, "℃-ute")
+        bogus = [dict(r, group="没配过的团") for r in rows]
+        with self.assertRaises(ValueError) as ctx:
+            mm.build_sections(bogus)
+        self.assertIn("没配过的团", str(ctx.exception))
+
+    def test_empty_wiki_page_yields_no_section(self):
+        secs = mm.build_sections(mm.build_members_from_wiki({"℃-ute": ""}))
+        self.assertEqual(secs, [], "取不到条目的团不该产出一段空段")
+
+    def test_load_talks_to_two_wiki_pages_and_only_one_official_site(self):
+        """官网那侧**不抓℃-ute**（团已解散、没官网页面，决定 8），Wikipedia 那侧抓两篇。"""
+        asked = []
+
+        def fetch(url):
+            asked.append(url)
+            if "helloproject.com" in url:
+                return LIST_HTML if url.endswith("morningmusume/") else "<html></html>"
+            if "℃-ute" in url:
+                return CUTE_WIKI
+            return BOTH
+
+        mm.load(fetch, warn=lambda *a: None, photo=False)
+        wiki_titles = [u for u in asked if "action=parse" in u]
+        self.assertEqual(len(wiki_titles), 2, wiki_titles)
+        site_roots = {u.split("//")[1].split("/")[0] for u in asked if "helloproject" in u}
+        self.assertEqual(site_roots, {"helloproject.com"})
+        self.assertFalse(
+            any("cute" in u or "c-ute" in u for u in asked),
+            "不该去抓℃-ute 的官网（它已解散、没有官网页面）",
+        )
