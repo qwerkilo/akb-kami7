@@ -1041,3 +1041,14 @@
   那是刻意行为、留给评审（不做元级文本守卫）。
 - 变异 **2/2 被杀**（往 SERIES_KEYS 插一个空系列 / 把 48g 改名）；`npm run check` 全绿：
   **274 JS + 215 Python**（+1）。
+
+## 第四十九轮 · 2026-10-03 · 架构扫描候选③：wikitext 只解析一次（深化㉗）
+
+- 本次基点：`7ecb45e`（第四十八轮结束）；范围 1 个提交。纯重构（产物逐字节不变），自审。
+- `build_members(official, parsed)` 收**已解析的成员**；解析收进 `parse_all(pages)`；
+  `load` 只解析一次、从解析结果打印（**人数与顺序不变**）；`build_members_from_wiki`
+  保留为「解析 + 装配」的测试便利入口。测试 3 处直接传 wikitext 的调用改走 `mm.parse_all`。
+- **让「只解析一次」承重**：`mock.patch` 计数测试断言每团恰好一次（此前 11 团 22 次，
+  对任何断言都不可见，扫描只能用探针数）。
+- 变异 **3/3 被杀**（打印时再解析一次 / `parse_all` 返空 / 记录不挂 group）；
+  `npm run check` 全绿：**274 JS + 216 Python**（+1）；`members.js` diff 空 ✓

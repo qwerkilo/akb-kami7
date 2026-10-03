@@ -806,9 +806,21 @@ def _merge_one(item, w):
     return rec, url
 
 
+def parse_all(pages):
+    """{团: wikitext} → {团: [成员记录]}（记录带 status 与 group）。
+
+    解析与装配分开：`load` 只解析一次（此前为打印人数又跑了一遍 —— 11 团 22 次），
+    装配只收数据、不再碰 wikitext。
+    """
+    return {
+        group: [dict(m, group=group) for m in parse_wiki_members(text, group)]
+        for group, text in pages.items()
+    }
+
+
 def build_members_from_wiki(pages):
     """只从 Wikipedia 装配（{团: wikitext}）；返回成员列表（照片不经手）。"""
-    members, _urls = _assemble({}, pages)
+    members, _urls = _assemble({}, parse_all(pages))
     return members
 
 
@@ -834,8 +846,8 @@ def _affinity(cand):
     )
 
 
-def _assemble(official, pages):
-    """official: {团: {姓名: parse_list 项}}；pages: {团: wikitext}。
+def _assemble(official, parsed):
+    """official: {团: {姓名: parse_list 项}}；parsed: {团: [成员记录]}（parse_all 的产物）。
     返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
 
     同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属，
@@ -859,8 +871,8 @@ def _assemble(official, pages):
                 norm_name(name),
                 {"group": group, "status": "current", "end": "", "official": item, "wiki": None},
             )
-    for group, text in pages.items():
-        for m in parse_wiki_members(text, group):
+    for group, members in parsed.items():
+        for m in members:
             add(
                 norm_name(m["name"]),
                 {
@@ -868,9 +880,9 @@ def _assemble(official, pages):
                     "status": m["status"],
                     "end": m.get("end", ""),
                     "official": None,
-                    # group 要挂进 wiki 记录：_base_record 用它拼 file 键，
-                    # 不带的话会回落成模块常量「モーニング娘。」（实测图片挂错团）
-                    "wiki": dict(m, group=group),
+                    # group 由 parse_all 挂在记录上（_base_record 用它拼 file 键，
+                    # 不带的话会回落成模块常量「モーニング娘。」——实测图片挂错团）
+                    "wiki": m,
                 },
             )
 
@@ -905,10 +917,10 @@ def _assemble(official, pages):
     return members, urls
 
 
-def build_members(official, pages):
-    """official: {团: {姓名: parse_list 项（含 detail）}}；pages: {团: wikitext}。
+def build_members(official, parsed):
+    """official: {团: {姓名: parse_list 项（含 detail）}}；parsed: {团: [成员记录]}。
     返回 (members, urls)。合并规则见 _assemble。"""
-    return _assemble(official, pages)
+    return _assemble(official, parsed)
 
 
 def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
@@ -998,12 +1010,11 @@ def load(fetch, warn=print, photo=True):
         official[group] = by_name
         print("{}: {} 人（官网）".format(group, len(by_name)))
 
-    members, urls = [], {}
-    pages = {}
-    for group, cfg in GROUPS.items():
-        pages[group] = wiki_wikitext(cfg["page"], fetch)
-        print("{}: {} 人（Wikipedia）".format(group, len(parse_wiki_members(pages[group], group))))
-    members, urls = build_members(official, pages)
+    pages = {g: wiki_wikitext(cfg["page"], fetch) for g, cfg in GROUPS.items()}
+    parsed = parse_all(pages)
+    for group in GROUPS:
+        print("{}: {} 人（Wikipedia）".format(group, len(parsed.get(group, []))))
+    members, urls = build_members(official, parsed)
     if photo:
         resolve_former_photos(members, urls, fetch, warn, pause=1.5)
     return members, urls

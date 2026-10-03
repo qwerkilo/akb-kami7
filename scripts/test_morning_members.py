@@ -14,6 +14,7 @@ fixture 是从 ja.wikipedia 主条目的真实 wikitext 里切下来的三块，
 import json
 import os
 import unittest
+from unittest import mock
 
 import morningmusume_members as mm
 
@@ -290,7 +291,7 @@ class BuildMembersTests(unittest.TestCase):
             it = dict(it)
             it["detail"] = mm.parse_detail(DETAIL_HTML) if it["name"] == "野中美希" else {}
             official["モーニング娘。"][it["name"]] = it
-        self.members, self.urls = mm.build_members(official, {"モーニング娘。": BOTH})
+        self.members, self.urls = mm.build_members(official, mm.parse_all({"モーニング娘。": BOTH}))
         self.by_name = {m["name"]: m for m in self.members}
 
     def test_official_fills_bio_and_photo_url(self):
@@ -327,7 +328,7 @@ class BuildMembersTests(unittest.TestCase):
                 }
             }
         }
-        members, _ = mm.build_members(official, {"モーニング娘。": BOTH})
+        members, _ = mm.build_members(official, mm.parse_all({"モーニング娘。": BOTH}))
         m = {x["name"]: x for x in members}["野中美希"]
         self.assertEqual(m["nick"], "非儿的昵称")
         self.assertEqual(m["nick_aliases"], ["别名一"])
@@ -545,7 +546,7 @@ class TwoGroupSectionTests(unittest.TestCase):
             merged["detail"] = mm.parse_detail(DETAIL_HTML)
             merged["group"] = "モーニング娘。"
             official["モーニング娘。"][item["name"]] = merged
-        members, _urls = mm.build_members(official, CUTE_WIKI_PAGES)
+        members, _urls = mm.build_members(official, mm.parse_all(CUTE_WIKI_PAGES))
         self.assertEqual(
             sorted({m["group"] for m in members}), ["℃-ute", "モーニング娘。"]
         )
@@ -563,7 +564,7 @@ class TwoGroupSectionTests(unittest.TestCase):
         只有**两个现役团同时认领**才是真异常（TestCrossGroupMerge 里那条）。
         """
         official = {"モーニング娘。": {"村上愛": {"name": "村上愛", "group": "モーニング娘。", "detail": {}}}}
-        members, _ = mm.build_members(official, {"℃-ute": CUTE_WIKI})
+        members, _ = mm.build_members(official, mm.parse_all({"℃-ute": CUTE_WIKI}))
         m = {x["name"]: x for x in members}["村上愛"]
         self.assertEqual(m["group"], "モーニング娘。")
         self.assertEqual(m["status"], "current")
@@ -612,6 +613,26 @@ class TwoGroupSectionTests(unittest.TestCase):
     def test_empty_wiki_page_yields_no_section(self):
         secs = mm.build_sections(mm.build_members_from_wiki({"℃-ute": ""}))
         self.assertEqual(secs, [], "取不到条目的团不该产出一段空段")
+
+    def test_load_parses_each_page_once(self):
+        """深化㉗：load 此前为打印人数把每页解析两遍（11 团 22 次）——
+        「解析两次」对任何断言都不可见（扫描只能用探针数调用），所以用计数钉住。"""
+        calls = []
+        real = mm.parse_wiki_members
+
+        def counting(text, group=mm.DEFAULT_GROUP):
+            calls.append(group)
+            return real(text, group)
+
+        def fetch(url):
+            if "helloproject.com" in url:
+                return LIST_HTML if url.endswith("morningmusume/") else "<html></html>"
+            return BOTH
+
+        with mock.patch.object(mm, "parse_wiki_members", counting):
+            mm.load(fetch, warn=lambda *a: None, photo=False)
+        self.assertEqual(len(calls), len(mm.GROUPS), f"每团一次，实际 {len(calls)} 次")
+        self.assertEqual(len(set(calls)), len(calls), "有团被解析了两次")
 
     def test_load_talks_to_eleven_wiki_pages_and_only_live_official_groups(self):
         """Wikipedia 抓 11 团；官网只抓 7 个现役团（已停止活动的团没有官网页面）。"""
@@ -856,7 +877,7 @@ class TestCrossGroupMerge(unittest.TestCase):
             "モーニング娘。": mini_table("佐藤優樹", "=== メンバー ==="),
             "アンジュルム": mini_table("伊勢鈴蘭", "=== 現在のメンバー ==="),
         }
-        members, _ = mm.build_members(official, pages)
+        members, _ = mm.build_members(official, mm.parse_all(pages))
         got = {m["name"]: m["group"] for m in members}
         self.assertEqual(got, {"佐藤優樹": "モーニング娘。", "伊勢鈴蘭": "アンジュルム"})
 
@@ -866,7 +887,7 @@ class TestCrossGroupMerge(unittest.TestCase):
             "Juice=Juice": {"井上玲音": {"name": "井上玲音", "group": "Juice=Juice", "detail": {}}}
         }
         pages = {"こぶしファクトリー": mini_table("井上玲音", "=== 旧メンバー ===", end="2019年7月8日")}
-        members, _ = mm.build_members(official, pages)
+        members, _ = mm.build_members(official, mm.parse_all(pages))
         self.assertEqual(len(members), 1)
         self.assertEqual(members[0]["group"], "Juice=Juice")
         self.assertEqual(members[0]["status"], "current")
