@@ -29,14 +29,14 @@ node /tmp/opencode/repro-cute-toggle.cjs
 
 ## 已排除（有证据，不是推测）
 
-| 假设 | 排除方式 |
-|---|---|
-| `core.rosterView` 逻辑层 | node 里跑真实 `members.js`：`℃-ute(段1, 计数8)` —— **绿的** |
-| `simplified.js` 里没有℃-ute | 全文搜索：它只有 1671 字节，**两个团都没有** |
-| `nested()` 依赖期生 | 它就是 `return snap.group === "all"` |
-| 渲染时抛异常 | pageerror 监听器捕获，**无错误** |
-| H1：缺 `generation` 键 | 差分回路：给 8 人补 `generation: ""` → **仍红** |
-| H4：缺 `nick_aliases` | 差分回路：两个键都补 → **仍红** |
+| 假设                        | 排除方式                                                    |
+| --------------------------- | ----------------------------------------------------------- |
+| `core.rosterView` 逻辑层    | node 里跑真实 `members.js`：`℃-ute(段1, 计数8)` —— **绿的** |
+| `simplified.js` 里没有℃-ute | 全文搜索：它只有 1671 字节，**两个团都没有**                |
+| `nested()` 依赖期生         | 它就是 `return snap.group === "all"`                        |
+| 渲染时抛异常                | pageerror 监听器捕获，**无错误**                            |
+| H1：缺 `generation` 键      | 差分回路：给 8 人补 `generation: ""` → **仍红**             |
+| H4：缺 `nick_aliases`       | 差分回路：两个键都补 → **仍红**                             |
 
 ⚠️ **上面两条差分实验本身是无效的** —— 它们跑在一份**不完整的站点拷贝**上
 （只 copy 了部分文件），页签都找不到。结论「仍红」不能当证据。
@@ -59,12 +59,17 @@ node /tmp/opencode/repro-cute-toggle.cjs
    ```js
    const v = rosterView();
    const node = v.nodes.find((n) => n.group === key);
-   document.body.setAttribute("data-dbg", JSON.stringify({
-     key, open, opts: viewOpts(),
-     nodeKeys: v.nodes.map((n) => n.group),
-     secCount: node ? node.sections.length : "NO-NODE",
-     members: node ? node.sections.map((x) => x.members.length) : null,
-   }));
+   document.body.setAttribute(
+     "data-dbg",
+     JSON.stringify({
+       key,
+       open,
+       opts: viewOpts(),
+       nodeKeys: v.nodes.map((n) => n.group),
+       secCount: node ? node.sections.length : "NO-NODE",
+       members: node ? node.sections.map((x) => x.members.length) : null,
+     })
+   );
    ```
    `NO-NODE` 与 `members: [0]` 指向完全不同的两条路。
 2. **对比 node 与浏览器的 `rosterView` 输入**。node 里绿、浏览器里红 → 差异在
