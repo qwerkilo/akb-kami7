@@ -495,6 +495,8 @@ def _members_from_table(text, status, from_section=""):
                 "blood": blood,
                 "from": frm,
                 "end": _col(row, "卒業・脱退"),
+                # 在籍期校验的下界（工单 02）。只在管线内用，**不投影**进产物。
+                "join": _col(row, "加入年月日"),
                 # 身長只有部分团的表有；缺就空（决定 3：有就显示、没有就不占位）。
                 "height": height,
                 # 记下这张人来自哪个节：「解散時」那张表**没有毕业日列**，
@@ -778,6 +780,8 @@ def _optional_fields(detail, w):
     extra = {}
     if w.get("end"):
         extra["end"] = w["end"]
+    if w.get("join"):
+        extra["join"] = w["join"]
     bio = build_bio(detail, w)
     if bio:
         extra["bio"] = bio
@@ -949,13 +953,173 @@ def parse_og_page(html):
     return out
 
 
+# 旧官网快照的**前缀**（工单 02）：CDX 按前缀枚举该团旧站的成员页/个页，
+# 页里的 `<img alt=姓名>` 就是证据①。每团一到两个前缀，不逐人硬编码 URL。
+OLD_PAGE_PREFIXES = {
+    "モーニング娘。": [
+        "http://www.helloproject.com/morningmusume/profile",
+        "http://www.helloproject.com/artist/01/",
+        "http://www.helloproject.com/og/",
+    ],
+    "℃-ute": ["http://www.helloproject.com/c-ute/profile"],
+    "Berryz工房": [
+        "http://www.helloproject.com/berryz/profile",
+        "http://www.helloproject.com/berryzkobo/profile",
+    ],
+    "カントリー・ガールズ": ["http://www.helloproject.com/countrygirls/profile"],
+    "こぶしファクトリー": ["http://www.helloproject.com/kobushifactory/profile"],
+    "アンジュルム": [
+        "http://www.helloproject.com/angerme/profile",
+        "http://www.helloproject.com/smileage/profile",
+        "http://www.helloproject.com/helloprokenshusei/profile",
+    ],
+    "Juice=Juice": ["http://www.helloproject.com/juicejuice/profile"],
+    "つばきファクトリー": ["http://www.helloproject.com/tsubakifactory/profile"],
+    "BEYOOOOONDS": ["http://www.helloproject.com/beyooooonds/profile"],
+    "OCHA NORMA": ["http://www.helloproject.com/ochanorma/profile"],
+    "ロージークロニクル": ["http://www.helloproject.com/rosychronicle/profile"],
+}
+
+# 无 alt、只有文件名证据的少数（取证 2026-10-03；证据②：文件名是姓名罗马字）。
+# 这几位的父页要么无存档、要么图无 alt，逐条写明来源。
+OLD_SITE_FILE_EVIDENCE = {
+    "石村舞波": "http://www.helloproject.com/berryz/img/isimura.jpg",
+    "梅田えりか": "http://www.helloproject.com/s-fest/img/girl/umeda_erika.jpg",
+    "有原栞菜": "http://www.helloproject.com/s-fest/img/girl/arihara.jpg",
+    "村上愛": "http://www.helloproject.com/s-fest/member/images/murakami_p.jpg",
+    "後藤真希": "http://www.helloproject.com/gatas/profile/image/goto.jpg",
+}
+
+
+def parse_img_pairs(html):
+    """旧官网页 → [(alt, src)]（按文档顺序）。"""
+    out = []
+    for tag in re.findall(r"<img\b[^>]*>", html or ""):
+        src = re.search(r'src="([^"]+)"', tag)
+        alt = re.search(r'alt="([^"]*)"', tag)
+        if src:
+            out.append(((alt.group(1) if alt else "").strip(), src.group(1)))
+    return out
+
+
+def snapshot_ts(url):
+    """Wayback 快照 URL → 捕获时间戳（`/web/20150113120352id_/…` → 20150113120352）。"""
+    m = re.search(r"/web/(\d{4,14})", url or "")
+    return m.group(1) if m else ""
+
+
+def tenure_ok(member, ts):
+    """**在籍期校验**（ADR-0022）：join ≤ 捕获时间 ≤ end（end 缺则用团终止年份）。
+
+    只有年份时按年前缀比较（`end="2015"` 时 ts 到 2015 年底都算在籍）。
+    """
+    ts = (ts or "")[:8]
+    if not ts:
+        return False
+    join = (member.get("join") or "").replace(".", "")
+    end = (member.get("end") or "").replace(".", "")
+    if not end:
+        y = GROUP_END_YEAR.get(member.get("group"))
+        end = str(y) if y else ""
+    if join:
+        if len(join) == 4:
+            if ts[:4] < join:
+                return False
+        elif ts[:8] < join:
+            return False
+    if end:
+        if len(end) == 4:
+            if ts[:4] > end:
+                return False
+        elif ts[:8] > end:
+            return False
+    return True
+
+
+def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=150):
+    """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
+    **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
+    missing = [m for m in members if m["status"] == "former" and m["file"] not in urls]
+    if not missing:
+        return members, urls
+    by_name = {m["name"]: m for m in missing}
+    fetched = 0
+    groups_left = len(
+        [g for g in OLD_PAGE_PREFIXES if any(m.get("group") == g for m in missing)]
+    )
+    for group, prefixes in OLD_PAGE_PREFIXES.items():
+        if fetched >= limit:
+            break
+        if not any(m.get("group") == group for m in missing):
+            continue
+        # **按 URL 去重**：同一个页面的几十个快照只抓一个 —— 取「在缺图成员在籍期内」
+        # 的最新那个（页面的阵容随年份变，取最新能覆盖最多人）。不去重的话
+        # 前几个前缀就把抓取预算吃光，后面的团一个都配不到（实测：57 人只中 9）。
+        best = {}
+        # 每团一份预算：全局 cap 会被第一个团的几个前缀吃光（实测：57 人只中 17，
+        # 后半个团一个都配不到）。
+        per_group = max(12, (limit - fetched) // max(1, groups_left))
+        groups_left -= 1
+        for prefix in prefixes:
+            if pause:
+                time.sleep(pause)
+            # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
+            rows = photo_chain.cdx_rows(prefix, fetch, limit=1000, prefix=True)
+            for row in rows:
+                ts, original = row[1], row[2]
+                # 只要 HTML：前缀下混着图片/CSS/JS，抓它们纯浪费（CDX 第 4 列是 mimetype）
+                if len(row) > 3 and row[3] != "text/html":
+                    continue
+                if not any(tenure_ok(m, ts) for m in missing):
+                    continue
+                if original not in best or ts > best[original]:
+                    best[original] = ts
+        picked = 0
+        for original in sorted(best):
+            if fetched >= limit or picked >= per_group:
+                break
+            picked += 1
+            ts = best[original]
+            fetched += 1
+            if pause:
+                time.sleep(pause)
+            snap = "https://web.archive.org/web/{}id_/{}".format(ts, original)
+            try:
+                html = fetch(snap)
+            except Exception:
+                continue
+            for alt, src in parse_img_pairs(html):
+                m = by_name.get(alt)
+                if not m or m["file"] in urls:
+                    continue
+                if not tenure_ok(m, ts):
+                    continue
+                if src.startswith("/"):
+                    src = "http://www.helloproject.com" + src
+                urls[m["file"]] = src
+    # 无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）
+    for name, original in OLD_SITE_FILE_EVIDENCE.items():
+        m = by_name.get(name)
+        if not m or m["file"] in urls:
+            continue
+        if pause:
+            time.sleep(pause)
+        for row in photo_chain.cdx_rows(original, fetch, limit=6):
+            if not tenure_ok(m, row[1]):
+                continue
+            urls[m["file"]] = "https://web.archive.org/web/{}id_/{}".format(row[1], row[2])
+            break
+    return members, urls
+
+
 def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
     """毕业成员的头像。**照片回退链**（CONTEXT）三节：
 
     1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
        一次抓取解析成「姓名 → 照片」映射；命中即止（官方肖像优先于 Commons）。
-    2. **Wikipedia Commons**（现役与兜底；失败被 `commons_photo` 吞成 None）。
-    3. **（若已知照片 URL）Wayback 取图** —— 旧官网快照源的钩子。
+    2. **旧官网 Wayback 快照**（工单 02：毕业者与已停止活动的团；按团枚举 + 在籍期校验）。
+    3. **Wikipedia Commons**（现役与兜底；失败被 `commons_photo` 吞成 None）。
+    4. **（若已知照片 URL）Wayback 取图** —— 逐人 URL 的钩子。
 
     取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
     不是静默降级。旧官网 Wayback 的逐成员解析见工单 02（`/og/` 覆盖不到的那批）。
@@ -965,6 +1129,11 @@ def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
         og = parse_og_page(fetch(OG_URL))
     except Exception:
         og = {}
+    # 旧官网源先整批跑（它一次抓取能给多人配对），再逐人兜底
+    try:
+        resolve_old_site_photos(members, urls, fetch, warn=warn, pause=pause)
+    except Exception as e:
+        warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
     for m in members:
         if m["status"] != "former" or m["file"] in urls:
             continue

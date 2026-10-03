@@ -414,6 +414,119 @@ OG_HTML = """<div class="commonGrid--base">
 </div>"""
 
 
+class OldSitePhotoTests(unittest.TestCase):
+    """工单 02：旧官网 Wayback 源（按团枚举 + alt 配对 + 在籍期校验，ADR-0022）。"""
+
+    PAGE = """<html><body>
+<img src="/images/artist_photo/cute05_s.jpg" alt="岡井千聖" width="100"/>
+<img src="/images/artist_photo/cute06_s.jpg" alt="萩原舞" width="100"/>
+<img src="/images/artist_photo/cute01_s.jpg" alt="梅田えりか" width="100"/>
+</body></html>"""
+
+    def test_parse_img_pairs_keeps_order_and_missing_alt(self):
+        pairs = mm.parse_img_pairs('<img src="a.jpg"><img alt="X" src="b.jpg">')
+        self.assertEqual(pairs, [("", "a.jpg"), ("X", "b.jpg")])
+        self.assertEqual(mm.parse_img_pairs(""), [])
+
+    def test_snapshot_ts(self):
+        self.assertEqual(
+            mm.snapshot_ts("https://web.archive.org/web/20090602100604id_/http://x/y"),
+            "20090602100604",
+        )
+        self.assertEqual(mm.snapshot_ts("http://x/y"), "")
+
+    def test_tenure_boundaries(self):
+        m = {"join": "2002.01.01", "end": "2009.10.25", "group": "℃-ute"}
+        self.assertTrue(mm.tenure_ok(m, "20020101"))
+        self.assertTrue(mm.tenure_ok(m, "20091025"))
+        self.assertFalse(mm.tenure_ok(m, "20011231"))
+        self.assertFalse(mm.tenure_ok(m, "20091026"))
+        self.assertFalse(mm.tenure_ok(m, ""))
+
+    def test_tenure_falls_back_to_group_end_year(self):
+        """end 缺失（℃-ute 解散时那批）→ 用团终止年份；join 缺失则不设下界。"""
+        m = {"join": "", "end": "", "group": "℃-ute"}
+        self.assertTrue(mm.tenure_ok(m, "20050101"))
+        self.assertTrue(mm.tenure_ok(m, "20171231"))
+        self.assertFalse(mm.tenure_ok(m, "20180101"))
+
+    def test_matches_by_alt_within_tenure(self):
+        """alt=姓名 是证据①；快照时间戳必须在在籍期内。"""
+        rows = [
+            ["urlkey", "timestamp", "original"],
+            ["x", "20090602100604", "http://www.helloproject.com/c-ute/profile.html"],
+        ]
+
+        def fetch(url):
+            if "cdx" in url:
+                return json.dumps(rows)
+            return self.PAGE
+
+        members = [
+            {
+                "name": "岡井千聖",
+                "status": "former",
+                "file": "m:岡井千聖",
+                "group": "℃-ute",
+                "join": "2002.06.30",
+                "end": "2017.06.12",
+            }
+        ]
+        urls = {}
+        mm.resolve_old_site_photos(members, urls, fetch, pause=0)
+        self.assertEqual(
+            urls["m:岡井千聖"], "http://www.helloproject.com/images/artist_photo/cute05_s.jpg"
+        )
+
+    def test_rejects_capture_outside_tenure(self):
+        """**防张冠李戴**：扁平文件名会被后来阵容覆盖 —— 快照晚于毕业日就不采纳。"""
+        rows = [
+            ["urlkey", "timestamp", "original"],
+            ["x", "20150602100604", "http://www.helloproject.com/c-ute/profile.html"],
+        ]
+
+        def fetch(url):
+            return json.dumps(rows) if "cdx" in url else self.PAGE
+
+        members = [
+            {
+                "name": "岡井千聖",
+                "status": "former",
+                "file": "m:岡井千聖",
+                "group": "℃-ute",
+                "join": "2002.06.30",
+                "end": "2011.12.31",
+            }
+        ]
+        urls = {}
+        mm.resolve_old_site_photos(members, urls, fetch, pause=0)
+        self.assertEqual(urls, {})
+
+    def test_file_evidence_fallback(self):
+        """无 alt 的少数走文件名证据（石村舞波）；同样过在籍期校验。"""
+        rows = [
+            ["urlkey", "timestamp", "original"],
+            ["x", "20050426004204", "http://www.helloproject.com/berryz/img/isimura.jpg"],
+        ]
+
+        def fetch(url):
+            return json.dumps(rows) if "cdx" in url else ""
+
+        members = [
+            {
+                "name": "石村舞波",
+                "status": "former",
+                "file": "m:石村舞波",
+                "group": "Berryz工房",
+                "join": "",
+                "end": "2005.10.02",
+            }
+        ]
+        urls = {}
+        mm.resolve_old_site_photos(members, urls, fetch, pause=0)
+        self.assertTrue(urls["m:石村舞波"].startswith("https://web.archive.org/web/20050426004204"))
+
+
 class OgPageTests(unittest.TestCase):
     """工单 01：现官网 /og/ 页（仍在事务所的卒业生，官方肖像）。"""
 
