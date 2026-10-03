@@ -28,6 +28,7 @@ const GROUP_COUNTS = {
   "≠ME": 12,
   "≒JOY": 13,
   "モーニング娘。": 51,
+  "℃-ute": 8,
 };
 const GROUP_ORDER = [
   "AKB48",
@@ -44,6 +45,7 @@ const GROUP_ORDER = [
   "≠ME",
   "≒JOY",
   "モーニング娘。",
+  "℃-ute",
 ];
 const SERIES_OF = {
   AKB48: "48g",
@@ -60,6 +62,7 @@ const SERIES_OF = {
   "≠ME": "love",
   "≒JOY": "love",
   "モーニング娘。": "morning",
+  "℃-ute": "morning",
 };
 
 function loadSimplified() {
@@ -300,27 +303,60 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   );
 });
 
-test("早安：一系列一团、18 期可筛、成员数落在区间", () => {
-  // 人数区间而不是精确值：上游会动（卒业/加入），而「抓到 3 个人」那种塌陷
+test("早安家族：两个团、期生只有モーニング娘。有、毕业日按源里有无", () => {
+  // 人数区间而不是精确值：上游会动（毕业/加入），而「抓到 3 个人」那种塌陷
   // 必须让产物测试红 —— 源门只挡「相对基线腰斩」，首次生成时它根本不响。
   const secs = loadGroups().filter((g) => g.series === "morning");
-  assert.equal(secs.length, 1, "早安应是一系列一团（ADR-0021）");
-  assert.equal(secs[0].group, "モーニング娘。");
-  const members = secs[0].members;
-  assert.ok(
-    members.length >= 40 && members.length <= 60,
-    `早安成员数 ${members.length} 不在 [40, 60]`
+  assert.equal(
+    secs.length,
+    2,
+    "早安系列应有两段（ADR-0021：同级团体，不是伞）"
   );
   assert.equal(
-    members.filter((m) => m.status === "current").length,
-    members.length - members.filter((m) => m.status !== "current").length
+    secs.map((s) => s.group).join("/"),
+    "モーニング娘。/℃-ute",
+    "段顺序跟 GROUPS 配置走"
   );
-  // 期生是筛选字段，早安有 18 期 —— 缺了期生就等于「按期筛」这个功能对早安失效
-  const gens = new Set(members.map((m) => m.generation).filter(Boolean));
-  assert.ok(gens.size >= 10, `早安只认出 ${gens.size} 种期生`);
-  // 毕业成员必须带毕业日（站内资料卡按它分组）
-  for (const m of members.filter((x) => x.status !== "current")) {
-    assert.match(m.end || "", /^\d{4}(\.\d{2}\.\d{2})?$/, `${m.name} 缺毕业日`);
+  const kami = secs[0].members;
+  const cute = secs[1].members;
+  assert.ok(
+    kami.length >= 40 && kami.length <= 60,
+    `モーニング娘。${kami.length} 不在 [40,60]`
+  );
+  assert.equal(cute.length, 8, "℃-ute 源里只有 8 人（条目残缺，已知源限制）");
+
+  // 订正一条**恒真判据**：原来写的是「现役数 == 总数 - 非现役数」——
+  // 那是恒等式，任何数据都过。现在钉真正的不变式：每个团至少有一位现役，
+  // 且现役名单不为空（℃-ute 是例外：它 2017 年就解散了，全员毕业）。
+  assert.equal(kami.filter((m) => m.status === "current").length, 11);
+  assert.equal(cute.filter((m) => m.status === "current").length, 0);
+  assert.equal(
+    cute.filter((m) => m.status !== "current").length,
+    cute.length,
+    "℃-ute 已解散，全员毕业（不是一个两个）"
+  );
+
+  // 期生是筛选字段 —— 但**只有モーニング娘。的源里有**（18 期）。℃-ute 没有，
+  // 所以「≥10 期」只对モーニング娘。成立；℃-ute 一期都没有是事实，钉住它是为了
+  // 将来有新人加入时不误判成解析坏了。
+  const gens = new Set(kami.map((m) => m.generation).filter(Boolean));
+  assert.ok(gens.size >= 10, `只认出 ${gens.size} 种期生`);
+  assert.equal(new Set(cute.map((m) => m.generation).filter(Boolean)).size, 0);
+
+  // 身高「有就显示、没有就不占位」：dissolved 表有 5 人、past 表没有
+  assert.equal(kami.filter((m) => (m.bio || {}).height).length, 0);
+  assert.equal(cute.filter((m) => (m.bio || {}).height).length, 5);
+
+  // 毕业日按源里有无：℃-ute「解散時」那张表**没有**毕业日列，那 5 人的 end 必然空
+  // —— 空是事实，不许编。但「有过期在籍」那张表里有 → 那 3 人必须有。
+  const cuteWithEnd = cute.filter((m) => m.end);
+  assert.equal(
+    cuteWithEnd.length,
+    3,
+    `℃-ute 有毕业日的应是 3 人，实际 ${cuteWithEnd.length}`
+  );
+  for (const m of cuteWithEnd) {
+    assert.match(m.end, /^\d{4}\.\d{2}\.\d{2}$/, `${m.name} 毕业日格式`);
   }
 });
 

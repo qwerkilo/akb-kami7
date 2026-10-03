@@ -1368,3 +1368,64 @@ class GateSeesEverySeriesTests(unittest.TestCase):
         src = inspect.getsource(fetch_members.main)
         gate = src.index("roster_problems(")
         self.assertLess(src.index("all_members = members + love + morning"), gate)
+
+
+# ── 工单 03：一个系列接第二个团时，规模门与基线怎么算 ────────────────────
+class NewSeriesBaselineTests(unittest.TestCase):
+    """新系列接进来时基线**天然不含**它 —— 「不在 GROUP_ORDER 里」那一支
+    （等爱那轮做的泛化）让新团自动跳过规模门。这是个**要钉住的性质**：
+    万一哪天基线生成把新系列写进去了，而 counts 里还没有它，
+    门会在**抓取之前**就中止（那是个真实事故：等爱三团因为这个永远算「消失」）。"""
+
+    def _baseline_dir(self, sections):
+        """read_baseline 收的是**目录**（不是 baseline/ 子目录 —— 我在这栽过一次）。
+        它读的是盘上的 members.js，所以夹具要造一个真 members.js。"""
+        d = tempfile.mkdtemp()
+        raw = "window.AKB_GROUPS = " + json.dumps(sections, ensure_ascii=False) + ";"
+        with open(os.path.join(d, "members.js"), "w", encoding="utf-8") as fh:
+            fh.write(raw)
+        return d
+
+    @staticmethod
+    def _sec(group, series, n):
+        return {"group": group, "series": series,
+                "members": [{"name": f"人{i}", "file": f"{series}_{group}_{i}"} for i in range(n)]}
+
+    def test_group_outside_group_order_goes_to_the_secondary_count_not_the_scale_one(self):
+        """GROUP_ORDER 只是 48G/坂道的**抓取清单**；等爱与早安的团走另一本账 ——
+        不分开的话「团消失」判据对它们恒假（等爱抓到 0 人却 exit 0 的那起事故）。"""
+        import fetch_members as fm
+        d = self._baseline_dir([
+            self._sec("AKB48", "48g", 300),
+            self._sec("℃-ute", "morning", 8),
+        ])
+        base = fm.read_baseline(d)
+        self.assertEqual(base["counts"], {"AKB48": 300})
+        self.assertNotIn("℃-ute", base["counts"])
+        self.assertIn("℃-ute", base["love_counts"], "℃-ute 必须在副账里")
+        self.assertEqual(base["love_counts"]["℃-ute"], 8)
+
+    def test_a_new_group_is_absent_from_the_baseline_before_the_first_fetch(self):
+        """新系列接进来时基线**天然不含**它 —— 所以第一次抓它不受规模门约束。
+        这条是本工单要钉的性质：门对「基线里没有的团」必须放行，
+        否则新系列永远抓不进来。"""
+        import fetch_members as fm
+        d = self._baseline_dir([self._sec("AKB48", "48g", 300)])
+        base = fm.read_baseline(d)
+        self.assertNotIn("℃-ute", base["counts"])
+        self.assertNotIn("℃-ute", base.get("love_counts", {}))
+
+    def test_missing_members_js_yields_none_so_nothing_is_gated(self):
+        """读不到就返回 None（首次生成）——门必须整条跳过而不是对着空账报腰斩。"""
+        import fetch_members as fm
+        self.assertIsNone(fm.read_baseline(tempfile.mkdtemp()))
+
+    def test_cute_is_a_new_group_for_this_series(self):
+        """产物里的早安系列**恰好两段**（工单 05 会把这条变成守卫）。"""
+        secs = json.loads(
+            open(os.path.join(os.path.dirname(__file__), "..", "members.js"),
+                 encoding="utf-8").read().split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
+        )
+        morning = [s for s in secs if s["series"] == "morning"]
+        self.assertEqual([s["group"] for s in morning], ["モーニング娘。", "℃-ute"])
+        self.assertEqual(len(morning[1]["members"]), 8)

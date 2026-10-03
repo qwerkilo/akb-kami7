@@ -20130,5 +20130,121 @@ window.AKB_GROUPS = [
     "generation": "8期生"
    }
   ]
+ },
+ {
+  "group": "℃-ute",
+  "series": "morning",
+  "label": "℃-ute",
+  "members": [
+   {
+    "id": "mf292aa6dff",
+    "name": "有原栞菜",
+    "kana": "ありはら かんな",
+    "nick": "",
+    "status": "former",
+    "end": "2009.07.09",
+    "img": false,
+    "bio": {
+     "birth": "1993.06.15",
+     "from": "神奈川県"
+    }
+   },
+   {
+    "id": "m4a460b72df",
+    "name": "梅田えりか",
+    "kana": "うめだ えりか",
+    "nick": "",
+    "status": "former",
+    "end": "2009.10.25",
+    "img": false,
+    "bio": {
+     "birth": "1991.05.24",
+     "from": "神奈川県"
+    }
+   },
+   {
+    "id": "m4cdbe4cb9a",
+    "name": "岡井千聖",
+    "kana": "おかい ちさと",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1994.06.21",
+     "from": "埼玉県",
+     "height": "152cm"
+    }
+   },
+   {
+    "id": "mc6e16cdd68",
+    "name": "鈴木愛理",
+    "kana": "すずき あいり",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1994.04.12",
+     "from": "千葉県",
+     "height": "161cm"
+    }
+   },
+   {
+    "id": "ma282177684",
+    "name": "中島早貴",
+    "kana": "なかじま さき",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1994.02.05",
+     "from": "埼玉県",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "mba7513c433",
+    "name": "萩原舞",
+    "kana": "はぎわら まい",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1996.02.07",
+     "from": "埼玉県",
+     "height": "158cm"
+    }
+   },
+   {
+    "id": "mf67dfcd873",
+    "name": "村上愛",
+    "kana": "むらかみ めぐみ",
+    "nick": "",
+    "status": "former",
+    "end": "2006.10.31",
+    "img": false,
+    "bio": {
+     "birth": "1992.06.06",
+     "from": "埼玉県"
+    }
+   },
+   {
+    "id": "m1e469c008a",
+    "name": "矢島舞美",
+    "kana": "やじま まいみ",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1992.02.07",
+     "from": "埼玉県",
+     "height": "166cm"
+    }
+   }
+  ]
  }
 ];

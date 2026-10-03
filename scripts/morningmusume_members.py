@@ -550,18 +550,26 @@ def _pick_nick(detail, w):
     return w.get("nick") or "", list(w.get("nick_aliases") or [])
 
 
-def _base_record(name, w, nick, nick_aliases):
-    """必在的字段。期生与状态只来自 Wikipedia（官网没有这两项）。"""
+def _base_record(name, w, nick, nick_aliases, group=None):
+    """必在的字段。期生与状态只来自 Wikipedia（官网没有这两项）。
+
+    ⚠️ group **必须来自这条记录自己的来源**，不能写死成模块里的 GROUP ——
+    我第一版那么写了，于是℃-ute 的 8 人**全部**被标成「モーニング娘。」、
+    两个团并成一段，真实抓取时才看见（51 + 8 = 59 全在一个段里）。
+    症状是「一个系列两个团」在任何单元测试里都过、只有跑真实装配才炸 ——
+    因为那条路径（build_members）我当时没有两个团的用例。
+    """
+    g = group or w.get("group") or GROUP
     return {
         "name": name,
         "kana": w.get("kana") or "",
         "nick": nick,
         "nick_aliases": nick_aliases,
         "status": w.get("status") or "current",
-        "group": GROUP,
+        "group": g,
         "series": SERIES,
         "generation": w.get("generation") or "",
-        "file": "{}:{}:{}".format(FILE_PREFIX, GROUP, name),
+        "file": "{}:{}:{}".format(FILE_PREFIX, g, name),
     }
 
 
@@ -588,7 +596,12 @@ def _merge_one(item, w):
         return None, None
     detail = item.get("detail") or {}
     nick, nick_aliases = _pick_nick(detail, w)
-    rec = _base_record(name, w, nick, nick_aliases)
+    # 官网侧只覆盖モーニング娘。，Wikipedia 侧按团给。两者对同一个人不一致 =
+    # ADR-0021 说的「收伞造成重叠」，那种情况要**看得见**，不能静默挑一个团。
+    og, wg = item.get("group"), w.get("group")
+    if og and wg and og != wg:
+        raise ValueError("{} 同时出现在 {} 与 {}（ADR-0021 的重叠）".format(name, og, wg))
+    rec = _base_record(name, w, nick, nick_aliases, group=og or wg)
     rec.update(_optional_fields(detail, w))
     photo = item.get("photo")
     url = SITE + photo if photo else ""

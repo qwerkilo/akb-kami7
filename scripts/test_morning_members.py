@@ -530,6 +530,36 @@ class TwoGroupSectionTests(unittest.TestCase):
         self.assertEqual(len(cute), 8)
         self.assertEqual({m["status"] for m in cute}, {"former"})
 
+    def test_real_load_path_keeps_the_two_groups_apart(self):
+        """⚠️ 这条覆盖的是 **build_members**（真实 load 走的那条路）——
+        我第一版只在 build_members_from_wiki 上测，于是两个团在测试里分得开、
+        真实装配却并成一段（51 + 8 = 59 全进「モーニング娘。」）。
+        根因：_base_record 把 group 写死成模块的 GROUP。
+        """
+        official = {}
+        for item in mm.parse_list(LIST_HTML):
+            merged = dict(item)
+            merged["detail"] = mm.parse_detail(DETAIL_HTML)
+            merged["group"] = "モーニング娘。"
+            official[item["name"]] = merged
+        members, _urls = mm.build_members(official, CUTE_WIKI_PAGES)
+        self.assertEqual(
+            sorted({m["group"] for m in members}), ["℃-ute", "モーニング娘。"]
+        )
+        cute = [m for m in members if m["group"] == "℃-ute"]
+        self.assertEqual(len(cute), 8)
+        # file 前缀必须跟着真实团走 —— 图片按 file 索引，带错团 = 图挂错人
+        for m in cute:
+            self.assertIn("℃-ute", m["file"], m["file"])
+
+    def test_two_groups_claiming_the_same_person_is_reported_not_guessed(self):
+        """ADR-0021 说的「收伞造成重叠」：同一个人在两个团里各有一份档案。
+        静默挑一个团会让段 label 与照片张冠李戴 —— 必须报错。"""
+        official = {"村上愛": {"name": "村上愛", "group": "モーニング娘。", "detail": {}}}
+        with self.assertRaises(ValueError) as ctx:
+            mm.build_members(official, {"℃-ute": CUTE_WIKI})
+        self.assertIn("村上愛", str(ctx.exception))
+
     def test_each_section_is_one_group_and_its_label_is_that_group(self):
         """团名落在**段**上（label + series），不是成员字段 —— 我第一版把
         断言写在成员上，于是 KeyError: 'group'。段 label 是站内「按团筛」的唯一依据，
