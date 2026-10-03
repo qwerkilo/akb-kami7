@@ -265,9 +265,12 @@
     const list = [];
     for (const g of groups || []) {
       for (const m of g.members || []) {
-        m.group = g.group;
-        m.generation = g.label;
-        m.series = g.series;
+        // 回填，不是覆写：48G/坂道/等爱 的成员不带这三项（由段补），
+        // 而早安成员自带期生、段的 label 是团名 —— 覆写会把「10期生」冲成
+        // 「モーニング娘。」，只有浏览器路径看得见（单测不经这里）。
+        m.group = m.group || g.group;
+        m.generation = m.generation || g.label;
+        m.series = m.series || g.series;
         list.push(m);
       }
     }
@@ -315,19 +318,39 @@
 
   const TRANSFER_GENERATION = "兼任・移籍加入";
 
-  // 不是期生的分段标签：不入选期生下拉（成员仍可见于「全部期生」）
-  const NON_GENERATIONS = [TRANSFER_GENERATION, "Team 8", "其他"];
+  // 「这个标签是期生吗」的正向判据，不再用黑名单：黑名单里原本只有三个
+  // （兼任・移籍加入 / Team 8 / 其他），早安又添了两个团名 —— 每加一个系列就得
+  // 往黑名单里补一条，漏补时下拉里就列出一个团名。形状判据不会烂。
+  // 站里所有段标签里**不是**期生的就那五个，其余都以「期生」结尾（选秀N期生也算）。
+  function isGenerationLabel(v) {
+    return String(v == null ? "" : v).endsWith("期生");
+  }
 
-  // 筛选下拉的期生选项：按数据出现顺序去重
-  function generationOptions(sections) {
+  // 期生有两个存放处，工单 04 之前只有第一个：
+  // - 段 label（48G / 坂道 / 等爱：一段一期生）
+  // - 成员字段（早安：18 期要逐人存，段的 label 是团名）
+  // 收成一处，否则早安的期生下拉里列出来的是团名、选中任何一项都筛不出人。
+  function sectionGen(s, m) {
+    return genKey((m && m.generation) || s.label || "");
+  }
+
+  // 筛选下拉的期生选项：按数据出现顺序去重。groupFilter 给了就只算那个团的 ——
+  // 决定 2（℃-ute 没有期生 → 控件不出现）就靠这一条。
+  function generationOptions(sections, groupFilter) {
     const out = [];
     const seen = new Set();
-    for (const s of sections) {
-      if (NON_GENERATIONS.includes(s.label)) continue;
-      const key = genKey(s.label);
-      if (!key || seen.has(key)) continue;
+    const add = (label) => {
+      if (!isGenerationLabel(label)) return;
+      const key = genKey(label);
+      if (!key || seen.has(key)) return;
       seen.add(key);
       out.push(key);
+    };
+    for (const s of sections) {
+      if (groupFilter && groupFilter !== "all" && s.group !== groupFilter)
+        continue;
+      add(s.label);
+      for (const m of s.members || []) add(m.generation);
     }
     return out;
   }
@@ -338,15 +361,17 @@
     const byGroup = new Map();
     sections.forEach((s, index) => {
       if (groupFilter !== "all" && s.group !== groupFilter) return;
-      if (wantGen && genKey(s.label) !== wantGen) return;
+      // 期生在成员上时不能整段丢掉（那样一个匹配的人都没有），要留下段只留人
+      const members = wantGen
+        ? (s.members || []).filter((m) => sectionGen(s, m) === wantGen)
+        : s.members;
+      if (wantGen && !members.length) return;
       if (!byGroup.has(s.group)) {
         const node = { group: s.group, sections: [] };
         byGroup.set(s.group, node);
         groups.push(node);
       }
-      byGroup
-        .get(s.group)
-        .sections.push({ index, label: s.label, members: s.members });
+      byGroup.get(s.group).sections.push({ index, label: s.label, members });
     });
     return groups;
   }
@@ -357,8 +382,9 @@
     const hits = [];
     for (const s of sections) {
       if (f.group !== "all" && s.group !== f.group) continue;
-      if (f.generation !== "all" && genKey(s.label) !== f.generation) continue;
+      const wantGen = f.generation !== "all" ? f.generation : null;
       for (const m of s.members) {
+        if (wantGen && sectionGen(s, m) !== wantGen) continue;
         if (isVisible(m, f.status) && (m.hay || "").includes(q)) hits.push(m);
       }
     }

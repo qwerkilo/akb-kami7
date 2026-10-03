@@ -629,7 +629,10 @@
   const genSelect = $("#gen-filter");
 
   function refreshGenOptions() {
-    const opts = CORE.generationOptions(seriesGroups());
+    sync(); // snap 是会话状态的副本，不先同步读到的就是上一拍的 group/档位
+    // 期生选项按**当前团**算（工单 04 决定 2）：℃-ute 的人没有期生，选中它时
+    // 选项为空 → 控件整个不出现，而不是给一个只会筛出 0 人的下拉。
+    const opts = CORE.generationOptions(seriesGroups(), snap.group);
     const want = snap.generation;
     const value = want === "all" || opts.includes(want) ? want : "all";
     if (value !== want) {
@@ -644,6 +647,8 @@
       genSelect.appendChild(opt);
     }
     genSelect.value = value;
+    const field = $("#gen-field");
+    if (field) field.hidden = opts.length === 0;
   }
 
   function paintSizeButtons() {
@@ -713,6 +718,8 @@
 
   groupSelect.addEventListener("change", () => {
     S.setGroup(groupSelect.value);
+    // 期生选项依赖当前团（决定 2），所以换团要重算 —— 否则给的是上一个团的期生。
+    refreshGenOptions();
     renderPick({ resetScroll: true });
   });
 

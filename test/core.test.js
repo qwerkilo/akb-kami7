@@ -1221,6 +1221,38 @@ test("flattenMembers：摊平分段并注入 group/generation/series", () => {
   assert.deepEqual(core.flattenMembers([{ group: "X" }]), []);
 });
 
+test("flattenMembers：成员自己带 generation/group 时不许被段 label 覆写（工单 04 的浏览器路径）", () => {
+  // 早安是「一个系列两个团、18 期逐人存」——段的 label 是**团名**，成员才带期生。
+  // 注入式覆写会把真实的「10期生」冲成「モーニング娘。」：单测全绿而浏览器里
+  // 期生下拉整个空掉（E2E/探针才看得见），所以这条钉的是**回填语义**。
+  const groups = [
+    {
+      group: "モーニング娘。",
+      series: "morning",
+      label: "モーニング娘。",
+      members: [
+        { id: "m1", generation: "10期生", group: "モーニング娘。" },
+        { id: "m2" },
+      ],
+    },
+    {
+      group: "℃-ute",
+      series: "morning",
+      label: "℃-ute",
+      members: [{ id: "m3" }],
+    },
+  ];
+  const list = core.flattenMembers(groups);
+  assert.deepEqual(
+    list.map((m) => [m.id, m.generation, m.group]),
+    [
+      ["m1", "10期生", "モーニング娘。"],
+      ["m2", "モーニング娘。", "モーニング娘。"],
+      ["m3", "℃-ute", "℃-ute"],
+    ]
+  );
+});
+
 test("genText：选秀期生标签在 ja/en 下翻译（zh 保留原文）", () => {
   assert.equal(core.genText("选秀1期生", "zh"), "选秀1期生");
   assert.equal(core.genText("选秀1期生", "en"), "Draft 1st gen");
@@ -1307,11 +1339,13 @@ test("generationOptions：按出现顺序去重、汉字归一、排除兼任・
 });
 
 test("groupSections：期生筛选与团体筛选叠加（汉字期生同组）", () => {
+  // 成员不能是空数组：期生筛选现在落在成员上（工单 04），零成员的段无从判定，
+  // 而真实产物里段由成员建出、零成员的段本来也会被 sectionRow 剔掉。
   const sections = [
-    { group: "AKB48", label: "1期生", members: [] },
-    { group: "AKB48", label: "2期生", members: [] },
-    { group: "SKE48", label: "1期生", members: [] },
-    { group: "櫻坂46", label: "一期生", members: [] },
+    { group: "AKB48", label: "1期生", members: [{ name: "a" }] },
+    { group: "AKB48", label: "2期生", members: [{ name: "b" }] },
+    { group: "SKE48", label: "1期生", members: [{ name: "c" }] },
+    { group: "櫻坂46", label: "一期生", members: [{ name: "d" }] },
   ];
   assert.deepEqual(
     core
@@ -1328,6 +1362,111 @@ test("groupSections：期生筛选与团体筛选叠加（汉字期生同组）"
     ["AKB48"]
   );
   assert.equal(core.groupSections(sections, "all", "all").length, 3);
+});
+
+// 工单 04（决定 2）：早安的期生放在**成员**上而不是段的 label 上 —— 段的 label
+// 是团名（モーニング娘。/ ℃-ute），因为早安是一个系列两个团、18 期要逐人存。
+// 期生筛选因此必须认**两个存放处**，否则早安的期生下拉里列出来的是团名、
+// 选中任何一项都筛不出人。
+function morningSections() {
+  return [
+    {
+      group: "モーニング娘。",
+      label: "モーニング娘。",
+      members: [
+        { name: "A子", generation: "1期生", hay: "a子" },
+        { name: "B子", generation: "10期生", hay: "b子" },
+        { name: "C子", generation: "", hay: "c子" },
+      ],
+    },
+    {
+      group: "℃-ute",
+      label: "℃-ute",
+      members: [
+        { name: "D子", hay: "d子" },
+        { name: "E子", hay: "e子" },
+      ],
+    },
+  ];
+}
+
+test("generationOptions：期生放在成员上时也收得进来（早安 18 期），团名不当成期生", () => {
+  assert.deepEqual(core.generationOptions(morningSections()), [
+    "1期生",
+    "10期生",
+  ]);
+});
+
+test("generationOptions：按当前团过滤 —— ℃-ute 没有期生，选项为空（决定 2 的数据半边）", () => {
+  assert.deepEqual(core.generationOptions(morningSections(), "℃-ute"), []);
+  assert.deepEqual(
+    core.generationOptions(morningSections(), "モーニング娘。"),
+    ["1期生", "10期生"]
+  );
+});
+
+test("groupSections：期生在成员上时保留整段、只留匹配的成员（不整段丢掉）", () => {
+  assert.deepEqual(
+    core
+      .groupSections(morningSections(), "all", "1期生")
+      .map((n) => [
+        n.group,
+        n.sections.map((s) => [s.label, s.members.map((m) => m.name)]),
+      ]),
+    [["モーニング娘。", [["モーニング娘。", ["A子"]]]]]
+  );
+});
+
+test("rosterView：成员上的期生参与筛选（树与搜索两条投影路径）", () => {
+  const tree = core.rosterView(morningSections(), { generation: "10期生" });
+  assert.deepEqual(
+    tree.nodes.map((n) => [n.group, n.count]),
+    [["モーニング娘。", 1]]
+  );
+  const flat = core.rosterView(morningSections(), {
+    group: "モーニング娘。",
+    generation: "1期生",
+  });
+  assert.equal(flat.mode, "flat");
+  assert.deepEqual(
+    flat.nodes[0].sections.map((s) => s.members.map((m) => m.name)),
+    [["A子"]]
+  );
+  const hits = core.rosterView(morningSections(), {
+    generation: "10期生",
+    query: "b子",
+  });
+  assert.deepEqual(
+    hits.hits.map((m) => m.name),
+    ["B子"]
+  );
+  const none = core.rosterView(morningSections(), {
+    group: "℃-ute",
+    generation: "1期生",
+  });
+  assert.deepEqual(none.nodes, []);
+});
+
+test("profileRows：身長有就显示、没有就不占位（决定 3）", () => {
+  const tall = core.profileRows(
+    { name: "矢島舞美", status: "former", bio: { height: "166cm" } },
+    bioDict("zh"),
+    "zh",
+    {},
+    NOW
+  );
+  assert.deepEqual(
+    tall.filter((r) => r[0] === "身長"),
+    [["身長", "166cm"]]
+  );
+  const plain = core.profileRows(
+    { name: "村上愛", status: "former" },
+    bioDict("zh"),
+    "zh",
+    {},
+    NOW
+  );
+  assert.ok(!plain.some((r) => r[0] === "身長"));
 });
 
 function rosterFixture() {
@@ -2544,10 +2683,10 @@ test("names() 认识第四个系列（早安），且三语各字段齐全", () 
   // 16 档（选拔组）与 40 档（圈内）四个系列共用，别动。
   assert.deepEqual(core.names("morning", 7, t("zh")), {
     brand: "推し7",
-    seriesLabel: "早安少女家族",
+    seriesLabel: "早安家族",
     seriesShort: "早安",
-    title: "我的早安少女家族 推し7",
-    eyebrow: "早安少女家族 好き顔ソート",
+    title: "我的早安家族 推し7",
+    eyebrow: "早安家族 好き顔ソート",
     shareTags: "#モーニング娘。 #好き顔ソート",
     posterTags: "#モーニング娘。  #好き顔ソート",
     fileBase: "morningmusume_modeshi7",
@@ -2556,11 +2695,11 @@ test("names() 认识第四个系列（早安），且三语各字段齐全", () 
   assert.equal(core.names("morning", 40, t("en")).brand, "Ranked");
   assert.equal(core.names("morning", 16, t("en")).fileBase, "morningmusume_16");
   assert.equal(core.names("morning", 40, t("en")).fileBase, "morningmusume_40");
-  assert.equal(core.names("morning", 7, t("en")).seriesShort, "MM");
-  assert.equal(core.names("morning", 7, t("ja")).seriesShort, "モー娘");
+  assert.equal(core.names("morning", 7, t("en")).seriesShort, "HP");
+  assert.equal(core.names("morning", 7, t("ja")).seriesShort, "ハロー");
   assert.equal(
     core.names("morning", 7, t("en")).title,
-    "My Morning Musume Modeshi 7"
+    "My Hello! Project Modeshi 7"
   );
 });
 

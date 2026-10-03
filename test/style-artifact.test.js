@@ -1208,3 +1208,60 @@ test("系列 tab 与 core.SERIES_KEYS 双向一致（加系列漏了哪一头都
     );
   }
 });
+
+// ---- 工单 04 决定 2：期生控件按团出现（℃-ute 没有期生 → 控件不出现） ----
+// app.js 没有单测缝（七处缝里没有它），所以接线层只能靠源码守卫。
+// 剥掉注释再扫：本文件已经因为「文本守卫扫全文含注释」栽过两次，
+// 而这段的注释里就写着 generationOptions / hidden 这些词。
+function stripJsComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^[ \t]*\/\/.*$/gm, "");
+}
+
+test("工单 04：期生下拉按当前团算，空则整个控件不出现", () => {
+  const app = stripJsComments(
+    fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8")
+  );
+  const fn = /function refreshGenOptions\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(fn, "app.js 里找不到 refreshGenOptions()");
+  assert.match(
+    fn[1],
+    /^\s*sync\(\);/,
+    "refreshGenOptions 必须先 sync()：snap 是副本，不先同步读到的 group 是上一拍的"
+  );
+  assert.match(
+    fn[1],
+    /CORE\.generationOptions\(seriesGroups\(\),\s*snap\.group\)/,
+    "期生选项必须按当前团算：不传团就是上一个团的期生（℃-ute 那条决定就落空）"
+  );
+  assert.match(
+    fn[1],
+    /hidden\s*=\s*opts\.length\s*===\s*0/,
+    "选项为空时必须把期生控件藏起来，而不是给一个只会筛出 0 人的下拉"
+  );
+  // 换团要重算：选项依赖当前团，不重算就是上一个团的
+  const onGroup =
+    /groupSelect\.addEventListener\("change",[\s\S]{0,300}?\n  \}\);/.exec(app);
+  assert.ok(onGroup, "app.js 里找不到 groupSelect 的 change 处理器");
+  assert.match(onGroup[0], /refreshGenOptions\(\)/, "换团之后必须重算期生选项");
+});
+
+test("工单 04：#gen-field 这个 id 与藏它的方式都在（app.js 按 id 藏、CSS 别用 display 顶掉 hidden）", () => {
+  assert.match(
+    html,
+    /<label[^>]*id="gen-field"/,
+    "index.html 里期生那一栏没有 id=gen-field，app.js 藏不到它"
+  );
+  const app = stripJsComments(
+    fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8")
+  );
+  assert.ok(
+    app.includes('const field = $("#gen-field")'),
+    "app.js 里找不到取 #gen-field 的那一行"
+  );
+  // [hidden] 会被作者样式的 display 盖掉（AGENTS.md 记过这一类），所以钉住：
+  // .group-pick 上不许有 display 声明。
+  assert.ok(
+    !/\.group-pick\s*\{[^}]*display\s*:/.test(css),
+    ".group-pick 上有 display 声明会盖掉 [hidden]，期生控件藏不住"
+  );
+});
