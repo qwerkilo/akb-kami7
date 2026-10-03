@@ -11,6 +11,23 @@ from PIL import Image
 import fetch_members
 
 
+class DecodePageTests(unittest.TestCase):
+    """旧官网 2005 前后的页是 Shift_JIS：按 UTF-8 解会把 ALT 姓名变乱码，
+    照片配对全灭（早期モー娘。25 人一个都配不到的真根因）。"""
+
+    def test_shift_jis_alt_decodes(self):
+        raw = '<img ALT="吉澤ひとみ">'.encode("cp932")
+        got = fetch_members.decode_page(raw)
+        self.assertIn("吉澤ひとみ", got)
+
+    def test_utf8_page_stays_utf8(self):
+        raw = '<meta charset="utf-8"><img ALT="中澤裕子">'.encode("utf-8")
+        self.assertIn("中澤裕子", fetch_members.decode_page(raw))
+
+    def test_unknown_bytes_fall_back_without_raising(self):
+        self.assertIsInstance(fetch_members.decode_page(b"\xff\xfe\x00broken"), str)
+
+
 class SlugTests(unittest.TestCase):
     def test_known_member_slug(self):
         # 板野友美 的 id 已存在于生成产物中，作为已知良好字面量

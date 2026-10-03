@@ -638,6 +638,32 @@ def default_dirs():
     return {"root": ROOT, "orig": ORIG, "full": FULL, "thumb": THUMB}
 
 
+def decode_page(raw):
+    """按页面声明的编码解码。
+
+    ⚠️ 旧官网 2005 前后的页是 **Shift_JIS**，一律按 UTF-8 解会把成员姓名变成乱码
+    （`ALT="吉澤ひとみ"` → `ALT="\ufffdg\ufffdV..."`），于是照片配对全部失败 ——
+    实测：早期モー娘。 25 人一个都配不到，根因就是这里。
+    """
+    head = raw[:4096]
+    m = re.search(rb"""charset=["']?([\w-]+)""", head, re.I)
+    enc = (m.group(1).decode("ascii", "ignore").lower() if m else "utf-8")
+    if enc in ("shift_jis", "shift-jis", "sjis", "x-sjis"):
+        enc = "cp932"
+    try:
+        return raw.decode(enc)
+    except (LookupError, UnicodeDecodeError):
+        pass
+    # 没声明 charset 的旧页（2005 前后）直接按候选编码试 —— cp932 的字节序列
+    # 多半过不了 UTF-8 校验，试出来就是对的
+    for alt in ("cp932", "euc-jp"):
+        try:
+            return raw.decode(alt)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", "replace")
+
+
 def _load_series(label, loader, fetch_url):
     """装一个非 48G/坂道 的系列。返回 (members, urls)。
 
@@ -648,7 +674,7 @@ def _load_series(label, loader, fetch_url):
     if not loader:
         return [], {}
     try:
-        return loader(lambda url: fetch_url(url).decode("utf-8", "replace"))
+        return loader(lambda url: decode_page(fetch_url(url)))
     except Exception as e:
         raise SystemExit(
             f"{label}系列抓取失败（{e}）；为避免误删已有数据与图片，本次不写入。"

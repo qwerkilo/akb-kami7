@@ -994,9 +994,10 @@ OLD_SITE_FILE_EVIDENCE = {
 def parse_img_pairs(html):
     """旧官网页 → [(alt, src)]（按文档顺序）。"""
     out = []
-    for tag in re.findall(r"<img\b[^>]*>", html or ""):
-        src = re.search(r'src="([^"]+)"', tag)
-        alt = re.search(r'alt="([^"]*)"', tag)
+    # 属性名大小写不敏感：2005 前后的旧页写的是 `SRC=` / `ALT=`（大写）
+    for tag in re.findall(r"<img\b[^>]*>", html or "", re.I):
+        src = re.search(r'src="([^"]+)"', tag, re.I)
+        alt = re.search(r'alt="([^"]*)"', tag, re.I)
         if src:
             out.append(((alt.group(1) if alt else "").strip(), src.group(1)))
     return out
@@ -1072,31 +1073,36 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=1
                     continue
                 if not any(tenure_ok(m, ts) for m in missing):
                     continue
-                if original not in best or ts > best[original]:
-                    best[original] = ts
+                best.setdefault(original, []).append(ts)
         picked = 0
         for original in sorted(best):
             if fetched >= limit or picked >= per_group:
                 break
             picked += 1
-            ts = best[original]
-            fetched += 1
-            if pause:
-                time.sleep(pause)
-            snap = "https://web.archive.org/web/{}id_/{}".format(ts, original)
-            try:
-                html = fetch(snap)
-            except Exception:
-                continue
-            for alt, src in parse_img_pairs(html):
-                m = by_name.get(alt)
-                if not m or m["file"] in urls:
+            # 每个 URL 试**最早**的 3 个在籍内快照（升序）：旧站的扁平/序号页会被
+            # 后来的阵容复用 —— 取「最新」会抓到改版后的页（实测：artist/01/NN 在
+            # 2024 已变成团体导航页、alt 全是团名，一个成员都配不到）。最早的快照
+            # 最接近「这位成员还在时」的页面。
+            for ts in sorted(best[original])[:3]:
+                fetched += 1
+                if fetched > limit:
+                    break
+                if pause:
+                    time.sleep(pause)
+                snap = "https://web.archive.org/web/{}id_/{}".format(ts, original)
+                try:
+                    html = fetch(snap)
+                except Exception:
                     continue
-                if not tenure_ok(m, ts):
-                    continue
-                if src.startswith("/"):
-                    src = "http://www.helloproject.com" + src
-                urls[m["file"]] = src
+                for alt, src in parse_img_pairs(html):
+                    m = by_name.get(alt)
+                    if not m or m["file"] in urls:
+                        continue
+                    if not tenure_ok(m, ts):
+                        continue
+                    if src.startswith("/"):
+                        src = "http://www.helloproject.com" + src
+                    urls[m["file"]] = src
     # 无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）
     for name, original in OLD_SITE_FILE_EVIDENCE.items():
         m = by_name.get(name)

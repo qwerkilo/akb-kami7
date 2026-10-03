@@ -31,10 +31,27 @@
 3. **在籍期下界**：こぶし 的 `join` 其实是空（不是下界问题，已排除）；但 モー娘。 的
    `join` 来自 wiki，若比旧官网快照晚仍会误拒 —— 复查时留意。
 
+## 2026-10-03 晚：找到并修掉两个**真根因**（早期モー娘。那批）
+
+1. **Shift_JIS**：旧官网 2005 前后的页是 Shift_JIS，管线一律 UTF-8 解码 →
+   `ALT="吉澤ひとみ"` 变乱码 → 配对全灭。修：`fetch_members.decode_page()`（按 meta charset，
+   无声明时试 cp932/euc-jp），接在 `_load_series` 的 fetch 边缘。
+2. **大写属性名**：那些页写 `SRC=` / `ALT=`（大写），`parse_img_pairs` 只认小写 → 修成 `re.I`。
+
+实证：吉澤ひとみ的 2005-04-16 快照现在能解出 `alt=吉澤ひとみ` ✓。
+**但 モー娘。源只从 1/25 升到 3/25** —— 说明**选 URL/选 ts 的逻辑还有一层问题**：
+
+- 怀疑 `best` 里 `artist/01/04/index.html` 的候选 ts 不含 2005-04-16（CDX 行的 original
+  带端口/形态差异？），或每团预算（limit=120、每 URL 试 3 个快照）在按字母序走到 04 前耗尽。
+- 下一步：**打印「每个候选 URL × 它的 in-tenure ts 列表 × 抓没抓」**，对照
+  `https://web.archive.org/web/20050416001745id_/http://www.helloproject.com/artist/01/04/index.html`
+  这条已知能解出名字的 URL，看它是否进了 `best`。
+
 ## 关键命令
 
 - 真实抓取：`AKB_PROXY= python3 scripts/fetch_members.py`（本机代理 7890 不通，必须直连）
-- 旧官网源单测：`cd scripts && python3 -m unittest test_morning_members`（93 条）
+- 旧官网源单测：`cd scripts && python3 -m unittest test_morning_members`（93 条）；解码：`test_fetch_members`（+3）
+- 探针（**要用 decode_page**）：`AKB_PROXY= python3 /tmp/opencode/probe-mom2.py`（~10 分钟）
 - 探针：`AKB_PROXY= python3 /tmp/opencode/probe-old2.py`（~17 分钟）
 
 ## 纪律
