@@ -358,7 +358,9 @@ def _date(text):
     m = DATE_RE.search(text or "")
     if not m:
         return ""
-    return "{}.{}.{}".format(m.group(1), m.group(2).zfill(2), m.group(3).zfill(2))
+    # 日期格式只有一个家（roster.ymd）—— 此前这里自己造了一遍格式串，
+    # 改 roster.ymd 时早安静默留在旧格式（产物守卫只断形状、不认来源）。
+    return roster.ymd(m.group(1), m.group(2), m.group(3))
 
 
 def _generation(text):

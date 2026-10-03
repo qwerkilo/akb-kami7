@@ -437,6 +437,16 @@ test("ja.wikipedia 取数只许在 ja_wiki.py（深化㉘）", () => {
   assert.ok(!/^def wiki_wikitext\(/m.test(chain), "photo_chain 不许定义它");
 });
 
+test("日期格式只有一个家：morning 必须走 roster.ymd（深化㉙）", () => {
+  const src = fs.readFileSync(
+    path.join(__dirname, "..", "scripts", "morningmusume_members.py"),
+    "utf8"
+  );
+  assert.ok(src.includes("roster.ymd("), "morning 必须调 roster.ymd()");
+  // zfill 是「第二份格式串」的指纹：行为断言在两种实现下都绿，抓不到回归
+  assert.ok(!src.includes("zfill"), "morning 不许自己造日期格式");
+});
+
 function crossSeriesNameCollisions() {
   const seen = new Map();
   for (const sec of loadGroups()) {
