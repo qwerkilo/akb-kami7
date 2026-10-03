@@ -285,11 +285,11 @@ class BuildMembersTests(unittest.TestCase):
 
     def setUp(self):
         items = mm.parse_list(LIST_HTML)
-        official = {}
+        official = {"モーニング娘。": {}}
         for it in items:
             it = dict(it)
             it["detail"] = mm.parse_detail(DETAIL_HTML) if it["name"] == "野中美希" else {}
-            official[it["name"]] = it
+            official["モーニング娘。"][it["name"]] = it
         self.members, self.urls = mm.build_members(official, {"モーニング娘。": BOTH})
         self.by_name = {m["name"]: m for m in self.members}
 
@@ -320,9 +320,11 @@ class BuildMembersTests(unittest.TestCase):
         """变异「官网昵称一律丢弃」曾存活 —— 因为 Wikipedia 有兜底，两条路都给出「ちぇる」。
         所以必须造一个**两源不一致**的人，才能断出优先级。"""
         official = {
-            "野中美希": {
-                "photo": "/upload/images/a.webp",
-                "detail": {"nick_raw": "非儿的昵称、别名一"},
+            "モーニング娘。": {
+                "野中美希": {
+                    "photo": "/upload/images/a.webp",
+                    "detail": {"nick_raw": "非儿的昵称、别名一"},
+                }
             }
         }
         members, _ = mm.build_members(official, {"モーニング娘。": BOTH})
@@ -537,12 +539,12 @@ class TwoGroupSectionTests(unittest.TestCase):
         真实装配却并成一段（51 + 8 = 59 全进「モーニング娘。」）。
         根因：_base_record 把 group 写死成模块的 GROUP。
         """
-        official = {}
+        official = {"モーニング娘。": {}}
         for item in mm.parse_list(LIST_HTML):
             merged = dict(item)
             merged["detail"] = mm.parse_detail(DETAIL_HTML)
             merged["group"] = "モーニング娘。"
-            official[item["name"]] = merged
+            official["モーニング娘。"][item["name"]] = merged
         members, _urls = mm.build_members(official, CUTE_WIKI_PAGES)
         self.assertEqual(
             sorted({m["group"] for m in members}), ["℃-ute", "モーニング娘。"]
@@ -553,13 +555,18 @@ class TwoGroupSectionTests(unittest.TestCase):
         for m in cute:
             self.assertIn("℃-ute", m["file"], m["file"])
 
-    def test_two_groups_claiming_the_same_person_is_reported_not_guessed(self):
-        """ADR-0021 说的「收伞造成重叠」：同一个人在两个团里各有一份档案。
-        静默挑一个团会让段 label 与照片张冠李戴 —— 必须报错。"""
-        official = {"村上愛": {"name": "村上愛", "group": "モーニング娘。", "detail": {}}}
-        with self.assertRaises(ValueError) as ctx:
-            mm.build_members(official, {"℃-ute": CUTE_WIKI})
-        self.assertIn("村上愛", str(ctx.exception))
+    def test_official_current_plus_wiki_former_is_a_transfer_not_an_error(self):
+        """订正旧判据：这条原本断言「官网一个团 + Wikipedia 另一个团 → 报错」。
+
+        收伞批（工单 02）之后这个形状是**跨团转籍的常态**（官网只有现役、
+        Wikipedia 还留着毕业段），改由「最近归属」规则处理：现役赢。
+        只有**两个现役团同时认领**才是真异常（TestCrossGroupMerge 里那条）。
+        """
+        official = {"モーニング娘。": {"村上愛": {"name": "村上愛", "group": "モーニング娘。", "detail": {}}}}
+        members, _ = mm.build_members(official, {"℃-ute": CUTE_WIKI})
+        m = {x["name"]: x for x in members}["村上愛"]
+        self.assertEqual(m["group"], "モーニング娘。")
+        self.assertEqual(m["status"], "current")
 
     def test_each_section_is_one_group_and_its_label_is_that_group(self):
         """团名落在**段**上（label + series），不是成员字段 —— 我第一版把
@@ -606,8 +613,8 @@ class TwoGroupSectionTests(unittest.TestCase):
         secs = mm.build_sections(mm.build_members_from_wiki({"℃-ute": ""}))
         self.assertEqual(secs, [], "取不到条目的团不该产出一段空段")
 
-    def test_load_talks_to_two_wiki_pages_and_only_one_official_site(self):
-        """官网那侧**不抓℃-ute**（团已解散、没官网页面，决定 8），Wikipedia 那侧抓两篇。"""
+    def test_load_talks_to_eleven_wiki_pages_and_only_live_official_groups(self):
+        """Wikipedia 抓 11 团；官网只抓 7 个现役团（已停止活动的团没有官网页面）。"""
         asked = []
 
         def fetch(url):
@@ -711,3 +718,74 @@ class TestNineNewGroups(unittest.TestCase):
         raw = fixture("beyooooonds-members.wiki")
         by_name = {r["名前"]: r for r in mm.split_rows(raw[raw.index("{|") :])}
         self.assertEqual(by_name["西田汐里"]["備考"], "元ハロプロ研修生")
+
+
+def mini_table(name, status_section, end=""):
+    """极小 wikitext 表：装配规则的测试不需要真实 3 行 fixture（那是解析测试的事）。
+
+    列名用解析器已认的形状；end 列只有毕业段才写。
+    """
+    end_col = "\n!卒業・脱退日" if end else ""
+    end_val = f"\n|{end}" if end else ""
+    return (
+        f"{status_section}\n"
+        "{| class=\"wikitable\"\n"
+        "!名前\n!生年月日" + end_col + "\n|-\n"
+        f"|'''[[{name}]]'''\n|1999年1月1日" + end_val + "\n|}\n"
+    )
+
+
+class TestCrossGroupMerge(unittest.TestCase):
+    """工单 02 决定 2：同一人跨团只留一份，保留最近归属（现役优先，其次毕业日较晚）。"""
+
+    def test_transfer_keeps_the_current_affiliation(self):
+        pages = {
+            "こぶしファクトリー": mini_table("井上玲音", "=== 旧メンバー ===", end="2019年7月8日"),
+            "Juice=Juice": mini_table("井上玲音", "=== 現在のメンバー ==="),
+        }
+        members = mm.build_members_from_wiki(pages)
+        self.assertEqual(len(members), 1, "同一人只该留一份")
+        self.assertEqual(members[0]["group"], "Juice=Juice")
+        self.assertEqual(members[0]["status"], "current")
+
+    def test_two_former_keeps_the_later_end(self):
+        pages = {
+            "カントリー・ガールズ": mini_table("島村嬉唄", "=== 過去に在籍していたメンバー ===", end="2015年6月12日"),
+            "Berryz工房": mini_table("島村嬉唄", "=== 過去に在籍していたメンバー ===", end="2016年8月11日"),
+        }
+        members = mm.build_members_from_wiki(pages)
+        self.assertEqual(len(members), 1)
+        self.assertEqual(members[0]["group"], "Berryz工房", "毕业日较晚的归属优先")
+
+    def test_two_current_claims_still_raise(self):
+        pages = {
+            "アンジュルム": mini_table("同名子", "=== 現在のメンバー ==="),
+            "Juice=Juice": mini_table("同名子", "=== 現在のメンバー ==="),
+        }
+        with self.assertRaises(ValueError):
+            mm.build_members_from_wiki(pages)
+
+    def test_official_covers_many_groups(self):
+        """官网侧改成按团分组：两个团的官网数据都要落进对应团。"""
+        official = {
+            "モーニング娘。": {"佐藤優樹": {"name": "佐藤優樹", "group": "モーニング娘。", "detail": {}}},
+            "アンジュルム": {"伊勢鈴蘭": {"name": "伊勢鈴蘭", "group": "アンジュルム", "detail": {}}},
+        }
+        pages = {
+            "モーニング娘。": mini_table("佐藤優樹", "=== メンバー ==="),
+            "アンジュルム": mini_table("伊勢鈴蘭", "=== 現在のメンバー ==="),
+        }
+        members, _ = mm.build_members(official, pages)
+        got = {m["name"]: m["group"] for m in members}
+        self.assertEqual(got, {"佐藤優樹": "モーニング娘。", "伊勢鈴蘭": "アンジュルム"})
+
+    def test_official_current_beats_wiki_former_for_same_person(self):
+        """官网只有现役：官网说现役、Wikipedia 同一个人还在毕业段 = 转团/源未更新，取现役。"""
+        official = {
+            "Juice=Juice": {"井上玲音": {"name": "井上玲音", "group": "Juice=Juice", "detail": {}}}
+        }
+        pages = {"こぶしファクトリー": mini_table("井上玲音", "=== 旧メンバー ===", end="2019年7月8日")}
+        members, _ = mm.build_members(official, pages)
+        self.assertEqual(len(members), 1)
+        self.assertEqual(members[0]["group"], "Juice=Juice")
+        self.assertEqual(members[0]["status"], "current")

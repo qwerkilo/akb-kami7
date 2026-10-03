@@ -775,11 +775,10 @@ def _merge_one(item, w):
         return None, None
     detail = item.get("detail") or {}
     nick, nick_aliases = _pick_nick(detail, w)
-    # 官网侧只覆盖モーニング娘。，Wikipedia 侧按团给。两者对同一个人不一致 =
-    # ADR-0021 说的「收伞造成重叠」，那种情况要**看得见**，不能静默挑一个团。
+    # 两源所属团不一致这件事不在这里判：跨团转籍（こぶし → Juice=Juice 那 4 人）
+    # 是常态，由 _assemble 的「最近归属」规则统一处理，只有**两个现役团同时认领**
+    # 才是真异常。_merge_one 只负责把同一个人、同一个团的两源拼起来。
     og, wg = item.get("group"), w.get("group")
-    if og and wg and og != wg:
-        raise ValueError("{} 同时出现在 {} 与 {}（ADR-0021 的重叠）".format(name, og, wg))
     rec = _base_record(name, w, nick, nick_aliases, group=og or wg)
     rec.update(_optional_fields(detail, w))
     photo = item.get("photo")
@@ -788,48 +787,86 @@ def _merge_one(item, w):
 
 
 def build_members_from_wiki(pages):
-    """只从 Wikipedia 装配（{团: wikitext}）。
-
-    官网只覆盖モーニング娘。，其余团（如已解散的℃-ute）没有官网页面，
-    所以它们的成员**全部**来自 Wikipedia。这里和 build_members 共用 _merge_one，
-    免得出现第二套合并规则。
-    """
-    members, urls = [], {}
-    for group, text in pages.items():
-        for m in parse_wiki_members(text, group):
-            rec, _url = _merge_one({}, m)
-            if not rec:
-                continue
-            rec["group"] = group
-            rec["series"] = SERIES
-            members.append(rec)
+    """只从 Wikipedia 装配（{团: wikitext}）；返回成员列表（照片不经手）。"""
+    members, _urls = _assemble({}, pages)
     return members
 
 
-def build_members(official, pages):
-    """official: {姓名: parse_list 项（含 detail）}；pages: {团: 该团条目的 wikitext}。
-    返回 (members, urls) —— 照片放在 urls 里按 file 键索引，与 love_members 同契约
-    （fetch_members 靠 urls 下载，不要发明第二个形状）。
+def _affinity(cand):
+    """「最近归属」的排序键：现役优先，其次毕业日越晚越近（空毕业日 = 最早）。"""
+    return (1 if cand["status"] == "current" else 0, cand.get("end") or "")
 
-    两源按姓名归一后合并，任一侧独有的都要留下。多个团时合并是**跨团**的：
-    一个人理论上可能在两个团各有一份档案（ADR-0021 说的重叠），这里按姓名归到一条，
-    但 group 字段要跟着走 —— 否则段 label 会张冠李戴。
+
+def _assemble(official, pages):
+    """official: {团: {姓名: parse_list 项}}；pages: {团: wikitext}。
+    返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
+
+    同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属
+    （实测 4 人：船木結/井上玲音/梁川奈々美/稲場愛香 都从已停止活动的团转入现役团）。
+    两份**现役**冲突才是数据异常（收伞式重叠），抛 ValueError 让人看见 ——
+    「官网现役 + Wikipedia 毕业段」的旧冲突现在是转籍常态，取现役。
     """
-    by_name = {norm_name(k): v for k, v in official.items()}
-    wiki = []
+    cands = {}
+    order = []
+
+    def add(key, cand):
+        if key not in cands:
+            cands[key] = []
+            order.append(key)
+        cands[key].append(cand)
+
+    for group, by_name in (official or {}).items():
+        for name, item in by_name.items():
+            add(
+                norm_name(name),
+                {"group": group, "status": "current", "end": "", "official": item, "wiki": None},
+            )
     for group, text in pages.items():
         for m in parse_wiki_members(text, group):
-            wiki.append(dict(m, group=group))
-    wiki_by_norm = {norm_name(m["name"]): m for m in wiki}
+            add(
+                norm_name(m["name"]),
+                {
+                    "group": group,
+                    "status": m["status"],
+                    "end": m.get("end", ""),
+                    "official": None,
+                    # group 要挂进 wiki 记录：_base_record 用它拼 file 键，
+                    # 不带的话会回落成模块常量「モーニング娘。」（实测图片挂错团）
+                    "wiki": dict(m, group=group),
+                },
+            )
+
     members, urls = [], {}
-    for key in dict.fromkeys([*by_name.keys(), *wiki_by_norm.keys()]):
-        rec, url = _merge_one(by_name.get(key) or {}, wiki_by_norm.get(key) or {})
+    for key in order:
+        group_cands = cands[key]
+        currents = {c["group"] for c in group_cands if c["status"] == "current"}
+        if len(currents) > 1:
+            raise ValueError(
+                "{} 同时是两个团的现役：{}（收伞式重叠）".format(
+                    group_cands[0].get("wiki", {}).get("name")
+                    or group_cands[0]["official"].get("name"),
+                    " / ".join(sorted(currents)),
+                )
+            )
+        best = max(group_cands, key=_affinity)
+        same = [c for c in group_cands if c["group"] == best["group"]]
+        item = next((c["official"] for c in same if c["official"]), None) or {}
+        w = next((c["wiki"] for c in same if c["wiki"]), None) or {}
+        rec, url = _merge_one(item, w)
         if not rec:
             continue
+        rec["group"] = best["group"]
+        rec["series"] = SERIES
         members.append(rec)
         if url:
             urls[rec["file"]] = url
     return members, urls
+
+
+def build_members(official, pages):
+    """official: {团: {姓名: parse_list 项（含 detail）}}；pages: {团: wikitext}。
+    返回 (members, urls)。合并规则见 _assemble。"""
+    return _assemble(official, pages)
 
 
 def resolve_former_photos(members, urls, fetch, warn=print):
@@ -891,8 +928,25 @@ def build_sections(members):
 
 # 官网只覆盖这个团：℃-ute 2017 年就解散了、官网首页那 7 个现役团里没有它，
 # 猜过的路径全 404（决定 8）。它的成员全部来自 Wikipedia。
-OFFICIAL_GROUPS = ["モーニング娘。"]
-OFFICIAL_PATHS = {"モーニング娘。": LIST_PATH}
+# 官网覆盖 7 个现役团（6 个新团 + モーニング娘。）；已停止活动的团没有官网页面。
+OFFICIAL_GROUPS = [
+    "モーニング娘。",
+    "アンジュルム",
+    "Juice=Juice",
+    "つばきファクトリー",
+    "BEYOOOOONDS",
+    "OCHA NORMA",
+    "ロージークロニクル",
+]
+OFFICIAL_PATHS = {
+    "モーニング娘。": "/morningmusume/",
+    "アンジュルム": "/angerme/",
+    "Juice=Juice": "/juicejuice/",
+    "つばきファクトリー": "/tsubakifactory/",
+    "BEYOOOOONDS": "/beyooooonds/",
+    "OCHA NORMA": "/ochanorma/",
+    "ロージークロニクル": "/rosychronicle/",
+}
 
 
 def load(fetch, warn=print, photo=True):
@@ -900,13 +954,15 @@ def load(fetch, warn=print, photo=True):
     official = {}
     for group in OFFICIAL_GROUPS:
         listing = parse_list(fetch(SITE + OFFICIAL_PATHS[group]))
+        by_name = {}
         for item in listing:
             detail = parse_detail(fetch(SITE + item["path"]))
             merged = dict(item)
             merged["detail"] = detail
             merged["group"] = group
-            official[item["name"]] = merged
-        print("{}: {} 人（官网）".format(group, len(official)))
+            by_name[item["name"]] = merged
+        official[group] = by_name
+        print("{}: {} 人（官网）".format(group, len(by_name)))
 
     members, urls = [], {}
     pages = {}
