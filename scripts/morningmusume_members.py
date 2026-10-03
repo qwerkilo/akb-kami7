@@ -525,7 +525,7 @@ GROUPS = {
         "page": "℃-ute",
         "current": [],
         "former": ["=== 解散時のメンバー ===", "=== 過去に在籍していたメンバー ==="],
-        "end_rank": 2017,
+        "end_year": 2017,
     },
     # ── 伞下九团（工单 01）。段标题是各条目里的原文；current 为空 = 该团已停止活动、
     #    条目里没有现役节（不是特判：℃-ute 先例，硬写「无现役节就当全员毕业」会掩盖源故障）。
@@ -572,7 +572,7 @@ GROUPS = {
             "=== 無期限活動休止発表時のメンバー ===",
             "=== 過去に在籍していたメンバー ===",
         ],
-        "end_rank": 2015,
+        "end_year": 2015,
     },
     "カントリー・ガールズ": {
         "page": "カントリー・ガールズ",
@@ -581,13 +581,13 @@ GROUPS = {
             "=== 活動休止時のメンバー ===",
             "=== 過去に在籍していたメンバー ===",
         ],
-        "end_rank": 2019,
+        "end_year": 2019,
     },
     "こぶしファクトリー": {
         "page": "こぶしファクトリー",
         "current": [],
         "former": ["=== 解散時のメンバー ===", "=== 旧メンバー ==="],
-        "end_rank": 2020,
+        "end_year": 2020,
     },
 }
 
@@ -816,8 +816,8 @@ def build_members_from_wiki(pages):
 # 毕业日」时当次级排序键（Berryz/カントリー/こぶし 的源表没有毕业日列）。
 # 不写进成员数据 ——「空是事实，不许编」，它只用于归属裁决。
 # 从 GROUPS 派生（加团只改那一处配置）。
-GROUP_END_RANK = {
-    g: cfg["end_rank"] for g, cfg in GROUPS.items() if cfg.get("end_rank")
+GROUP_END_YEAR = {
+    g: cfg["end_year"] for g, cfg in GROUPS.items() if cfg.get("end_year")
 }
 
 
@@ -830,7 +830,7 @@ def _affinity(cand):
     return (
         1 if cand["status"] == "current" else 0,
         cand.get("end") or "",
-        GROUP_END_RANK.get(cand["group"], 0),
+        GROUP_END_YEAR.get(cand["group"], 0),
     )
 
 
@@ -839,7 +839,7 @@ def _assemble(official, pages):
     返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
 
     同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属，
-    再次团体终止年份（见 GROUP_END_RANK）。真实数据里的转籍者都从已停止活动的团
+    再次团体终止年份（见 GROUP_END_YEAR）。真实数据里的转籍者都从已停止活动的团
     转入现役团（人名与人数让产物测试钉，不在这里写第二份）。
     两份**现役**冲突才是数据异常（收伞式重叠），抛 ValueError 让人看见 ——
     「官网现役 + Wikipedia 毕业段」的旧冲突现在是转籍常态，取现役。
@@ -974,12 +974,13 @@ def build_sections(members):
 
 # 官网只覆盖这个团：℃-ute 2017 年就解散了、官网首页那 7 个现役团里没有它，
 # 猜过的路径全 404（决定 8）。它的成员全部来自 Wikipedia。
-# 官网覆盖 7 个现役团；已停止活动的团没有官网页面。**从 GROUPS 派生** ——
-# 加团只改 GROUPS 一处（这是「加团 = 加一行」真正成立的地方）。
-OFFICIAL_GROUPS = [g for g, cfg in GROUPS.items() if cfg.get("official")]
+# 官网覆盖现役团；已停止活动的团没有官网页面。**从 GROUPS 派生** ——
+# 生产侧加团只需在 GROUPS 里加一个 official 键（测试清单仍要跟着加，真实触点
+# 清单见 `.scratch/deepening/24-group-config.md`）。
 OFFICIAL_PATHS = {
-    g: cfg["official"] for g, cfg in GROUPS.items() if cfg.get("official")
+    g: cfg["official"] for g, cfg in GROUPS.items() if "official" in cfg
 }
+OFFICIAL_GROUPS = list(OFFICIAL_PATHS)
 
 
 def load(fetch, warn=print, photo=True):

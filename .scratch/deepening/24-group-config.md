@@ -27,13 +27,20 @@
 
 ## 等价性凭据
 
-纯重构：产物 `members.js` 逐字节不变（`git diff` 空）；`npm test` 前后同数；
-新增「派生列表与配置一致」守卫。
+- Q1/Q2/Q4 是**纯重构**：产物 `members.js` 逐字节不变（`git diff` 空）。
+- **Q3 不是纯重构**（审查订正）：形状匹配是行为变更（现数据没有「少一项的合并列」，
+  所以产物不变只是**现数据下**成立）；它的凭据是「新测试红→绿」+ 变异被杀，
+  不能算进逐字节那条。
+- `npm test` 从 213 → **215**（+2 条新测试），不是「前后同数」。
 
 ## 实现记录
 
-- **Q1**：`GROUPS[团]` 收进 `official` / `end_rank`；`OFFICIAL_GROUPS` / `OFFICIAL_PATHS` /
-  `GROUP_END_RANK` 改成从中派生（手写表删除）✓ 加团现在只改 `GROUPS` + 测试 `MANIFEST` 两处。
+- **Q1**：`GROUPS[团]` 收进 `official` / `end_year`；`OFFICIAL_GROUPS` / `OFFICIAL_PATHS` /
+  `GROUP_END_YEAR` 改成从中派生（手写表删除）✓ **生产侧**加团只改 `GROUPS` 一处。
+  **测试侧仍有硬编码清单**（审查订正：我先前写「只改两处」是夸大）——加一个团实际还要：
+  产物测试 `MANIFEST`、`test_morning_members.py` 的「11 页」计数与 `TestGroupConfig`
+  的 7 团/4 团表、以及 `CASES` 的新 fixture。它们是**规格**（缝③ 的清单不许从生产派生），
+  保留是刻意的；真实触点清单以本节为准。
 - **Q2**：artifact 测试三张表合成一张 `MANIFEST`（三张派生视图保持既有消费点不变）✓
 - **Q3**：合并列触发改形状匹配（含「血液型」且含「身長」或「出身地」）+ 新增
   「少一项的合并列」测试 ✓

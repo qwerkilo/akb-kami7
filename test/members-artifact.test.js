@@ -85,7 +85,7 @@ test("每个分组有 label 与 members，成员字段完整且 id 唯一", () =
   }
 });
 
-test("二十二个团体齐备且首个出现顺序固定", () => {
+test("团体齐备且首个出现顺序固定", () => {
   const seen = [];
   for (const section of loadGroups()) {
     if (!seen.includes(section.group)) seen.push(section.group);

@@ -654,9 +654,21 @@ class TestGroupConfig(unittest.TestCase):
             ],
             "官网覆盖 7 个现役团",
         )
-        self.assertEqual(mm.OFFICIAL_PATHS["アンジュルム"], "/angerme/")
         self.assertEqual(
-            mm.GROUP_END_RANK,
+            mm.OFFICIAL_PATHS,
+            {
+                "モーニング娘。": "/morningmusume/",
+                "アンジュルム": "/angerme/",
+                "Juice=Juice": "/juicejuice/",
+                "つばきファクトリー": "/tsubakifactory/",
+                "BEYOOOOONDS": "/beyooooonds/",
+                "OCHA NORMA": "/ochanorma/",
+                "ロージークロニクル": "/rosychronicle/",
+            },
+            "七条官网路径全钉（只钉一条时其余写错不会红）",
+        )
+        self.assertEqual(
+            mm.GROUP_END_YEAR,
             {
                 "Berryz工房": 2015,
                 "℃-ute": 2017,
@@ -665,8 +677,8 @@ class TestGroupConfig(unittest.TestCase):
             },
             "四个已停止活动团的终止年份",
         )
-        # 互斥：有官网页面的团都不该有 end_rank（现役 vs 已停止）
-        self.assertEqual(set(mm.OFFICIAL_GROUPS) & set(mm.GROUP_END_RANK), set())
+        # 互斥：有官网页面的团都不该有 end_year（现役 vs 已停止）
+        self.assertEqual(set(mm.OFFICIAL_GROUPS) & set(mm.GROUP_END_YEAR), set())
 
     def test_vitals_column_with_missing_part(self):
         """合并列按形状触发：某团写成「血液型/身長」（少出身地）也要拆，
