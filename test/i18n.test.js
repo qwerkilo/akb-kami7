@@ -102,7 +102,7 @@ test("names 组合在 zh/en/ja × 系列 × 档位下都解析出真实文案", 
   };
   for (const lang of ["zh", "en", "ja"]) {
     const t = (k) => I18N[lang][k];
-    for (const series of ["48g", "sakamichi", "love", "morning"]) {
+    for (const series of Object.keys(core.SERIES_KEYS)) {
       for (const size of [7, 16, 40]) {
         const n = core.names(series, size, t);
         const where = `${lang}/${series}/${size}`;

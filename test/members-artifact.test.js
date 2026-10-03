@@ -408,6 +408,17 @@ test("早安家族：十一个团、跨团合并只留一份、期生只有モ�
   }
 });
 
+test("SERIES_KEYS 的系列集与产物清单一致（加系列漏一侧就红）", () => {
+  // 缝③：测试循环从 SERIES_KEYS 派生之后，派生的根要钉在产物清单上 ——
+  // 否则 SERIES_KEYS 自己漂了（多一个没数据的系列 / 少一个），循环会跟着漂。
+  const fromManifest = [...new Set(MANIFEST.map((m) => m.series))];
+  assert.equal(
+    Object.keys(core.SERIES_KEYS).join("/"),
+    fromManifest.join("/"),
+    "SERIES_KEYS 与产物清单的系列集（含顺序）必须一致"
+  );
+});
+
 function crossSeriesNameCollisions() {
   const seen = new Map();
   for (const sec of loadGroups()) {

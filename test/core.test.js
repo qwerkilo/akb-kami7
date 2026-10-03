@@ -2359,7 +2359,7 @@ test("短标签：三语 × 四个系列都存在、非空、且不长于长标�
       const v = I18N[lang][k];
       return typeof v === "function" ? v() : v;
     };
-    for (const series of ["48g", "sakamichi", "love", "morning"]) {
+    for (const series of Object.keys(core.SERIES_KEYS)) {
       const n = core.names(series, 7, t);
       const where = `${lang}/${series}`;
       assert.ok(n.seriesShort, `${where} 缺 seriesShort`);
@@ -2404,14 +2404,18 @@ test("短标签：三语的 tab 总长都在 158px 预算内（长短标签必�
     // 只把其中一个短标签换回长标签，单个可能仍在上限内（en「=LOVE Family」6 单位），
     // 但三个加起来就超了。
     const sum = (pick) =>
-      ["48g", "sakamichi", "love", "morning"].reduce(
+      Object.keys(core.SERIES_KEYS).reduce(
         (n, series) => n + units(pick(core.names(series, 7, t))),
         0
       );
     const shortU = sum((n) => n.seriesShort);
     assert.ok(
       shortU <= CAP,
-      `${lang} 短标签总长 ${shortU} 单位 > 上限 ${CAP}（${["48g", "sakamichi", "love", "morning"].map((x) => core.names(x, 7, t).seriesShort).join(" / ")}）`
+      `${lang} 短标签总长 ${shortU} 单位 > 上限 ${CAP}（${Object.keys(
+        core.SERIES_KEYS
+      )
+        .map((x) => core.names(x, 7, t).seriesShort)
+        .join(" / ")}）`
     );
     // 顺带钉住「长标签确实超预算」—— 校准用的前提，写成断言才不会悄悄失真
     const longU = sum((n) => n.seriesLabel);
@@ -2726,7 +2730,7 @@ test("names() 的四个系列每个字段都非空（缺一个字段就会静默
       const v = I18N[lang][k];
       return typeof v === "function" ? v() : v;
     };
-    for (const series of ["48g", "sakamichi", "love", "morning"]) {
+    for (const series of Object.keys(core.SERIES_KEYS)) {
       for (const size of [7, 16, 40]) {
         const n = core.names(series, size, t);
         for (const [k, v] of Object.entries(n)) {
