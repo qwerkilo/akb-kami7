@@ -317,6 +317,14 @@ test("早安家族：两个团、期生只有モーニング娘。有、毕业�
     "モーニング娘。/℃-ute",
     "段顺序跟 GROUPS 配置走"
   );
+  // label 与 group 都要钉：label 是界面上的段头、也是 flattenMembers 回填期生的
+  // 来源（早安成员的期生自己带，但零成员回填时用的就是它）—— 只钉 group 的话
+  // 把 label 改成别的团名不会有任何测试红（变异实测存活）。
+  assert.equal(
+    secs.map((s) => s.label).join("/"),
+    "モーニング娘。/℃-ute",
+    "段的 label 就是团名（界面段头）"
+  );
   const kami = secs[0].members;
   const cute = secs[1].members;
   assert.ok(
