@@ -614,6 +614,20 @@ class TwoGroupSectionTests(unittest.TestCase):
         secs = mm.build_sections(mm.build_members_from_wiki({"℃-ute": ""}))
         self.assertEqual(secs, [], "取不到条目的团不该产出一段空段")
 
+    def test_load_survives_a_broken_wiki_page(self):
+        """morning 的失败策略是 **empty**（单页失败 → 该团 0 人，由源门的
+        「团消失」兜），不是抛 —— 策略现在是 ja_wiki 的显式参数。"""
+
+        def fetch(url):
+            if "helloproject.com" in url:
+                return "<html></html>"
+            if "Juice" in url:
+                raise RuntimeError("boom")
+            return ""
+
+        members, _ = mm.load(fetch, warn=lambda *a: None, photo=False)
+        self.assertIsInstance(members, list)
+
     def test_load_parses_each_page_once(self):
         """深化㉗：load 此前为打印人数把每页解析两遍（11 团 22 次）——
         「解析两次」对任何断言都不可见（扫描只能用探针数调用），所以用计数钉住。"""

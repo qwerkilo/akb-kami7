@@ -2,15 +2,14 @@
 
 解析全部为纯函数（fixture 驱动测试）；网络经注入的 text fetcher 访问，测试离线。
 """
-import json
 import re
-import urllib.parse
 
+import ja_wiki
 import photo_chain
 import roster
 
-# 从共享模块 re-export：本模块的 wiki_wikitext 与既有测试都按 love_members.WIKI_API 找它
-WIKI_API = photo_chain.WIKI_API
+# re-export：既有测试按 love_members.WIKI_API 找它（常量现在住在 ja_wiki）
+WIKI_API = ja_wiki.WIKI_API
 
 SERIES = "love"
 GROUP_ORDER = ["=LOVE", "≠ME", "≒JOY"]
@@ -179,13 +178,6 @@ def parse_wiki_members(wikitext):
     return out
 
 
-def wiki_wikitext(title, fetch):
-    url = WIKI_API + "?" + urllib.parse.urlencode(
-        {"action": "parse", "page": title, "prop": "wikitext", "format": "json"}
-    )
-    return json.loads(fetch(url))["parse"]["wikitext"]["*"]
-
-
 def archived_photo_pairs(html):
     """归档列表页里的 {规范化姓名: 原始照片 URL}；容忍 #popup 锚点与 SNS 列表拆块。"""
     out = {}
@@ -321,7 +313,7 @@ def load(fetch, warn=print):
         print("{}: {} 人（官网）".format(group, len(items)))
     wiki = {}
     for group in GROUP_ORDER:
-        text = wiki_wikitext(group, fetch)
+        text = ja_wiki.wiki_wikitext(group, fetch)
         wiki[group] = parse_wiki_members(text)
         print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
     members, urls = build_members(official, wiki)

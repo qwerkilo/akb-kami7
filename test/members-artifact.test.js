@@ -419,6 +419,24 @@ test("SERIES_KEYS 的系列集与产物清单一致（加系列漏一侧就红�
   );
 });
 
+test("ja.wikipedia 取数只许在 ja_wiki.py（深化㉘）", () => {
+  const dir = path.join(__dirname, "..", "scripts");
+  const jaWiki = fs.readFileSync(path.join(dir, "ja_wiki.py"), "utf8");
+  const chain = fs.readFileSync(path.join(dir, "photo_chain.py"), "utf8");
+  const defs = [...jaWiki.matchAll(/^def (\w+)/gm)].map((m) => m[1]).sort();
+  assert.deepEqual(defs, ["wiki_wikitext"], "ja_wiki.py 只该有取数函数");
+  // 两个 loader 都必须调共享函数、不许再自己留一份（此前两份且失败语义已分叉）
+  for (const name of ["love_members.py", "morningmusume_members.py"]) {
+    const src = fs.readFileSync(path.join(dir, name), "utf8");
+    assert.ok(
+      src.includes("ja_wiki.wiki_wikitext("),
+      `${name} 必须调 ja_wiki.wiki_wikitext()`
+    );
+    assert.ok(!/^def wiki_wikitext\(/m.test(src), `${name} 不许再自己留一份`);
+  }
+  assert.ok(!/^def wiki_wikitext\(/m.test(chain), "photo_chain 不许定义它");
+});
+
 function crossSeriesNameCollisions() {
   const seen = new Map();
   for (const sec of loadGroups()) {

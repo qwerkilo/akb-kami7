@@ -1052,3 +1052,17 @@
   对任何断言都不可见，扫描只能用探针数）。
 - 变异 **3/3 被杀**（打印时再解析一次 / `parse_all` 返空 / 记录不挂 group）；
   `npm run check` 全绿：**274 JS + 216 Python**（+1）；`members.js` diff 空 ✓
+
+## 第五十轮 · 2026-10-03 · 架构扫描候选④：ja.wikipedia 取数收进 ja_wiki（深化㉘）
+
+- 本次基点：`8864b3d`（第四十九轮结束）；范围 1 个提交。纯重构（产物逐字节不变），自审。
+- 新模块 `scripts/ja_wiki.py`（`WIKI_API` + `wiki_wikitext`）；`photo_chain` 从它 import
+  常量；love 保留 `WIKI_API` re-export；**失败策略变显式参数** `on_error="raise"`（默认，love）/
+  `"empty"`（morning）—— 两处行为都不变，差异从「两段代码」变成参数。
+- 守卫（缝③）：`ja_wiki.py` 的 def 集合 == `{wiki_wikitext}`；两个 loader 必须调它、
+  不许再自己留一份；`photo_chain` 不许定义它。
+- 顺手删掉两个 loader 里因本改动而未用的 `json` / `urllib.parse` import。
+- 新测试 4 条：ja_wiki 的成功解析 + 两种失败策略 + URL 形状；morning 的「单页失败 →
+  该团 0 人」（钉住它的 empty 策略选择）。
+- 变异 **4/4 被杀**（策略恒空 / 返回整份 data / morning 丢 empty 参数 / love 改调本地函数）；
+  `npm run check` 全绿：**275 JS + 220 Python**（+5）；`members.js` diff 空 ✓

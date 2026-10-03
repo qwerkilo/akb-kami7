@@ -12,11 +12,10 @@
 
 全部为纯函数（fixture 驱动测试）；网络经注入的 text fetcher 访问，测试离线。
 """
-import json
 import re
 import time
-import urllib.parse
 
+import ja_wiki
 import photo_chain
 import roster
 
@@ -1010,7 +1009,10 @@ def load(fetch, warn=print, photo=True):
         official[group] = by_name
         print("{}: {} 人（官网）".format(group, len(by_name)))
 
-    pages = {g: wiki_wikitext(cfg["page"], fetch) for g, cfg in GROUPS.items()}
+    pages = {
+        g: ja_wiki.wiki_wikitext(cfg["page"], fetch, on_error="empty")
+        for g, cfg in GROUPS.items()
+    }
     parsed = parse_all(pages)
     for group in GROUPS:
         print("{}: {} 人（Wikipedia）".format(group, len(parsed.get(group, []))))
@@ -1020,15 +1022,3 @@ def load(fetch, warn=print, photo=True):
     return members, urls
 
 
-def wiki_wikitext(title, fetch):
-    """取条目的 wikitext 原文。API 回的 wikitext 是 `{"*": "…"}`，
-    少取一层就会把 dict 当字符串往下传（我第一版就那样，报的是
-    'dict' object has no attribute 'find'）。"""
-    query = photo_chain.WIKI_API + "?" + urllib.parse.urlencode(
-        {"action": "parse", "page": title, "prop": "wikitext", "format": "json"}
-    )
-    try:
-        data = json.loads(fetch(query))
-    except Exception:
-        return ""
-    return (data.get("parse") or {}).get("wikitext", {}).get("*", "")

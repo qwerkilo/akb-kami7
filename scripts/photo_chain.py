@@ -10,7 +10,7 @@
 import json
 import urllib.parse
 
-WIKI_API = "https://ja.wikipedia.org/w/api.php"
+from ja_wiki import WIKI_API
 
 
 def cdx_rows(url, fetch, limit=6, prefix=False):
