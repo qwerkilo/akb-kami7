@@ -97,6 +97,22 @@ test("normalizeName 去掉连续空白", () => {
   assert.equal(core.normalizeName("  渡辺  麻友 "), "渡辺麻友");
 });
 
+test("haystack 覆盖 nick_aliases（昵称只显示第一个、其余仍要搜得到）", () => {
+  // 早安 spec 决定 3：多行昵称显示第一个、其余进别名**进搜索 haystack**。
+  // 别名早已进产物（members.js 35 处），但此前全仓没有一个 JS 消费它 ——
+  // 数据通了、功能没通（两轴审查的 Spec 轴抓到的）。
+  const m = {
+    name: "佐藤優樹",
+    kana: "さとう まさき",
+    nick: "まさき",
+    nick_aliases: ["まーちゃん", "どぅー"],
+  };
+  const hay = core.haystack(m);
+  for (const q of ["まーちゃん", "どぅー", "マーちゃん"]) {
+    assert.ok(hay.includes(core.normalizeName(q)), `别名应命中: ${q}`);
+  }
+});
+
 test("haystack 合并多个字段并忽略空字段", () => {
   const hay = core.haystack({
     name: " 前田 敦子 ",

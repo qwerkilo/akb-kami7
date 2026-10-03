@@ -36,7 +36,7 @@
         en: "Singing, eating, petting cats, music, live shows, anime, theatre, variety, comedy, gel nails",
       },
     "フラダンス、エモーショナル童謡、人と話すこと": {
-      zh: "草裙舞、演唱情感童谣、与���交谈",
+      zh: "草裙舞、演唱情感童谣、与人交谈",
       en: "Hula dancing, emotional nursery rhymes, talking with people",
     },
     "アイドル鑑賞、ゲーム、ファッションコーディネート": {

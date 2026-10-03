@@ -455,3 +455,22 @@ test("系列短标签在三种语言里都是**同一名字的缩写**（不是�
     }
   }
 });
+
+test("文案里不许出现替换字符 U+FFFD（乱码会直接上线，别的手都抓不到）", () => {
+  // 真实案例：一条趣味文案里的「人」被写成 U+FFFD×3（「与���交谈」）——
+  // 键完整性、非空、三语互异全都过，只有肉眼或这条守卫看得见。
+  // 扫**加载后的值**而不是文件原文：原文里写 `\uFFFD` 转义同样会在界面上渲染成
+  // 乱码，而只扫原文时那种写法会溜过去（变异实测「存活」）。
+  const bad = [];
+  const walk = (node, where) => {
+    if (typeof node === "string") {
+      if (node.includes("�")) bad.push(`${where} = ${node}`);
+      return;
+    }
+    if (node && typeof node === "object") {
+      for (const [k, v] of Object.entries(node)) walk(v, `${where}.${k}`);
+    }
+  };
+  for (const lang of Object.keys(I18N)) walk(I18N[lang], lang);
+  assert.deepEqual(bad, [], "文案里有替换字符 U+FFFD");
+});

@@ -243,8 +243,14 @@
   }
 
   function haystack(member, fold) {
+    // 昵称只显示第一个、其余作为别名 —— 别名仍要搜得到（早安 spec 决定 3）。
+    const aliases = Array.isArray(member.nick_aliases)
+      ? member.nick_aliases
+      : [];
     const base = normalizeName(
-      [member.name, member.kana, member.nick].filter(Boolean).join(" ")
+      [member.name, member.kana, member.nick, ...aliases]
+        .filter(Boolean)
+        .join(" ")
     );
     const parts = [base];
     if (fold) parts.push([...base].map((c) => fold[c] || c).join(""));

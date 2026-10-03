@@ -1,4 +1,4 @@
-"""早安少女家族（モーニング娘。）成员数据：ja.wikipedia 主条目 + 官网详情页。
+"""早安家族（Hello! Project）成员数据：ja.wikipedia + 官网详情页；含モーニング娘。与 ℃-ute。
 
 只做**解析**：拆表、清洗、投影。装配与网络在 build 层（见同文件下半部分）。
 
@@ -154,9 +154,10 @@ def kana_of(cell_text):
 
 
 def _header_name(text):
-    """表头可能写成 `! style="…" |名前`，也可能写成 `!加入期`（无属性无分隔符），
+    """表头单元格的显示名：去掉 style/class 属性与 <br />，再压空白。
+
+    表头可能写成 `! style="…" |名前`，也可能写成 `!加入期`（无属性无分隔符），
     后者要先把前导的 ! 剥掉，否则列名会变成「!加入期」而对不上 COLUMN_NORM。"""
-    """表头单元格的显示名：去掉 style/class 属性与 <br />，再压空白。"""
     text = _strip_refs(text)
     text = text.lstrip("!").strip()
     text = re.sub(r"<br\s*/?>", "", text)
@@ -198,7 +199,6 @@ def _row_cells(lines):
 
 
 NEWLINE = chr(10)  # 换行符：wikitext 是 CRLF 的场合也要能切
-DO_CLEAN = [True]
 
 
 def _read_header(lines):
@@ -242,13 +242,12 @@ def split_rows(text, do_clean=True):
     这是早安与等爱最本质的差异：等爱可以按 `\\n|-` 盲切后逐块解析，早安不行 ——
     `rowspan="2"` 会让某些行少两格，按位置取列就串位（实测把某人的出身地当成了姓名）。
     """
-    DO_CLEAN[0] = do_clean
     lines = text.split(NEWLINE)
     header, i = _read_header(lines)
-    return _fill_rows(_read_blocks(lines, i), header)
+    return _fill_rows(_read_blocks(lines, i), header, do_clean)
 
 
-def _fill_rows(blocks, header):
+def _fill_rows(blocks, header, do_clean=True):
     """把切出来的块展开成与表头等宽的行，rowspan 向下填充。
 
     早安表里「加入年月日」与「加入期」会横跨相邻两行，于是后一行少两格；
@@ -275,8 +274,8 @@ def _fill_rows(blocks, header):
             if ci < len(cells):
                 span, raw = cells[ci]
                 ci += 1
-                val = clean(raw) if DO_CLEAN[0] else raw.strip()
-                if DO_CLEAN[0] and header[col] in COLUMN_NORM:
+                val = clean(raw) if do_clean else raw.strip()
+                if do_clean and header[col] in COLUMN_NORM:
                     val = COLUMN_NORM[header[col]](val)
                 out[header[col]] = val
                 if span > 1:
@@ -662,6 +661,11 @@ def resolve_former_photos(members, urls, fetch, warn=print):
     所以链只有两节：Wikipedia Commons → （若已知照片 URL）Wayback 取图。
     取不到就 warn —— 站里会显示占位卡，但没人知道是谁缺了。
 
+    ⚠️ 第二节目前**生产代码没有来源设置 `photo_url`**（官网只列现役、Wikipedia
+    表格里没有逐成员照片 URL），所以真实抓取只走 Commons 一节；这一节只有
+    注入式测试走过。留着它是给将来某个能提供 URL 的源，不是当下有效的链 ——
+    别把它当成覆盖率的一部分。
+
     ⚠️ 这意味着毕业成员的照片覆盖率**大概率不高**，缺口集中在 1~5 期。
     真正的缺口名单要等工单 04 的真实抓取（见 spec 的验收）。
     """
@@ -681,7 +685,7 @@ def resolve_former_photos(members, urls, fetch, warn=print):
 
 
 def build_sections(members):
-    """早安是**一系列一团**，且期生有 18 期 —— 所以不分组，段 label 用团名本身；
+    """早安是**一系列两团**（モーニング娘。+ ℃-ute），且期生有 18 期 —— 所以不分组，段 label 用团名本身；
     期生留在成员记录上（等爱只有一期，才把 GENERATION 塞进段）。"""
     if not members:
         return []

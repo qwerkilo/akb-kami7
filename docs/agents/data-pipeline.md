@@ -4,7 +4,7 @@
 
 - **48G / 坂道**：48pedia 的 11 个来源页（`SOURCES`）；跨团按姓名+假名去重归口，跨系列兼任由 keeper+extras 合并；bio 取表内 `生年月日`/`出身地`。
 - **等爱三团**：`scripts/love_members.py` 抓官网（列表+详情：血型/星座/身长/趣味/特技/罗马字）+ 日文 Wikipedia（假名/生年月日/出身地/元成员/毕业日）；毕业成员照片走回退链 **Web Archive 列表快照 → 图片快照 → Wikipedia/Commons → 沿用站内已有照片（无则占位）**；`main` 的 `love_loader` 可注入（测试离线）。
-- **早安少女（モーニング娘。）**：`scripts/morningmusume_members.py` 抓官网（列表 `MemberPanel` + 详情页的 `dl/dt/dd` 13 个字段）**与日文 Wikipedia 主条目**（两表：现役 `=== メンバー ===` / 毕业 `=== 過去のメンバー ===`）。两源按姓名归一后合并：**官网只有现役且没有假名与期生**，Wikipedia 才有毕业者、期生与假名（藏在姓名格的 `{{Display none|…/}}` 里）。`main` 的 `morning_loader` 可注入（测试离线）。
+- **早安家族（モーニング娘。+ ℃-ute）**：`scripts/morningmusume_members.py` 抓官网（列表 `MemberPanel` + 详情页的 `dl/dt/dd` 13 个字段）**与日文 Wikipedia 条目**（两表：现役 `=== メンバー ===` / 毕业 `=== 過去のメンバー ===`）。两源按姓名归一后合并：**官网只有现役且没有假名与期生**，Wikipedia 才有毕业者、期生与假名（藏在姓名格的 `{{Display none|…/}}` 里）。`main` 的 `morning_loader` 可注入（测试离线）。
   - ⚠️ **Wikipedia 的表有 `rowspan="2"`**（加入年月日与加入期会横跨相邻两行），于是有的行只有 8 格 —— 按位置取列会串位。`split_rows` 先按**列号**把 rowspan 向下填充。**这一条与等爱不同，不能复用它的 parser**（实测把 `love_members.parse_wiki_members` 套上来得到 0 人）。
   - ⚠️ **毕业照片的链比等爱短一节**：等爱能从旧列表页快照配出「姓名 → 照片」，早安**不能** —— 实测 2023-01-08 的快照里 `img/artist/s/<sha1>.jpg` 是 ameblo 的**博客缩略图**、`#artist_photo` 是**专辑封面**，页面上没有逐成员的照。所以只有 Commons 一节。现役 11 人全部有图，**毕业 40 人只解析到 16 张，其余显示占位**。
 - **共用装配契约**：`scripts/roster.py`（`sort_members` / `project` / `section` / `ymd`）定义组内排序（现役优先 → 假名、空则姓名）、成员投影（基础字段恒在，可选字段仅真值带上）、分段形状 `{group, series, label, members}` 与统一日期格式 `ymd`（`YYYY.MM.DD`，缺月日只给年份）；两个数据源只提供各自的分组逻辑与可选字段集。

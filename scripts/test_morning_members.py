@@ -478,9 +478,10 @@ class CuteSectionTests(unittest.TestCase):
         # 「解散時の」那张没有这一列 —— 空是事实，不许编
         self.assertEqual(got["矢島舞美"]["end"], "")
 
-    def test_height_is_parsed_but_not_in_bio(self):
-        """身高只有「解散時」那张表有。落 member.height，**不进 bio** ——
-        站内身高只出现在资料卡，与血型/出身地同一层（决定 3）。"""
+    def test_height_is_parsed_and_included_in_bio(self):
+        """身高只有「解散時」那张表有。落 member.height，**也进 bio** ——
+        决定 3 是「有就显示、没有就不占位」；工单 01 曾写「不进 bio」，
+        工单 04 改成进 bio（资料卡那一行就是 bio.height）。"""
         got = {m["name"]: m for m in mm.parse_wiki_members(CUTE_WIKI, "℃-ute")}
         self.assertEqual(got["矢島舞美"]["height"], "166cm")
         self.assertEqual(got["村上愛"]["height"], "", "没有身高的要空字符串，不要 undefined")
