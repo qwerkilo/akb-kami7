@@ -4,9 +4,11 @@
 
 - **48G / 坂道**：48pedia 的 11 个来源页（`SOURCES`）；跨团按姓名+假名去重归口，跨系列兼任由 keeper+extras 合并；bio 取表内 `生年月日`/`出身地`。
 - **等爱三团**：`scripts/love_members.py` 抓官网（列表+详情：血型/星座/身长/趣味/特技/罗马字）+ 日文 Wikipedia（假名/生年月日/出身地/元成员/毕业日）；毕业成员照片走回退链 **Web Archive 列表快照 → 图片快照 → Wikipedia/Commons → 沿用站内已有照片（无则占位）**；`main` 的 `love_loader` 可注入（测试离线）。
-- **早安家族（モーニング娘。+ ℃-ute）**：`scripts/morningmusume_members.py` 抓官网（列表 `MemberPanel` + 详情页的 `dl/dt/dd` 13 个字段）**与日文 Wikipedia 条目**（两表：现役 `=== メンバー ===` / 毕业 `=== 過去のメンバー ===`）。两源按姓名归一后合并：**官网只有现役且没有假名与期生**，Wikipedia 才有毕业者、期生与假名（藏在姓名格的 `{{Display none|…/}}` 里）。`main` 的 `morning_loader` 可注入（测试离线）。
+- **早安家族（11 团：モーニング娘。/℃-ute/Berryz工房/カントリー・ガールズ/こぶしファクトリー/アンジュルム/Juice=Juice/つばきファクトリー/BEYOOOOONDS/OCHA NORMA/ロージークロニクル）**：`scripts/morningmusume_members.py` 抓**官网 7 个现役团**（列表 `MemberPanel` + 详情页的 `dl/dt/dd`；已停止活动的四团没有官网页面）**与各团的日文 Wikipedia 条目**（段标题按团配置在 `GROUPS`：现役段/毕业段的名字各团不同）。两源按姓名归一后合并：**官网只有现役且没有假名与期生**，Wikipedia 才有毕业者、期生与假名。`main` 的 `morning_loader` 可注入（测试离线）。
+  - ⚠️ **跨团合并**：同一人只留一份（现役优先 → 毕业日较晚 → 团体终止年份，见 `GROUP_END_RANK`）；两个现役团同时认领才抛 `ValueError`。真实数据里有 6 位转籍者。
   - ⚠️ **Wikipedia 的表有 `rowspan="2"`**（加入年月日与加入期会横跨相邻两行），于是有的行只有 8 格 —— 按位置取列会串位。`split_rows` 先按**列号**把 rowspan 向下填充。**这一条与等爱不同，不能复用它的 parser**（实测把 `love_members.parse_wiki_members` 套上来得到 0 人）。
-  - ⚠️ **毕业照片的链比等爱短一节**：等爱能从旧列表页快照配出「姓名 → 照片」，早安**不能** —— 实测 2023-01-08 的快照里 `img/artist/s/<sha1>.jpg` 是 ameblo 的**博客缩略图**、`#artist_photo` 是**专辑封面**，页面上没有逐成员的照。所以只有 Commons 一节。现役 11 人全部有图，**毕业 40 人只解析到 16 张，其余显示占位**。
+  - ⚠️ **毕业照片的链比等爱短一节**：等爱能从旧列表页快照配出「姓名 → 照片」，早安**不能** —— 实测 2023-01-08 的快照里 `img/artist/s/<sha1>.jpg` 是 ameblo 的**博客缩略图**、`#artist_photo` 是**专辑封面**，页面上没有逐成员的照。所以毕业者只有 Commons 一节，**现役走官网照片**。
+  - ⚠️ **Commons 要节流**（`resolve_former_photos(pause=1.5)`）：连打几十次会回 429，而失败被吞成「没有照片」—— 缺口名单会把限流记成源里没有。真实缺口名单逐人写进 `.scratch/helloproject-all/issues/03-pipeline.md`（数字让那份记录与产物测试钉，不在这里写第二份）。
 - **共用装配契约**：`scripts/roster.py`（`sort_members` / `project` / `section` / `ymd`）定义组内排序（现役优先 → 假名、空则姓名）、成员投影（基础字段恒在，可选字段仅真值带上）、分段形状 `{group, series, label, members}` 与统一日期格式 `ymd`（`YYYY.MM.DD`，缺月日只给年份）；两个数据源只提供各自的分组逻辑与可选字段集。
 - `simplified.js`（OpenCC 离线生成，缺依赖时跳过）与 `members.js` 同批产出；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
 - **`img` 标志的真值来源是站内文件**：`img/full/<id>.webp` 与 `img/thumb/<id>.webp` 都在且非空才为 `true`（渲染器只读这两个文件）。上游 URL 解析失败/压缩失败不会让仓库里已有的头像消失；因此脚本报告的 `with image` 是**仓库状态**，不是本轮解析成功数。上游波动导致的失败会以 warning 打出（等爱：逐个点名；其他：结尾汇总「N 位成员没有照片」）。

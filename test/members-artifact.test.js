@@ -36,8 +36,8 @@ const GROUP_COUNTS = {
   BEYOOOOONDS: 11,
   "OCHA NORMA": 10,
   ロージークロニクル: 9,
-  Berryz工房: 8,
-  "カントリー・ガールズ": 3,
+  Berryz工房: 7,
+  "カントリー・ガールズ": 4,
   こぶしファクトリー: 7,
 };
 const GROUP_ORDER = [
@@ -332,19 +332,9 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
 });
 
 test("早安家族：十一个团、跨团合并只留一份、期生只有モーニング娘。有", () => {
-  const ORDER = [
-    "モーニング娘。",
-    "℃-ute",
-    "アンジュルム",
-    "Juice=Juice",
-    "つばきファクトリー",
-    "BEYOOOOONDS",
-    "OCHA NORMA",
-    "ロージークロニクル",
-    "Berryz工房",
-    "カントリー・ガールズ",
-    "こぶしファクトリー",
-  ];
+  // 顺序从文件顶部的 GROUP_ORDER 派生（同文件里不再存第二份）；那份顺序是规格，
+  // 由「各团人数与快照一致」等测试钉住，不靠这里再抄一遍。
+  const ORDER = GROUP_ORDER.filter((g) => SERIES_OF[g] === "morning");
   const secs = loadGroups().filter((g) => g.series === "morning");
   assert.equal(
     secs.length,
@@ -423,7 +413,7 @@ test("早安家族：十一个团、跨团合并只留一份、期生只有モ�
     梁川奈々美: "Juice=Juice",
     稲場愛香: "Juice=Juice",
     船木結: "アンジュルム",
-    嗣永桃子: "Berryz工房",
+    嗣永桃子: "カントリー・ガールズ",
   };
   const where = new Map();
   for (const s of secs) for (const m of s.members) where.set(m.name, s.group);

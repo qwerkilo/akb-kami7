@@ -765,6 +765,29 @@ class TestCrossGroupMerge(unittest.TestCase):
         with self.assertRaises(ValueError):
             mm.build_members_from_wiki(pages)
 
+    def test_two_official_groups_claiming_the_same_person_still_raise(self):
+        """审查抓到的真 bug：两源都可能缺席，报错信息里 `.get("wiki", {})` 在
+        键存在且值为 None 时返回 None → AttributeError 而不是 ValueError。
+        这条路径（官网+官网冲突）此前没有测试走过。"""
+        official = {
+            "アンジュルム": {"同名子": {"name": "同名子", "group": "アンジュルム", "detail": {}}},
+            "Juice=Juice": {"同名子": {"name": "同名子", "group": "Juice=Juice", "detail": {}}},
+        }
+        with self.assertRaises(ValueError) as ctx:
+            mm.build_members(official, {})
+        self.assertIn("同名子", str(ctx.exception))
+
+    def test_tie_without_end_dates_uses_group_end_rank(self):
+        """两边毕业日都缺时的裁决：按团体终止年份取较晚的（审查实测嗣永桃子
+        被错判进 Berryz —— 她 2015 休止后仍在カントリー到 2017）。"""
+        pages = {
+            "Berryz工房": mini_table("嗣永桃子", "=== 無期限活動休止発表時のメンバー ==="),
+            "カントリー・ガールズ": mini_table("嗣永桃子", "=== 活動休止時のメンバー ==="),
+        }
+        members = mm.build_members_from_wiki(pages)
+        self.assertEqual(len(members), 1)
+        self.assertEqual(members[0]["group"], "カントリー・ガールズ")
+
     def test_official_covers_many_groups(self):
         """官网侧改成按团分组：两个团的官网数据都要落进对应团。"""
         official = {

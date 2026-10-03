@@ -793,17 +793,37 @@ def build_members_from_wiki(pages):
     return members
 
 
+# 已停止活动团的**团体终止年份**：只在「同一个人在两团都毕业、且两边都没有逐人
+# 毕业日」时当次级排序键（Berryz/カントリー/こぶし 的源表没有毕业日列）。
+# 不写进成员数据 ——「空是事实，不许编」，它只用于归属裁决。
+GROUP_END_RANK = {
+    "Berryz工房": 2015,
+    "℃-ute": 2017,
+    "カントリー・ガールズ": 2019,
+    "こぶしファクトリー": 2020,
+}
+
+
 def _affinity(cand):
-    """「最近归属」的排序键：现役优先，其次毕业日越晚越近（空毕业日 = 最早）。"""
-    return (1 if cand["status"] == "current" else 0, cand.get("end") or "")
+    """「最近归属」的排序键：现役优先，其次毕业日越晚越近，再次团体终止年份。
+
+    没有第三个键的话，嗣永桃子（Berryz 2015 休止后仍在カントリー到 2017）两边
+    毕业日都空、打平后按插入序取先到的 Berryz —— 审查实测，方向与「最近归属」相反。
+    """
+    return (
+        1 if cand["status"] == "current" else 0,
+        cand.get("end") or "",
+        GROUP_END_RANK.get(cand["group"], 0),
+    )
 
 
 def _assemble(official, pages):
     """official: {团: {姓名: parse_list 项}}；pages: {团: wikitext}。
     返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
 
-    同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属
-    （实测 4 人：船木結/井上玲音/梁川奈々美/稲場愛香 都从已停止活动的团转入现役团）。
+    同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属，
+    再次团体终止年份（见 GROUP_END_RANK）。真实数据里的转籍者都从已停止活动的团
+    转入现役团（人名与人数让产物测试钉，不在这里写第二份）。
     两份**现役**冲突才是数据异常（收伞式重叠），抛 ValueError 让人看见 ——
     「官网现役 + Wikipedia 毕业段」的旧冲突现在是转籍常态，取现役。
     """
@@ -844,8 +864,12 @@ def _assemble(official, pages):
         if len(currents) > 1:
             raise ValueError(
                 "{} 同时是两个团的现役：{}（收伞式重叠）".format(
-                    group_cands[0].get("wiki", {}).get("name")
-                    or group_cands[0]["official"].get("name"),
+                    # 两源都可能缺席：`.get("wiki", {})` 在键存在且值为 None 时
+                    # 返回 None → AttributeError（审查实测：官网+官网冲突这条路径
+                    # 抛的不是 ValueError）。用 `or {}` 兜。
+                    (group_cands[0].get("wiki") or {}).get("name")
+                    or (group_cands[0].get("official") or {}).get("name")
+                    or "?",
                     " / ".join(sorted(currents)),
                 )
             )

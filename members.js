@@ -21883,20 +21883,6 @@ window.AKB_GROUPS = [
     }
    },
    {
-    "id": "m3bca48e9e4",
-    "name": "嗣永桃子",
-    "kana": "つぐなが ももこ",
-    "nick": "",
-    "status": "former",
-    "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1992.03.06",
-     "from": "千葉県",
-     "height": "149.9cm"
-    }
-   },
-   {
     "id": "mc5b9081b3f",
     "name": "徳永千奈美",
     "kana": "とくなが ちなみ",
@@ -21959,6 +21945,23 @@ window.AKB_GROUPS = [
      "birth": "2000.06.24",
      "from": "神奈川県"
     }
+   },
+   {
+    "id": "m3bca48e9e4",
+    "name": "嗣永桃子",
+    "kana": "つぐなが ももこ",
+    "nick": "ももち",
+    "status": "former",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1992.03.06",
+     "from": "千葉県"
+    },
+    "nick_aliases": [
+     "（ももち先輩）",
+     "（PM）"
+    ]
    },
    {
     "id": "maa814d4a7b",
