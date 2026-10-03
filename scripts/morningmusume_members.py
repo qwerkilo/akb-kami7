@@ -23,7 +23,6 @@ import roster
 SERIES = "morning"
 FILE_PREFIX = "morningmusume"
 GROUP = "モーニング娘。"
-WIKI_PAGE = "モーニング娘。"
 
 # 站内约定：期生写「N期生」。原表的「12期」/「1期」都要归一到这个形状。
 GEN_RE = re.compile(r"(\d+)\s*期")
@@ -464,7 +463,16 @@ def _members_from_table(text, status, from_section=""):
         if not name:
             continue
         nick, aliases = parse_nick(_col(raw, "ニックネーム", "愛称"), name=name)
-        vitals = _col(row, "血液型/身長/出身地")
+        # 触发条件按**形状**而不是精确列名：某团若写成「血液型/身長」（少一项）
+        # 也要拆，缺的项空着（拆解本身已按内容形状认）。
+        vitals = next(
+            (
+                v
+                for k, v in row.items()
+                if "血液型" in k and ("身長" in k or "出身地" in k)
+            ),
+            "",
+        )
         if vitals:
             blood, height, frm = _split_vitals(vitals)
         else:
@@ -511,11 +519,13 @@ GROUPS = {
         "page": "モーニング娘。",
         "current": ["=== メンバー ==="],
         "former": ["=== 過去のメンバー ==="],
+        "official": "/morningmusume/",
     },
     "℃-ute": {
         "page": "℃-ute",
         "current": [],
         "former": ["=== 解散時のメンバー ===", "=== 過去に在籍していたメンバー ==="],
+        "end_rank": 2017,
     },
     # ── 伞下九团（工单 01）。段标题是各条目里的原文；current 为空 = 该团已停止活动、
     #    条目里没有现役节（不是特判：℃-ute 先例，硬写「无现役节就当全员毕业」会掩盖源故障）。
@@ -523,31 +533,37 @@ GROUPS = {
         "page": "アンジュルム",
         "current": ["=== 現在のメンバー ==="],
         "former": ["=== 元メンバー ==="],
+        "official": "/angerme/",
     },
     "Juice=Juice": {
         "page": "Juice=Juice",
         "current": ["=== 現在のメンバー ==="],
         "former": ["=== 元メンバー ==="],
+        "official": "/juicejuice/",
     },
     "つばきファクトリー": {
         "page": "つばきファクトリー",
         "current": ["=== 現在のメンバー ==="],
         "former": ["=== 元メンバー ==="],
+        "official": "/tsubakifactory/",
     },
     "BEYOOOOONDS": {
         "page": "BEYOOOOONDS",
         "current": ["=== メンバー一覧 ==="],
         "former": [],
+        "official": "/beyooooonds/",
     },
     "OCHA NORMA": {
         "page": "OCHA NORMA",
         "current": ["=== 現在のメンバー ==="],
         "former": ["=== 元メンバー ==="],
+        "official": "/ochanorma/",
     },
     "ロージークロニクル": {
         "page": "ロージークロニクル",
         "current": ["== メンバー =="],
         "former": [],
+        "official": "/rosychronicle/",
     },
     "Berryz工房": {
         "page": "Berryz工房",
@@ -556,6 +572,7 @@ GROUPS = {
             "=== 無期限活動休止発表時のメンバー ===",
             "=== 過去に在籍していたメンバー ===",
         ],
+        "end_rank": 2015,
     },
     "カントリー・ガールズ": {
         "page": "カントリー・ガールズ",
@@ -564,11 +581,13 @@ GROUPS = {
             "=== 活動休止時のメンバー ===",
             "=== 過去に在籍していたメンバー ===",
         ],
+        "end_rank": 2019,
     },
     "こぶしファクトリー": {
         "page": "こぶしファクトリー",
         "current": [],
         "former": ["=== 解散時のメンバー ===", "=== 旧メンバー ==="],
+        "end_rank": 2020,
     },
 }
 
@@ -796,11 +815,9 @@ def build_members_from_wiki(pages):
 # 已停止活动团的**团体终止年份**：只在「同一个人在两团都毕业、且两边都没有逐人
 # 毕业日」时当次级排序键（Berryz/カントリー/こぶし 的源表没有毕业日列）。
 # 不写进成员数据 ——「空是事实，不许编」，它只用于归属裁决。
+# 从 GROUPS 派生（加团只改那一处配置）。
 GROUP_END_RANK = {
-    "Berryz工房": 2015,
-    "℃-ute": 2017,
-    "カントリー・ガールズ": 2019,
-    "こぶしファクトリー": 2020,
+    g: cfg["end_rank"] for g, cfg in GROUPS.items() if cfg.get("end_rank")
 }
 
 
@@ -957,24 +974,11 @@ def build_sections(members):
 
 # 官网只覆盖这个团：℃-ute 2017 年就解散了、官网首页那 7 个现役团里没有它，
 # 猜过的路径全 404（决定 8）。它的成员全部来自 Wikipedia。
-# 官网覆盖 7 个现役团（6 个新团 + モーニング娘。）；已停止活动的团没有官网页面。
-OFFICIAL_GROUPS = [
-    "モーニング娘。",
-    "アンジュルム",
-    "Juice=Juice",
-    "つばきファクトリー",
-    "BEYOOOOONDS",
-    "OCHA NORMA",
-    "ロージークロニクル",
-]
+# 官网覆盖 7 个现役团；已停止活动的团没有官网页面。**从 GROUPS 派生** ——
+# 加团只改 GROUPS 一处（这是「加团 = 加一行」真正成立的地方）。
+OFFICIAL_GROUPS = [g for g, cfg in GROUPS.items() if cfg.get("official")]
 OFFICIAL_PATHS = {
-    "モーニング娘。": "/morningmusume/",
-    "アンジュルム": "/angerme/",
-    "Juice=Juice": "/juicejuice/",
-    "つばきファクトリー": "/tsubakifactory/",
-    "BEYOOOOONDS": "/beyooooonds/",
-    "OCHA NORMA": "/ochanorma/",
-    "ロージークロニクル": "/rosychronicle/",
+    g: cfg["official"] for g, cfg in GROUPS.items() if cfg.get("official")
 }
 
 

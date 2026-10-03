@@ -12,86 +12,39 @@ function loadGroups() {
   return sandbox.window.AKB_GROUPS;
 }
 
-// 48pedia 2026-09-27 抓取、跨团去重后的快照；上游变化时更新此表
-const GROUP_COUNTS = {
-  AKB48: 340,
-  SKE48: 233,
-  NMB48: 210,
-  HKT48: 119,
-  NGT48: 90,
-  STU48: 96,
-  SDN48: 46,
-  乃木坂46: 100,
-  櫻坂46: 58,
-  日向坂46: 46,
-  "=LOVE": 12,
-  "≠ME": 12,
-  "≒JOY": 13,
-  "モーニング娘。": 51,
-  "℃-ute": 8,
-  // 伞下九团（工单 03 真实抓取后的快照）。人数会随上游变，改数据时一起改这里。
-  アンジュルム: 26,
-  "Juice=Juice": 19,
-  つばきファクトリー: 17,
-  BEYOOOOONDS: 11,
-  "OCHA NORMA": 10,
-  ロージークロニクル: 9,
-  Berryz工房: 7,
-  "カントリー・ガールズ": 4,
-  こぶしファクトリー: 7,
-};
-const GROUP_ORDER = [
-  "AKB48",
-  "SKE48",
-  "NMB48",
-  "HKT48",
-  "NGT48",
-  "STU48",
-  "SDN48",
-  "乃木坂46",
-  "櫻坂46",
-  "日向坂46",
-  "=LOVE",
-  "≠ME",
-  "≒JOY",
-  "モーニング娘。",
-  "℃-ute",
-  "アンジュルム",
-  "Juice=Juice",
-  "つばきファクトリー",
-  "BEYOOOOONDS",
-  "OCHA NORMA",
-  "ロージークロニクル",
-  "Berryz工房",
-  "カントリー・ガールズ",
-  "こぶしファクトリー",
+// 团体清单 = **规格**（顺序 / 人数快照 / 系列）。加团只改这一张表；
+// 三张派生视图保持既有消费点不变。人数快照随上游变，改数据时一起改。
+const MANIFEST = [
+  { group: "AKB48", count: 340, series: "48g" },
+  { group: "SKE48", count: 233, series: "48g" },
+  { group: "NMB48", count: 210, series: "48g" },
+  { group: "HKT48", count: 119, series: "48g" },
+  { group: "NGT48", count: 90, series: "48g" },
+  { group: "STU48", count: 96, series: "48g" },
+  { group: "SDN48", count: 46, series: "48g" },
+  { group: "乃木坂46", count: 100, series: "sakamichi" },
+  { group: "櫻坂46", count: 58, series: "sakamichi" },
+  { group: "日向坂46", count: 46, series: "sakamichi" },
+  { group: "=LOVE", count: 12, series: "love" },
+  { group: "≠ME", count: 12, series: "love" },
+  { group: "≒JOY", count: 13, series: "love" },
+  { group: "モーニング娘。", count: 51, series: "morning" },
+  { group: "℃-ute", count: 8, series: "morning" },
+  { group: "アンジュルム", count: 26, series: "morning" },
+  { group: "Juice=Juice", count: 19, series: "morning" },
+  { group: "つばきファクトリー", count: 17, series: "morning" },
+  { group: "BEYOOOOONDS", count: 11, series: "morning" },
+  { group: "OCHA NORMA", count: 10, series: "morning" },
+  { group: "ロージークロニクル", count: 9, series: "morning" },
+  { group: "Berryz工房", count: 7, series: "morning" },
+  { group: "カントリー・ガールズ", count: 4, series: "morning" },
+  { group: "こぶしファクトリー", count: 7, series: "morning" },
 ];
-const SERIES_OF = {
-  AKB48: "48g",
-  SKE48: "48g",
-  NMB48: "48g",
-  HKT48: "48g",
-  NGT48: "48g",
-  STU48: "48g",
-  SDN48: "48g",
-  乃木坂46: "sakamichi",
-  櫻坂46: "sakamichi",
-  日向坂46: "sakamichi",
-  "=LOVE": "love",
-  "≠ME": "love",
-  "≒JOY": "love",
-  "モーニング娘。": "morning",
-  "℃-ute": "morning",
-  アンジュルム: "morning",
-  "Juice=Juice": "morning",
-  つばきファクトリー: "morning",
-  BEYOOOOONDS: "morning",
-  "OCHA NORMA": "morning",
-  ロージークロニクル: "morning",
-  Berryz工房: "morning",
-  "カントリー・ガールズ": "morning",
-  こぶしファクトリー: "morning",
-};
+const GROUP_ORDER = MANIFEST.map((m) => m.group);
+const GROUP_COUNTS = Object.fromEntries(
+  MANIFEST.map((m) => [m.group, m.count])
+);
+const SERIES_OF = Object.fromEntries(MANIFEST.map((m) => [m.group, m.series]));
 
 function loadSimplified() {
   const src = fs.readFileSync(

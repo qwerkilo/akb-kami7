@@ -637,6 +637,52 @@ class TwoGroupSectionTests(unittest.TestCase):
         )
 
 
+class TestGroupConfig(unittest.TestCase):
+    """深化㉔：元数据收进 GROUPS 一处，三个派生视图要与规格一致。"""
+
+    def test_derived_metadata_matches_spec(self):
+        self.assertEqual(
+            mm.OFFICIAL_GROUPS,
+            [
+                "モーニング娘。",
+                "アンジュルム",
+                "Juice=Juice",
+                "つばきファクトリー",
+                "BEYOOOOONDS",
+                "OCHA NORMA",
+                "ロージークロニクル",
+            ],
+            "官网覆盖 7 个现役团",
+        )
+        self.assertEqual(mm.OFFICIAL_PATHS["アンジュルム"], "/angerme/")
+        self.assertEqual(
+            mm.GROUP_END_RANK,
+            {
+                "Berryz工房": 2015,
+                "℃-ute": 2017,
+                "カントリー・ガールズ": 2019,
+                "こぶしファクトリー": 2020,
+            },
+            "四个已停止活动团的终止年份",
+        )
+        # 互斥：有官网页面的团都不该有 end_rank（现役 vs 已停止）
+        self.assertEqual(set(mm.OFFICIAL_GROUPS) & set(mm.GROUP_END_RANK), set())
+
+    def test_vitals_column_with_missing_part(self):
+        """合并列按形状触发：某团写成「血液型/身長」（少出身地）也要拆，
+        缺的那项空着 —— 精确列名匹配会静默少字段。"""
+        wiki = (
+            "=== 現在のメンバー ===\n"
+            '{| class="wikitable"\n'
+            "!名前\n!生年月日\n!血液型/身長\n|-\n"
+            "|'''[[試験子]]'''\n|1999年1月1日\n|A型<br>160cm\n|}\n"
+        )
+        got = mm.parse_wiki_members(wiki, "Juice=Juice")
+        self.assertEqual(got[0]["blood"], "A型")
+        self.assertEqual(got[0]["height"], "160cm")
+        self.assertEqual(got[0]["from"], "")
+
+
 class TestNineNewGroups(unittest.TestCase):
     """伞下九团（工单 01）：每团的段配置、脏表头、合并列、colspan 表头。
 
