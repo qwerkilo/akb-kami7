@@ -1,0 +1,46 @@
+=== 現在のメンバー ===
+{|class="sortable wikitable" style="font-size:95%;line-height:1.4em;margin-right:0"
+|- style="white-space:nowrap;line-height:1.25em"
+!名前
+!class="unsortable"|ニックネーム
+!c|生年月日<br />（年齢）
+![[ABO式血液型|血液型]]
+!身長{{R|na}}
+!出身地
+!class="unsortable"|[[ハロー!プロジェクト#メンバーカラー|メンバーカラー]]
+!class="unsortable"|加入年月日<br />（通称）
+!研修生出身
+! class="unsortable" |備考
+|-
+|nowrap|{{Display none|たにもと あみ/}}'''[[谷本安美]]'''<br />{{Small|（たにもと あみ）}}
+|nowrap|あんみぃ
+|nowrap|{{Center|1999年11月16日}}{{Center|（{{年数|1999|11|16}}歳）}}
+|nowrap|B型
+|nowrap|157.5cm
+|nowrap|[[北海道]]
+|style="white-space:nowrap;text-align:center"|ライトパープル<br /><div style="background:#c1a7e2; border:solid 1.5px silver;">　</div>
+|style="white-space:nowrap"|2015年4月29日<br>（結成メンバー）
+|nowrap|研修生
+|nowrap|リーダー<ref name="natalie20240525">{{Cite web|title = つばきファクトリー新リーダーに谷本安美が就任|url = https://natalie.mu/music/news/574926|date = 2024-05-25|accessdate = 2024-05-26|website = 音楽ナタリー|publisher = ナターシャ}}</ref>。
+|-
+|nowrap|{{Display none|おの みずほ/}}'''[[小野瑞歩]]'''<br />{{Small|（おの みずほ）}}
+|nowrap|おみず
+|nowrap|{{Center|2000年9月29日}}{{Center|（{{年数|2000|9|29}}歳）}}
+|nowrap|O型
+|nowrap|163cm
+|nowrap|[[東京都]]
+|style="white-space:nowrap;text-align:center"|エメラルドグリーン<br /><div style="background:#00b2a9; border:solid 1.5px silver;">　</div>
+|rowspan="3" style="white-space:nowrap"|2016年8月13日<br />（さにこ）<ref>{{Cite web2 |df=ja|url=https://ameblo.jp/tsubaki-factory/entry-12758653759.html |title=#さにこ6周年 ☺︎小野瑞歩 |website=つばきファクトリー オフィシャルブログ |date=2022-08-13 |access-date=2023-01-21 }}</ref>
+|nowrap|研修生
+|nowrap|サブリーダー<ref name="natalie20240525" />。
+|-
+|nowrap|{{Display none|おのだ さおり/}}'''[[小野田紗栞]]'''<br />{{Small|（おのだ さおり）}}
+|nowrap|さおりん
+|nowrap|{{Center|2001年12月17日}}{{Center|（{{年数|2001|12|17}}歳）}}
+|nowrap|O型
+|nowrap|153.2cm<ref>{{Cite web|date=2018-03-07|url=https://ameblo.jp/tsubaki-factory/entry-12358406382.html|title=さおりの身長は153.2センチです♪小野田紗栞 |work=つばきファクトリー オフィシャルブログ |accessdate=2019-01-18}}</ref>
+|nowrap|[[静岡県]]
+|style="white-space:nowrap;text-align:center"|ピーチ<br /><div style="background:#f99fc9; border:solid 1.5px silver;">　</div>
+|nowrap|研修生
+|nowrap|元ぷりんせす♪りぼん<ref>{{Cite web|date=2019-03-10|url=https://www.cyzo.com/2019/03/post_196008_entry.html|title=アイドルのセカンドキャリア、憧れはアップフロント　元ソニーAISのメンバーもオーデ合格|work=日刊サイゾー|accessdate=2019-04-25}}</ref>
+|}

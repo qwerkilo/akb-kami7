@@ -1,0 +1,46 @@
+=== 旧メンバー ===
+{|class="sortable wikitable" style="font-size:95%; margin-right:0"
+|- style="white-space:nowrap"
+!class="unsortable"|名前
+!|生年月日
+!class="unsortable"|出身地
+!class="unsortable"|ニックネーム<br />（）内は非公式
+!class="unsortable"|血液型
+!class="unsortable"|[[メンバーカラー]]
+!|卒業・脱退日
+!|在籍日数
+!class="unsortable"|備考
+|-
+|style="white-space:nowrap"|'''[[藤井梨央]]'''<br />（ふじい りお）
+|style="white-space:nowrap"|{{生年月日と年齢|1999|3|4}}
+|style="white-space:nowrap"|愛知県
+|style="white-space:nowrap"|りおりお<br />（藤丼、イーヨー）
+|style="white-space:nowrap"|B型
+|style="white-space:nowrap"|<div style="background:#febd01; border:solid 1px silver;">'''マスタード'''</div>
+|style="white-space:nowrap"|2017年7月6日
+|style="white-space:nowrap"|{{Display none|0}}{{Age in days|2015|1|2|2017|7|6}}日<br /><small>（2年6か月と4日）</small>
+|style="white-space:nowrap"|元サブリーダー<br />契約解除、同時に芸能界を引退。
+|-
+|style="white-space:nowrap"|'''[[小川麗奈]]'''<br />（おがわ れな）
+|style="white-space:nowrap"|{{生年月日と年齢|2000|3|27}}
+|style="white-space:nowrap"|[[栃木県]]
+|style="white-space:nowrap"|れなこ
+|style="white-space:nowrap"|A型
+|style="white-space:nowrap"|<div style="background:red; border:solid 1px silver;">'''レッド'''</div>
+|style="white-space:nowrap"|2017年9月6日
+|style="white-space:nowrap"|{{Display none|0}}{{Age in days|2015|1|2|2017|9|6}}日<br /><small>（2年8か月と4日）</small>
+|style="white-space:nowrap"|同時にハロー!プロジェクトも卒業、芸能界を引退<ref>{{Cite web|和書| date=2017-09-06 |url=https://helloproject.com/news/7553/| title=こぶしファクトリー 小川麗奈に関してのお知らせ | work=ハロー!プロジェクト オフィシャルサイト | accessdate=2017-09-06}}</ref>。
+|-
+|style="white-space:nowrap"|'''[[田口夏実]]'''<br />（たぐち なつみ）
+|style="white-space:nowrap"|{{生年月日と年齢|2000|7|21}}
+|style="white-space:nowrap"|埼玉県
+|style="white-space:nowrap"|たぐっち
+|style="white-space:nowrap"|A型
+|style="white-space:nowrap"|<div style="background:#F58220; border:solid 1px silver;">'''オレンジ'''</div>
+|style="white-space:nowrap"|2017年12月6日
+|style="white-space:nowrap"|{{Display none|0}}{{Age in days|2015|1|2|2017|12|6}}日<br /><small>（2年11か月と4日）</small>
+|style="white-space:nowrap"|契約解除{{R|2017-12-06}}、同時に芸能界を引退。
+|}
+
+
+|}

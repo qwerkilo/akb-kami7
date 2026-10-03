@@ -1,0 +1,40 @@
+== メンバー ==
+{|class="wikitable sortable" style="text-align:left;font-size:88%;"
+|- style="white-space:nowrap;line-height:1.25em"
+!名前
+!class="unsortable"|ニックネーム
+!生年月日<br />（年齢）
+![[ABO式血液型|血液型]]
+!身長
+!class="unsortable"|出身地
+!class="unsortable"|[[ハロー!プロジェクト#メンバーカラー|メンバーカラー]]
+!class="unsortable"|備考
+|-
+|nowrap|{{Display none|はしだ ほのか/}}'''[[橋田歩果]]'''<br />{{Small|（はしだ ほのか）}}
+|ほのほの<ref name="nn1">{{Cite tweet|user=Rosy_Chronicle |number=1880598324765757677 |title=🌹 #ロージークロニクル メンバー紹介①|date=2025-01-18|accessdate=2025-01-19}}</ref>
+|{{Center|2005年10月17日}}{{Center|（{{年数|2005|10|17}}歳）}}
+|B型
+|151 cm<ref name="height">{{Cite video|和書|url=https://www.youtube.com/watch?v=0uUXd-TaibM&t=51s|time=0分51秒|title=ロージークロニクル全員で質問に答えてみた!|medium=YouTube|date=2024-10-25|accessdate=2024-10-26|publisher=ディーシーファクトリー}}</ref>
+|[[東京都]]
+|style="white-space:nowrap;text-align:left"|{{Colorbox|#ffffff}} ホワイト　</div>
+|リーダー
+|-
+|nowrap|{{Display none|よしだ ひのは/}}'''吉田姫杷'''<br />{{Small|（よしだ ひのは）}}
+|ぴのぱ<ref name="nn1"/>
+|{{Center|2007年7月8日}}{{Center|（{{年数|2007|7|8}}歳）}}
+|AB型
+|155 cm<ref name="height"/>
+|[[埼玉県]]
+|style="white-space:nowrap;text-align:left"|{{Colorbox|#e70033}}ピュアレッド
+</div>
+|
+|-
+|nowrap|{{Display none|おのだ かりん/}}'''小野田華凜'''<br />{{Small|（おのだ かりん）}}
+|だかりん<ref name="nn1"/>
+|{{Center|2008年1月23日}}{{Center|（{{年数|2008|1|23}}歳）}}
+|O型<ref>{{Cite web|和書|date=2024-08-18|url=https://ameblo.jp/rosychronicle/entry-12864136103.html|title=判明! 小野田華凜|work=ロージークロニクルオフィシャルブログ|accessdate=2024-09-17}}</ref>
+|156 cm<ref name="height"/>
+|東京都
+|style="white-space:nowrap;text-align:left"|{{Colorbox|#F57EB6}} ピンク</div>
+|元 [[花やしきアクターズスタジオ#花やしき少女歌劇団|花やしき少女歌劇団]]
+|}

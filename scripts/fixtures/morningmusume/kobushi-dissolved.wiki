@@ -1,0 +1,39 @@
+=== 解散時のメンバー ===
+{| border="1" cellpadding="3" class="wikitable" style="font-size:small"
+|- 
+!|名前
+!|生年月日
+!|出身地
+!|ニックネーム<br />（）内は非公式
+!|血液型
+!|身長
+!|[[メンバーカラー]]
+!|備考<br />
+|-
+|style="white-space:nowrap"|'''[[広瀬彩海]]'''<br />（ひろせ あやか）
+|style="white-space:nowrap"|{{生年月日と年齢|1999|8|4}}
+|style="white-space:nowrap"|[[神奈川県]]
+|style="white-space:nowrap"|あやぱん
+|style="white-space:nowrap"|O型
+|style="white-space:nowrap"|156cm<ref>{{Cite web|和書|date=2017-05-08 |url=https://ameblo.jp/kobushi-factory/entry-12272922116.html |title=テーマの1日♡広瀬彩海 |work=こぶしファクトリー オフィシャルブログ |accessdate=2019-01-18}}</ref>
+|<div style="background:#02dcff; border:solid 1px silver;">'''ターコイズ'''</div>
+|リーダー<br />元[[NICE GIRL プロジェクト!研修生|ナイスガールトレイニー]]<br />同時にハロー!プロジェクトも卒業、契約終了
+|-
+|style="white-space:nowrap"|'''[[野村みな美]]'''<br />（のむら みなみ）
+|style="white-space:nowrap"|{{生年月日と年齢|2000|2|10}}
+|style="white-space:nowrap"|[[東京都]]
+|style="white-space:nowrap"|みなみな<br />（のむさん）
+|style="white-space:nowrap"|B型
+|style="white-space:nowrap"|155cm
+|style="white-space:nowrap"|<div style="background:#0402fd; border:solid 1px silver;">{{Font color|white|'''ロイヤルブルー'''}}</div>
+|style="white-space:nowrap"|同時にハロー!プロジェクトも卒業<br />2022年をもって契約終了、芸能界を引退
+|-
+|style="white-space:nowrap"|'''[[浜浦彩乃]]'''<br />（はまうら あやの）
+|style="white-space:nowrap"|{{生年月日と年齢|2000|4|26}}
+|style="white-space:nowrap"|[[埼玉県]]
+|style="white-space:nowrap"|はまちゃん<br />(はまちゃん[[大佐]])
+|style="white-space:nowrap"|AB型<ref name="blood-type">{{Cite web|和書|url=https://ameblo.jp/kobushi-factory/entry-12033728908.html|title=重大発表!!!!!浜浦彩乃|work=こぶしファクトリーオフィシャルブログ|date=2015-06-01|accessdate=2015-06-01}}</ref>
+|style="white-space:nowrap"|162cm<ref name="hamaura-ameblo20160710">{{Cite web|和書|date=2016-07-10 |url=https://ameblo.jp/kobushi-factory/entry-12179275808.html |title=♡お祭り!&質問コーナー♡浜浦彩乃 |work=こぶしファクトリー オフィシャルブログ |accessdate=2019-01-18}}</ref>
+|style="white-space:nowrap"|<div style="background:#fc72eb; border:solid 1px silver;">'''ピンク'''</div>
+|style="white-space:nowrap"|同時にハロー!プロジェクトも卒業、契約終了<br/>2023年1月現在株式会社CRAVE所属
+|}

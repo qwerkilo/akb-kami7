@@ -1,0 +1,45 @@
+=== 過去に在籍していたメンバー ===
+{| cellpadding="3" class="wikitable" style="font-size:95%; margin-right:0"
+|-
+!style="white-space:nowrap"|名前
+!style="white-space:nowrap"|生年月日
+!style="white-space:nowrap"|出身地
+!style="white-space:nowrap"|加入日
+!style="white-space:nowrap"|'''ニックネーム'''<br><small>（ ）内は非公式</small>
+!style="white-space:nowrap"|メンバーカラー
+!style="white-space:nowrap"|兼任<br>グループ
+!style="white-space:nowrap"|在籍日数
+!style="white-space:nowrap"|備考
+!style="white-space:nowrap"|在籍時の年齢<br/>加入-卒業（または脱退）
+|-
+|style="white-space:nowrap"|'''[[島村嬉唄]]'''<br><small>(しまむら うた)</small>
+|style="white-space:nowrap"|{{生年月日と年齢|2000|6|24}}
+|style="white-space:nowrap"|神奈川県
+|rowspan="3" style="white-space:nowrap"|2014年11月5日
+|style="white-space:nowrap"|うたちゃん<br>（うーちゃん）
+|style="white-space:nowrap;background-color:#ffff33;color:#000000" |<small>デイジーイエロー</small>
+|
+|style="white-space:nowrap"|{{Display none|0}}{{Age in days|2014|11|5|2015|6|12}}日<br /><small>（7か月と7日）</small>
+|style="white-space:nowrap"|2015年6月12日契約解除<br />（同時に芸能活動を一時休止）<br />現・[[きゅるりんってしてみて]]
+|style="white-space:nowrap"|14歳 - 14歳
+|-
+|style="white-space:nowrap"|'''[[稲場愛香]]'''<br><small>(いなば まなか)</small>
+|style="white-space:nowrap"|{{生年月日と年齢|1997|12|27}}
+|style="white-space:nowrap"|[[北海道]]
+|style="white-space:nowrap"|まなかん<br />いなばっちょ
+|style="white-space:nowrap;background-color:#ff3333;color:#ffffff" |<small>イタリアンレッド</small>
+|
+|style="white-space:nowrap"|{{Display none|0}}{{Age in days|2014|11|5|2016|8|4}}日<br /><small>（1年7か月と30日）</small>
+|style="white-space:nowrap"|元ハロプロ研修生<br />2016年8月4日卒業<br />ソロを経てJuice=Juiceに移籍<br />（2022年5月30日卒業）
+|style="white-space:nowrap"|16歳 - 18歳
+|-
+|style="white-space:nowrap"|'''[[嗣永桃子]]'''<br><small>(つぐなが ももこ)</small>
+|style="white-space:nowrap"|{{生年月日と年齢|1992|3|6}}
+|style="white-space:nowrap"|[[千葉県]]
+|ももち<br />（ももち先輩）<br />（[[プレイングマネージャー|PM]]）
+|style="background-color:#ff99ff;color:#000000" |<small>ピンク</small>
+|style="white-space:nowrap"|[[Berryz工房]]
+|style="white-space:nowrap"|{{Display none|0}}{{Age in days|2014|11|5|2017|6|30}}日<br /><small>（2年7か月と26日）</small>
+|style="white-space:nowrap"|[[プレイングマネージャー]]{{R|natalie20141105}}<br />2017年6月30日卒業<br />（同時に芸能活動を終了）
+|style="white-space:nowrap"|22歳 - 25歳
+|}

@@ -620,10 +620,94 @@ class TwoGroupSectionTests(unittest.TestCase):
 
         mm.load(fetch, warn=lambda *a: None, photo=False)
         wiki_titles = [u for u in asked if "action=parse" in u]
-        self.assertEqual(len(wiki_titles), 2, wiki_titles)
+        # 工单 01 起 GROUPS 有 11 团（モーニング娘。+ ℃-ute + 伞下九团）
+        self.assertEqual(len(wiki_titles), 11, wiki_titles)
         site_roots = {u.split("//")[1].split("/")[0] for u in asked if "helloproject" in u}
         self.assertEqual(site_roots, {"helloproject.com"})
         self.assertFalse(
             any("cute" in u or "c-ute" in u for u in asked),
             "不该去抓℃-ute 的官网（它已解散、没有官网页面）",
         )
+
+
+class TestNineNewGroups(unittest.TestCase):
+    """伞下九团（工单 01）：每团的段配置、脏表头、合并列、colspan 表头。
+
+    fixture 全部从真实 wikitext 切下来（表头 + 3 行），放在 fixtures/morningmusume/。
+    """
+
+    CASES = [
+        # (团, fixture, 首人, 假名, status)
+        ("アンジュルム", "angerme-current.wiki", "伊勢鈴蘭", "いせ れいら", "current"),
+        ("アンジュルム", "angerme-former.wiki", "小川紗季", "おがわ さき", "former"),
+        ("Juice=Juice", "juicejuice-current.wiki", "段原瑠々", "だんばら るる", "current"),
+        ("Juice=Juice", "juicejuice-former.wiki", "大塚愛菜", "おおつか あいな", "former"),
+        ("つばきファクトリー", "tsubaki-current.wiki", "谷本安美", "たにもと あみ", "current"),
+        ("BEYOOOOONDS", "beyooooonds-members.wiki", "西田汐里", "にしだ しおり", "current"),
+        ("OCHA NORMA", "ochanorma-current.wiki", "斉藤円香", "さいとう まどか", "current"),
+        ("ロージークロニクル", "rosy-current.wiki", "橋田歩果", "はしだ ほのか", "current"),
+        ("Berryz工房", "berryz-hiatus.wiki", "清水佐紀", "しみず さき", "former"),
+        ("カントリー・ガールズ", "country-hiatus.wiki", "山木梨沙", "やまき りさ", "former"),
+        ("カントリー・ガールズ", "country-past.wiki", "島村嬉唄", "しまむら うた", "former"),
+        ("こぶしファクトリー", "kobushi-dissolved.wiki", "広瀬彩海", "ひろせ あやか", "former"),
+        ("こぶしファクトリー", "kobushi-former.wiki", "藤井梨央", "ふじい りお", "former"),
+    ]
+
+    def test_rows_name_kana_status_generation(self):
+        for group, fix, name, kana, status in self.CASES:
+            with self.subTest(group=group, fix=fix):
+                got = mm.parse_wiki_members(fixture(fix), group)
+                self.assertEqual(len(got), 3, f"{fix} 应解析出 3 行")
+                first = got[0]
+                self.assertEqual(first["name"], name)
+                self.assertEqual(first["kana"], kana, f"{fix} 的假名没取到")
+                self.assertEqual(first["status"], status)
+                # 决定 4：这九团不解析期生
+                self.assertEqual(first["generation"], "", f"{fix} 不该有期生")
+
+    def test_angerme_former_fields(self):
+        """アンジュルム 毕业表：毕业日列名与 ℃-ute 同形，日期要归一。"""
+        rows = {m["name"]: m for m in mm.parse_wiki_members(fixture("angerme-former.wiki"), "アンジュルム")}
+        m = rows["小川紗季"]
+        self.assertEqual(m["birth"], "1996.11.18")
+        self.assertEqual(m["blood"], "A型")
+        self.assertEqual(m["from"], "埼玉県")
+        self.assertEqual(m["end"], "2011.08.27")
+
+    def test_juicejuice_combined_vitals_column(self):
+        """Juice=Juice 现役把「血液型 / 身長 / 出身地」塞在一格里，要拆开。"""
+        rows = {m["name"]: m for m in mm.parse_wiki_members(fixture("juicejuice-current.wiki"), "Juice=Juice")}
+        m = rows["段原瑠々"]
+        self.assertEqual(m["blood"], "A型")
+        self.assertEqual(m["height"], "164.5cm")
+        self.assertEqual(m["from"], "広島県")
+        self.assertEqual(m["birth"], "2001.05.07")
+
+    def test_juicejuice_former_end_column(self):
+        """毕业列名是 `卒業・脱退<small>(日付/開催地/在籍日数)</small>`，日期要归一。"""
+        rows = {m["name"]: m for m in mm.parse_wiki_members(fixture("juicejuice-former.wiki"), "Juice=Juice")}
+        self.assertEqual(rows["大塚愛菜"]["end"], "2013.07.05")
+
+    def test_tsubaki_dirty_headers(self):
+        """つばき：`![[ABO式血液型|血液型]]` 与 `!身長{{R|na}}` 都要洗成正常列名。"""
+        rows = {m["name"]: m for m in mm.parse_wiki_members(fixture("tsubaki-current.wiki"), "つばきファクトリー")}
+        m = rows["谷本安美"]
+        self.assertEqual(m["birth"], "1999.11.16")
+        self.assertEqual(m["blood"], "B型")
+        self.assertEqual(m["height"], "157.5cm")
+        self.assertEqual(m["from"], "北海道")
+
+    def test_beyooooonds_colspan_header_and_bang_cells(self):
+        """BEYOOOOONDS：两行表头 + `colspan="2"` + 数据行里有 `!` 起始的格（所属）。"""
+        rows = {m["name"]: m for m in mm.parse_wiki_members(fixture("beyooooonds-members.wiki"), "BEYOOOOONDS")}
+        m = rows["西田汐里"]
+        self.assertEqual(m["birth"], "2003.06.07")
+        self.assertEqual(m["blood"], "B型")
+        self.assertEqual(m["height"], "151cm")
+        self.assertEqual(m["from"], "京都府")
+        # 列对齐：備考 在 colspan=2 的「加入年月日」之后。不展开 colspan 的话
+        # 整行左移一格、備考 会取到加入日 —— 这条是 colspan 展开唯一的承重断言
+        # （前面那些字段都在 colspan 之前，展开与否都一样）。
+        raw = fixture("beyooooonds-members.wiki")
+        by_name = {r["名前"]: r for r in mm.split_rows(raw[raw.index("{|") :])}
+        self.assertEqual(by_name["西田汐里"]["備考"], "元ハロプロ研修生")

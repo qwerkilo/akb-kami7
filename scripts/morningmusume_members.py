@@ -92,9 +92,16 @@ def _strip_templates(text):
 _LINK = re.compile(r"\[\[([^\]|]*)(?:\|([^\]]*))?\]\]")
 
 
+_BIRTH_TEMPLATE = re.compile(r"\{\{生年月日と年齢\|(\d+)\|(\d+)\|(\d+)\}\}")
+
+
 def clean(cell, name=None):
     """把一个单元格洗成可用的纯文本：去脚注 → 拆管道链接 → 去残留模板 → 去标签。"""
-    text = _strip_refs(_strip_invisible(cell))
+    # Juice=Juice 的生日写成 `{{生年月日と年齢|2001|5|7}}`，其余团写成
+    # `2001年5月7日`。不先还原成日期，_strip_templates 会把模板换成第一个参数
+    # （「2001」），_date 再也认不出 —— 实测 birth 直接变空串。
+    text = _BIRTH_TEMPLATE.sub(r"\1年\2月\3日", cell or "")
+    text = _strip_refs(_strip_invisible(text))
     # 链接：带显示文字的取显示文字，否则取标题（去掉 disambiguator 的括号）
     def link(m):
         target, label = m.group(1), m.group(2)
@@ -104,6 +111,7 @@ def clean(cell, name=None):
 
     text = _LINK.sub(link, text)
     text = _strip_templates(text)
+    text = text.replace("'''", "").replace("''", "")
     text = re.sub(r"<br\s*/?>", "\n", text)
     text = re.sub(r"<[^>]+>", "", text)
     text = text.replace("&nbsp;", " ")
@@ -143,13 +151,29 @@ def first_line(cell_text):
     站内姓名要正式名，假名另存，所以只取第一行。"""
     lines = [ln.strip() for ln in (cell_text or "").split("\n")]
     lines = [ln for ln in lines if ln]
+    # 第一行可能是角色徽章而不是姓名（BEYOOOOONDS 的「リーダー」徽章写成
+    # Small 模板 + 粗体，清洗后是方括号行），跳过方括号行。
+    for ln in lines:
+        if not ln.startswith("［") and not ln.startswith("["):
+            return ln
     return lines[0] if lines else ""
 
 
 def kana_of(cell_text):
     """从姓名格里取假名：`{{Display none|のなか みき/}}` 里那一份。
     早安的表没有独立的假名列，假名只在这个被隐藏的块里。"""
-    m = re.search(r"\{\{Display none\|([^}/]+)/\}\}", cell_text or "")
+    t = cell_text or ""
+    m = re.search(r"\{\{Display none\|([^}/]+)/\}\}", t)
+    if m:
+        return m.group(1).strip()
+    # 其余团的假名写法（实测三种）：<small>(だんばら るる)</small>、
+    # {{Small|（たにもと あみ）}}、裸的「（ひろせ あやか）」（こぶし）。
+    # 裸括号那条要求内容是纯假名 —— 否则会把消歧义括号（`リンリン (1991年生…)`）当假名。
+    # 其余写法（<small>(だんばら るる)</small>、{{Small|（たにもと あみ）}}、
+    # 裸的「（ひろせ あやか）」）统一由这一条兜：要求内容是**纯假名**，
+    # 消歧义括号（`リンリン (1991年生の歌手)`）含汉字数字，不会误命中。
+    # 前两个写法不必各留一个分支 —— 变异实测删掉它们测试仍全绿（冗余）。
+    m = re.search(r"[（(]([ぁ-ゖァ-ヺー\s]+)[）)]", t)
     return m.group(1).strip() if m else ""
 
 
@@ -161,7 +185,12 @@ def _header_name(text):
     text = _strip_refs(text)
     text = text.lstrip("!").strip()
     text = re.sub(r"<br\s*/?>", "", text)
+    text = re.sub(r"<small[^>]*>.*?</small>", "", text, flags=re.S)
+    text = _LINK.sub(lambda m: m.group(2) or m.group(1), text)
     text = re.sub(r"\{\{[^{}]*\}\}", "", text)
+    text = text.replace("'''", "").replace("''", "")
+    # 残留的 `]]`/`}}`：wikilink 被上一行剥掉显示文字后可能留下半截
+    text = re.sub(r"[]}]+$", "", text).lstrip("[{")
     text = re.sub(r"\s+", "", text)
     return text
 
@@ -174,12 +203,17 @@ def _split_attrs(text):
     现役表的每一格都脏）。
     """
     depth = 0
+    bracket = 0
     for i, ch in enumerate(text):
         if ch == "{":
             depth += 1
         elif ch == "}":
             depth = max(0, depth - 1)
-        elif ch == "|" and depth == 0:
+        elif text.startswith("[[", i):
+            bracket += 1
+        elif text.startswith("]]", i):
+            bracket = max(0, bracket - 1)
+        elif ch == "|" and depth == 0 and bracket == 0:
             return text[:i], text[i + 1 :]
     # 整段都没有深度 0 的 | → 这格**没有属性**，全部都是内容
     # （出身地那格就是这种：唯一的 | 在 {{Display none|…/}} 里面）
@@ -190,7 +224,9 @@ def _row_cells(lines):
     """把 `|-` 之后的行解析成 (rowspan, 单元格文本) 序列。"""
     cells = []
     for line in lines:
-        if not line.startswith("|"):
+        # `!` 起始的格也算数据：BEYOOOOONDS 的「所属」列写成 `!rowspan="4" |C`，
+        # 只认 `|` 会把它丢掉、后面所有列左移一格。
+        if not line.startswith("|") and not line.startswith("!"):
             continue
         head, rest = _split_attrs(line[1:])
         span = re.search(r'rowspan\s*=\s*"?(\d+)"?', head)
@@ -213,10 +249,40 @@ def _read_header(lines):
     while i < len(lines) and not lines[i].startswith("!"):
         i += 1
     header = []
-    while i < len(lines) and lines[i].startswith("!"):
-        header.append(_header_name(lines[i].split("|", 1)[1] if "|" in lines[i] else lines[i]))
-        i += 1
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("!"):
+            header.extend(_header_cells(line))
+            i += 1
+            continue
+        # 多行表头：`|-` 之后若还是 `!`，**且那一串 `!` 之后紧跟 `|-`/`|}`**，
+        # 那才是同一张表头的第二行（BEYOOOOONDS 的 グループ/ユニット）。
+        # 少了后半个条件会把数据行里 `!rowspan="4" |C` 那种格当成表头吞掉 ——
+        # 实测症状是整行左移一格（姓名取到了昵称）。
+        if line.startswith("|-") and i + 1 < len(lines) and lines[i + 1].startswith("!"):
+            j = i + 1
+            while j < len(lines) and lines[j].startswith("!"):
+                j += 1
+            if j < len(lines) and (lines[j].startswith("|-") or lines[j].startswith("|}")):
+                i += 1
+                continue
+        break
     return header, i
+
+
+def _header_cells(line):
+    """一个 `!` 行 → 一个或多个列名。
+
+    - 属性与内容的分隔 `|` 不能直接 split：`![[ABO式血液型|血液型]]` 与
+      `!身長{{R|na}}` 的 `|` 在链接/模板里，直接 split 会得到「血液型]]」「na}}」。
+    - `colspan="2"` 要展开成两列，否则后面的列全部左移一格（BEYOOOOONDS）。
+      第二列起用 `#2` 后缀命名 —— 没有消费点，只需要占住位置。
+    """
+    head, content = _split_attrs(line[1:])
+    name = _header_name(content)
+    span = re.search(r'colspan\s*=\s*"?(\d+)"?', head)
+    n = int(span.group(1)) if span else 1
+    return [name] + [f"{name}#{k}" for k in range(2, n + 1)]
 
 
 def _read_blocks(lines, start):
@@ -275,8 +341,9 @@ def _fill_rows(blocks, header, do_clean=True):
                 span, raw = cells[ci]
                 ci += 1
                 val = clean(raw) if do_clean else raw.strip()
-                if do_clean and header[col] in COLUMN_NORM:
-                    val = COLUMN_NORM[header[col]](val)
+                norm = _norm_for(header[col]) if do_clean else None
+                if norm:
+                    val = norm(val)
                 out[header[col]] = val
                 if span > 1:
                     carry[col] = (span - 1, val)
@@ -312,7 +379,29 @@ COLUMN_NORM = {
     # ℃-ute「過去に在籍していたメンバー」那张表的列名**少了中间的括号**，
     # 两个源对毕业日的叫法不一样 —— 不归一的话那 3 人的 end 会是日文原文。
     "卒業・脱退日卒業公演会場": _date,
+    # 工单 01（伞下九团）：毕业列的叫法有四种（`卒業・脱退日（発表日）…`、
+    # `卒業・脱退日卒業公演会場`、`卒業・脱退日卒業公演の開催地`、
+    # `卒業・脱退(日付/開催地/在籍日数)`、`卒業・脱退日`）—— 逐个写会一直漏，
+    # 所以只留一个前缀键，由 _norm_for 做最长前缀匹配。
+    "卒業・脱退": _date,
 }
+
+
+def _norm_for(header):
+    """列名 → 归一函数：先精确、再最长前缀。
+
+    各团的同一字段有四五种叫法（生日带不带「（現年齢）/（年齢）」、毕业列五种写法、
+    昵称叫「ニックネーム」或「愛称」），逐个写进 COLUMN_NORM 会一直漏
+    （アンジュルム 的 `卒業・脱退日卒業公演の開催地` 就漏了，实测红）。
+    最长前缀避免歧义：`加入年月日（加入期）` 命中 `加入年月日` 而不是更短的 `加入`。
+    """
+    if header in COLUMN_NORM:
+        return COLUMN_NORM[header]
+    best = None
+    for key, fn in COLUMN_NORM.items():
+        if header.startswith(key) and (best is None or len(key) > len(best[0])):
+            best = (key, fn)
+    return best[1] if best else None
 
 
 def raw_row(text):
@@ -327,6 +416,40 @@ def cell(row, name):
 raw_cell = cell  # split_rows(clean=False) 时格本来就是原文，两者同义
 
 
+def _col(row, *prefixes):
+    """按**列名前缀**取值。
+
+    各团的列名不齐：生日有「生年月日」「生年月日（現年齢）」「生年月日（年齢）」，
+    毕业列有四种叫法，昵称有「ニックネーム」与「愛称」，还有脏列名残留的
+    「血液型]]」被 _header_name 洗成「血液型」才恰好相等。前缀匹配让这些
+    差异不再需要逐个写进 COLUMN_NORM。
+    """
+    for p in prefixes:
+        for k, v in row.items():
+            if k.startswith(p):
+                return v
+    return ""
+
+
+def _split_vitals(v):
+    """Juice=Juice 现役把「血液型 / 身長 / 出身地」塞在一格（换行分隔）里，拆开。
+
+    按内容形状认而不是按位置认：某一行缺了（例如没写身高）也不会把出身地当成身高。
+    """
+    blood = height = frm = ""
+    for line in (v or "").split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        if re.fullmatch(r"[ABO]+型", line):
+            blood = line
+        elif line.endswith("cm"):
+            height = re.sub(r"\s+", "", line)
+        elif not frm:
+            frm = line
+    return blood, height, frm
+
+
 def _members_from_table(text, status, from_section=""):
     """字段取**清洗后**的行（姓名/日期/期生都已归一），昵称取**原始行** ——
     昵称要按 `<br />` 拆行，清洗过就看不出有几行了。
@@ -335,31 +458,35 @@ def _members_from_table(text, status, from_section=""):
     out = []
     rows = split_rows(text)
     raws = raw_row(text)
-    header_name = "名前"
     for row, raw in zip(rows, raws):
-        name = row.get(header_name, "")
+        name = _col(row, "名前")
         if not name:
             continue
-        nick, aliases = parse_nick(raw.get("ニックネーム", ""), name=name)
+        nick, aliases = parse_nick(_col(raw, "ニックネーム", "愛称"), name=name)
+        vitals = _col(row, "血液型/身長/出身地")
+        if vitals:
+            blood, height, frm = _split_vitals(vitals)
+        else:
+            blood = _col(row, "血液型")
+            height = _col(row, "身長")
+            frm = _col(row, "出身地")
+        # 有的表写成「151 cm」（&nbsp; 清洗成空格），站内统一成 151cm
+        if height.endswith("cm"):
+            height = re.sub(r"\s+", "", height)
         out.append(
             {
                 "name": name,
-                "kana": kana_of(raw.get(header_name, "")),
+                "kana": kana_of(_col(raw, "名前")),
                 "nick": nick,
                 "nick_aliases": aliases,
                 "status": status,
                 "generation": row.get("加入期", ""),
-                # 键名要一字不差 —— 表头是「生年月日（現年齢）」（现年龄），
-                # 我曾写成「（年齢）」于是永远取不到值
-                "birth": row.get("生年月日（現年齢）", "")
-                or row.get("生年月日", ""),
-                "blood": row.get("血液型", ""),
-                "from": row.get("出身地", ""),
-                "end": row.get("卒業・脱退日（発表日）卒業公演の開催地", "")
-                or row.get("卒業・脱退日卒業公演会場", ""),
-                # 身長只有 ℃-ute 那两张表有；モーニング娘。的源里没有这一列。
-                # 落 member.height 而不进 bio —— 站内身高只出现在资料卡（决定 3）。
-                "height": row.get("身長", ""),
+                "birth": _col(row, "生年月日"),
+                "blood": blood,
+                "from": frm,
+                "end": _col(row, "卒業・脱退"),
+                # 身長只有部分团的表有；缺就空（决定 3：有就显示、没有就不占位）。
+                "height": height,
                 # 记下这张人来自哪个节：「解散時」那张表**没有毕业日列**，
                 # 那 5 人的 end 必然空 —— 不记来源的话，下游分不清
                 # 「源里没有这一列」与「解析失败」。
@@ -388,6 +515,59 @@ GROUPS = {
         "page": "℃-ute",
         "current": [],
         "former": ["=== 解散時のメンバー ===", "=== 過去に在籍していたメンバー ==="],
+    },
+    # ── 伞下九团（工单 01）。段标题是各条目里的原文；current 为空 = 该团已停止活动、
+    #    条目里没有现役节（不是特判：℃-ute 先例，硬写「无现役节就当全员毕业」会掩盖源故障）。
+    "アンジュルム": {
+        "page": "アンジュルム",
+        "current": ["=== 現在のメンバー ==="],
+        "former": ["=== 元メンバー ==="],
+    },
+    "Juice=Juice": {
+        "page": "Juice=Juice",
+        "current": ["=== 現在のメンバー ==="],
+        "former": ["=== 元メンバー ==="],
+    },
+    "つばきファクトリー": {
+        "page": "つばきファクトリー",
+        "current": ["=== 現在のメンバー ==="],
+        "former": ["=== 元メンバー ==="],
+    },
+    "BEYOOOOONDS": {
+        "page": "BEYOOOOONDS",
+        "current": ["=== メンバー一覧 ==="],
+        "former": [],
+    },
+    "OCHA NORMA": {
+        "page": "OCHA NORMA",
+        "current": ["=== 現在のメンバー ==="],
+        "former": ["=== 元メンバー ==="],
+    },
+    "ロージークロニクル": {
+        "page": "ロージークロニクル",
+        "current": ["== メンバー =="],
+        "former": [],
+    },
+    "Berryz工房": {
+        "page": "Berryz工房",
+        "current": [],
+        "former": [
+            "=== 無期限活動休止発表時のメンバー ===",
+            "=== 過去に在籍していたメンバー ===",
+        ],
+    },
+    "カントリー・ガールズ": {
+        "page": "カントリー・ガールズ",
+        "current": [],
+        "former": [
+            "=== 活動休止時のメンバー ===",
+            "=== 過去に在籍していたメンバー ===",
+        ],
+    },
+    "こぶしファクトリー": {
+        "page": "こぶしファクトリー",
+        "current": [],
+        "former": ["=== 解散時のメンバー ===", "=== 旧メンバー ==="],
     },
 }
 

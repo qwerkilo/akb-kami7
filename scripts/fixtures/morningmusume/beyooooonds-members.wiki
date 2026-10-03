@@ -1,0 +1,47 @@
+=== メンバー一覧 ===
+{|class="sortable wikitable" style="font-size:95%;line-height:1.4em;margin-right:0"
+|- style="white-space:nowrap;line-height:1.25em"
+!rowspan="2" class="unsortable" |所<br />属
+!rowspan="2" |名前
+!rowspan="2" class="unsortable" |ニックネーム
+!rowspan="2" |生年月日<br />（年齢）
+!rowspan="2" |[[ABO式血液型|血液<br />型]]
+!rowspan="2" |身長{{Efn2|2019年4月現在。江口・岡村・清野は2021年8月現在。}}<br /><ref>{{Cite web |和書 |url=https://entamenext.com/articles/detail/2172 |title=ハロプロ進化論の最新形態「超・令和型アイドル」BEYOOOOONDSインタビュー(1) |work=ENTAME next |date=2019-04-16 |accessdate=2019-04-16}}</ref><ref>{{Cite web |和書 |url=https://entamenext.com/articles/detail/2173|title=アイドルニュータイプ現る「ハロプロの最終兵器」BEYOOOOONDSインタビュー(2) |work=ENTAME next |date=2019-04-17 |accessdate=2019-04-17}}</ref><ref name="En3">{{Cite web |和書 |url=https://entamenext.com/articles/detail/2198|title=シューティングを超えるアイドル「ハロプロ2.0」BEYOOOOONDSインタビュー(3) |work=ENTAME next |date=2019-04-18 |accessdate=2019-04-18}}</ref>
+!rowspan="2" |出身<br />地
+!rowspan="2" class="unsortable" |[[ハロー!プロジェクト#メンバーカラー|メンバーカラー]]
+!colspan="2" |加入年月日
+!rowspan="2" class="unsortable" |備考
+|-
+!nowrap |グループ{{Efn2|SeasoningSのメンバーは、この日をハロー!プロジェクト加入日としている。}}
+!nowrap |ユニット{{Efn2|CHICA#TETSU、雨ノ森 川海のメンバーは、この日をハロー!プロジェクト加入日としている。}}
+|-
+!rowspan="4" |C
+|nowrap |{{Display none|にしだ しおり/}}{{Small|'''［リーダー］'''}}<br />'''[[西田汐里]]'''<br/>{{Small|（にしだ しおり）}}
+|nowrap |しおりん<ref name="shiorin">{{Cite web |和書 |url=https://ameblo.jp/beyooooonds-chicatetsu/entry-12414155424.html |title=がんばる。 西田汐里 |work=BEYOOOOONDS CHICA#TETSUオフィシャルブログ |date=2018-10-24 |accessdate=2019-07-30}}</ref><br />にし{{R|shiorin}}
+|nowrap |{{Center|2003年6月7日}}{{Center|（{{年数|2003|6|7}}歳）}}
+|nowrap |B型
+|nowrap |151&nbsp;cm
+|nowrap |{{Display none|きょうとふ/}}[[京都府]]
+|style="white-space:nowrap;text-align:center" |ホットピンク<br /><div style="background:#da1884; border:solid 1.5px silver;">　</div>
+|rowspan="2" style="white-space:nowrap" |2018年10月19日<br />{{Small|（グループ結成日）}}
+|rowspan="2" style="white-space:nowrap" |2018年6月9日
+|rowspan="3" style="white-space:nowrap" |元[[ハロプロ研修生]]
+|-
+|nowrap |{{Display none|えぐち さや/}}'''[[江口紗耶]]'''<br />{{Small|（えぐち さや）}}
+|nowrap |さやりん{{R|ichirikasaya}}
+|nowrap |{{Center|2003年8月1日}}{{Center|（{{年数|2003|8|1}}歳）}}
+|nowrap |O型
+|nowrap |170&nbsp;cm<ref>{{Cite video|和書|url=https://www.youtube.com/watch?v=uodNjh-KNQo|title=びよのびWEBラジオ【江口紗耶】自己紹介|medium=YouTube|publisher=ディーシーファクトリー|date=2021-08-22|accessdate=2021-08-22}}</ref>
+|nowrap |{{Display none|ひょうごけん/}}[[兵庫県]]
+|style="white-space:nowrap;text-align:center" |デイジー<br /><div style="background:#fdda24; border:solid 1.5px silver;">　</div>
+|-
+|nowrap |{{Display none|おおつぼ まほ/}}'''[[大坪茉乃]]'''<br />{{Small|（おおつぼ まの）}}
+|nowrap |まの
+|nowrap |{{Center|2011年6月22日}}{{Center|（{{年数|2011|6|22}}歳）}}
+|nowrap |O型
+|nowrap |162&nbsp;cm
+|nowrap |{{Display none|かながわけん/}}[[神奈川県]]
+|style="white-space:nowrap;text-align:center" |ライトグリーン<br /><div style="background:#d0df00; border:solid 1.5px silver;">　</div>
+|rowspan="2" style="white-space:nowrap" |2026年6月16日
+|rowspan="2" style="white-space:nowrap" |2026年8月7日
+|}

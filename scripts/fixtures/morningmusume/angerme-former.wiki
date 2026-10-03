@@ -1,0 +1,59 @@
+=== 元メンバー ===
+{|class="sortable wikitable" style="font-size:80%; margin-right:0px; white-space:nowrap;"
+|- style="line-height:1.25em"
+! style="padding-left:1em"| 名前
+! style="padding-left:1em"| 生年月日<br />（年齢）
+! style="padding-left:1em"| 血液型
+! style="padding-left:1em"| 出身地
+! class="unsortable"| ニックネーム<br /><small>（）内は非公式</small>
+! class="unsortable"| メンバーカラー<br />（旧）{{Efn2|name="旧"}}
+! class="unsortable"| メンバーカラー<br />（新）{{Efn2|name="新"}}
+! style="padding-left:1em"| 加入年月日<br />（加入期）{{Efn2|1期メンバーは結成日、2期メンバーは[[サブメンバー]]としての加入日。}}
+! 卒業・脱退日<br />卒業公演の開催地
+! 在籍時年齢<br />加入-卒業
+! style="padding-left:1em"| 在籍日数
+! class="unsortable"| エッグ／<br />研修生出身
+! class="unsortable"| ハロプロへの在籍状況／備考
+|-
+| {{Display none|おがわ さき/}}'''[[小川紗季]]'''<br /><small>（おがわ さき）</small>
+| 1996年11月18日{{Center|（{{年数|1996|11|18}}歳）}}
+| A型
+| [[埼玉県]]
+| サキチィー
+| style="background:#acdd4d;"| ライトグリーン
+| 
+| 2009年4月4日{{Center|（1期）}}
+| 2011年8月27日<br />[[東別院ホール]]
+| 12歳-14歳
+| {{Age in days|2009|4|4|2011|8|27}}日<br /><small>（2年4か月と23日）</small>
+| エッグ
+| 同時にハロプロも卒業<br />[[引退#芸能界|芸能活動も終了]]{{R|natalie20110828|barks20110828}}
+|-
+| {{Display none|こすが ふゆか/}}'''小数賀芙由香'''<br /><small>（こすが ふゆか）</small>
+| 1997年11月19日{{Center|（{{年数|1997|11|19}}歳）}}
+| O型
+| [[神奈川県]]
+| ふ〜ちゃん
+| style="background:orange;"| オレンジ
+| 
+| 2011年8月14日{{Center|（サブ）}}
+| 2011年9月9日<br />卒業公演なし
+| 13歳-13歳
+| {{Age in days|2011|8|14|2011|9|9}}日<br /><small>（26日）</small>
+|
+| 元[[スターダストプロモーション]]所属<br/>2012年2月以降[[ハロプロ研修生]]として活動<ref name="hellochannel-vol9">{{Cite journal | 和書 | year=2012 | month=7 | title=ハロー!プロジェクト 研究生プロフィール | journal=[[ハロー!チャンネル]] | issue=vol.9 | page=65 | publisher=[[キッズネット (企業)|キッズネット]] | ref=ハロー!チャンネルvol9}}</ref><br />2014年5月4日、ハロプロ研修生での活動終了を発表<ref>{{Cite web|和書| date=2014-05-04 | url=https://barks.jp/news/720286/ | title=「私は今、夢に向かって頑張っています。」＜ハロプロ研修生 発表会2014＞にて元研修生・金子りえからメッセージ | work=BARKS | accessdate=2014-05-04}}</ref></small><br/>（同時に芸能活動も終了）
+|-
+| {{Display none|まえだ ゆうか/}}'''[[前田憂佳]]'''<br /><small>（まえだ ゆうか）</small>
+| 1994年12月28日{{Center|（{{年数|1994|12|28}}歳）}}
+| B型
+| [[千葉県]]
+| ゆうかりん
+| style="background:LightPink;"| ピンク
+|
+| 2009年4月4日{{Center|（1期）}}
+| 2011年12月31日<br />[[メルパルクホール]]
+| 14歳-17歳
+| {{Age in days|2009|4|4|2011|12|31}}日<br /><small>（2年8か月と27日）</small>
+|エッグ
+| 同時にハロプロも卒業<br />芸能活動も終了<ref name="official20111025">{{Cite web|和書|url= http://s-mileage.jp/info/3298 |title= スマイレージに関する大事なお知らせ |website= スマイレージ公式ウェブサイト |date= 2011-10-25 |accessdate= 2021-01-02 |archiveurl= https://web.archive.org/web/20111026010511/http://s-mileage.jp/info/3298 |archivedate= 2011-10-26 }}</ref>
+|}

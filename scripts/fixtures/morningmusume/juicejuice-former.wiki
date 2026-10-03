@@ -1,0 +1,47 @@
+=== 元メンバー ===
+{| class="sortable wikitable" style="font-size:85%; line-height:1.3em;"
+|- style="line-height:1.25em"
+! class="unsortable" | 名前
+! class="unsortable" | 愛称
+! 生年月日
+! 出身地
+! 加入日
+! class="unsortable" | メンバーカラー<br>{{Efn2|name="fruit"|オリジナルメンバーのみ「メンバーフルーツ」}}
+! 卒業・脱退<br><small>(日付 / 開催地 / 在籍日数)</small>
+! class="unsortable" | 研修生<br>出身
+! class="unsortable" | 備考
+! class="unsortable" | 在籍時の年齢<br/>加入-卒業
+|-
+| '''[[大塚愛菜]]'''<br><small>(おおつか あいな)</small>
+| つかぽん<ref name="initial-profile">{{Cite web |archivedate=2013-06-28 |archiveurl=https://web.archive.org/web/20130628125949/http://www.helloproject.com/juicejuice/profile.html |date=2013-03-16 |url=http://www.helloproject.com/juicejuice/profile.html |title=Juice=Juice |work=ハロー!プロジェクト オフィシャルサイト |accessdate=2026-07-12 |url-status=dead|url-status-date=2013-07}}</ref>
+| {{生年月日と年齢|1998|4|3}}
+| [[東京都]]<ref>{{Cite book|和書|year=2012|title=ハロー!チャンネル VOL.9)|publisher=[[角川グループパブリッシング]] （[[キッズネット (企業)|キッズネット]]）|page=64|isbn=9784048954556}}</ref>
+| 2013年<br>2月25日
+| {{color box|Orange|border=silver}} [[オレンジ]]
+| 2013年7月5日<br>卒業公演なし<ref name="otsuka130705" /><br>({{Display none|0}}{{Age in days|2013|2|25|2013|7|5}}日)
+| ○
+| 
+| 14歳 - 15歳
+|-
+| '''[[梁川奈々美]]'''<br><small>(やながわ ななみ)</small>
+| やなみん<ref name="yanagawa-profile">{{Cite web |archivedate=2019-03-11 |archiveurl=https://web.archive.org/web/20190311123417/http://www.helloproject.com/juicejuice/profile/nanami_yanagawa_j/ |date=2017-06-26 |url=http://www.helloproject.com/juicejuice/profile/nanami_yanagawa_j/ |title=Juice=Juice：プロフィール 梁川奈々美 |work=ハロー!プロジェクト オフィシャルサイト |accessdate=2026-07-12 |url-status=dead|url-status-date=2019-03}}</ref><br>なーちゃん<ref name="yanagawa-profile"/>
+| {{生年月日と年齢|2002|1|6}}
+| [[神奈川県]]
+| 2017年<br>6月26日
+| {{color box|#1b81c1|border=silver}} [[青#光源色としての青|ミディアムブルー]]
+| 2019年3月11日<br>[[Zepp Tokyo]]<ref name="yanagawa190311" /><br>({{Display none|0}}{{Age in days|2017|6|26|2019|3|11}}日)
+| ○
+| [[カントリー・ガールズ]]兼任<br>卒業と同時に[[引退#芸能界|芸能活動を終了]]
+| 15歳 - 17歳
+|-
+| '''[[宮崎由加]]'''<br><small>(みやざき ゆか)</small>
+| ゆかにゃ<ref name="miyazaki-profile">{{Cite web |archivedate=2019-06-17 |archiveurl=https://web.archive.org/web/20190617233203/http://www.helloproject.com/juicejuice/profile/yuka_miyazaki/ |date=2014-04-30 |url=http://www.helloproject.com/juicejuice/profile/yuka_miyazaki/ |title=Juice=Juice：プロフィール 宮崎由加 |work=ハロー!プロジェクト オフィシャルサイト |accessdate=2026-07-12 |url-status=dead|url-status-date=2019-06}}</ref>
+| {{生年月日と年齢|1994|4|2}}
+| [[石川県]]
+| rowspan="4" | 2013年<br>2月25日
+| {{color box|Pink|border=silver}} [[モモ|ピーチ]]
+| 2019年6月17日<br>[[日本武道館]]<ref name="miyazaki190617" /><br>({{Display none|0}}{{Age in days|2013|2|25|2019|6|17}}日)
+| 
+| 
+| 18歳 - 25歳
+|}

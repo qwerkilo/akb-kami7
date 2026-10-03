@@ -1,0 +1,35 @@
+=== 現在のメンバー ===
+{| class="sortable wikitable" style="font-size:90%; line-height:1.3em; margin-right:0"
+|-
+! class="unsortable" | 名前
+! class="unsortable" | ニックネーム
+! 生年月日
+! 血液型 / 身長 / 出身地
+! 加入日
+! class="unsortable" | メンバーカラー
+! class="unsortable" | 研修生出身 / 備考
+|-
+| '''[[段原瑠々]]'''<br><small>(だんばら るる)</small>
+| るる<ref name="ruruprofile">{{Cite web|和書| date=2026-04-23 | url=https://helloproject.com/juicejuice/ruru_dambara/ | title=段原瑠々 - Juice=Juice | work=ハロー!プロジェクト公式サイト | accessdate=2026-05-09}}</ref><br>るーちゃん{{R|ruruprofile}}
+| {{生年月日と年齢|2001|5|7}}
+| A型<br>164.5cm<ref>{{Cite web|和書| url=https://ameblo.jp/juicejuice-official/entry-12748458663.html | title=ギラギラ 段原瑠々 | work=Juice=Juiceオフィシャルブログ |date=2022-06-15 | accessdate=2026-01-16}}</ref><br>[[広島県]]
+| 2017年6月26日
+| {{color box|#fc4c02|border=silver}} [[オレンジ色|オレンジ]]{{R|ruruprofile}}
+| 研修生<br>'''リーダー'''
+|-
+| '''[[井上玲音]]'''<br><small>(いのうえ れい)</small>
+| れいれい<ref name="reiprofile">{{Cite web|和書| date=2026-04-23 | url=https://helloproject.com/juicejuice/rei_inoue/ | title=井上玲音 - Juice=Juice | work=ハロー!プロジェクト公式サイト | accessdate=2026-05-09}}</ref>
+| {{生年月日と年齢|2001|7|17}}
+| O型<br>163cm<ref>{{Cite video|url=https://www.youtube.com/watch?v=WpjnFRsLR7Q&t=2m22s|time=2分22秒 - 2分27秒|title=『Juice=Juice Room Tour 2026「5ROOMS」』グッズをご紹介!(2:22)|work=Juice=Juice|date=2026-09-16|accessdate=2026-09-17}}</ref><br>[[東京都]]
+| 2020年4月1日
+| {{color box|#ffffff|border=silver}} [[白|ホワイト]]{{R|reiprofile}}
+| 研修生<br>'''サブリーダー'''<br>元[[こぶしファクトリー]]
+|-
+| '''[[工藤由愛]]'''<br><small>(くどう ゆめ)</small>
+| タコちゃん<ref name="yumeprofile">{{Cite web|和書| date=2026-04-23 | url=https://helloproject.com/juicejuice/yume_kudou/ | title=工藤由愛 - Juice=Juice | work=ハロー!プロジェクト公式サイト | accessdate=2026-05-09}}</ref>
+| {{生年月日と年齢|2004|9|28}}
+| A型<br>160.2cm<ref>{{Cite web|和書| url=https://ameblo.jp/juicejuice-official/entry-12823590064.html | title=海産物も最高じゃい!! 工藤由愛 | work=Juice=Juiceオフィシャルブログ | date=2023-10-07 | accessdate=2026-01-16}}</ref><br>[[北海道]]
+| rowspan="2" | 2019年6月14日
+| {{color box|#F57EB6|border=silver}} [[ピンク]]{{Efn2|加入当初のメンバーカラーは{{legend2|#ffd4d6|ライトピンク|border=solid 1px #000000}}。変更は2022年7月7日に発表された。}}{{R|yumeprofile}}
+| 研修生<br>北海道
+|}

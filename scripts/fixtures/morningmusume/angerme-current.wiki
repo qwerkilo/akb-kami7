@@ -1,0 +1,43 @@
+=== 現在のメンバー ===
+{|class="sortable wikitable" style="font-size:80%; margin-right:0px; white-space:nowrap;"
+|- style="line-height:1.25em"
+! style="padding-left:1em"| 名前
+! style="padding-left:1em"| 生年月日<br />（年齢）
+! style="padding-left:1em"| 血液型
+! style="padding-left:1em"| 出身地
+! class="unsortable"| ニックネーム<br /><small>（）内は非公式</small>
+! class="unsortable"| メンバーカラー
+! style="padding-left:1em"| 加入年月日<br />（加入期）
+! class="unsortable"| 研修生出身
+! class="unsortable"| 備考
+|-
+| {{Display none|いせ れいら/}}'''[[伊勢鈴蘭]]'''<br /><small>（いせ れいら）</small>
+| 2004年1月19日{{Center|（{{年数|2004|1|19}}歳）}}
+| A型
+| [[北海道]]
+| れら<br />れらたん<ref name=":0">{{Cite tweet|author=アンジュルム |user=angerme_upfront |number=1872939441008066666 |title=#アンジュルム とは… |date=2024-12-28 |accessdate=2025-05-14 }}</ref><br />（れらぴ）<ref>{{Cite web|和書|url=https://ameblo.jp/angerme-new/entry-12582665114.html |title=#れらぴ系とは 伊勢鈴蘭 |author=伊勢鈴蘭 |work=アンジュルムメンバーオフィシャルブログ |date=2020-03-16 |accessdate=2020-06-12}}</ref>
+| style="background:#fc4c02;" | オレンジ<ref>{{Cite web|和書|url=https://ameblo.jp/angerme-new/entry-12743842380.html |title=【れらちゃんに関するお知らせ】伊勢鈴蘭 |author=伊勢鈴蘭 |work=アンジュルムメンバーオフィシャルブログ |date=2022-05-20 |accessdate=2022-05-20}}</ref>{{Efn2|加入当初のイメージカラーは{{legend2|#f5b48c|ライトオレンジ|border=solid 1px #000000}}。変更は2022年5月20日に発表された。}}
+| 2018年11月23日{{Center|（7期）}}
+|
+| リーダー
+|-
+| {{Display none|ためなが しおん/}}'''[[為永幸音]]'''<br /><small>（ためなが しおん）</small>
+| 2004年2月9日{{Center|（{{年数|2004|2|9}}歳）}}
+| O型
+| [[長野県]]
+| しおんぬ<ref name=":1" /><br />（ためちゃん）<ref name="tamechan">{{Cite web|和書|url=https://ameblo.jp/angerme-new/entry-12641835068.html |title=はじめまして♪為永幸音♪ |author=為永幸音 |work=アンジュルムメンバーオフィシャルブログ |date=2020-12-03 |accessdate=2020-12-03}}</ref><br />（ため）{{R|tamechan}}
+| style="background:#F57EB6;" | ピンク{{R|oricon20201102}}
+| 2020年11月2日{{Center|（9期）}}
+| 研修生
+| サブリーダー
+|-
+| {{Display none|はしさこ りん/}}'''[[橋迫鈴]]'''<br /><small>（はしさこ りん）</small>
+| 2005年10月6日{{Center|（{{年数|2005|10|6}}歳）}}
+| O型
+| [[愛知県]]
+| りんちゃん<ref name=":0" />
+| style="background:#e70033; color:#fff;" |ピュアレッド<ref name="rin">{{Cite web|和書|url=https://ameblo.jp/angerme-new/entry-12493129277.html |title=よろしくお願いします! 橋迫鈴 |author=橋迫鈴 |work=アンジュルムメンバーオフィシャルブログ |date=2019-07-12 |accessdate=2019-07-12}}</ref>
+| 2019年7月3日{{Center|（8期）}}
+| 研修生
+| 2027年春ツアーで卒業予定
+|}

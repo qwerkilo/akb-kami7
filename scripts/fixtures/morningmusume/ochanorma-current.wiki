@@ -1,0 +1,41 @@
+=== 現在のメンバー ===
+{|class="wikitable sortable" style="text-align:left;font-size:88%;"
+|- style="white-space:nowrap;line-height:1.25em"
+!名前
+!class="unsortable"|ニックネーム
+!生年月日<br />（年齢）
+![[ABO式血液型|血液型]]
+!身長
+!class="unsortable"|出身地
+!class="unsortable"|[[ハロー!プロジェクト#メンバーカラー|メンバーカラー]]
+![[ハロプロ研修生|研修生]]出身
+!class="unsortable"|備考
+|-
+|nowrap|{{Display none|さいとう まどか/}}'''[[斉藤円香]]'''<br />{{Small|（さいとう まどか）}}
+|まどぴ<ref>{{Cite web|和書|date=2021-12-28|url=https://ameblo.jp/ocha-norma/entry-12718065964.html|title=はじめまして!まどぴです! 斉藤円香|work=OCHA NORMAオフィシャルブログ|accessdate=2021-12-29}}</ref>
+|{{Center|2002年10月28日}}{{Center|（{{年数|2002|10|28}}歳）}}
+|O型
+|163 cm<ref>{{Cite tweet|author=OCHA NORMA |user=ocha_norma |number=1473176823186202624|title=#斉藤円香 です。|date=2021-12-21 |accessdate=2024-12-25 }}</ref>
+|[[埼玉県]]
+|style="white-space:nowrap;text-align:center"|[[水色|シーブルー]]<br /><div style="background:#59cbe8; border:solid 1.5px silver;">　</div>
+|rowspan="7"|研修生
+|リーダー<br />元 チーム赤坂
+|-
+|nowrap|{{Display none|ひろもと るり/}}'''[[広本瑠璃]]'''<br />{{Small|（ひろもと るり）}}
+|るりるり<ref>{{Cite web|和書|date=2022-3-7|url=https://ameblo.jp/ocha-norma/entry-12730702016.html|title=第71試合 歌‼️ 石栗奏美|work=OCHA NORMAオフィシャルブログ|accessdate=2022-3-10}}</ref>
+|{{Center|2003年6月18日}}{{Center|（{{年数|2003|6|18}}歳)}}
+|B型
+|156 cm
+|[[広島県]]
+|style="white-space:nowrap;text-align:center"|[[黄色|イエロー]]<br /><div style="background:#F7EA48; border:solid 1.5px silver;">　</div>
+|サブリーダー<br />元 [[アクターズスクール広島]]在籍
+|-
+|nowrap|{{Display none|よねむら きらら/}}'''[[米村姫良々]]'''<br />{{Small|（よねむら きらら）}}
+|きらりん<ref>{{Cite web|和書|date=2022-1-21|url=https://ameblo.jp/ocha-norma/entry-12722565303.html|title=きらりん⭐️ 広本瑠璃 |work=OCHA NORMAオフィシャルブログ|accessdate=2022-7-7}}</ref><br />きーたん<ref>{{Cite web|和書|title=♡もも復活♡ 米村姫良々|url=https://ameblo.jp/ocha-norma/entry-12783298785.html|work=OCHA NORMAオフィシャルブログ|accessdate=2023-2-6|date=2023-1-8}}</ref><br />{{Small|きらきら<br />{{0}}きーちゃん}}<ref>{{Cite web|和書|work=OCHA NORMAオフィシャルブログ|title=きらきらきーちゃんマカロンの正体☘️ 北原もも|url=https://ameblo.jp/ocha-norma/entry-12720983502.html|accessdate=2023-2-6|date=2022-1-12}}</ref>
+|{{Center|2004年4月30日}}{{Center|（{{年数|2004|4|30}}歳）}}
+|A型
+|158 cm<ref>{{Cite web|和書|url=https://websunday.net/64264/|title=OCHA NORMA from ハロー!プロジェクト きままにおしゃべり完全版 大公開!|website=少年サンデー|date=2024-08-28|accessdate=2024-08-28|archiveurl=https://web.archive.org/web/20240827154808/https://websunday.net/64264/|archivedate=2024-08-27}}</ref>
+|[[愛知県]]
+|style="white-space:nowrap;text-align:center"|[[赤|{{Small|イタリアンレッド}}]]<br /><div style="background:#e70033; border:solid 1.5px silver;">　</div>
+|
+|}

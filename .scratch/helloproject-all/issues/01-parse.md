@@ -1,6 +1,6 @@
 # 01 · 九团的 wikitext 解析（按团配置）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: —
 - **所属 spec**：`.scratch/helloproject-all/spec.md`
 - **缝**：①（Python 解析纯函数，fixture 驱动）
@@ -39,3 +39,31 @@
 - 变异 ≥4 个全红（至少含：BEYOOOOONDS 的名前取错列、Juice=Juice 合并列不拆、
   停止活动团 status 推导错、脏列名不归一）。
 - `npm test` 的 Python 全绿；本工单只动 Python 与 fixture，不跑 E2E。
+
+## 实现记录
+
+**13 个 fixture × 9 团**（真实 wikitext 切片，表头 + 3 行，放在
+`scripts/fixtures/morningmusume/`）✓ 先红（0 行）✓ 后绿 ✓
+
+实现分五处，全是**通用**修复（不是逐团特判）：
+
+- `_read_header` 的 `split("|", 1)` 换成 `_split_attrs`（新增方括号深度）——
+  这是「血液型]]」「na}}」两个脏列名的**同一个根因**：`|` 在 `[[…|…]]` 与
+  `{{R|na}}` 里，直接 split 把内容劈了 ✓
+- `colspan="2"` 展开 + 多行表头识别（`|-` 后跟 `!` 且**那一串 `!` 之后是 `|-`**）——
+  少了后半个条件会把 BEYOOOOONDS 数据行里的 `!rowspan="4" |C` 当表头吞掉，
+  实测症状是整行左移一格（姓名取到昵称）✓
+- `_col()` 前缀取列 + `_norm_for()` 最长前缀归一：各团同一字段有四五种叫法
+  （生日带不带「（年齢）」、毕业列五种、昵称/愛称）✓
+- Juice=Juice 的「血液型 / 身長 / 出身地」合并列按**内容形状**拆（缺一行也不串位）✓
+- 生日模板 `{{生年月日と年齢|2001|5|7}}` 在 `clean` 里先还原成日期（否则
+  `_strip_templates` 把它换成「2001」、`_date` 再也认不出，birth 变空串）✓
+- kana 四种写法收成一条**纯假名兜底**（`<small>(…)`/`{{Small|（…）}}`/裸括号）✓
+- 姓名格里的角色徽章（BEYOOOOONDS 的「リーダー」）会占第一行 → `first_line` 跳过方括号行 ✓
+
+**验收**：`npm run check` 退出码 0 ✓ **273 JS + 206 Python**（+6）✓
+变异 **6/6 被杀** ✓ —— 其中两个**先存活**，都是真信号：
+① colspan 展开没有承重断言（姓名等字段都在 colspan 之前）→ 补「備考 列对齐」断言；
+② `<small>` 两个 kana 分支是冗余的（裸括号兜底已覆盖）→ **删掉**两个分支。
+既有测试一处计数要改：`load()` 的 wiki 请求数 2 → 11（团数变了，属正当更新）。
+本工单只动 Python 与 fixture，未跑 E2E（产物未变）✓

@@ -1,0 +1,41 @@
+=== 活動休止時のメンバー ===
+{| cellpadding="3" class="wikitable"
+|-
+!style="white-space:nowrap"|名前
+!style="white-space:nowrap"|'''生年月日'''
+!style="white-space:nowrap"|出身地
+!style="white-space:nowrap"|加入日
+!style="white-space:nowrap"|'''ニックネーム'''<br><small>（）内は非公式</small>
+!style="white-space:nowrap"|メンバーカラー
+!style="white-space:nowrap"|兼任グループ
+!style="white-space:nowrap"|備考
+!style="white-space:nowrap"|在籍時の年齢<br/>加入-卒業
+|-
+|style="white-space:nowrap"|'''[[山木梨沙]]'''<br><small>(やまき りさ)</small>
+|style="white-space:nowrap"|{{生年月日と年齢|1997|10|14}}
+|style="white-space:nowrap"|[[東京都]]
+|style="white-space:nowrap" rowspan="3"|2014年11月5日
+|style="white-space:nowrap"|やまっき<br>りさちゃん
+|style="white-space:nowrap;background-color:#acdd4d"|<small>ライム</small>
+|style="white-space:nowrap"|[[カレッジ・コスモス]]
+|style="white-space:nowrap"|元ハロプロ研修生<br>卒業と同時に[[引退#芸能界|芸能活動を終了]]
+|style="white-space:nowrap"|17歳 - 22歳
+|-
+|style="white-space:nowrap"|'''[[森戸知沙希]]'''<br><small>(もりと ちさき)</small>
+|style="white-space:nowrap"|{{生年月日と年齢|2000|2|19}}
+|style="white-space:nowrap"|[[栃木県]]
+|style="white-space:nowrap"|ちぃちゃん<br />（ちぃたん）
+|style="white-space:nowrap;background-color:#ff9900;color:#000000" |<small>オレンジ</small>
+|style="white-space:nowrap"|[[モーニング娘。]]
+|style="white-space:nowrap"|元・CoCoRo学園<br>2022年6月20日、移籍先のモーニング娘。'22およびハロー!プロジェクトを卒業
+|style="white-space:nowrap"|14歳 - 19歳
+|-
+|style="white-space:nowrap"|'''[[小関舞]]'''<br><small>(おぜき まい)</small>
+|style="white-space:nowrap"|{{生年月日と年齢|2002|2|10}}
+|style="white-space:nowrap"|東京都
+|style="white-space:nowrap"|おぜきちゃん<br />（おぜこ）
+|style="white-space:nowrap;background-color:#3366ff;color:#ffffff" |<small>ミディアムブルー</small>
+|
+|style="white-space:nowrap"|元・[[ジュニアモデル]]<br>ハロー!プロジェクトも卒業
+|style="white-space:nowrap"|12歳 - 17歳
+|}

@@ -1,0 +1,39 @@
+=== 無期限活動休止発表時のメンバー ===
+{| class="sortable wikitable" style="font-size:95%; text-align:center; line-height:1.4em; margin-right:0"
+|- style="line-height:1.25em"
+! style="padding-left:1em; white-space:nowrap" |名前
+! style="padding-left:1em; white-space:nowrap" |生年月日<br />（現年齢）
+! class="unsortable" |血液型
+! style="white-space:nowrap" |身長<ref name="RIVAL">{{Cite book|和書 |year = 2012 | title = ハロー!プロジェクト・キッズ デビュー10周年記念 Berryz工房×℃-ute クロストークBOOK『RIVAL〜12少女の10年物語〜』 | publisher = ワニブックス | isbn = 978-4847044663}}</ref>
+! class="unsortable" |出身地
+! class="unsortable" |メンバーカラー
+! class="unsortable" style="padding-right:2.5em; padding-left:2.5em;" |備考
+! class="unsortable" |在籍時の年齢<br/>加入-活動休止
+|-
+| style="white-space:nowrap" |{{Display none|しみず さき/}}[[清水佐紀]]<br />{{Small|（しみず さき）}}
+| style="white-space:nowrap" |1991年11月22日{{Center|（{{年数|1991|11|22}}歳）}}
+| style="white-space:nowrap" |O型
+| style="white-space:nowrap" |153cm
+| {{Display none|かながわけん/}}[[神奈川県]]
+| style="white-space:nowrap" |{{Colorbox|Yellow}}<br /> イエロー
+| style="text-align:left; white-space:nowrap" |キャプテン。<br /> 2021年11月30日、芸能界を引退。
+| style="white-space:nowrap" |12歳 - 24歳
+|-
+| style="white-space:nowrap" |{{Display none|つぐなが ももこ/}}[[嗣永桃子]]<br />{{Small|（つぐなが ももこ）}}
+| style="white-space:nowrap" |1992年3月6日{{Center|（{{年数|1992|3|6}}歳）}}
+| style="white-space:nowrap" |O型
+| style="white-space:nowrap" |149.9cm
+| {{Display none|ちばけん/}}[[千葉県]]
+| style="white-space:nowrap" |{{Colorbox|Pink}}<br /> ピンク
+| style="text-align:left; white-space:nowrap" |活動停止後は[[カントリー・ガールズ]]のメンバー兼[[プレイング・マネージャー]]として<br />引き続きハロー!プロジェクトに在籍。<br /> 2017年6月30日、芸能界を引退。
+| style="white-space:nowrap" |11歳 - 22歳
+|-
+| style="white-space:nowrap" |{{Display none|とくなが ちなみ/}}[[徳永千奈美]]<br />{{Small|（とくなが ちなみ）}}
+| style="white-space:nowrap" |1992年5月22日{{Center|（{{年数|1992|5|22}}歳）}}
+| style="white-space:nowrap" |O型
+| style="white-space:nowrap" |164cm
+| {{Display none|かながわけん/}}[[神奈川県]]
+| style="white-space:nowrap" |{{Colorbox|Orange}}<br /> オレンジ
+| style="text-align:left; white-space:nowrap" |2021年2月28日、芸能界を引退。
+| style="white-space:nowrap" |11歳 - 22歳
+|}
