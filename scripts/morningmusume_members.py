@@ -924,31 +924,57 @@ def build_members(official, parsed):
     return _assemble(official, parsed)
 
 
-def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
-    """毕业成员的头像。**早安这里与等爱不同**：等爱能从旧列表页快照里配出「姓名 → 照片」，
-    早安**不能** —— 实测 2023-01-08 的旧列表页快照里，`img/artist/s/<sha1>.jpg` 那批图
-    是 ameblo 的**博客缩略图**，`#artist_photo` 那一批是**专辑封面**，页面上**没有**
-    逐成员的照（子代理给的「旧列表页提取」这条路对本快照不成立）。
+OG_URL = "https://helloproject.com/og/"
 
-    所以链只有两节：Wikipedia Commons → （若已知照片 URL）Wayback 取图。
-    取不到就 warn —— 站里会显示占位卡，但没人知道是谁缺了。
 
-    ⚠️ 第二节目前**生产代码没有来源设置 `photo_url`**（官网只列现役、Wikipedia
-    表格里没有逐成员照片 URL），所以真实抓取只走 Commons 一节；这一节只有
-    注入式测试走过。留着它是给将来某个能提供 URL 的源，不是当下有效的链 ——
-    别把它当成覆盖率的一部分。
+def parse_og_page(html):
+    """现官网 `/og/` 页 → {姓名: 照片 URL}。
 
-    ⚠️ 这意味着毕业成员的照片覆盖率**大概率不高**，缺口集中在 1~5 期。
-    真正的缺口名单要等工单 04 的真实抓取（见 spec 的验收）。
+    页面结构：每个卒业生一个 `class="MemberPanel"` 块，块内依次是
+    照片 `<img src="/upload/images/<sha1>.webp">`、`MemberPanel__nameJa`、
+    `MemberPanel__nameEn`。**姓名取 nameJa**（`img` 的 alt 是空的）。
+    ⚠️ 每个块前还有一个 preload 的 `<link href=下一张图>` —— 取「块内第一个 `img`」
+    而不是第一个 `href`，否则会把下一人的照片配给上一人。
     """
+    out = {}
+    for part in html.split('class="MemberPanel"')[1:]:
+        img = re.search(r'<img src="([^"]+)"', part)
+        name = re.search(r"MemberPanel__nameJa[^>]*>([^<]+)<", part)
+        if not img or not name:
+            continue
+        url = img.group(1)
+        if url.startswith("/"):
+            url = "https://helloproject.com" + url
+        out[name.group(1).strip()] = url
+    return out
+
+
+def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
+    """毕业成员的头像。**照片回退链**（CONTEXT）三节：
+
+    1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
+       一次抓取解析成「姓名 → 照片」映射；命中即止（官方肖像优先于 Commons）。
+    2. **Wikipedia Commons**（现役与兜底；失败被 `commons_photo` 吞成 None）。
+    3. **（若已知照片 URL）Wayback 取图** —— 旧官网快照源的钩子。
+
+    取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
+    不是静默降级。旧官网 Wayback 的逐成员解析见工单 02（`/og/` 覆盖不到的那批）。
+    """
+    og = {}
+    try:
+        og = parse_og_page(fetch(OG_URL))
+    except Exception:
+        og = {}
     for m in members:
         if m["status"] != "former" or m["file"] in urls:
             continue
+        resolved = og.get(m["name"])
         # Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
         # 不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
-        if pause:
+        if not resolved and pause:
             time.sleep(pause)
-        resolved = photo_chain.commons_photo(m["name"], fetch)
+        if not resolved:
+            resolved = photo_chain.commons_photo(m["name"], fetch)
         if not resolved and m.get("photo_url"):
             resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
         if resolved:

@@ -406,6 +406,84 @@ class ResolveFormerPhotosTests(unittest.TestCase):
         self.assertIn("石黒彩", msgs[0])
 
 
+OG_HTML = """<div class="commonGrid--base">
+<link rel="preload" as="image" href="/upload/images/next.webp"/>
+<div class="MemberPanel"><a href="https://up-front-create.com/x" class="MemberPanel__link group " target="_blank"><div class="Thumbnail MemberPanel__image "><div><img src="/upload/images/ishiguro.webp" alt="" width="298" height="298"/></div></div><div class="MemberPanel__nameJa paragraph">石黒彩</div><div class="MemberPanel__nameEn paragraph">Aya Ishiguro</div></a><div class="MemberPanel__socials"><ul></ul></div></div>
+<div class="MemberPanel"><a href="https://up-front-create.com/y" class="MemberPanel__link group " target="_blank"><div class="Thumbnail MemberPanel__image "><div><img src="/upload/images/yuko.webp" alt="" width="298" height="298"/></div></div><div class="MemberPanel__nameJa paragraph">中澤裕子</div><div class="MemberPanel__nameEn paragraph">Yuko Nakazawa</div></a><div class="MemberPanel__socials"><ul></ul></div></div>
+<div class="MemberPanel"><a href="#" class="MemberPanel__link"><div class="MemberPanel__nameJa paragraph">没有照片的人</div></a></div>
+</div>"""
+
+
+class OgPageTests(unittest.TestCase):
+    """工单 01：现官网 /og/ 页（仍在事务所的卒业生，官方肖像）。"""
+
+    def test_parses_name_and_photo_per_panel(self):
+        got = mm.parse_og_page(OG_HTML)
+        self.assertEqual(got["石黒彩"], "https://helloproject.com/upload/images/ishiguro.webp")
+        self.assertEqual(got["中澤裕子"], "https://helloproject.com/upload/images/yuko.webp")
+
+    def test_panel_without_photo_is_skipped(self):
+        got = mm.parse_og_page(OG_HTML)
+        self.assertNotIn("没有照片的人", got)
+
+    def test_preload_link_does_not_steal_the_next_panel(self):
+        """每个 panel 前有一个 preload 的 <link href=…>（下一张图）——
+        取「块内第一个 img」而不是第一个 href，才不会张冠李戴。"""
+        got = mm.parse_og_page(OG_HTML)
+        self.assertNotIn("https://helloproject.com/upload/images/next.webp", got.values())
+
+    def test_empty_or_broken_html_yields_empty_map(self):
+        self.assertEqual(mm.parse_og_page(""), {})
+        self.assertEqual(mm.parse_og_page("<html>no panels</html>"), {})
+
+
+class ResolveOgSourceTests(unittest.TestCase):
+    def _members(self):
+        return [
+            {"name": "野中美希", "status": "current", "file": "m:野中美希"},
+            {"name": "石黒彩", "status": "former", "file": "m:石黒彩"},
+            {"name": "後藤真希", "status": "former", "file": "m:後藤真希"},
+        ]
+
+    def test_og_wins_over_commons(self):
+        """官方肖像优先于 Commons（grill Q2 的源顺序）。"""
+
+        def fetch(url):
+            if url == mm.OG_URL:
+                return OG_HTML
+            if "commons" in url or "wikipedia" in url:
+                return json.dumps(
+                    {"query": {"pages": {"1": {"thumbnail": {"source": "https://c/x.jpg"}}}}}
+                )
+            return "[]"
+
+        urls = {}
+        mm.resolve_former_photos(self._members(), urls, fetch, warn=lambda m: None)
+        self.assertEqual(
+            urls["m:石黒彩"], "https://helloproject.com/upload/images/ishiguro.webp"
+        )
+
+    def test_og_failure_falls_through_to_commons(self):
+        """og 抓取抛错时链不能断：仍走 Commons。Commons 只认 後藤真希（模拟
+        「只有部分人有 Commons 照」），石黒彩两边都没有 → 留在缺图名单。"""
+
+        def fetch(url):
+            if url == mm.OG_URL:
+                raise RuntimeError("og 挂了")
+            if "wikipedia" in url:
+                if "%E5%BE%8C%E8%97%A4" in url or "後藤" in url:
+                    return json.dumps(
+                        {"query": {"pages": {"1": {"thumbnail": {"source": "https://c/goto.jpg"}}}}}
+                    )
+                return json.dumps({"query": {"pages": {}}})
+            return "[]"
+
+        urls = {}
+        mm.resolve_former_photos(self._members(), urls, fetch, warn=lambda m: None)
+        self.assertEqual(urls["m:後藤真希"], "https://c/goto.jpg")
+        self.assertNotIn("m:石黒彩", urls)
+
+
 class BuildSectionsTests(unittest.TestCase):
     def test_one_series_one_group_and_generation_stays_a_member_field(self):
         """早安是**一系列一团**；期生留在成员上（等爱是三团且只有一期，
