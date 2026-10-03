@@ -1,6 +1,6 @@
 # 03 · 真实抓取 + 照片缺口名单 + 产物测试
 
-- **Status**: partially-resolved
+- **Status**: resolved
 - **Blocked by**: 02
 - **所属 spec**：`.scratch/helloproject-cute/spec.md`
 
