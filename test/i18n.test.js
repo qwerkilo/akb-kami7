@@ -142,9 +142,27 @@ test("简介自由文本对照表：结构合法且覆盖产物中的趣味/特�
       if (bio.skill) texts.add(bio.skill);
     }
   }
-  for (const v of texts) {
-    assert.ok(I18N.values[v], `缺译文: ${v}`);
-  }
+  // 策略（深化㉕）：**严格覆盖** —— 回退日文原文只是防未知字符串的兜底，不是
+  // 允许不翻译的许可证。所以两个方向都守：产物里的每一条都要有译文（缺了就红），
+  // 表里也不许有产物用不到的条目（死条目静默积压）。失败信息给可粘贴的模板。
+  // 范围：这张表目前**只服务** bio.hobby / bio.skill（profileRows 的 text() 只被
+  // 这两个字段调用）；将来若给别的字段建第二张表，别往这张里塞。
+  const missing = [...texts].filter((v) => !I18N.values[v]);
+  assert.deepEqual(
+    missing,
+    [],
+    "缺译文（把下面每行粘进 i18n.js 的 values）：\n" +
+      missing
+        .map((v) => `    ${JSON.stringify(v)}: { zh: "", en: "" },`)
+        .join("\n")
+  );
+  const dead = Object.keys(I18N.values).filter((k) => !texts.has(k));
+  assert.deepEqual(
+    dead,
+    [],
+    "values 里有产物用不到的条目（数据删减后译文积压；删掉或补回数据）：\n" +
+      dead.map((k) => `    ${k}`).join("\n")
+  );
 });
 
 test("core.js 中静态引用的文案键都存在", () => {
