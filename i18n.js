@@ -170,7 +170,388 @@
       zh: "享受化妆与时尚、巡游拉面店",
       en: "Enjoying makeup and fashion, ramen-hopping",
     },
+    // 官网详情页有一格两行的情况：产物里的原文就是一个带换行的字符串，
+    // 对照表要按**整串**收录（单行那两条已被这一条取代，不再单独留）。
+    "用意が早い、たくさん寝られること\nその人に似合う音楽や、もらった題名にちなんで紹介できます！":
+      {
+        zh: "准备得快、能睡很多\n能推荐适合那个人的音乐、或按给定的题目介绍！",
+        en: "Getting ready fast, sleeping a lot\nI can recommend music that suits someone, or introduce songs from a given title!",
+      },
     ジョッキ持ち: { zh: "举扎啤杯", en: "Holding a beer stein" },
+    // 伞下六团的官网详情页带趣味/特技（工单 03 真实抓取）；未收录的会回退日文原文，
+    // 但产物守卫要求全覆盖，所以新增的一并落表。
+    "人間観察、お菓子作り、音楽鑑賞、宝塚観劇": {
+      zh: "观察人、做点心、听音乐、看宝塚歌剧",
+      en: "People-watching, baking, music, Takarazuka theatre",
+    },
+    "クラシックバレエ、ダンス": {
+      zh: "古典芭蕾、舞蹈",
+      en: "Classical ballet, dancing",
+    },
+    カエルグッズ集め: {
+      zh: "收集青蛙周边",
+      en: "Collecting frog goods",
+    },
+    "お菓子作り、美味しいものをたくさん食べること、写真を撮ること": {
+      zh: "做点心、吃很多好吃的、拍照",
+      en: "Baking, eating lots of good food, photography",
+    },
+    "ゲーム、ゲーム実況動画を見ること、お笑い鑑賞、ヘアクリップ集め": {
+      zh: "玩游戏、看游戏实况、看搞笑节目、收集发夹",
+      en: "Games, game-stream videos, comedy, collecting hair clips",
+    },
+    "少女漫画、ドラマ・映画・舞台・お笑い鑑賞、パワースポット巡り、期間限定・地域限定の食べ物を食べる！":
+      {
+        zh: "少女漫画、看剧集・电影・舞台・搞笑节目、巡游能量景点、吃限定美食！",
+        en: "Shojo manga, dramas/films/stage/comedy, power-spot hopping, limited-edition foods!",
+      },
+    "ご飯を食べること、カラオケ、絵を描くこと": {
+      zh: "吃饭、卡拉OK、画画",
+      en: "Eating, karaoke, drawing",
+    },
+    ドッキリをしかけること: {
+      zh: "搞恶作剧",
+      en: "Pulling pranks",
+    },
+    "いろんなジャンルの音楽鑑賞、ジブリ映画をみること": {
+      zh: "听各种类型的音乐、看吉卜力电影",
+      en: "Music of many genres, Ghibli films",
+    },
+    "料理、箸置き集め、食器集め、いろんな食パンを食べること、飲食店の一日密着動画を見ること":
+      {
+        zh: "做菜、收集筷架、收集餐具、吃各种吐司、看餐饮店的一天跟拍视频",
+        en: "Cooking, chopstick-rest and tableware collecting, trying breads, restaurant day-in-the-life videos",
+      },
+    "作詞、作曲、セッション": {
+      zh: "作词、作曲、即兴合奏",
+      en: "Songwriting, composing, jam sessions",
+    },
+    バイオリン: {
+      zh: "小提琴",
+      en: "Violin",
+    },
+    "料理、文字を書くこと、シャチ鑑賞": {
+      zh: "做菜、写字、看虎鲸",
+      en: "Cooking, writing, orca-watching",
+    },
+    美味しいご飯屋さんを見つけること: {
+      zh: "发现好吃的餐馆",
+      en: "Finding great restaurants",
+    },
+    "カメラ、編み物、お散歩": {
+      zh: "相机、编织、散步",
+      en: "Cameras, knitting, walks",
+    },
+    "高速まばたき、ボイスパーカッション": {
+      zh: "高速眨眼、口技",
+      en: "Rapid blinking, beatboxing",
+    },
+    愛犬と遊ぶこと: {
+      zh: "和爱犬玩",
+      en: "Playing with my dog",
+    },
+    "書道、ヘアアレンジ": {
+      zh: "书法、发型设计",
+      en: "Calligraphy, hair arranging",
+    },
+    何かを作ること: {
+      zh: "做点什么",
+      en: "Making things",
+    },
+    "アイスを食べる・ウォーキング・メイク研究・怪談を聞くこと": {
+      zh: "吃冰淇淋・走路・研究妆容・听怪谈",
+      en: "Ice cream, walking, makeup research, ghost stories",
+    },
+    "バレエ、イラストを描く事": {
+      zh: "芭蕾、画插画",
+      en: "Ballet, drawing illustrations",
+    },
+    "読書、映画ドラマ鑑賞、1人カラオケ": {
+      zh: "读书、看电影和剧集、一个人唱卡拉OK",
+      en: "Reading, films and dramas, solo karaoke",
+    },
+    "タコグッズ収集・整備、少女漫画を読むこと": {
+      zh: "收集与保养章鱼周边、看少女漫画",
+      en: "Collecting and maintaining octopus goods, shojo manga",
+    },
+    "カラオケ、パン作り": {
+      zh: "卡拉OK、做面包",
+      en: "Karaoke, baking bread",
+    },
+    ピアノの弾き語り: {
+      zh: "钢琴弹唱",
+      en: "Singing with piano",
+    },
+    "ミニチュア集め、カプセルトイをまわすこと": {
+      zh: "收集微缩模型、扭蛋",
+      en: "Miniatures, capsule toys",
+    },
+    "読書、映画、音楽鑑賞": {
+      zh: "读书、看电影、听音乐",
+      en: "Reading, films, music",
+    },
+    速読: {
+      zh: "速读",
+      en: "Speed reading",
+    },
+    "ダンス、映画、お花": {
+      zh: "跳舞、看电影、花",
+      en: "Dancing, films, flowers",
+    },
+    人の素敵な所を見つける: {
+      zh: "发现别人的优点",
+      en: "Spotting people's best qualities",
+    },
+    "レッサーパンダ・動物の動画を見ること、甘いものを食べること": {
+      zh: "看小熊猫与动物视频、吃甜食",
+      en: "Red-panda and animal videos, sweets",
+    },
+    ゲーム: {
+      zh: "玩游戏",
+      en: "Games",
+    },
+    "旅行、自然に触れること、コーヒー巡り、編み物": {
+      zh: "旅行、亲近自然、逛咖啡馆、编织",
+      en: "Travel, nature, coffee-hopping, knitting",
+    },
+    フルートを吹くこと: {
+      zh: "吹长笛",
+      en: "Playing flute",
+    },
+    "ピアノ、さんぽ、UFOキャッチャー": {
+      zh: "钢琴、散步、抓娃娃机",
+      en: "Piano, walks, claw machines",
+    },
+    "そろばん二段、まーーえむきに生きること": {
+      zh: "珠算二段、向前看地生活",
+      en: "Abacus 2nd dan, living positively",
+    },
+    "観光地巡り、写真を撮る、寝る": {
+      zh: "逛景点、拍照、睡觉",
+      en: "Sightseeing, photography, sleeping",
+    },
+    "野球観戦、ファッション、アニメ・ドラマ・映画鑑賞、愛犬と旅行、パワースポット巡り":
+      {
+        zh: "看棒球、时尚、看动画・剧集・电影、和爱犬旅行、巡游能量景点",
+        en: "Baseball, fashion, anime/dramas/films, travelling with my dog, power spots",
+      },
+    "料理、似顔絵を描くこと": {
+      zh: "做菜、画肖像画",
+      en: "Cooking, portrait drawing",
+    },
+    "毎日トマトを食べること、漫画を読むこと": {
+      zh: "每天吃番茄、看漫画",
+      en: "Eating a tomato every day, manga",
+    },
+    ソーラン節: {
+      zh: "索朗节舞",
+      en: "Soran Bushi dance",
+    },
+    "ハロー！プロジェクトのコンサートを観ること、かぎ針編み": {
+      zh: "看早安家族的演唱会、钩针编织",
+      en: "Hello! Project concerts, crochet",
+    },
+    "食べること、バイオリンをひくこと": {
+      zh: "吃、拉小提琴",
+      en: "Eating, violin",
+    },
+    バレエ: {
+      zh: "芭蕾",
+      en: "Ballet",
+    },
+    散歩: {
+      zh: "散步",
+      en: "Walks",
+    },
+    ダンス: {
+      zh: "跳舞",
+      en: "Dancing",
+    },
+    "音楽鑑賞、カラオケ、アニメ・漫画をみること": {
+      zh: "听音乐、卡拉OK、看动画・漫画",
+      en: "Music, karaoke, anime and manga",
+    },
+    "アニメ鑑賞、フィギュア集め、UFOキャッチャー、ゲーム、ベーグル作り": {
+      zh: "看动画、收集手办、抓娃娃机、玩游戏、做贝果",
+      en: "Anime, figure collecting, claw machines, games, bagel-making",
+    },
+    "オムライス屋さんとたこ焼き屋さん巡り、パン作り、野球観戦": {
+      zh: "巡游蛋包饭与章鱼烧店、做面包、看棒球",
+      en: "Omurice and takoyaki hopping, baking bread, baseball",
+    },
+    "チアダンス、新体操": {
+      zh: "啦啦队舞、艺术体操",
+      en: "Cheer dance, rhythmic gymnastics",
+    },
+    "DJ、映画鑑賞、旧アメ車について調べること": {
+      zh: "DJ、看电影、研究老式美国车",
+      en: "DJing, films, researching classic American cars",
+    },
+    "今日行けるライブを探すこと、音楽をDigすること、作詞、DTM、裁判傍聴、ラジオを聴くこと、タイ(国)、公園で星を見ること":
+      {
+        zh: "找今天能去的演出、挖掘音乐、作词、DTM、旁听庭审、听广播、泰国、在公园看星星",
+        en: "Finding same-day gigs, digging music, songwriting, DTM, court-watching, radio, Thailand, stargazing in parks",
+      },
+    "ヒューマンビートボックス、トークボックス": {
+      zh: "人声口技、talkbox",
+      en: "Human beatbox, talkbox",
+    },
+    "ディズニー研究、ONE PIECEを読むこと、お笑い観賞、模写": {
+      zh: "研究迪士尼、看海贼王、看搞笑节目、临摹",
+      en: "Disney research, One Piece, comedy, copying art",
+    },
+    "けん玉、基本なんでも食べれます。": {
+      zh: "剑玉、基本什么都吃。",
+      en: "Kendama, I'll eat basically anything.",
+    },
+    洋裁: {
+      zh: "西式裁缝",
+      en: "Dressmaking",
+    },
+    ピアノ: {
+      zh: "钢琴",
+      en: "Piano",
+    },
+    "コスメ収集(メイク研究)、セルフネイル、テーマパーク散策、オリジナルの振付を作って遊ぶ":
+      {
+        zh: "收集化妆品（研究妆容）、自己做美甲、逛主题乐园、自编舞蹈玩",
+        en: "Cosmetics collecting (makeup research), self-nails, theme parks, making up choreography",
+      },
+    "ダンス、振付": {
+      zh: "跳舞、编舞",
+      en: "Dancing, choreography",
+    },
+    シール集め: {
+      zh: "收集贴纸",
+      en: "Sticker collecting",
+    },
+    "ダンス、サッカー": {
+      zh: "跳舞、足球",
+      en: "Dancing, football",
+    },
+    "寝ること、編み物": {
+      zh: "睡觉、编织",
+      en: "Sleeping, knitting",
+    },
+    長時間寝られること: {
+      zh: "能睡很久",
+      en: "Sleeping for a long time",
+    },
+    "ひとり旅、踊ること、歌うこと、写真を撮ること、舞台鑑賞、ゲーム実況を見ること、断捨離":
+      {
+        zh: "一个人旅行、跳舞、唱歌、拍照、看舞台剧、看游戏实况、断舍离",
+        en: "Solo travel, dancing, singing, photography, stage shows, game streams, decluttering",
+      },
+    "カフェ巡り、写真を撮ること、ドラマを観ること": {
+      zh: "逛咖啡馆、拍照、看剧集",
+      en: "Cafe-hopping, photography, dramas",
+    },
+    "空手(黒帯公認2段)": {
+      zh: "空手道（黑带公认二段）",
+      en: "Karate (officially certified 2nd-dan black belt)",
+    },
+    "メイク、おしゃれすること": {
+      zh: "化妆、打扮",
+      en: "Makeup, dressing up",
+    },
+    "少女漫画を読むこと、辛いラーメン食べる事": {
+      zh: "看少女漫画、吃辣拉面",
+      en: "Shojo manga, spicy ramen",
+    },
+    "アクロバット、メロメロにできるビーム出せます": {
+      zh: "杂技、能发出让人心动的光束",
+      en: "Acrobatics, a beam that melts hearts",
+    },
+    "ゲームをする事、アニメ鑑賞、漫画を読む事": {
+      zh: "玩游戏、看动画、看漫画",
+      en: "Games, anime, manga",
+    },
+    書道: {
+      zh: "书法",
+      en: "Calligraphy",
+    },
+    好きなアニメの推し活: {
+      zh: "为喜欢的动画角色应援",
+      en: "Supporting favorite anime characters",
+    },
+    バスケットボール: {
+      zh: "篮球",
+      en: "Basketball",
+    },
+    "物件探し、プロレス観戦、筋トレ": {
+      zh: "看房、看职业摔角、健身",
+      en: "House-hunting, pro wrestling, working out",
+    },
+    ヘアアレンジ: {
+      zh: "发型设计",
+      en: "Hair arranging",
+    },
+    "音楽を聴くこと、可愛い動物の動画を見ること": {
+      zh: "听音乐、看可爱动物视频",
+      en: "Music, cute animal videos",
+    },
+    "踊る、歌う、洋服、お散歩、音楽、映画、ドラマ": {
+      zh: "跳舞、唱歌、衣服、散步、音乐、电影、剧集",
+      en: "Dancing, singing, clothes, walks, music, films, dramas",
+    },
+    "ダンス構成(時間はかかります)、野球のピッチング(特訓中です、、！！)": {
+      zh: "编排舞蹈（要花时间）、棒球投球（特训中、、！！）",
+      en: "Choreographing (takes time), baseball pitching (in training!!)",
+    },
+    "UFOキャッチャーをすること、回転寿司に行くこと": {
+      zh: "抓娃娃机、去回转寿司",
+      en: "Claw machines, conveyor-belt sushi",
+    },
+    ほっぺたをよくのばせる: {
+      zh: "能把脸颊拉得很长",
+      en: "I can stretch my cheeks a lot",
+    },
+    "牛乳を飲む、牛乳のグッズ収集、銭太鼓": {
+      zh: "喝牛奶、收集牛奶周边、钱太鼓",
+      en: "Drinking milk, milk-goods collecting, zenidaiko drumming",
+    },
+    "サッカー観戦、クイズ、文房具集め、ギター、ラーメン、激辛料理を食べる、読書、アニメ鑑賞":
+      {
+        zh: "看足球、猜谜、收集文具、吉他、拉面、吃超辣料理、读书、看动画",
+        en: "Football, quizzes, stationery collecting, guitar, ramen, super-spicy food, reading, anime",
+      },
+    "ショッピング、アイドル鑑賞": {
+      zh: "购物、看偶像",
+      en: "Shopping, idol-watching",
+    },
+    "音楽を聴くこと、アイドル鑑賞、漫画": {
+      zh: "听音乐、看偶像、漫画",
+      en: "Music, idol-watching, manga",
+    },
+    "歌、カラオケ": {
+      zh: "唱歌、卡拉OK",
+      en: "Singing, karaoke",
+    },
+    "野球観戦、シナモロールのグッズ集め、ドラマやお笑いを見ること、折り紙、お菓子作り、ガンプラ作り":
+      {
+        zh: "看棒球、收集大耳狗周边、看剧集和搞笑节目、折纸、做点心、拼高达模型",
+        en: "Baseball, Cinnamoroll goods, dramas and comedy, origami, baking, Gunpla",
+      },
+    "メイクの勉強、10歳下の妹と遊ぶこと": {
+      zh: "学化妆、和比自己小 10 岁的妹妹玩",
+      en: "Studying makeup, playing with my sister 10 years younger",
+    },
+    絵を描くこと: {
+      zh: "画画",
+      en: "Drawing",
+    },
+    "カメラ、ボウリング": {
+      zh: "相机、保龄球",
+      en: "Cameras, bowling",
+    },
+    "クラゲのグッズ集め、音楽を聴くこと、寝ること": {
+      zh: "收集水母周边、听音乐、睡觉",
+      en: "Jellyfish-goods collecting, music, sleeping",
+    },
+    "空手(黒帯初段)、ビームライフル": {
+      zh: "空手道（黑带初段）、光束步枪",
+      en: "Karate (1st-dan black belt), beam rifle",
+    },
   };
 
   // 指引浮层的步数 = 文案元数据：键名是 pwa_<plat>_s<i>，步数必须与实际键一一对应。

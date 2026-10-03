@@ -1420,12 +1420,31 @@ class NewSeriesBaselineTests(unittest.TestCase):
         import fetch_members as fm
         self.assertIsNone(fm.read_baseline(tempfile.mkdtemp()))
 
-    def test_cute_is_a_new_group_for_this_series(self):
-        """产物里的早安系列**恰好两段**（工单 05 会把这条变成守卫）。"""
+    def test_morning_series_grew_without_tripping_the_gate(self):
+        """产物里的早安系列**恰好十一团**（伞下九团批，2026-10-02）。
+
+        这条原来断言「恰好两段」（℃-ute 批），现在扩到 11 —— 它守的是
+        「新团进产物时源门不该把它们当异常」，顺序也要与 GROUPS 配置一致。
+        """
         secs = json.loads(
             open(os.path.join(os.path.dirname(__file__), "..", "members.js"),
                  encoding="utf-8").read().split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
         )
         morning = [s for s in secs if s["series"] == "morning"]
-        self.assertEqual([s["group"] for s in morning], ["モーニング娘。", "℃-ute"])
-        self.assertEqual(len(morning[1]["members"]), 8)
+        self.assertEqual(
+            [s["group"] for s in morning],
+            [
+                "モーニング娘。",
+                "℃-ute",
+                "アンジュルム",
+                "Juice=Juice",
+                "つばきファクトリー",
+                "BEYOOOOONDS",
+                "OCHA NORMA",
+                "ロージークロニクル",
+                "Berryz工房",
+                "カントリー・ガールズ",
+                "こぶしファクトリー",
+            ],
+        )
+        self.assertEqual(len(morning[1]["members"]), 8, "℃-ute 仍是 8 人")

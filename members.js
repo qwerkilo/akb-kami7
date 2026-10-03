@@ -19802,7 +19802,7 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1988.01.11",
-     "from": "中国]] 湖南省"
+     "from": "中国 湖南省"
     },
     "generation": "8期生"
    },
@@ -20244,6 +20244,1848 @@ window.AKB_GROUPS = [
      "from": "埼玉県",
      "height": "166cm"
     }
+   }
+  ]
+ },
+ {
+  "group": "アンジュルム",
+  "series": "morning",
+  "label": "アンジュルム",
+  "members": [
+   {
+    "id": "m94084eb07e",
+    "name": "伊勢鈴蘭",
+    "kana": "いせ れいら",
+    "nick": "れら",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.01.19",
+     "blood": "A型",
+     "from": "北海道",
+     "hobby": "人間観察、お菓子作り、音楽鑑賞、宝塚観劇",
+     "skill": "クラシックバレエ、ダンス"
+    },
+    "nick_aliases": [
+     "れらぴ"
+    ]
+   },
+   {
+    "id": "m6e880feba5",
+    "name": "川名凜",
+    "kana": "かわな りん",
+    "nick": "ケロ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2003.12.06",
+     "blood": "B型",
+     "from": "千葉県",
+     "hobby": "カエルグッズ集め"
+    },
+    "nick_aliases": [
+     "ケロちゃん",
+     "ケロンヌ"
+    ]
+   },
+   {
+    "id": "maa334cedd4",
+    "name": "後藤花",
+    "kana": "ごとう はな",
+    "nick": "はなな",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.06.05",
+     "blood": "O型",
+     "from": "埼玉県",
+     "hobby": "お菓子作り、美味しいものをたくさん食べること、写真を撮ること"
+    },
+    "nick_aliases": [
+     "ごっちん",
+     "はなちゃん"
+    ]
+   },
+   {
+    "id": "md79511407a",
+    "name": "下井谷幸穂",
+    "kana": "しもいたに ゆきほ",
+    "nick": "ゆっぴょん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2006.08.04",
+     "blood": "O型",
+     "from": "岡山県",
+     "hobby": "ゲーム、ゲーム実況動画を見ること、お笑い鑑賞、ヘアクリップ集め"
+    }
+   },
+   {
+    "id": "mca6a4e4d65",
+    "name": "為永幸音",
+    "kana": "ためなが しおん",
+    "nick": "しおんぬ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.02.09",
+     "blood": "O型",
+     "from": "長野県",
+     "hobby": "少女漫画、ドラマ・映画・舞台・お笑い鑑賞、パワースポット巡り、期間限定・地域限定の食べ物を食べる！"
+    }
+   },
+   {
+    "id": "m3408aadd98",
+    "name": "長野桃羽",
+    "kana": "ながの ももは",
+    "nick": "もっち",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2010.05.13",
+     "blood": "A型",
+     "from": "福岡県",
+     "hobby": "ご飯を食べること、カラオケ、絵を描くこと"
+    },
+    "nick_aliases": [
+     "もち",
+     "もち山もちこ"
+    ]
+   },
+   {
+    "id": "m6446a5b634",
+    "name": "橋迫鈴",
+    "kana": "はしさこ りん",
+    "nick": "りんちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.10.06",
+     "blood": "O型",
+     "from": "愛知県",
+     "hobby": "ドッキリをしかけること"
+    }
+   },
+   {
+    "id": "mf135b17a43",
+    "name": "平山遊季",
+    "kana": "ひらやま ゆき",
+    "nick": "ゆきちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2006.07.25",
+     "blood": "A型",
+     "from": "神奈川県",
+     "hobby": "いろんなジャンルの音楽鑑賞、ジブリ映画をみること"
+    },
+    "nick_aliases": [
+     "ぺい",
+     "ぺいちゃん"
+    ]
+   },
+   {
+    "id": "me907aebcbd",
+    "name": "松本わかな",
+    "kana": "まつもと わかな",
+    "nick": "わかにゃ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2007.09.01",
+     "blood": "AB型",
+     "from": "神奈川県",
+     "hobby": "料理、箸置き集め、食器集め、いろんな食パンを食べること、飲食店の一日密着動画を見ること"
+    }
+   },
+   {
+    "id": "m88e3ba156b",
+    "name": "相川茉穂",
+    "kana": "あいかわ まほ",
+    "nick": "あいあい",
+    "status": "former",
+    "end": "2017.12.31",
+    "img": false,
+    "bio": {
+     "birth": "1999.03.26",
+     "from": "神奈川県"
+    },
+    "nick_aliases": [
+     "（まほちゃん）"
+    ]
+   },
+   {
+    "id": "m6afd34e8cc",
+    "name": "太田遥香",
+    "kana": "おおた はるか",
+    "nick": "（はーちゃん）",
+    "status": "former",
+    "end": "2020.10.13",
+    "img": false,
+    "bio": {
+     "birth": "2003.10.21",
+     "from": "北海道"
+    },
+    "nick_aliases": [
+     "（はち）"
+    ]
+   },
+   {
+    "id": "md51b945ecc",
+    "name": "小川紗季",
+    "kana": "おがわ さき",
+    "nick": "サキチィー",
+    "status": "former",
+    "end": "2011.08.27",
+    "img": false,
+    "bio": {
+     "birth": "1996.11.18",
+     "from": "埼玉県"
+    }
+   },
+   {
+    "id": "m327109177a",
+    "name": "笠原桃奈",
+    "kana": "かさはら ももな",
+    "nick": "かっさー",
+    "status": "former",
+    "end": "2021.11.15",
+    "img": true,
+    "bio": {
+     "birth": "2003.10.22",
+     "from": "神奈川県"
+    }
+   },
+   {
+    "id": "m429ce3f5ca",
+    "name": "勝田里奈",
+    "kana": "かつた りな",
+    "nick": "りなぷ〜",
+    "status": "former",
+    "end": "2019.09.25",
+    "img": false,
+    "bio": {
+     "birth": "1998.04.06",
+     "from": "東京都"
+    }
+   },
+   {
+    "id": "ma42e88eeb7",
+    "name": "上國料萌衣",
+    "kana": "かみこくりょう もえ",
+    "nick": "かみこ",
+    "status": "former",
+    "end": "2025.06.18",
+    "img": false,
+    "bio": {
+     "birth": "1999.10.24",
+     "from": "熊本県"
+    }
+   },
+   {
+    "id": "m8b605ea23d",
+    "name": "川村文乃",
+    "kana": "かわむら あやの",
+    "nick": "かわむー",
+    "status": "former",
+    "end": "2024.11.28",
+    "img": false,
+    "bio": {
+     "birth": "1999.07.07",
+     "from": "高知県"
+    }
+   },
+   {
+    "id": "m170893f7a5",
+    "name": "小数賀芙由香",
+    "kana": "こすが ふゆか",
+    "nick": "ふ〜ちゃん",
+    "status": "former",
+    "end": "2011.09.09",
+    "img": false,
+    "bio": {
+     "birth": "1997.11.19",
+     "from": "神奈川県"
+    }
+   },
+   {
+    "id": "m60912d597b",
+    "name": "佐々木莉佳子",
+    "kana": "ささき りかこ",
+    "nick": "りかこ",
+    "status": "former",
+    "end": "2024.06.19",
+    "img": false,
+    "bio": {
+     "birth": "2001.05.28",
+     "from": "宮城県"
+    }
+   },
+   {
+    "id": "mcf3009a2e3",
+    "name": "竹内朱莉",
+    "kana": "たけうち あかり",
+    "nick": "タケちゃん",
+    "status": "former",
+    "end": "2023.06.21",
+    "img": false,
+    "bio": {
+     "birth": "1997.11.23",
+     "from": "埼玉県"
+    },
+    "nick_aliases": [
+     "（おでん）"
+    ]
+   },
+   {
+    "id": "m15e6834aaa",
+    "name": "田村芽実",
+    "kana": "たむら めいみ",
+    "nick": "めいめい",
+    "status": "former",
+    "end": "2016.05.30",
+    "img": false,
+    "bio": {
+     "birth": "1998.10.30",
+     "from": "群馬県"
+    }
+   },
+   {
+    "id": "me89e480128",
+    "name": "中西香菜",
+    "kana": "なかにし かな",
+    "nick": "かななん",
+    "status": "former",
+    "end": "2019.12.10",
+    "img": false,
+    "bio": {
+     "birth": "1997.06.04",
+     "from": "大阪府"
+    }
+   },
+   {
+    "id": "m4534b939f0",
+    "name": "福田花音",
+    "kana": "ふくだ かのん",
+    "nick": "かにょん",
+    "status": "former",
+    "end": "2015.11.29",
+    "img": false,
+    "bio": {
+     "birth": "1995.03.12",
+     "from": "埼玉県"
+    },
+    "nick_aliases": [
+     "（まろ）"
+    ]
+   },
+   {
+    "id": "m64a9aea57a",
+    "name": "船木結",
+    "kana": "ふなき むすぶ",
+    "nick": "ふなっき",
+    "status": "former",
+    "end": "2020.12.09",
+    "img": false,
+    "bio": {
+     "birth": "2002.05.10",
+     "from": "大阪府"
+    },
+    "nick_aliases": [
+     "ふなきち",
+     "（ふなちゃん）"
+    ]
+   },
+   {
+    "id": "m9326e39296",
+    "name": "前田憂佳",
+    "kana": "まえだ ゆうか",
+    "nick": "ゆうかりん",
+    "status": "former",
+    "end": "2011.12.31",
+    "img": false,
+    "bio": {
+     "birth": "1994.12.28",
+     "from": "千葉県"
+    }
+   },
+   {
+    "id": "m796ca32cf4",
+    "name": "室田瑞希",
+    "kana": "むろた みずき",
+    "nick": "むろたん",
+    "status": "former",
+    "end": "2020.03.22",
+    "img": false,
+    "bio": {
+     "birth": "1998.06.12",
+     "from": "千葉県"
+    }
+   },
+   {
+    "id": "mfd50aa05ac",
+    "name": "和田彩花",
+    "kana": "わだ あやか",
+    "nick": "DAWA",
+    "status": "former",
+    "end": "2019.06.18",
+    "img": false,
+    "bio": {
+     "birth": "1994.08.01",
+     "from": "群馬県"
+    },
+    "nick_aliases": [
+     "あやちょ",
+     "（わだちょ）"
+    ]
+   }
+  ]
+ },
+ {
+  "group": "Juice=Juice",
+  "series": "morning",
+  "label": "Juice=Juice",
+  "members": [
+   {
+    "id": "m7a9a45df41",
+    "name": "有澤一華",
+    "kana": "ありさわ いちか",
+    "nick": "いちかちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2003.12.23",
+     "blood": "O型",
+     "from": "大阪府",
+     "hobby": "作詞、作曲、セッション",
+     "skill": "バイオリン",
+     "height": "155.1cm"
+    },
+    "nick_aliases": [
+     "いちか",
+     "いちか氏"
+    ]
+   },
+   {
+    "id": "m6afc2793ba",
+    "name": "石山咲良",
+    "kana": "いしやま さくら",
+    "nick": "さくらち",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.02.22",
+     "blood": "B型",
+     "from": "東京都",
+     "hobby": "料理、文字を書くこと、シャチ鑑賞",
+     "skill": "美味しいご飯屋さんを見つけること",
+     "height": "163.5cm"
+    }
+   },
+   {
+    "id": "m8190c6e11d",
+    "name": "井上玲音",
+    "kana": "いのうえ れい",
+    "nick": "れいれい",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2001.07.17",
+     "blood": "O型",
+     "from": "東京都",
+     "hobby": "カメラ、編み物、お散歩",
+     "skill": "高速まばたき、ボイスパーカッション",
+     "height": "163cm"
+    }
+   },
+   {
+    "id": "mec2f3dd917",
+    "name": "入江里咲",
+    "kana": "いりえ りさ",
+    "nick": "りさち",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.10.18",
+     "blood": "A型",
+     "from": "千葉県",
+     "hobby": "愛犬と遊ぶこと",
+     "skill": "書道、ヘアアレンジ",
+     "height": "157.7cm"
+    }
+   },
+   {
+    "id": "mea6285ec42",
+    "name": "江端妃咲",
+    "kana": "えばた きさき",
+    "nick": "えば",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2007.01.30",
+     "blood": "A型",
+     "from": "京都府",
+     "hobby": "何かを作ること",
+     "height": "159cm"
+    }
+   },
+   {
+    "id": "md8a212acbd",
+    "name": "遠藤彩加里",
+    "kana": "えんどう あかり",
+    "nick": "あーたん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.04.26",
+     "blood": "A型",
+     "from": "北海道",
+     "hobby": "アイスを食べる・ウォーキング・メイク研究・怪談を聞くこと",
+     "skill": "バレエ、イラストを描く事",
+     "height": "168.5cm"
+    },
+    "nick_aliases": [
+     "あかりんご"
+    ]
+   },
+   {
+    "id": "m030da3063e",
+    "name": "川嶋美楓",
+    "kana": "かわしま みふ",
+    "nick": "みっぷる",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2007.12.13",
+     "blood": "AB型",
+     "from": "京都府",
+     "hobby": "読書、映画ドラマ鑑賞、1人カラオケ",
+     "height": "159.5cm"
+    },
+    "nick_aliases": [
+     "おみふ"
+    ]
+   },
+   {
+    "id": "m3b9db0dd6a",
+    "name": "工藤由愛",
+    "kana": "くどう ゆめ",
+    "nick": "由愛ちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.09.28",
+     "blood": "A型",
+     "from": "北海道",
+     "hobby": "タコグッズ収集・整備、少女漫画を読むこと",
+     "height": "160.2cm"
+    },
+    "nick_aliases": [
+     "タコちゃん"
+    ]
+   },
+   {
+    "id": "mffb5bd0a7b",
+    "name": "段原瑠々",
+    "kana": "だんばら るる",
+    "nick": "るる",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2001.05.07",
+     "blood": "A型",
+     "from": "広島県",
+     "hobby": "カラオケ、パン作り",
+     "skill": "ピアノの弾き語り",
+     "height": "164.5cm"
+    },
+    "nick_aliases": [
+     "るるちゃん",
+     "るーちゃん"
+    ]
+   },
+   {
+    "id": "m0efd73f750",
+    "name": "林仁愛",
+    "kana": "はやし にいな",
+    "nick": "にいな",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2011.06.10",
+     "blood": "A型",
+     "from": "愛知県",
+     "hobby": "ミニチュア集め、カプセルトイをまわすこと",
+     "height": "170cm"
+    }
+   },
+   {
+    "id": "ma085477b9f",
+    "name": "松永里愛",
+    "kana": "まつなが りあい",
+    "nick": "りあいちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.07.07",
+     "blood": "A型",
+     "from": "大阪府",
+     "hobby": "読書、映画、音楽鑑賞",
+     "skill": "速読",
+     "height": "162cm"
+    },
+    "nick_aliases": [
+     "りあてゃ"
+    ]
+   },
+   {
+    "id": "meb321560a6",
+    "name": "稲場愛香",
+    "kana": "いなば まなか",
+    "nick": "まなかん\nいなばっちょ",
+    "status": "former",
+    "end": "2022.05.30",
+    "img": false,
+    "bio": {
+     "birth": "1997.12.27",
+     "from": "北海道"
+    }
+   },
+   {
+    "id": "m51319695cd",
+    "name": "植村あかり",
+    "kana": "うえむら あかり",
+    "nick": "あーりー",
+    "status": "former",
+    "end": "2024.06.14",
+    "img": true,
+    "bio": {
+     "birth": "1998.12.30",
+     "from": "大阪府"
+    }
+   },
+   {
+    "id": "m2174819111",
+    "name": "大塚愛菜",
+    "kana": "おおつか あいな",
+    "nick": "つかぽん",
+    "status": "former",
+    "end": "2013.07.05",
+    "img": false,
+    "bio": {
+     "birth": "1998.04.03",
+     "from": "東京都"
+    }
+   },
+   {
+    "id": "m651547180e",
+    "name": "金澤朋子",
+    "kana": "かなざわ ともこ",
+    "nick": "かなとも",
+    "status": "former",
+    "end": "2021.11.24",
+    "img": false,
+    "bio": {
+     "birth": "1995.07.02",
+     "from": "埼玉県"
+    }
+   },
+   {
+    "id": "m31a59e2c92",
+    "name": "高木紗友希",
+    "kana": "たかぎ さゆき",
+    "nick": "さゆべぇ",
+    "status": "former",
+    "end": "2021.02.12",
+    "img": false,
+    "bio": {
+     "birth": "1997.04.21",
+     "from": "千葉県"
+    }
+   },
+   {
+    "id": "m7ea224f365",
+    "name": "宮崎由加",
+    "kana": "みやざき ゆか",
+    "nick": "ゆかにゃ",
+    "status": "former",
+    "end": "2019.06.17",
+    "img": true,
+    "bio": {
+     "birth": "1994.04.02",
+     "from": "石川県"
+    }
+   },
+   {
+    "id": "m73afffa731",
+    "name": "宮本佳林",
+    "kana": "みやもと かりん",
+    "nick": "カリン",
+    "status": "former",
+    "end": "2020.12.10",
+    "img": true,
+    "bio": {
+     "birth": "1998.12.01",
+     "from": "千葉県"
+    }
+   },
+   {
+    "id": "mee6c974c04",
+    "name": "梁川奈々美",
+    "kana": "やながわ ななみ",
+    "nick": "やなみん\nなーちゃん",
+    "status": "former",
+    "end": "2019.03.11",
+    "img": false,
+    "bio": {
+     "birth": "2002.01.06",
+     "from": "神奈川県"
+    }
+   }
+  ]
+ },
+ {
+  "group": "つばきファクトリー",
+  "series": "morning",
+  "label": "つばきファクトリー",
+  "members": [
+   {
+    "id": "m4cf9771782",
+    "name": "秋山眞緒",
+    "kana": "あきやま まお",
+    "nick": "まおぴん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2002.07.29",
+     "blood": "B型",
+     "from": "大阪府",
+     "hobby": "ダンス、映画、お花",
+     "skill": "人の素敵な所を見つける",
+     "height": "158.5cm"
+    }
+   },
+   {
+    "id": "m4054aa2119",
+    "name": "石井泉羽",
+    "kana": "いしい みはね",
+    "nick": "みはね",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.10.20",
+     "blood": "O型",
+     "from": "神奈川県",
+     "hobby": "レッサーパンダ・動物の動画を見ること、甘いものを食べること",
+     "skill": "ゲーム",
+     "height": "153cm"
+    },
+    "nick_aliases": [
+     "みは",
+     "れっさー"
+    ]
+   },
+   {
+    "id": "m2752643446",
+    "name": "小野瑞歩",
+    "kana": "おの みずほ",
+    "nick": "みずほちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2000.09.29",
+     "blood": "O型",
+     "from": "東京都",
+     "hobby": "旅行、自然に触れること、コーヒー巡り、編み物",
+     "skill": "フルートを吹くこと",
+     "height": "163cm"
+    },
+    "nick_aliases": [
+     "おみず"
+    ]
+   },
+   {
+    "id": "m8c968dceb1",
+    "name": "小野田紗栞",
+    "kana": "おのだ さおり",
+    "nick": "さおりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2001.12.17",
+     "blood": "O型",
+     "from": "静岡県浜松市",
+     "hobby": "ピアノ、さんぽ、UFOキャッチャー",
+     "skill": "そろばん二段、まーーえむきに生きること",
+     "height": "153.2cm"
+    },
+    "nick_aliases": [
+     "さおぺん"
+    ]
+   },
+   {
+    "id": "md387277fc4",
+    "name": "河西結心",
+    "kana": "かさい ゆうみ",
+    "nick": "ゆうみ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2003.07.30",
+     "blood": "O型",
+     "from": "山梨県",
+     "hobby": "観光地巡り、写真を撮る、寝る"
+    },
+    "nick_aliases": [
+     "ゆっちゃん",
+     "ゆってぃ"
+    ]
+   },
+   {
+    "id": "mc84df46d94",
+    "name": "谷本安美",
+    "kana": "たにもと あみ",
+    "nick": "あんみぃ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1999.11.16",
+     "blood": "B型",
+     "from": "北海道",
+     "hobby": "野球観戦、ファッション、アニメ・ドラマ・映画鑑賞、愛犬と旅行、パワースポット巡り",
+     "skill": "料理、似顔絵を描くこと",
+     "height": "157.5cm"
+    }
+   },
+   {
+    "id": "mc4fb7fa054",
+    "name": "土居楓奏",
+    "kana": "どい ふうか",
+    "nick": "ふうちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2010.03.23",
+     "blood": "AB型",
+     "from": "大阪府",
+     "hobby": "毎日トマトを食べること、漫画を読むこと",
+     "skill": "ソーラン節",
+     "height": "149cm"
+    },
+    "nick_aliases": [
+     "どいご",
+     "どいぷー",
+     "ふう"
+    ]
+   },
+   {
+    "id": "m2de21c318b",
+    "name": "西村乙輝",
+    "kana": "にしむら いつき",
+    "nick": "きんぐ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2010.10.15",
+     "blood": "A型",
+     "from": "神奈川県",
+     "hobby": "ハロー！プロジェクトのコンサートを観ること、かぎ針編み"
+    }
+   },
+   {
+    "id": "m31255d0476",
+    "name": "福田真琳",
+    "kana": "ふくだ まりん",
+    "nick": "まりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.10.18",
+     "blood": "AB型",
+     "from": "長崎県",
+     "hobby": "食べること、バイオリンをひくこと",
+     "skill": "バレエ"
+    }
+   },
+   {
+    "id": "m1e21f6d586",
+    "name": "村田結生",
+    "kana": "むらた ゆう",
+    "nick": "ゆうちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2010.03.12",
+     "blood": "O型",
+     "from": "愛知県",
+     "hobby": "散歩",
+     "skill": "ダンス"
+    }
+   },
+   {
+    "id": "mdd1a83a4e4",
+    "name": "豫風瑠乃",
+    "kana": "よふう るの",
+    "nick": "るの",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2007.12.20",
+     "blood": "O型",
+     "from": "大阪府",
+     "hobby": "音楽鑑賞、カラオケ、アニメ・漫画をみること",
+     "height": "155cm"
+    }
+   },
+   {
+    "id": "m20ec4a7286",
+    "name": "浅倉樹々",
+    "kana": "あさくら きき",
+    "nick": "ききちゃん",
+    "status": "former",
+    "end": "2023.04.02",
+    "img": false,
+    "bio": {
+     "birth": "2000.09.03",
+     "from": "千葉県",
+     "height": "153cm"
+    }
+   },
+   {
+    "id": "m698bd13f8e",
+    "name": "小片リサ",
+    "kana": "おがた りさ",
+    "nick": "りさまる。",
+    "status": "former",
+    "end": "2020.12.28",
+    "img": false,
+    "bio": {
+     "birth": "1998.11.05",
+     "from": "東京都",
+     "height": "159cm"
+    }
+   },
+   {
+    "id": "m4642758e5a",
+    "name": "岸本ゆめの",
+    "kana": "きしもと ゆめの",
+    "nick": "きしもん",
+    "status": "former",
+    "end": "2023.11.06",
+    "img": false,
+    "bio": {
+     "birth": "2000.04.01",
+     "from": "大阪府",
+     "height": "166.5cm"
+    }
+   },
+   {
+    "id": "m03ad50d71a",
+    "name": "新沼希空",
+    "kana": "にいぬま きそら",
+    "nick": "きそら",
+    "status": "former",
+    "end": "2024.06.10",
+    "img": false,
+    "bio": {
+     "birth": "1999.10.20",
+     "from": "愛知県",
+     "height": "160.2cm"
+    }
+   },
+   {
+    "id": "mffcc3a3103",
+    "name": "八木栞",
+    "kana": "やぎ しおり",
+    "nick": "ﾔｷﾞｼｵﾘ",
+    "status": "former",
+    "end": "2025.04.30",
+    "img": false,
+    "bio": {
+     "birth": "2003.09.19",
+     "from": "愛知県"
+    }
+   },
+   {
+    "id": "ma3e576319d",
+    "name": "山岸理子",
+    "kana": "やまぎし りこ",
+    "nick": "りこりこ",
+    "status": "former",
+    "end": "2023.11.06",
+    "img": false,
+    "bio": {
+     "birth": "1998.11.24",
+     "from": "千葉県",
+     "height": "155cm"
+    }
+   }
+  ]
+ },
+ {
+  "group": "BEYOOOOONDS",
+  "series": "morning",
+  "label": "BEYOOOOONDS",
+  "members": [
+   {
+    "id": "mdede0acf7e",
+    "name": "江口紗耶",
+    "kana": "えぐち さや",
+    "nick": "さやりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2003.08.01",
+     "blood": "O型",
+     "from": "兵庫県",
+     "hobby": "アニメ鑑賞、フィギュア集め、UFOキャッチャー、ゲーム、ベーグル作り",
+     "height": "170cm"
+    }
+   },
+   {
+    "id": "m06fe9f47a6",
+    "name": "大坪茉乃",
+    "kana": "おおつぼ まほ",
+    "nick": "まの",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2011.06.22",
+     "blood": "O型",
+     "from": "神奈川県",
+     "hobby": "オムライス屋さんとたこ焼き屋さん巡り、パン作り、野球観戦",
+     "skill": "チアダンス、新体操",
+     "height": "162cm"
+    }
+   },
+   {
+    "id": "m4e0b3103d5",
+    "name": "岡村美波",
+    "kana": "おかむら みなみ",
+    "nick": "みいみ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.10.20",
+     "blood": "O型",
+     "from": "大阪府",
+     "hobby": "DJ、映画鑑賞、旧アメ車について調べること",
+     "height": "162cm"
+    }
+   },
+   {
+    "id": "mc1c480aaf3",
+    "name": "清野桃々姫",
+    "kana": "きよの ももひめ",
+    "nick": "ももひ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.12.22",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "今日行けるライブを探すこと、音楽をDigすること、作詞、DTM、裁判傍聴、ラジオを聴くこと、タイ(国)、公園で星を見ること",
+     "skill": "ヒューマンビートボックス、トークボックス",
+     "height": "156.5cm"
+    },
+    "nick_aliases": [
+     "ももひめ",
+     "ひめちゃん"
+    ]
+   },
+   {
+    "id": "m0faa3ffafb",
+    "name": "小島はな",
+    "kana": "こじま はな",
+    "nick": "こじま",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.02.26",
+     "blood": "？(不明です)",
+     "from": "東京都",
+     "hobby": "ディズニー研究、ONE PIECEを読むこと、お笑い観賞、模写",
+     "skill": "けん玉、基本なんでも食べれます。",
+     "height": "164cm"
+    },
+    "nick_aliases": [
+     "はな"
+    ]
+   },
+   {
+    "id": "m7e5587e6b6",
+    "name": "小林萌花",
+    "kana": "こばやし ほのか",
+    "nick": "ほのぴ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2000.08.16",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "洋裁",
+     "skill": "ピアノ",
+     "height": "164.8cm"
+    }
+   },
+   {
+    "id": "m407ee9bed8",
+    "name": "里吉うたの",
+    "kana": "さとよし うたの",
+    "nick": "うーたん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2000.09.22",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "コスメ収集(メイク研究)、セルフネイル、テーマパーク散策、オリジナルの振付を作って遊ぶ",
+     "skill": "ダンス、振付",
+     "height": "157cm"
+    }
+   },
+   {
+    "id": "m46833306b4",
+    "name": "杉山結菜",
+    "kana": "すぎやま ゆな",
+    "nick": "ゆな",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2013.03.29",
+     "blood": "不明",
+     "from": "神奈川県",
+     "hobby": "シール集め",
+     "skill": "ダンス、サッカー",
+     "height": "155cm"
+    }
+   },
+   {
+    "id": "mb3fe3a7aab",
+    "name": "西田汐里",
+    "kana": "にしだ しおり",
+    "nick": "しおりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2003.06.07",
+     "blood": "B型",
+     "from": "京都府",
+     "hobby": "寝ること、編み物",
+     "skill": "長時間寝られること",
+     "height": "151cm"
+    },
+    "nick_aliases": [
+     "にしちゃん"
+    ]
+   },
+   {
+    "id": "mb9aac61ef9",
+    "name": "平井美葉",
+    "kana": "ひらい みよ",
+    "nick": "みよちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1999.12.11",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "ひとり旅、踊ること、歌うこと、写真を撮ること、舞台鑑賞、ゲーム実況を見ること、断捨離",
+     "skill": "クラシックバレエ、ダンス",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "mb8e6b8f9fc",
+    "name": "前田こころ",
+    "kana": "まえだ こころ",
+    "nick": "こころ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2002.06.23",
+     "blood": "A型",
+     "from": "埼玉県",
+     "hobby": "カフェ巡り、写真を撮ること、ドラマを観ること",
+     "skill": "空手(黒帯公認2段)",
+     "height": "168cm"
+    }
+   }
+  ]
+ },
+ {
+  "group": "OCHA NORMA",
+  "series": "morning",
+  "label": "OCHA NORMA",
+  "members": [
+   {
+    "id": "m8258f5f4ac",
+    "name": "北原もも",
+    "kana": "きたはら もも",
+    "nick": "ももも",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2006.08.30",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "メイク、おしゃれすること",
+     "height": "163.5cm"
+    }
+   },
+   {
+    "id": "m22c4593462",
+    "name": "窪田七海",
+    "kana": "くぼた ななみ",
+    "nick": "キュルルン",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.07.23",
+     "blood": "A型",
+     "from": "千葉県",
+     "hobby": "少女漫画を読むこと、辛いラーメン食べる事",
+     "skill": "アクロバット、メロメロにできるビーム出せます",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "m9e48cf9eab",
+    "name": "斉藤円香",
+    "kana": "さいとう まどか",
+    "nick": "まどぴ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2002.10.28",
+     "blood": "O型",
+     "from": "埼玉県",
+     "hobby": "ゲームをする事、アニメ鑑賞、漫画を読む事",
+     "skill": "書道",
+     "height": "163cm"
+    }
+   },
+   {
+    "id": "m7b1642053a",
+    "name": "筒井澪心",
+    "kana": "つつい ろこ",
+    "nick": "ろこ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2007.08.10",
+     "blood": "A型",
+     "from": "佐賀県",
+     "hobby": "好きなアニメの推し活",
+     "skill": "バスケットボール",
+     "height": "162cm"
+    }
+   },
+   {
+    "id": "m649f35901f",
+    "name": "中山夏月姫",
+    "kana": "なかやま なつめ",
+    "nick": "なちゅ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.07.20",
+     "blood": "A型",
+     "from": "石川県加賀市",
+     "hobby": "物件探し、プロレス観戦、筋トレ",
+     "skill": "ヘアアレンジ",
+     "height": "164cm"
+    },
+    "nick_aliases": [
+     "なちゅめ",
+     "なつめ"
+    ]
+   },
+   {
+    "id": "ma24d730a85",
+    "name": "西﨑美空",
+    "kana": "にしざき みく",
+    "nick": "おみく",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2006.04.17",
+     "blood": "O型",
+     "from": "岡山県",
+     "hobby": "音楽を聴くこと、可愛い動物の動画を見ること",
+     "skill": "用意が早い、たくさん寝られること\nその人に似合う音楽や、もらった題名にちなんで紹介できます！",
+     "height": "156cm"
+    },
+    "nick_aliases": [
+     "みっちゃん"
+    ]
+   },
+   {
+    "id": "mcd3e02c12b",
+    "name": "広本瑠璃",
+    "kana": "ひろもと るり",
+    "nick": "るりちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2003.06.18",
+     "blood": "B型",
+     "from": "広島県",
+     "hobby": "踊る、歌う、洋服、お散歩、音楽、映画、ドラマ",
+     "skill": "ダンス構成(時間はかかります)、野球のピッチング(特訓中です、、！！)",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "mede9bba8ba",
+    "name": "米村姫良々",
+    "kana": "よねむら きらら",
+    "nick": "きららちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2004.04.30",
+     "blood": "A型",
+     "from": "愛知県",
+     "hobby": "UFOキャッチャーをすること、回転寿司に行くこと",
+     "skill": "ほっぺたをよくのばせる",
+     "height": "158cm"
+    },
+    "nick_aliases": [
+     "よねきら",
+     "きーちゃん"
+    ]
+   },
+   {
+    "id": "m9ddc60c33c",
+    "name": "石栗奏美",
+    "kana": "いしぐり かなみ",
+    "nick": "みんちゃん",
+    "status": "former",
+    "end": "2025.03.21",
+    "img": false,
+    "bio": {
+     "birth": "2004.04.20",
+     "from": "北海道",
+     "height": "165cm"
+    },
+    "nick_aliases": [
+     "かなみん",
+     "石栗くん"
+    ]
+   },
+   {
+    "id": "ma0d028012b",
+    "name": "田代すみれ",
+    "kana": "たしろ すみれ",
+    "nick": "すーちゃん",
+    "status": "former",
+    "end": "2025.03.11",
+    "img": false,
+    "bio": {
+     "birth": "2005.06.16",
+     "from": "神奈川県",
+     "height": "157cm"
+    }
+   }
+  ]
+ },
+ {
+  "group": "ロージークロニクル",
+  "series": "morning",
+  "label": "ロージークロニクル",
+  "members": [
+   {
+    "id": "m3bdb84d365",
+    "name": "植村葉純",
+    "kana": "うえむら はすみ",
+    "nick": "はっすー",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.02.25",
+     "blood": "AB型",
+     "from": "大阪府",
+     "hobby": "牛乳を飲む、牛乳のグッズ収集、銭太鼓",
+     "height": "145cm"
+    },
+    "nick_aliases": [
+     "牛乳"
+    ]
+   },
+   {
+    "id": "mb2505b3605",
+    "name": "小野田華凜",
+    "kana": "おのだ かりん",
+    "nick": "かりん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.01.23",
+     "blood": "O型",
+     "from": "東京都",
+     "hobby": "サッカー観戦、クイズ、文房具集め、ギター、ラーメン、激辛料理を食べる、読書、アニメ鑑賞",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "m3ecb3ee6de",
+    "name": "上村麗菜",
+    "kana": "かみむら れな",
+    "nick": "かみれな",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2009.06.15",
+     "blood": "A型",
+     "from": "鹿児島県",
+     "hobby": "ショッピング、アイドル鑑賞",
+     "height": "147cm"
+    },
+    "nick_aliases": [
+     "れなちゃん"
+    ]
+   },
+   {
+    "id": "m61bfd52948",
+    "name": "島川波菜",
+    "kana": "しまかわ はな",
+    "nick": "はなちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.04.18",
+     "blood": "A型",
+     "from": "神奈川県",
+     "hobby": "音楽を聴くこと、アイドル鑑賞、漫画",
+     "height": "147cm"
+    },
+    "nick_aliases": [
+     "島川"
+    ]
+   },
+   {
+    "id": "m8ce9c85623",
+    "name": "相馬優芽",
+    "kana": "そうま ゆめ",
+    "nick": "ゆめちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2011.02.04",
+     "blood": "O型",
+     "from": "埼玉県",
+     "hobby": "歌、カラオケ",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "ma920ca00c5",
+    "name": "橋田歩果",
+    "kana": "はしだ ほのか",
+    "nick": "ほのほの",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2005.10.17",
+     "blood": "B型",
+     "from": "東京都",
+     "hobby": "野球観戦、シナモロールのグッズ集め、ドラマやお笑いを見ること、折り紙、お菓子作り、ガンプラ作り",
+     "height": "151cm"
+    }
+   },
+   {
+    "id": "m59387a7f6f",
+    "name": "松原ユリヤ",
+    "kana": "まつばら ゆりや",
+    "nick": "ユリヤ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.02.26",
+     "blood": "A型",
+     "from": "東京都",
+     "hobby": "メイクの勉強、10歳下の妹と遊ぶこと",
+     "skill": "絵を描くこと",
+     "height": "155cm"
+    },
+    "nick_aliases": [
+     "ユリ"
+    ]
+   },
+   {
+    "id": "m0eae1d33b0",
+    "name": "村越彩菜",
+    "kana": "むらこし あやな",
+    "nick": "あやちゃん",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2008.02.11",
+     "blood": "B型",
+     "from": "千葉県",
+     "hobby": "カメラ、ボウリング",
+     "height": "161cm"
+    },
+    "nick_aliases": [
+     "あやな"
+    ]
+   },
+   {
+    "id": "mf2697e8b75",
+    "name": "吉田姫杷",
+    "kana": "よしだ ひのは",
+    "nick": "ぴのぱ",
+    "status": "current",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "2007.07.08",
+     "blood": "AB型",
+     "from": "埼玉県",
+     "hobby": "クラゲのグッズ集め、音楽を聴くこと、寝ること",
+     "skill": "空手(黒帯初段)、ビームライフル",
+     "height": "155cm"
+    }
+   }
+  ]
+ },
+ {
+  "group": "Berryz工房",
+  "series": "morning",
+  "label": "Berryz工房",
+  "members": [
+   {
+    "id": "me152041645",
+    "name": "石村舞波",
+    "kana": "いしむら まいは",
+    "nick": "",
+    "status": "former",
+    "end": "2005.10.02",
+    "img": false,
+    "bio": {
+     "birth": "1992.11.20",
+     "from": "神奈川県"
+    }
+   },
+   {
+    "id": "m5b2cf0617b",
+    "name": "熊井友理奈",
+    "kana": "くまい ゆりな",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1993.08.03",
+     "from": "神奈川県",
+     "height": "181cm"
+    }
+   },
+   {
+    "id": "m5377a7696f",
+    "name": "清水佐紀",
+    "kana": "しみず さき",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1991.11.22",
+     "from": "神奈川県",
+     "height": "153cm"
+    }
+   },
+   {
+    "id": "m14f943fd73",
+    "name": "菅谷梨沙子",
+    "kana": "すがや りさこ",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1994.04.04",
+     "from": "神奈川県",
+     "height": "161cm"
+    }
+   },
+   {
+    "id": "m50e63993e8",
+    "name": "須藤茉麻",
+    "kana": "すどう まあさ",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1992.07.03",
+     "from": "東京都",
+     "height": "167cm"
+    }
+   },
+   {
+    "id": "m3bca48e9e4",
+    "name": "嗣永桃子",
+    "kana": "つぐなが ももこ",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1992.03.06",
+     "from": "千葉県",
+     "height": "149.9cm"
+    }
+   },
+   {
+    "id": "mc5b9081b3f",
+    "name": "徳永千奈美",
+    "kana": "とくなが ちなみ",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1992.05.22",
+     "from": "神奈川県",
+     "height": "164cm"
+    }
+   },
+   {
+    "id": "me544575e2e",
+    "name": "夏焼雅",
+    "kana": "なつやき みやび",
+    "nick": "",
+    "status": "former",
+    "end": null,
+    "img": true,
+    "bio": {
+     "birth": "1992.08.25",
+     "from": "埼玉県",
+     "height": "160cm"
+    }
+   }
+  ]
+ },
+ {
+  "group": "カントリー・ガールズ",
+  "series": "morning",
+  "label": "カントリー・ガールズ",
+  "members": [
+   {
+    "id": "m54e887598a",
+    "name": "小関舞",
+    "kana": "おぜき まい",
+    "nick": "おぜきちゃん",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "2002.02.10",
+     "from": "東京都"
+    },
+    "nick_aliases": [
+     "（おぜこ）"
+    ]
+   },
+   {
+    "id": "m22dd48ed23",
+    "name": "島村嬉唄",
+    "kana": "しまむら うた",
+    "nick": "うたちゃん\n（うーちゃん）",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "2000.06.24",
+     "from": "神奈川県"
+    }
+   },
+   {
+    "id": "maa814d4a7b",
+    "name": "山木梨沙",
+    "kana": "やまき りさ",
+    "nick": "やまっき\nりさちゃん",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1997.10.14",
+     "from": "東京都"
+    }
+   }
+  ]
+ },
+ {
+  "group": "こぶしファクトリー",
+  "series": "morning",
+  "label": "こぶしファクトリー",
+  "members": [
+   {
+    "id": "m7a4eb4e331",
+    "name": "小川麗奈",
+    "kana": "おがわ れな",
+    "nick": "れなこ",
+    "status": "former",
+    "end": "2017.09.06",
+    "img": false,
+    "bio": {
+     "birth": "2000.03.27",
+     "from": "栃木県"
+    }
+   },
+   {
+    "id": "m83f5d3da19",
+    "name": "田口夏実",
+    "kana": "たぐち なつみ",
+    "nick": "たぐっち",
+    "status": "former",
+    "end": "2017.12.06",
+    "img": false,
+    "bio": {
+     "birth": "2000.07.21",
+     "from": "埼玉県"
+    }
+   },
+   {
+    "id": "mf156b081a4",
+    "name": "野村みな美",
+    "kana": "のむら みなみ",
+    "nick": "みなみな",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "2000.02.10",
+     "from": "東京都",
+     "height": "155cm"
+    },
+    "nick_aliases": [
+     "（のむさん）"
+    ]
+   },
+   {
+    "id": "mdabfeca003",
+    "name": "浜浦彩乃",
+    "kana": "はまうら あやの",
+    "nick": "はまちゃん",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "2000.04.26",
+     "from": "埼玉県",
+     "height": "162cm"
+    },
+    "nick_aliases": [
+     "(はまちゃん大佐)"
+    ]
+   },
+   {
+    "id": "me56d7273e4",
+    "name": "広瀬彩海",
+    "kana": "ひろせ あやか",
+    "nick": "あやぱん",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "1999.08.04",
+     "from": "神奈川県",
+     "height": "156cm"
+    }
+   },
+   {
+    "id": "m843560f354",
+    "name": "藤井梨央",
+    "kana": "ふじい りお",
+    "nick": "りおりお",
+    "status": "former",
+    "end": "2017.07.06",
+    "img": false,
+    "bio": {
+     "birth": "1999.03.04",
+     "from": "愛知県"
+    },
+    "nick_aliases": [
+     "（藤丼、イーヨー）"
+    ]
+   },
+   {
+    "id": "m0c19c5d5ca",
+    "name": "和田桜子",
+    "kana": "わだ さくらこ",
+    "nick": "わださく",
+    "status": "former",
+    "end": null,
+    "img": false,
+    "bio": {
+     "birth": "2001.03.08",
+     "from": "愛知県",
+     "height": "163.5cm"
+    },
+    "nick_aliases": [
+     "（さこ、らっこ）"
+    ]
    }
   ]
  }

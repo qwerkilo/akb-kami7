@@ -14,6 +14,7 @@
 """
 import json
 import re
+import time
 import urllib.parse
 
 import photo_chain
@@ -869,7 +870,7 @@ def build_members(official, pages):
     return _assemble(official, pages)
 
 
-def resolve_former_photos(members, urls, fetch, warn=print):
+def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
     """毕业成员的头像。**早安这里与等爱不同**：等爱能从旧列表页快照里配出「姓名 → 照片」，
     早安**不能** —— 实测 2023-01-08 的旧列表页快照里，`img/artist/s/<sha1>.jpg` 那批图
     是 ameblo 的**博客缩略图**，`#artist_photo` 那一批是**专辑封面**，页面上**没有**
@@ -889,6 +890,10 @@ def resolve_former_photos(members, urls, fetch, warn=print):
     for m in members:
         if m["status"] != "former" or m["file"] in urls:
             continue
+        # Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
+        # 不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
+        if pause:
+            time.sleep(pause)
         resolved = photo_chain.commons_photo(m["name"], fetch)
         if not resolved and m.get("photo_url"):
             resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
@@ -971,7 +976,7 @@ def load(fetch, warn=print, photo=True):
         print("{}: {} 人（Wikipedia）".format(group, len(parse_wiki_members(pages[group], group))))
     members, urls = build_members(official, pages)
     if photo:
-        resolve_former_photos(members, urls, fetch, warn)
+        resolve_former_photos(members, urls, fetch, warn, pause=1.5)
     return members, urls
 
 

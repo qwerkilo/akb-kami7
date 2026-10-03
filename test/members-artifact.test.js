@@ -29,6 +29,16 @@ const GROUP_COUNTS = {
   "≒JOY": 13,
   "モーニング娘。": 51,
   "℃-ute": 8,
+  // 伞下九团（工单 03 真实抓取后的快照）。人数会随上游变，改数据时一起改这里。
+  アンジュルム: 26,
+  "Juice=Juice": 19,
+  つばきファクトリー: 17,
+  BEYOOOOONDS: 11,
+  "OCHA NORMA": 10,
+  ロージークロニクル: 9,
+  Berryz工房: 8,
+  "カントリー・ガールズ": 3,
+  こぶしファクトリー: 7,
 };
 const GROUP_ORDER = [
   "AKB48",
@@ -46,6 +56,15 @@ const GROUP_ORDER = [
   "≒JOY",
   "モーニング娘。",
   "℃-ute",
+  "アンジュルム",
+  "Juice=Juice",
+  "つばきファクトリー",
+  "BEYOOOOONDS",
+  "OCHA NORMA",
+  "ロージークロニクル",
+  "Berryz工房",
+  "カントリー・ガールズ",
+  "こぶしファクトリー",
 ];
 const SERIES_OF = {
   AKB48: "48g",
@@ -63,6 +82,15 @@ const SERIES_OF = {
   "≒JOY": "love",
   "モーニング娘。": "morning",
   "℃-ute": "morning",
+  アンジュルム: "morning",
+  "Juice=Juice": "morning",
+  つばきファクトリー: "morning",
+  BEYOOOOONDS: "morning",
+  "OCHA NORMA": "morning",
+  ロージークロニクル: "morning",
+  Berryz工房: "morning",
+  "カントリー・ガールズ": "morning",
+  こぶしファクトリー: "morning",
 };
 
 function loadSimplified() {
@@ -104,7 +132,7 @@ test("每个分组有 label 与 members，成员字段完整且 id 唯一", () =
   }
 });
 
-test("十三个团体齐备且首个出现顺序固定", () => {
+test("二十二个团体齐备且首个出现顺序固定", () => {
   const seen = [];
   for (const section of loadGroups()) {
     if (!seen.includes(section.group)) seen.push(section.group);
@@ -303,60 +331,129 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   );
 });
 
-test("早安家族：两个团、期生只有モーニング娘。有、毕业日按源里有无", () => {
-  // 人数区间而不是精确值：上游会动（毕业/加入），而「抓到 3 个人」那种塌陷
-  // 必须让产物测试红 —— 源门只挡「相对基线腰斩」，首次生成时它根本不响。
+test("早安家族：十一个团、跨团合并只留一份、期生只有モーニング娘。有", () => {
+  const ORDER = [
+    "モーニング娘。",
+    "℃-ute",
+    "アンジュルム",
+    "Juice=Juice",
+    "つばきファクトリー",
+    "BEYOOOOONDS",
+    "OCHA NORMA",
+    "ロージークロニクル",
+    "Berryz工房",
+    "カントリー・ガールズ",
+    "こぶしファクトリー",
+  ];
   const secs = loadGroups().filter((g) => g.series === "morning");
   assert.equal(
     secs.length,
-    2,
-    "早安系列应有两段（ADR-0021：同级团体，不是伞）"
+    11,
+    "早安系列应有 11 段（ADR-0021 修订 2：收叶不收伞）"
   );
+  // 用 join 比字符串而不是 deepEqual：这些数组来自 vm 沙箱、是不同的 Array 实例，
+  // assert/strict 的 deepEqual 会按原型判不等（原测试就是这么写的）。
   assert.equal(
     secs.map((s) => s.group).join("/"),
-    "モーニング娘。/℃-ute",
+    ORDER.join("/"),
     "段顺序跟 GROUPS 配置走"
   );
   // label 与 group 都要钉：label 是界面上的段头、也是 flattenMembers 回填期生的
-  // 来源（早安成员的期生自己带，但零成员回填时用的就是它）—— 只钉 group 的话
-  // 把 label 改成别的团名不会有任何测试红（变异实测存活）。
+  // 来源（只钉 group 的话把 label 改成别的团名不会有任何测试红，变异实测存活）。
   assert.equal(
     secs.map((s) => s.label).join("/"),
-    "モーニング娘。/℃-ute",
+    ORDER.join("/"),
     "段的 label 就是团名（界面段头）"
   );
-  const kami = secs[0].members;
-  const cute = secs[1].members;
-  assert.ok(
-    kami.length >= 40 && kami.length <= 60,
-    `モーニング娘。${kami.length} 不在 [40,60]`
-  );
-  assert.equal(cute.length, 8, "℃-ute 源里只有 8 人（条目残缺，已知源限制）");
-
-  // 订正一条**恒真判据**：原来写的是「现役数 == 总数 - 非现役数」——
-  // 那是恒等式，任何数据都过。现在钉真正的不变式：每个团至少有一位现役，
-  // 且现役名单不为空（℃-ute 是例外：它 2017 年就解散了，全员毕业）。
-  assert.equal(kami.filter((m) => m.status === "current").length, 11);
-  assert.equal(cute.filter((m) => m.status === "current").length, 0);
+  // 每团人数与快照一致（快照在文件顶部；上游变动时一起改）
   assert.equal(
-    cute.filter((m) => m.status !== "current").length,
-    cute.length,
-    "℃-ute 已解散，全员毕业（不是一个两个）"
+    secs.map((s) => s.members.length).join("/"),
+    ORDER.map((g) => GROUP_COUNTS[g]).join("/"),
+    "每团人数与快照一致"
   );
 
-  // 期生是筛选字段 —— 但**只有モーニング娘。的源里有**（18 期）。℃-ute 没有，
-  // 所以「≥10 期」只对モーニング娘。成立；℃-ute 一期都没有是事实，钉住它是为了
-  // 将来有新人加入时不误判成解析坏了。
-  const gens = new Set(kami.map((m) => m.generation).filter(Boolean));
-  assert.ok(gens.size >= 10, `只认出 ${gens.size} 种期生`);
-  assert.equal(new Set(cute.map((m) => m.generation).filter(Boolean)).size, 0);
+  const byGroup = Object.fromEntries(secs.map((s) => [s.group, s.members]));
+  // 已停止活动的四团全员毕业（决定 3；℃-ute 先例，站内只有 current/former 二值）
+  for (const g of [
+    "℃-ute",
+    "Berryz工房",
+    "カントリー・ガールズ",
+    "こぶしファクトリー",
+  ]) {
+    assert.ok(
+      byGroup[g].every((m) => m.status !== "current"),
+      `${g} 应全员毕业（不是一两个）`
+    );
+  }
+  // 七个现役团各自有现役（℃-ute/Berryz/カントリー/こぶし 不在此列）
+  for (const g of [
+    "モーニング娘。",
+    "アンジュルム",
+    "Juice=Juice",
+    "つばきファクトリー",
+    "BEYOOOOONDS",
+    "OCHA NORMA",
+    "ロージークロニクル",
+  ]) {
+    assert.ok(
+      byGroup[g].some((m) => m.status === "current"),
+      `${g} 应有现役`
+    );
+  }
+  // 期生只有モーニング娘。有（决定 4）；其余十团一期都没有是事实，钉住它
+  // 是为了将来有新人加入时不误判成解析坏了。
+  assert.ok(
+    new Set(byGroup["モーニング娘。"].map((m) => m.generation).filter(Boolean))
+      .size >= 10,
+    "モーニング娘。应认出 ≥10 期"
+  );
+  for (const g of ORDER.slice(1)) {
+    assert.equal(
+      new Set(byGroup[g].map((m) => m.generation).filter(Boolean)).size,
+      0,
+      `${g} 不该有期生`
+    );
+  }
 
-  // 身高「有就显示、没有就不占位」：dissolved 表有 5 人、past 表没有
-  assert.equal(kami.filter((m) => (m.bio || {}).height).length, 0);
-  assert.equal(cute.filter((m) => (m.bio || {}).height).length, 5);
+  // 跨团合并（决定 2）：同一人只留一份，保留最近归属。这 6 人是真实数据里的
+  // 转籍者（含与既有两团的合并：森戸知沙希→モーニング娘。、嗣永桃子→Berryz工房）。
+  const MERGED = {
+    森戸知沙希: "モーニング娘。",
+    井上玲音: "Juice=Juice",
+    梁川奈々美: "Juice=Juice",
+    稲場愛香: "Juice=Juice",
+    船木結: "アンジュルム",
+    嗣永桃子: "Berryz工房",
+  };
+  const where = new Map();
+  for (const s of secs) for (const m of s.members) where.set(m.name, s.group);
+  for (const [name, group] of Object.entries(MERGED)) {
+    assert.equal(where.get(name), group, `${name} 应合并进 ${group}`);
+    assert.equal(
+      secs.reduce(
+        (n, s) => n + s.members.filter((m) => m.name === name).length,
+        0
+      ),
+      1,
+      `${name} 应只出现一次`
+    );
+  }
+
+  // 身高「有就显示、没有就不占位」（决定 3）：列在哪些团的源里有是事实
+  assert.equal(
+    byGroup["モーニング娘。"].filter((m) => (m.bio || {}).height).length,
+    0,
+    "モーニング娘。的源没有身高列"
+  );
+  assert.equal(byGroup["℃-ute"].filter((m) => (m.bio || {}).height).length, 5);
+  assert.equal(
+    byGroup["BEYOOOOONDS"].filter((m) => (m.bio || {}).height).length,
+    11
+  );
 
   // 毕业日按源里有无：℃-ute「解散時」那张表**没有**毕业日列，那 5 人的 end 必然空
   // —— 空是事实，不许编。但「有过期在籍」那张表里有 → 那 3 人必须有。
+  const cute = byGroup["℃-ute"];
   const cuteWithEnd = cute.filter((m) => m.end);
   assert.equal(
     cuteWithEnd.length,
