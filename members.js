@@ -19612,7 +19612,7 @@ window.AKB_GROUPS = [
     "nick": "まこっちゃん",
     "status": "former",
     "end": "2006.08.27",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1987.10.29",
      "from": "新潟県"
@@ -19661,7 +19661,7 @@ window.AKB_GROUPS = [
     "nick": "亀ちゃん",
     "status": "former",
     "end": "2010.12.15",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1988.12.23",
      "from": "東京都"
@@ -19696,7 +19696,7 @@ window.AKB_GROUPS = [
     "nick": "小春",
     "status": "former",
     "end": "2009.12.06",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1992.07.15",
      "from": "新潟県"
@@ -19728,7 +19728,7 @@ window.AKB_GROUPS = [
     "nick": "こんこん",
     "status": "former",
     "end": "2006.07.23",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1987.05.07",
      "from": "北海道"
@@ -19896,7 +19896,7 @@ window.AKB_GROUPS = [
     "nick": "ガキさん",
     "status": "former",
     "end": "2012.05.18",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1988.10.20",
      "from": "神奈川県"
@@ -20015,7 +20015,7 @@ window.AKB_GROUPS = [
     "nick": "愛佳",
     "status": "former",
     "end": "2012.05.18",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1993.01.12",
      "from": "滋賀県"
@@ -20104,7 +20104,7 @@ window.AKB_GROUPS = [
     "nick": "よっすぃー",
     "status": "former",
     "end": "2007.05.06",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1985.04.12",
      "from": "埼玉県"
@@ -20414,7 +20414,7 @@ window.AKB_GROUPS = [
     "nick": "あいあい",
     "status": "former",
     "end": "2017.12.31",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1999.03.26",
      "from": "神奈川県"
@@ -20430,7 +20430,7 @@ window.AKB_GROUPS = [
     "nick": "（はーちゃん）",
     "status": "former",
     "end": "2020.10.13",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "2003.10.21",
      "from": "北海道"
@@ -20498,7 +20498,7 @@ window.AKB_GROUPS = [
     "nick": "かわむー",
     "status": "former",
     "end": "2024.11.28",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1999.07.07",
      "from": "高知県"
@@ -20553,7 +20553,7 @@ window.AKB_GROUPS = [
     "nick": "めいめい",
     "status": "former",
     "end": "2016.05.30",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1998.10.30",
      "from": "群馬県"
@@ -20566,7 +20566,7 @@ window.AKB_GROUPS = [
     "nick": "かななん",
     "status": "former",
     "end": "2019.12.10",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1997.06.04",
      "from": "大阪府"
@@ -20625,7 +20625,7 @@ window.AKB_GROUPS = [
     "nick": "むろたん",
     "status": "former",
     "end": "2020.03.22",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1998.06.12",
      "from": "千葉県"
@@ -20638,7 +20638,7 @@ window.AKB_GROUPS = [
     "nick": "DAWA",
     "status": "former",
     "end": "2019.06.18",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1994.08.01",
      "from": "群馬県"
@@ -21189,7 +21189,7 @@ window.AKB_GROUPS = [
     "nick": "りさまる。",
     "status": "former",
     "end": "2020.12.28",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1998.11.05",
      "from": "東京都",
@@ -21217,7 +21217,7 @@ window.AKB_GROUPS = [
     "nick": "きそら",
     "status": "former",
     "end": "2024.06.10",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1999.10.20",
      "from": "愛知県",
@@ -21833,7 +21833,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
+    "img": false,
     "bio": {
      "birth": "1993.08.03",
      "from": "神奈川県",
@@ -21847,7 +21847,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
+    "img": false,
     "bio": {
      "birth": "1991.11.22",
      "from": "神奈川県",
@@ -21861,7 +21861,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
+    "img": false,
     "bio": {
      "birth": "1994.04.04",
      "from": "神奈川県",
@@ -21875,7 +21875,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
+    "img": false,
     "bio": {
      "birth": "1992.07.03",
      "from": "東京都",
@@ -21889,7 +21889,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
+    "img": false,
     "bio": {
      "birth": "1992.05.22",
      "from": "神奈川県",
@@ -21903,7 +21903,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
+    "img": false,
     "bio": {
      "birth": "1992.08.25",
      "from": "埼玉県",

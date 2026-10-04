@@ -626,7 +626,9 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
             try:
                 size = compress(m["id"], p, force, full_dir, thumb_dir)[0]
                 # 源图过小（1×1 占位/追踪像素，实测 46 字节的 webp）不能当头像 ——
-                # 渲染出来是一张坏卡片。删掉已生成的 full/thumb，让 img=false 走占位。
+                # 渲染出来是一张坏卡片。删掉已生成的 full/thumb，让下面的
+                # usable() 判 img=false 走占位（**不能 continue**：那会跳过 img 赋值，
+                # 实测整轮抓取在 warn_missing_images 处 KeyError: 'img' 崩掉）。
                 if size and min(size) < MIN_PHOTO_PX:
                     print(
                         f"  源图过小（{size[0]}×{size[1]}），按缺图处理：{m['name']}",
@@ -638,8 +640,8 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
                     ):
                         if os.path.exists(out):
                             os.remove(out)
-                    continue
-                sizes.append(size)
+                else:
+                    sizes.append(size)
             except Exception as e:
                 print("compress failed", m["name"], e)
         m["img"] = all(
