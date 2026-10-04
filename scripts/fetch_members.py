@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
@@ -422,13 +423,19 @@ def download(args, orig_dir=ORIG, fetch=get):
     if not os.path.exists(path):
         # 单张图失败（Wayback 521/404 等）不该让整轮抓取崩掉 —— 成员退回占位卡，
         # 而崩掉会丢掉前面几十分钟的解析结果（实测：一次 521 整轮白跑）。
-        try:
-            data = fetch(url)
-        except Exception as e:
-            print(f"  下载失败，跳过 {mid}: {type(e).__name__} {e}", file=sys.stderr)
-            return mid, None
-        with open(path, "wb") as fh:
-            fh.write(data)
+        # Wayback 批量下载还会限流（实测 43 张 403），所以退避重试两次再放弃。
+        for attempt in range(3):
+            try:
+                data = fetch(url)
+            except Exception as e:
+                if attempt == 2:
+                    print(f"  下载失败，跳过 {mid}: {type(e).__name__} {e}", file=sys.stderr)
+                    return mid, None
+                time.sleep(5 * (attempt + 1))
+                continue
+            with open(path, "wb") as fh:
+                fh.write(data)
+            break
     return mid, path
 
 
