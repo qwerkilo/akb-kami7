@@ -1116,17 +1116,18 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=4
                     # 相对 src（2005 前后的一人一页写的是 `artist_photo.jpg`）要相对
                     # **原页面**解析成绝对 URL，再套 Wayback —— 旧站的图片路径早
                     # 就 404 了，只有存档里有。绝对 src 照旧直连（后来的页面还有效）。
+                    # 旧站来源的图**一律套 Wayback**：路径早已 404，而且
+                    # cdn.helloproject.com 对脚本一律 403（实测 43 张全部下载失败）——
+                    # 存档里才有真图。裸相对先相对原页面解析成绝对 URL。
                     if src.startswith("http"):
-                        urls[m["file"]] = src
+                        abs_src = src
                     elif src.startswith("/"):
-                        urls[m["file"]] = "http://www.helloproject.com" + src
+                        abs_src = "http://www.helloproject.com" + src
                     else:
-                        # 裸相对（`artist_photo.jpg`）：相对原页面解析后套 Wayback ——
-                        # 旧站的图片路径早就 404 了，只有存档里有。
                         abs_src = urljoin(original, src)
-                        urls[m["file"]] = (
-                            "https://web.archive.org/web/{}id_/{}".format(ts, abs_src)
-                        )
+                    urls[m["file"]] = "https://web.archive.org/web/{}id_/{}".format(
+                        ts, abs_src
+                    )
     # 无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）
     for name, original in OLD_SITE_FILE_EVIDENCE.items():
         m = by_name.get(name)
@@ -1177,6 +1178,10 @@ def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
         if not resolved and m.get("photo_url"):
             resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
         if resolved:
+            # `/og/` 的图挂在 cdn.helloproject.com 上，对脚本 403 —— 走 Wayback
+            # 的最近一次存档（cdx 查询）；查不到就保留原 URL（下载失败会跳过）。
+            if "cdn.helloproject.com" in resolved:
+                resolved = photo_chain.wayback_photo(resolved, fetch) or resolved
             urls[m["file"]] = resolved
         else:
             # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），

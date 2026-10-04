@@ -474,8 +474,13 @@ class OldSitePhotoTests(unittest.TestCase):
         ]
         urls = {}
         mm.resolve_old_site_photos(members, urls, fetch, pause=0)
+        # 旧站来源的图一律套 Wayback（2026-10-03 改）：旧路径早已 404，而且
+        # cdn.helloproject.com 对脚本一律 403（实测 43 张下载全部失败），
+        # 存档里才有真图。
         self.assertEqual(
-            urls["m:岡井千聖"], "http://www.helloproject.com/images/artist_photo/cute05_s.jpg"
+            urls["m:岡井千聖"],
+            "https://web.archive.org/web/20090602100604id_/"
+            "http://www.helloproject.com/images/artist_photo/cute05_s.jpg",
         )
 
     def test_relative_src_resolves_and_wraps_in_wayback(self):
