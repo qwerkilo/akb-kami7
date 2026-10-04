@@ -420,7 +420,13 @@ def download(args, orig_dir=ORIG, fetch=get):
     mid, url = args
     path = orig_path(mid, url, orig_dir)
     if not os.path.exists(path):
-        data = fetch(url)
+        # 单张图失败（Wayback 521/404 等）不该让整轮抓取崩掉 —— 成员退回占位卡，
+        # 而崩掉会丢掉前面几十分钟的解析结果（实测：一次 521 整轮白跑）。
+        try:
+            data = fetch(url)
+        except Exception as e:
+            print(f"  下载失败，跳过 {mid}: {type(e).__name__} {e}", file=sys.stderr)
+            return mid, None
         with open(path, "wb") as fh:
             fh.write(data)
     return mid, path
@@ -431,7 +437,8 @@ def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6):
     with ThreadPoolExecutor(workers) as ex:
         mapped = ex.map(partial(download, orig_dir=orig_dir, fetch=fetch), jobs)
         for n, (mid, p) in enumerate(mapped, 1):
-            paths[mid] = p
+            if p:
+                paths[mid] = p
             if n % 50 == 0:
                 print(f"downloaded {n}/{len(jobs)}")
     return paths
