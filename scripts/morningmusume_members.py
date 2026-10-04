@@ -1044,7 +1044,7 @@ def _norm_old_url(u):
     return u.replace("://www.helloproject.com:80/", "://www.helloproject.com/")
 
 
-def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=400):
+def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=900):
     """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
     **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
     missing = [m for m in members if m["status"] == "former" and m["file"] not in urls]
@@ -1066,10 +1066,11 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=4
         best = {}
         # 每团一份预算：全局 cap 会被第一个团的几个前缀吃光（实测：57 人只中 17，
         # 后半个团一个都配不到）。
-        # 下限 40 而不是 12：早年的「一人一页」在 artist/01/01…20 与
+        # 下限 70 而不是 12：早年的「一人一页」在 artist/01/01…20 与
         # morningmusume/profile 前缀下，每页还有 `/` 与 `/index.html` 两种形态 ——
-        # 预算 16 时只够走到第 8 个人，后面的一律配不到（实测）。
-        per_group = max(40, (limit - fetched) // max(1, groups_left))
+        # 预算 16 时只够走到第 8 个人，40 时到第 20 个；モー娘。的早期成员在
+        # 排序更后面（实测 40 只配到 29 人，而 300 的探针能到 29+）。
+        per_group = max(70, (limit - fetched) // max(1, groups_left))
         groups_left -= 1
         for prefix in prefixes:
             if pause:

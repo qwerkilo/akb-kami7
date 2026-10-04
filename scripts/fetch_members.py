@@ -460,6 +460,10 @@ def cached_image_paths(jobs, orig_dir=ORIG):
     return paths
 
 
+# 小于这个边长的源图不是头像（官方最小 102×122，占位/追踪像素是 1×1）
+MIN_PHOTO_PX = 32
+
+
 def usable(p):
     """站内图片文件可用：存在且非空（0 字节视为损坏，交给下一轮重压）。"""
     return os.path.exists(p) and os.path.getsize(p) > 0
@@ -620,7 +624,22 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
         p = paths.get(m["id"])
         if p:
             try:
-                sizes.append(compress(m["id"], p, force, full_dir, thumb_dir)[0])
+                size = compress(m["id"], p, force, full_dir, thumb_dir)[0]
+                # 源图过小（1×1 占位/追踪像素，实测 46 字节的 webp）不能当头像 ——
+                # 渲染出来是一张坏卡片。删掉已生成的 full/thumb，让 img=false 走占位。
+                if size and min(size) < MIN_PHOTO_PX:
+                    print(
+                        f"  源图过小（{size[0]}×{size[1]}），按缺图处理：{m['name']}",
+                        file=sys.stderr,
+                    )
+                    for out in (
+                        os.path.join(full_dir, m["id"] + ".webp"),
+                        os.path.join(thumb_dir, m["id"] + ".webp"),
+                    ):
+                        if os.path.exists(out):
+                            os.remove(out)
+                    continue
+                sizes.append(size)
             except Exception as e:
                 print("compress failed", m["name"], e)
         m["img"] = all(
