@@ -700,6 +700,11 @@ def main(
 ):
     no_dl, force, accept_drop = parse_args(argv)
     dirs = dirs or default_dirs()
+    # 管线边缘多给几次重试：48pedia 的 521 会连穿 get() 默认的 4 次重试，
+    # 单团抓取失败就被 loader 的 empty 策略变成「该团 0 人」→ 规模门中止整轮，
+    # 而照片解析（几十分钟）已经白跑完。测试注入 fetch_url 时不受影响。
+    if fetch_url is get:
+        fetch_url = partial(get, retries=8)
     if love_loader is None:
         love_loader = love_members.load
     if morning_loader is None:
