@@ -1076,3 +1076,25 @@
   相同 —— 行为断言按定义抓不到它）、对源码守卫**被杀**；「`_date` 返回空」被杀。
 - `npm run check` 全绿：**276 JS + 220 Python**（+1）；`members.js` diff 空 ✓
 - **架构扫描六条候选至此全部落地**（①深化㉔ ②深化㉕ ③深化㉗ ④深化㉘ ⑤深化㉙ ⑥深化㉖）。
+
+## 第五十二轮 · 2026-10-04 · hp-photos 批次累计两轴审查（Standards + Spec）
+
+- 本次基点：`5d5cc39`（第五十一轮结束）；范围 **17 个提交**（retro 一条 + hp-photos
+  spec/工单 01–03 实现），两轴并行子代理审查后**逐条自复核**。
+- **复杂度棘轮红（本次最实的发现）**：`npm run complexity` 报 6 个新热点 ——
+  `resolve_old_site_photos` 39、`_assemble` 24、`tenure_ok` 15、`resolve_former_photos` 14、
+  `_read_header` 13、`viewSearch` 11。全部拆成小函数（行为不变：277 JS + 237 Python 全绿、
+  `members.js` 未动、回归 E2E 240/245），棘轮回绿。**该守卫不在 `npm test` 里，靠手动跑**
+  —— 这是它第一次真抓到东西（此前两个批次都没跑过）。
+- **Spec 轴实缺三条已修**：① 链序与 spec 决定 2 相反（旧站在 og 之前写 urls）→ og 提到链首；
+  ② 缺图残留名单守卫缺失 → 双向守卫（新增缺图红 / 补到照片不删名单也红），2 个变异全杀；
+  ③ 残留 23 人无逐人原因、无分辨率分档 → 已补（分档为实测值 744/748/29/0）。
+- **自复核推翻的子代理结论**（两条）：`photo_url` 被判「不可达节点」——实为**有测试的钩子**
+  （`test_former_resolved_through_wayback_gets_an_url` 注入），重构时删掉该分支导致测试红，
+  已恢复；`_pick_candidate` 首拆后仍 16（lizard 与手估差得远），再拆 `_conflict_name`/`_first`。
+- 顺带：文档漂移（`data-pipeline.md` 的「4 次重试」→ 8、毕业链描述）、工单 02/03 状态回写
+  `resolved`、误导测试名（`test_official_fills_bio_and_photo_url` 断言里没有 photo_url）。
+- **遗留**：spec 预期残留 <10 未达（实际 23 —— 源的真实上限：1997–2001 期モー娘。旧站无页、
+  Berryz 6 人旧站快照只有 1×1 占位图）；og-first 对**已下载缓存**不换图（`_orig` 按 id 命中），
+  只在全新环境或 `--force` 时体现；E2E 仍 5 条既有脚本红（等爱累积状态 2 + 390px 首屏 3）。
+- 下次基点：`dc105bd`（本批审查修复提交）。
