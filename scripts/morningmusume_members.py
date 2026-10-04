@@ -237,38 +237,43 @@ def _row_cells(lines):
 NEWLINE = chr(10)  # 换行符：wikitext 是 CRLF 的场合也要能切
 
 
-def _read_header(lines):
-    """返回 (列名列表, 表头之后的行号)。
-
-    扫到第一行 `!` 之前，什么都可能出现在前面：`{|class=…`、行分隔 `|-`、
+def _skip_to_header(lines):
+    """扫到第一行 `!` 之前，什么都可能出现在前面：`{|class=…`、行分隔 `|-`、
     **section 标题 `=== メンバー ===`**（parse_wiki_members 按标题切完再传进来）。
     所以只认「第一行 `!`」，不能拿 `{|`/`|-` 当终止条件 —— 我第一版那么写，
-    遇到 section 标题就再也到不了表头，width=0、解析出零人（红了 19 条才发现）。
-    """
+    遇到 section 标题就再也到不了表头，width=0、解析出零人（红了 19 条才发现）。"""
     i = 0
     while i < len(lines) and not lines[i].startswith("!"):
         i += 1
+    return i
+
+
+def _header_continues(lines, i):
+    """多行表头：`|-` 之后若还是 `!`，**且那一串 `!` 之后紧跟 `|-`/`|}`**，
+    那才是同一张表头的第二行（BEYOOOOONDS 的 グループ/ユニット）。
+    少了后半个条件会把数据行里 `!rowspan="4" |C` 那种格当成表头吞掉 ——
+    实测症状是整行左移一格（姓名取到了昵称）。"""
+    if not lines[i].startswith("|-") or i + 1 >= len(lines) or not lines[i + 1].startswith("!"):
+        return False
+    j = i + 1
+    while j < len(lines) and lines[j].startswith("!"):
+        j += 1
+    return j < len(lines) and (lines[j].startswith("|-") or lines[j].startswith("|}"))
+
+
+def _read_header(lines):
+    """返回 (列名列表, 表头之后的行号)。"""
+    i = _skip_to_header(lines)
     header = []
     while i < len(lines):
-        line = lines[i]
-        if line.startswith("!"):
-            header.extend(_header_cells(line))
+        if lines[i].startswith("!"):
+            header.extend(_header_cells(lines[i]))
             i += 1
-            continue
-        # 多行表头：`|-` 之后若还是 `!`，**且那一串 `!` 之后紧跟 `|-`/`|}`**，
-        # 那才是同一张表头的第二行（BEYOOOOONDS 的 グループ/ユニット）。
-        # 少了后半个条件会把数据行里 `!rowspan="4" |C` 那种格当成表头吞掉 ——
-        # 实测症状是整行左移一格（姓名取到了昵称）。
-        if line.startswith("|-") and i + 1 < len(lines) and lines[i + 1].startswith("!"):
-            j = i + 1
-            while j < len(lines) and lines[j].startswith("!"):
-                j += 1
-            if j < len(lines) and (lines[j].startswith("|-") or lines[j].startswith("|}")):
-                i += 1
-                continue
-        break
+        elif _header_continues(lines, i):
+            i += 1
+        else:
+            break
     return header, i
-
 
 def _header_cells(line):
     """一个 `!` 行 → 一个或多个列名。
@@ -852,16 +857,8 @@ def _affinity(cand):
     )
 
 
-def _assemble(official, parsed):
-    """official: {团: {姓名: parse_list 项}}；parsed: {团: [成员记录]}（parse_all 的产物）。
-    返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
-
-    同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属，
-    再次团体终止年份（见 GROUP_END_YEAR）。真实数据里的转籍者都从已停止活动的团
-    转入现役团（人名与人数让产物测试钉，不在这里写第二份）。
-    两份**现役**冲突才是数据异常（收伞式重叠），抛 ValueError 让人看见 ——
-    「官网现役 + Wikipedia 毕业段」的旧冲突现在是转籍常态，取现役。
-    """
+def _collect_candidates(official, parsed):
+    """两源候选按归一姓名归并：{key: [cand…]} + 首见顺序。"""
     cands = {}
     order = []
 
@@ -891,28 +888,50 @@ def _assemble(official, parsed):
                     "wiki": m,
                 },
             )
+    return cands, order
 
+
+def _conflict_name(group_cands):
+    """冲突报错里的人名：两源都可能缺席（`.get("wiki", {})` 在键存在且值为 None 时
+    返回 None → AttributeError；审查实测官网+官网冲突那条路径抛的不是 ValueError）。"""
+    wiki = group_cands[0].get("wiki") or {}
+    official = group_cands[0].get("official") or {}
+    return wiki.get("name") or official.get("name") or "?"
+
+
+def _first(cands, key):
+    """同团候选里第一个非空字段（官网项 / wiki 记录）。"""
+    return next((c[key] for c in cands if c[key]), None) or {}
+
+
+def _pick_candidate(group_cands):
+    """同一人的多份候选里选归属（返回 (best, (rec, url))）。"""
+    currents = {c["group"] for c in group_cands if c["status"] == "current"}
+    if len(currents) > 1:
+        raise ValueError(
+            "{} 同时是两个团的现役：{}（收伞式重叠）".format(
+                _conflict_name(group_cands), " / ".join(sorted(currents))
+            )
+        )
+    best = max(group_cands, key=_affinity)
+    same = [c for c in group_cands if c["group"] == best["group"]]
+    return best, _merge_one(_first(same, "official"), _first(same, "wiki"))
+
+
+def _assemble(official, parsed):
+    """official: {团: {姓名: parse_list 项}}；parsed: {团: [成员记录]}（parse_all 的产物）。
+    返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
+
+    同一人跨团只留一份（工单 02 决定 2）：现役优先，其次毕业日较晚的归属，
+    再次团体终止年份（见 GROUP_END_YEAR）。真实数据里的转籍者都从已停止活动的团
+    转入现役团（人名与人数让产物测试钉，不在这里写第二份）。
+    两份**现役**冲突才是数据异常（收伞式重叠），抛 ValueError 让人看见 ——
+    「官网现役 + Wikipedia 毕业段」的旧冲突现在是转籍常态，取现役。
+    """
+    cands, order = _collect_candidates(official, parsed)
     members, urls = [], {}
     for key in order:
-        group_cands = cands[key]
-        currents = {c["group"] for c in group_cands if c["status"] == "current"}
-        if len(currents) > 1:
-            raise ValueError(
-                "{} 同时是两个团的现役：{}（收伞式重叠）".format(
-                    # 两源都可能缺席：`.get("wiki", {})` 在键存在且值为 None 时
-                    # 返回 None → AttributeError（审查实测：官网+官网冲突这条路径
-                    # 抛的不是 ValueError）。用 `or {}` 兜。
-                    (group_cands[0].get("wiki") or {}).get("name")
-                    or (group_cands[0].get("official") or {}).get("name")
-                    or "?",
-                    " / ".join(sorted(currents)),
-                )
-            )
-        best = max(group_cands, key=_affinity)
-        same = [c for c in group_cands if c["group"] == best["group"]]
-        item = next((c["official"] for c in same if c["official"]), None) or {}
-        w = next((c["wiki"] for c in same if c["wiki"]), None) or {}
-        rec, url = _merge_one(item, w)
+        best, (rec, url) = _pick_candidate(cands[key])
         if not rec:
             continue
         rec["group"] = best["group"]
@@ -921,7 +940,6 @@ def _assemble(official, parsed):
         if url:
             urls[rec["file"]] = url
     return members, urls
-
 
 def build_members(official, parsed):
     """official: {团: {姓名: parse_list 项（含 detail）}}；parsed: {团: [成员记录]}。
@@ -1010,31 +1028,30 @@ def snapshot_ts(url):
     return m.group(1) if m else ""
 
 
+def _bound(raw, day):
+    """把 `2015` / `2015.10.02` 归一成 8 位比较串；只有年份时补该年首/末。"""
+    s = (raw or "").replace(".", "")
+    if len(s) == 4:
+        return s + day
+    return s
+
+
 def tenure_ok(member, ts):
     """**在籍期校验**（ADR-0022）：join ≤ 捕获时间 ≤ end（end 缺则用团终止年份）。
 
     只有年份时按年前缀比较（`end="2015"` 时 ts 到 2015 年底都算在籍）。
     """
     ts = (ts or "")[:8]
-    if not ts:
+    if len(ts) < 8:
         return False
-    join = (member.get("join") or "").replace(".", "")
-    end = (member.get("end") or "").replace(".", "")
-    if not end:
-        y = GROUP_END_YEAR.get(member.get("group"))
-        end = str(y) if y else ""
-    if join:
-        if len(join) == 4:
-            if ts[:4] < join:
-                return False
-        elif ts[:8] < join:
-            return False
-    if end:
-        if len(end) == 4:
-            if ts[:4] > end:
-                return False
-        elif ts[:8] > end:
-            return False
+    join = _bound(member.get("join"), "0101")
+    end = _bound(member.get("end"), "1231") or _bound(
+        str(GROUP_END_YEAR.get(member.get("group")) or ""), "1231"
+    )
+    if join and ts < join:
+        return False
+    if end and ts > end:
+        return False
     return True
 
 
@@ -1044,92 +1061,81 @@ def _norm_old_url(u):
     return u.replace("://www.helloproject.com:80/", "://www.helloproject.com/")
 
 
-def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=900):
-    """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
-    **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
-    missing = [m for m in members if m["status"] == "former" and m["file"] not in urls]
-    if not missing:
-        return members, urls
-    by_name = {m["name"]: m for m in missing}
-    fetched = 0
-    groups_left = len(
-        [g for g in OLD_PAGE_PREFIXES if any(m.get("group") == g for m in missing)]
-    )
-    for group, prefixes in OLD_PAGE_PREFIXES.items():
-        if fetched >= limit:
-            break
-        if not any(m.get("group") == group for m in missing):
+def _snapshot_url(ts, url):
+    """Wayback 原始快照 URL（`id_` = 不做注入改写）。"""
+    return "https://web.archive.org/web/{}id_/{}".format(ts, url)
+
+
+def _old_site_candidates(prefixes, fetch, missing, pause):
+    """按前缀枚举 CDX → `{归一 URL: [在籍内快照 ts…]}`（只收 HTML）。"""
+    best = {}
+    for prefix in prefixes:
+        if pause:
+            time.sleep(pause)
+        # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
+        rows = photo_chain.cdx_rows(prefix, fetch, limit=1000, prefix=True)
+        for row in rows:
+            ts, original = row[1], row[2]
+            # 只要 HTML：前缀下混着图片/CSS/JS，抓它们纯浪费（CDX 第 4 列是 mimetype）
+            if len(row) > 3 and row[3] != "text/html":
+                continue
+            if not any(tenure_ok(m, ts) for m in missing):
+                continue
+            # CDX 里同一个页面有两种形态：`…com/…` 与 `…com:80/…`（2005 前后的
+            # 快照几乎全挂在 `:80` 形态下）。不归一的话它们算两个 URL，`:80` 的
+            # 排在排序后面、被每团预算截掉 —— 早期成员一个都配不到（实测根因）。
+            best.setdefault(_norm_old_url(original), []).append(ts)
+    return best
+
+
+def _match_page(html, original, ts, by_name, urls):
+    """快照页的 img 配对（`alt=姓名`）→ 过在籍期后写入 urls。"""
+    for alt, src in parse_img_pairs(html):
+        m = by_name.get(alt)
+        if not m or m["file"] in urls:
             continue
-        # **按 URL 去重**：同一个页面的几十个快照只抓一个 —— 取「在缺图成员在籍期内」
-        # 的最新那个（页面的阵容随年份变，取最新能覆盖最多人）。不去重的话
-        # 前几个前缀就把抓取预算吃光，后面的团一个都配不到（实测：57 人只中 9）。
-        best = {}
-        # 每团一份预算：全局 cap 会被第一个团的几个前缀吃光（实测：57 人只中 17，
-        # 后半个团一个都配不到）。
-        # 下限 70 而不是 12：早年的「一人一页」在 artist/01/01…20 与
-        # morningmusume/profile 前缀下，每页还有 `/` 与 `/index.html` 两种形态 ——
-        # 预算 16 时只够走到第 8 个人，40 时到第 20 个；モー娘。的早期成员在
-        # 排序更后面（实测 40 只配到 29 人，而 300 的探针能到 29+）。
-        per_group = max(70, (limit - fetched) // max(1, groups_left))
-        groups_left -= 1
-        for prefix in prefixes:
+        if not tenure_ok(m, ts):
+            continue
+        # 旧站来源的图**一律套 Wayback**：路径早已 404，而且 cdn.helloproject.com
+        # 对脚本一律 403（实测 43 张下载全失败）—— 存档里才有真图。裸相对先相对
+        # 原页面解析成绝对 URL；斜杠前缀补域名。
+        if src.startswith("http"):
+            abs_src = src
+        elif src.startswith("/"):
+            abs_src = "http://www.helloproject.com" + src
+        else:
+            abs_src = urljoin(original, src)
+        urls[m["file"]] = _snapshot_url(ts, abs_src)
+
+
+def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, limit):
+    """按预算抓快照并配对（每 URL 试最早 3 个）；返回更新后的 fetched。
+
+    每个 URL 试**最早**的 3 个在籍内快照（升序）：旧站的扁平/序号页会被后来的
+    阵容复用 —— 取「最新」会抓到改版后的页（实测：artist/01/NN 在 2024 已变成
+    团体导航页、alt 全是团名，一个成员都配不到）。
+    """
+    picked = 0
+    for original in sorted(best):
+        if fetched >= limit or picked >= budget:
+            break
+        picked += 1
+        for ts in sorted(best[original])[:3]:
+            fetched += 1
+            if fetched > limit:
+                break
             if pause:
                 time.sleep(pause)
-            # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
-            rows = photo_chain.cdx_rows(prefix, fetch, limit=1000, prefix=True)
-            for row in rows:
-                ts, original = row[1], row[2]
-                # 只要 HTML：前缀下混着图片/CSS/JS，抓它们纯浪费（CDX 第 4 列是 mimetype）
-                if len(row) > 3 and row[3] != "text/html":
-                    continue
-                if not any(tenure_ok(m, ts) for m in missing):
-                    continue
-                # CDX 里同一个页面有两种形态：`…com/…` 与 `…com:80/…`（2005 前后的
-                # 快照几乎全挂在 `:80` 形态下）。不归一的话它们算两个 URL，`:80` 的
-                # 排在排序后面、被每团预算截掉 —— 早期成员一个都配不到（实测根因）。
-                best.setdefault(_norm_old_url(original), []).append(ts)
-        picked = 0
-        for original in sorted(best):
-            if fetched >= limit or picked >= per_group:
-                break
-            picked += 1
-            # 每个 URL 试**最早**的 3 个在籍内快照（升序）：旧站的扁平/序号页会被
-            # 后来的阵容复用 —— 取「最新」会抓到改版后的页（实测：artist/01/NN 在
-            # 2024 已变成团体导航页、alt 全是团名，一个成员都配不到）。最早的快照
-            # 最接近「这位成员还在时」的页面。
-            for ts in sorted(best[original])[:3]:
-                fetched += 1
-                if fetched > limit:
-                    break
-                if pause:
-                    time.sleep(pause)
-                snap = "https://web.archive.org/web/{}id_/{}".format(ts, original)
-                try:
-                    html = fetch(snap)
-                except Exception:
-                    continue
-                for alt, src in parse_img_pairs(html):
-                    m = by_name.get(alt)
-                    if not m or m["file"] in urls:
-                        continue
-                    if not tenure_ok(m, ts):
-                        continue
-                    # 相对 src（2005 前后的一人一页写的是 `artist_photo.jpg`）要相对
-                    # **原页面**解析成绝对 URL，再套 Wayback —— 旧站的图片路径早
-                    # 就 404 了，只有存档里有。绝对 src 照旧直连（后来的页面还有效）。
-                    # 旧站来源的图**一律套 Wayback**：路径早已 404，而且
-                    # cdn.helloproject.com 对脚本一律 403（实测 43 张全部下载失败）——
-                    # 存档里才有真图。裸相对先相对原页面解析成绝对 URL。
-                    if src.startswith("http"):
-                        abs_src = src
-                    elif src.startswith("/"):
-                        abs_src = "http://www.helloproject.com" + src
-                    else:
-                        abs_src = urljoin(original, src)
-                    urls[m["file"]] = "https://web.archive.org/web/{}id_/{}".format(
-                        ts, abs_src
-                    )
-    # 无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）
+            try:
+                html = fetch(_snapshot_url(ts, original))
+            except Exception:
+                continue
+            _match_page(html, original, ts, by_name, urls)
+    return fetched
+
+
+def _resolve_file_evidence(by_name, urls, fetch, pause):
+    """无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）。"""
     for name, original in OLD_SITE_FILE_EVIDENCE.items():
         m = by_name.get(name)
         if not m or m["file"] in urls:
@@ -1139,57 +1145,105 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=9
         for row in photo_chain.cdx_rows(original, fetch, limit=6):
             if not tenure_ok(m, row[1]):
                 continue
-            urls[m["file"]] = "https://web.archive.org/web/{}id_/{}".format(row[1], row[2])
+            urls[m["file"]] = _snapshot_url(row[1], row[2])
             break
+
+
+def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
+    """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。"""
+    fetched = 0
+    groups_left = len(
+        [g for g in OLD_PAGE_PREFIXES if any(m.get("group") == g for m in missing)]
+    )
+    for group, prefixes in OLD_PAGE_PREFIXES.items():
+        if fetched >= limit:
+            break
+        if not any(m.get("group") == group for m in missing):
+            continue
+        # 每团一份预算：全局 cap 会被第一个团的几个前缀吃光（实测：57 人只中 17，
+        # 后半个团一个都配不到）。下限 70：早年「一人一页」在 artist/01/01…20 与
+        # morningmusume/profile 下还有 `/` 与 `/index.html` 两种形态，预算 16 只够
+        # 走到第 8 人、40 到第 20 人（实测 40 只配到 29 人）。
+        budget = max(70, (limit - fetched) // max(1, groups_left))
+        groups_left -= 1
+        best = _old_site_candidates(prefixes, fetch, missing, pause)
+        fetched = _pick_old_site_group(
+            best, by_name, urls, fetch, pause, budget, fetched, limit
+        )
+    return fetched
+
+
+def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=900):
+    """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
+    **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
+    missing = [m for m in members if m["status"] == "former" and m["file"] not in urls]
+    if not missing:
+        return members, urls
+    by_name = {m["name"]: m for m in missing}
+    _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit)
+    _resolve_file_evidence(by_name, urls, fetch, pause)
     return members, urls
 
-
-def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
-    """毕业成员的头像。**照片回退链**（CONTEXT）三节：
-
-    1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
-       一次抓取解析成「姓名 → 照片」映射；命中即止（官方肖像优先于 Commons）。
-    2. **旧官网 Wayback 快照**（工单 02：毕业者与已停止活动的团；按团枚举 + 在籍期校验）。
-    3. **Wikipedia Commons**（现役与兜底；失败被 `commons_photo` 吞成 None）。
-    4. **（若已知照片 URL）Wayback 取图** —— 逐人 URL 的钩子。
-
-    取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
-    不是静默降级。旧官网 Wayback 的逐成员解析见工单 02（`/og/` 覆盖不到的那批）。
-    """
-    og = {}
+def _resolve_og(members, urls, fetch):
+    """链首：现官网 `/og/`（官方肖像 500×500）—— 先于旧站快照，命中即止。"""
     try:
         og = parse_og_page(fetch(OG_URL))
     except Exception:
         og = {}
-    # 旧官网源先整批跑（它一次抓取能给多人配对），再逐人兜底
-    try:
-        resolve_old_site_photos(members, urls, fetch, warn=warn, pause=pause)
-    except Exception as e:
-        warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
     for m in members:
         if m["status"] != "former" or m["file"] in urls:
             continue
         resolved = og.get(m["name"])
+        if not resolved:
+            continue
+        # `/og/` 的图挂在 cdn.helloproject.com 上，对脚本 403 —— 走 Wayback
+        # 的最近一次存档（cdx 查询）；查不到就保留原 URL（下载失败会跳过）。
+        if "cdn.helloproject.com" in resolved:
+            resolved = photo_chain.wayback_photo(resolved, fetch) or resolved
+        urls[m["file"]] = resolved
+
+
+def _resolve_commons(members, urls, fetch, warn, pause):
+    """链尾：Wikipedia Commons（现役与兜底；失败被 `commons_photo` 吞成 None）。"""
+    for m in members:
+        if m["status"] != "former" or m["file"] in urls:
+            continue
         # Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
         # 不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
-        if not resolved and pause:
+        if pause:
             time.sleep(pause)
-        if not resolved:
-            resolved = photo_chain.commons_photo(m["name"], fetch)
+        resolved = photo_chain.commons_photo(m["name"], fetch)
+        # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
+        # Commons 落空时再试它的 Wayback 快照。
         if not resolved and m.get("photo_url"):
             resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
         if resolved:
-            # `/og/` 的图挂在 cdn.helloproject.com 上，对脚本 403 —— 走 Wayback
-            # 的最近一次存档（cdx 查询）；查不到就保留原 URL（下载失败会跳过）。
-            if "cdn.helloproject.com" in resolved:
-                resolved = photo_chain.wayback_photo(resolved, fetch) or resolved
             urls[m["file"]] = resolved
         else:
             # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
             # 只有连站内文件都没有的才真的显示占位。
             warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
-    return members, urls
 
+
+def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
+    """毕业成员的头像。**照片回退链**（CONTEXT）三节，按序：
+
+    1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
+       一次抓取解析成「姓名 → 照片」映射；命中即止（官方肖像优先）。
+    2. **旧官网 Wayback 快照**（工单 02：毕业者与已停止活动的团；按团枚举 + 在籍期校验）。
+    3. **Wikipedia Commons**（现役与兜底；失败被 `commons_photo` 吞成 None）。
+
+    取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
+    不是静默降级。
+    """
+    # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的
+    _resolve_og(members, urls, fetch)
+    try:
+        resolve_old_site_photos(members, urls, fetch, warn=warn, pause=pause)
+    except Exception as e:
+        warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
+    _resolve_commons(members, urls, fetch, warn, pause)
+    return members, urls
 
 def build_sections(members):
     """早安是**一系列两团**（モーニング娘。+ ℃-ute），且期生有 18 期 —— 所以不分组，段 label 用团名本身；

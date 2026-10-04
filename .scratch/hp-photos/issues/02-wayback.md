@@ -1,6 +1,6 @@
 # 工单 02：旧官网 Wayback 源（覆盖大头，~66 人）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 01（共用「姓名→照片」映射的接入点与测试夹具风格）
 
 ## 目标

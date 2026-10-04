@@ -294,7 +294,7 @@ class BuildMembersTests(unittest.TestCase):
         self.members, self.urls = mm.build_members(official, mm.parse_all({"モーニング娘。": BOTH}))
         self.by_name = {m["name"]: m for m in self.members}
 
-    def test_official_fills_bio_and_photo_url(self):
+    def test_official_fills_bio_and_photo(self):
         m = self.by_name["野中美希"]
         self.assertEqual(m["bio"]["blood"], "A型")
         self.assertTrue(self.urls[m["file"]].endswith(".webp"))

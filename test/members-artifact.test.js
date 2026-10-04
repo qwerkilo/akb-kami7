@@ -243,6 +243,62 @@ test("img 标志与站内图片文件一致（img:true ⟺ full 与 thumb 都在
   );
 });
 
+// 缺图残留名单（工单 03 验收）：**双向只许缩小**。新增缺图会红 —— 抓取波动或
+// 数据回归不该静默把已有照片变成占位卡；补到照片的人也要从名单里删掉（否则名单
+// 会漂成「历史记录」而不是「当前残留」）。分组理由见 issues/03-regenerate.md。
+const MISSING_ALLOWED = [
+  // 1997–2001 期モー娘。：旧站没有他们的页
+  "石黒彩",
+  "市井紗耶香",
+  "後藤真希",
+  "福田明日香",
+  // ℃-ute
+  "有原栞菜",
+  "梅田えりか",
+  "村上愛",
+  // アンジュルム
+  "小川紗季",
+  "小数賀芙由香",
+  "福田花音",
+  "前田憂佳",
+  // Juice=Juice
+  "大塚愛菜",
+  "金澤朋子",
+  "高木紗友希",
+  // つばきファクトリー
+  "八木栞",
+  // OCHA NORMA
+  "石栗奏美",
+  "田代すみれ",
+  // Berryz工房：旧站快照里是 1×1 占位图（按缺图处理）
+  "熊井友理奈",
+  "清水佐紀",
+  "菅谷梨沙子",
+  "須藤茉麻",
+  "徳永千奈美",
+  "夏焼雅",
+];
+
+test("缺图残留名单只许缩小（新增缺图必须红）", () => {
+  const missing = [];
+  for (const g of loadGroups()) {
+    for (const m of g.members) if (!m.img) missing.push(m.name);
+  }
+  const allowed = new Set(MISSING_ALLOWED);
+  const unexpected = missing.filter((n) => !allowed.has(n));
+  assert.deepEqual(
+    unexpected,
+    [],
+    `新增缺图（不在残留名单里）：${unexpected.join("、")}`
+  );
+  const recovered = MISSING_ALLOWED.filter((n) => !missing.includes(n));
+  assert.deepEqual(
+    recovered,
+    [],
+    `这些已补到照片，请从残留名单删掉：${recovered.join("、")}`
+  );
+});
+
 test("照片回退链：与站点无关的三段在共享模块，与站点有关的留在 loader（工单 01）", () => {
   const chain = fs.readFileSync(
     path.join(__dirname, "..", "scripts", "photo_chain.py"),

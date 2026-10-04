@@ -384,14 +384,19 @@
 
   // ---- 名册投影：过滤/计数/已选一次算清（纯数据；m.hay 由 app 预计算） ----
   // 名册投影分两条代码路径：搜索扁平、树/单团共用（group 决定 mode 标签）。
+  function searchHit(s, m, f, wantGen, q) {
+    if (!isVisible(m, f.status)) return false;
+    if (wantGen && sectionGen(s, m) !== wantGen) return false;
+    return (m.hay || "").includes(q);
+  }
+
   function viewSearch(sections, f, q) {
+    const wantGen = f.generation !== "all" ? f.generation : null;
     const hits = [];
     for (const s of sections) {
       if (f.group !== "all" && s.group !== f.group) continue;
-      const wantGen = f.generation !== "all" ? f.generation : null;
       for (const m of s.members) {
-        if (wantGen && sectionGen(s, m) !== wantGen) continue;
-        if (isVisible(m, f.status) && (m.hay || "").includes(q)) hits.push(m);
+        if (searchHit(s, m, f, wantGen, q)) hits.push(m);
       }
     }
     return { mode: "search", nodes: [], hits };
