@@ -299,6 +299,32 @@ test("缺图残留名单只许缩小（新增缺图必须红）", () => {
   );
 });
 
+test("一人多团：转籍者带 groups（每个待过的团都能看到），单团成员不带", () => {
+  // 视图层按团筛选时靠这个字段补全名册（カントリー・ガールズ 4→8 人那件事）。
+  // 跨 realm 的数组不能用 deepEqual（AGENTS.md），比 join。
+  const byName = new Map();
+  for (const g of loadGroups()) {
+    for (const m of g.members) byName.set(m.name, m);
+  }
+  const expect = {
+    嗣永桃子: ["Berryz工房", "カントリー・ガールズ"],
+    森戸知沙希: ["モーニング娘。", "カントリー・ガールズ"],
+    船木結: ["アンジュルム", "カントリー・ガールズ"],
+    稲場愛香: ["Juice=Juice", "カントリー・ガールズ"],
+    梁川奈々美: ["Juice=Juice", "カントリー・ガールズ"],
+    井上玲音: ["Juice=Juice", "こぶしファクトリー"],
+  };
+  for (const [name, groups] of Object.entries(expect)) {
+    assert.equal(
+      (byName.get(name)?.groups || []).join("/"),
+      groups.join("/"),
+      name
+    );
+  }
+  const withGroups = [...byName.values()].filter((m) => m.groups);
+  assert.equal(withGroups.length, 6, "只有转籍者带 groups");
+});
+
 test("照片回退链：与站点无关的三段在共享模块，与站点有关的留在 loader（工单 01）", () => {
   const chain = fs.readFileSync(
     path.join(__dirname, "..", "scripts", "photo_chain.py"),

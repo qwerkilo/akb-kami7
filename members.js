@@ -20042,6 +20042,10 @@ window.AKB_GROUPS = [
      "ちぃ",
      "もりとち",
      "ちぃこ"
+    ],
+    "groups": [
+     "モーニング娘。",
+     "カントリー・ガールズ"
     ]
    },
    {
@@ -20603,6 +20607,10 @@ window.AKB_GROUPS = [
     "nick_aliases": [
      "ふなきち",
      "（ふなちゃん）"
+    ],
+    "groups": [
+     "アンジュルム",
+     "カントリー・ガールズ"
     ]
    },
    {
@@ -20708,7 +20716,11 @@ window.AKB_GROUPS = [
      "hobby": "カメラ、編み物、お散歩",
      "skill": "高速まばたき、ボイスパーカッション",
      "height": "163cm"
-    }
+    },
+    "groups": [
+     "Juice=Juice",
+     "こぶしファクトリー"
+    ]
    },
    {
     "id": "mec2f3dd917",
@@ -20869,7 +20881,11 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1997.12.27",
      "from": "北海道"
-    }
+    },
+    "groups": [
+     "Juice=Juice",
+     "カントリー・ガールズ"
+    ]
    },
    {
     "id": "m51319695cd",
@@ -20960,7 +20976,11 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2002.01.06",
      "from": "神奈川県"
-    }
+    },
+    "groups": [
+     "Juice=Juice",
+     "カントリー・ガールズ"
+    ]
    }
   ]
  },
@@ -21961,6 +21981,10 @@ window.AKB_GROUPS = [
     "nick_aliases": [
      "（ももち先輩）",
      "（PM）"
+    ],
+    "groups": [
+     "Berryz工房",
+     "カントリー・ガールズ"
     ]
    },
    {

@@ -361,16 +361,41 @@
     return out;
   }
 
+  // 一人多团（转籍者）：记录只留一份（最近归属），但**每个待过的团都该看到他** ——
+  // 按团筛选时把其他团里 groups 含本团的人补进来。选人按 id，补进来不会产生重复。
+  function crossGroupMembers(sections, groupFilter) {
+    const out = [];
+    const seen = new Set();
+    for (const s of sections) {
+      if (s.group === groupFilter) continue;
+      for (const m of s.members || []) {
+        const gs = Array.isArray(m.groups) ? m.groups : [];
+        if (!gs.includes(groupFilter) || seen.has(m.id)) continue;
+        seen.add(m.id);
+        out.push(m);
+      }
+    }
+    return out;
+  }
+
   function groupSections(sections, groupFilter, genFilter) {
     const wantGen = genFilter && genFilter !== "all" ? genFilter : null;
+    const extra =
+      groupFilter !== "all" ? crossGroupMembers(sections, groupFilter) : [];
     const groups = [];
     const byGroup = new Map();
+    let extraUsed = false;
     sections.forEach((s, index) => {
       if (groupFilter !== "all" && s.group !== groupFilter) return;
+      let members = s.members;
+      // 补进来的人只挂到本团的第一个段（单团一段时就是那一段）
+      if (extra.length && !extraUsed) {
+        members = members.concat(extra);
+        extraUsed = true;
+      }
       // 期生在成员上时不能整段丢掉（那样一个匹配的人都没有），要留下段只留人
-      const members = wantGen
-        ? (s.members || []).filter((m) => sectionGen(s, m) === wantGen)
-        : s.members;
+      if (wantGen)
+        members = members.filter((m) => sectionGen(s, m) === wantGen);
       if (wantGen && !members.length) return;
       if (!byGroup.has(s.group)) {
         const node = { group: s.group, sections: [] };
@@ -394,8 +419,11 @@
     const wantGen = f.generation !== "all" ? f.generation : null;
     const hits = [];
     for (const s of sections) {
-      if (f.group !== "all" && s.group !== f.group) continue;
+      // 段级不整段跳过：转籍者的记录在别的团段里，按团搜也要能搜到（认 m.groups）
       for (const m of s.members) {
+        const gs = Array.isArray(m.groups) ? m.groups : [];
+        if (f.group !== "all" && s.group !== f.group && !gs.includes(f.group))
+          continue;
         if (searchHit(s, m, f, wantGen, q)) hits.push(m);
       }
     }

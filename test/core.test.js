@@ -1463,6 +1463,69 @@ test("rosterView：成员上的期生参与筛选（树与搜索两条投影路�
   assert.deepEqual(none.nodes, []);
 });
 
+function transferSections() {
+  return [
+    {
+      group: "モーニング娘。",
+      label: "モーニング娘。",
+      members: [
+        {
+          id: "m1",
+          name: "森戸知沙希",
+          status: "former",
+          groups: ["モーニング娘。", "カントリー・ガールズ"],
+          hay: "森戸知沙希",
+        },
+      ],
+    },
+    {
+      group: "カントリー・ガールズ",
+      label: "カントリー・ガールズ",
+      members: [
+        { id: "m2", name: "山木梨沙", status: "former", hay: "山木梨沙" },
+      ],
+    },
+  ];
+}
+
+test("按团筛选：转籍者（groups 含本团）补进该团名册，id 不重复", () => {
+  const v = core.rosterView(transferSections(), {
+    group: "カントリー・ガールズ",
+  });
+  const ids = v.nodes.flatMap((n) =>
+    n.sections.flatMap((s) => s.members.map((m) => m.id))
+  );
+  assert.deepEqual(ids.sort(), ["m1", "m2"]);
+  assert.equal(v.nodes[0].count, 2);
+});
+
+test("反向：不属于本团的人不补进来", () => {
+  const v = core.rosterView(transferSections(), { group: "モーニング娘。" });
+  const ids = v.nodes.flatMap((n) =>
+    n.sections.flatMap((s) => s.members.map((m) => m.id))
+  );
+  assert.deepEqual(ids.sort(), ["m1"]);
+});
+
+test("全部视图不因 groups 补人（一人一张卡）", () => {
+  const v = core.rosterView(transferSections(), {});
+  const ids = v.nodes.flatMap((n) =>
+    n.sections.flatMap((s) => s.members.map((m) => m.id))
+  );
+  assert.deepEqual(ids.sort(), ["m1", "m2"]);
+});
+
+test("按团搜索：转籍者能被搜到（搜索路径同样认 groups）", () => {
+  const v = core.rosterView(transferSections(), {
+    group: "カントリー・ガールズ",
+    query: "森戸",
+  });
+  assert.deepEqual(
+    v.hits.map((m) => m.name),
+    ["森戸知沙希"]
+  );
+});
+
 test("profileRows：身長有就显示、没有就不占位（决定 3）", () => {
   const tall = core.profileRows(
     { name: "矢島舞美", status: "former", bio: { height: "166cm" } },

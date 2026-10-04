@@ -936,6 +936,12 @@ def _assemble(official, parsed):
             continue
         rec["group"] = best["group"]
         rec["series"] = SERIES
+        # 一人多团（转籍者）：记录只留一份（最近归属），但**每个待过的团都要记得** ——
+        # 按团筛选的名册靠这份 groups 补全（否则カントリー・ガールズ只有 4/8 人）。
+        # 只在多于一个团时才写，单团成员不带这个字段（载荷不为所有人加噪音）。
+        belonged = [g for g in GROUPS if any(c["group"] == g for c in cands[key])]
+        if len(belonged) > 1:
+            rec["groups"] = belonged
         members.append(rec)
         if url:
             urls[rec["file"]] = url
@@ -1256,7 +1262,7 @@ def build_sections(members):
     # - nick_aliases：进搜索用的 haystack（grilling R1-Q3：昵称只显示第一个，其余仍要能被搜到）
     # - height：身高只在 bio 里且「有就显示」—— 空串由 build_bio 剔掉，不会进产物
     # roster.project 的可选字段集默认只有 bio，带不进来就等于字段被静默丢掉。
-    optional = ("bio", "generation", "nick_aliases")
+    optional = ("bio", "generation", "nick_aliases", "groups")
     out = []
     for group in GROUPS:
         rows = [m for m in members if m.get("group") == group]
