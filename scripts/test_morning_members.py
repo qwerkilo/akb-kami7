@@ -478,6 +478,36 @@ class OldSitePhotoTests(unittest.TestCase):
             urls["m:岡井千聖"], "http://www.helloproject.com/images/artist_photo/cute05_s.jpg"
         )
 
+    def test_relative_src_resolves_and_wraps_in_wayback(self):
+        """2005 前后的一人一页写的是相对 src（`artist_photo.jpg`）——要相对原页面
+        解析成绝对 URL 再套 Wayback；直接当 URL 下载会崩（实测 `unknown url type`）。"""
+        rows = [
+            ["urlkey", "timestamp", "original"],
+            ["x", "20050416001745", "http://www.helloproject.com/artist/01/04/index.html"],
+        ]
+        page = '<img SRC="artist_photo.jpg" ALT="吉澤ひとみ">'
+
+        def fetch(url):
+            return json.dumps(rows) if "cdx" in url else page
+
+        members = [
+            {
+                "name": "吉澤ひとみ",
+                "status": "former",
+                "file": "m:吉澤ひとみ",
+                "group": "モーニング娘。",
+                "join": "2000.04.16",
+                "end": "2007.06.15",
+            }
+        ]
+        urls = {}
+        mm.resolve_old_site_photos(members, urls, fetch, pause=0)
+        self.assertEqual(
+            urls["m:吉澤ひとみ"],
+            "https://web.archive.org/web/20050416001745id_/"
+            "http://www.helloproject.com/artist/01/04/artist_photo.jpg",
+        )
+
     def test_rejects_capture_outside_tenure(self):
         """**防张冠李戴**：扁平文件名会被后来阵容覆盖 —— 快照晚于毕业日就不采纳。"""
         rows = [

@@ -14,6 +14,7 @@
 """
 import re
 import time
+from urllib.parse import urljoin
 
 import ja_wiki
 import photo_chain
@@ -1112,9 +1113,20 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=4
                         continue
                     if not tenure_ok(m, ts):
                         continue
-                    if src.startswith("/"):
-                        src = "http://www.helloproject.com" + src
-                    urls[m["file"]] = src
+                    # 相对 src（2005 前后的一人一页写的是 `artist_photo.jpg`）要相对
+                    # **原页面**解析成绝对 URL，再套 Wayback —— 旧站的图片路径早
+                    # 就 404 了，只有存档里有。绝对 src 照旧直连（后来的页面还有效）。
+                    if src.startswith("http"):
+                        urls[m["file"]] = src
+                    elif src.startswith("/"):
+                        urls[m["file"]] = "http://www.helloproject.com" + src
+                    else:
+                        # 裸相对（`artist_photo.jpg`）：相对原页面解析后套 Wayback ——
+                        # 旧站的图片路径早就 404 了，只有存档里有。
+                        abs_src = urljoin(original, src)
+                        urls[m["file"]] = (
+                            "https://web.archive.org/web/{}id_/{}".format(ts, abs_src)
+                        )
     # 无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）
     for name, original in OLD_SITE_FILE_EVIDENCE.items():
         m = by_name.get(name)
