@@ -1037,7 +1037,13 @@ def tenure_ok(member, ts):
     return True
 
 
-def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=150):
+def _norm_old_url(u):
+    """归一旧官网 URL 的默认端口：`…helloproject.com:80/…` 与 `…helloproject.com/…`
+    是同一个资源，CDX 却按两种形态返回。"""
+    return u.replace("://www.helloproject.com:80/", "://www.helloproject.com/")
+
+
+def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=400):
     """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
     **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
     missing = [m for m in members if m["status"] == "former" and m["file"] not in urls]
@@ -1059,7 +1065,10 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=1
         best = {}
         # 每团一份预算：全局 cap 会被第一个团的几个前缀吃光（实测：57 人只中 17，
         # 后半个团一个都配不到）。
-        per_group = max(12, (limit - fetched) // max(1, groups_left))
+        # 下限 40 而不是 12：早年的「一人一页」在 artist/01/01…20 与
+        # morningmusume/profile 前缀下，每页还有 `/` 与 `/index.html` 两种形态 ——
+        # 预算 16 时只够走到第 8 个人，后面的一律配不到（实测）。
+        per_group = max(40, (limit - fetched) // max(1, groups_left))
         groups_left -= 1
         for prefix in prefixes:
             if pause:
@@ -1073,7 +1082,10 @@ def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=1
                     continue
                 if not any(tenure_ok(m, ts) for m in missing):
                     continue
-                best.setdefault(original, []).append(ts)
+                # CDX 里同一个页面有两种形态：`…com/…` 与 `…com:80/…`（2005 前后的
+                # 快照几乎全挂在 `:80` 形态下）。不归一的话它们算两个 URL，`:80` 的
+                # 排在排序后面、被每团预算截掉 —— 早期成员一个都配不到（实测根因）。
+                best.setdefault(_norm_old_url(original), []).append(ts)
         picked = 0
         for original in sorted(best):
             if fetched >= limit or picked >= per_group:
