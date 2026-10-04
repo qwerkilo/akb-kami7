@@ -70,6 +70,13 @@
 AKB_PROXY= python3 scripts/fetch_members.py   # 全量；跑完接产物测试与三套 E2E
 ```
 
+## 2026-10-04 收口：照片源完成
+
+**缺图 75 → 23**（全站 1544 人、1521 有图 = 98.5%；早安 169 人缺 23）。
+七个真根因已全部修掉并提交（Shift_JIS、大写属性、URL 归一、预算、Wayback 包装、
+下载重试、1×1 守卫），详见 `issues/03-regenerate.md` 的收口段。
+三套 E2E 全过（240/245 + 54/54 + 43/43，5 条为既有脚本问题）。
+
 ## 关键命令
 
 - 真实抓取：`AKB_PROXY= python3 scripts/fetch_members.py`（本机代理 7890 不通，必须直连）
