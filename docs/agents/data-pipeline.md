@@ -18,5 +18,11 @@
 ⚠️ **门③ 必须排在三个 loader 之后**。它原本紧跟在 48G/坂道 之后，而基线的比较集合含等爱与早安的团 —— 那时它们还没被加载，于是每次都算「一个成员都没解析到」并中止。**这是真实抓取才发现的**（等爱上线后没人真跑过一次完整抓取，所以一直没暴露）。
 两者的理由相同：脚本末尾的 `prune_unused` 会把不在新名册里的图片**直接删掉**，带着残缺名册走到那一步就是全站删图。基线把 48G/坂道 记进 `counts`、等爱三团记进 `love_counts`（两者并集才是「团体消失」的比较集合，这样等爱不再被忽略，而「总数跌 60%」仍只算 48G/坂道 —— 等爱人少，比例对它们没意义）。**判据必须与「抓什么」无关**：早先基线用 `if group in GROUP_ORDER` 过滤，等爱分段被整个丢掉，于是「团消失」「腰斩」对等爱恒假；而等爱唯一的门只挡「抛异常」，抓到 0 人时 `love_members` 只 print 一行、`build_sections` 把空团静默丢掉、`prune_unused` 照删图、脚本 exit 0 —— 整组从站点上消失而没人报错。真出现合法的大变动（某个团解散）时用 `--accept-drop` 放行，差量会打到 stderr。
 
-- 依赖 Pillow（缺失时 `pip install Pillow`）；网络默认走代理 `http://127.0.0.1:7897`，本机用 `AKB_PROXY=http://127.0.0.1:7890` 覆盖。
-- 规模随数据更新漂移（当前 1375 人 / 1375 图，full 68M + thumb 17M）——以脚本输出为准，勿引用旧数字。
+- 依赖 Pillow（缺失时 `pip install Pillow`）。
+- **本机跑法（2026-10-04 实测，跑之前先读这三条）**：
+  - **网络组合**：直连 DNS 对 `ja.wikipedia.org` / `web.archive.org` 会解析到假 IP（连接挂死），必须走本地代理；而 48pedia 反过来（直连通、经代理 403）。完整命令：
+    `AKB_PROXY=http://127.0.0.1:7890 no_proxy=48pedia.org,www.48pedia.org python3 scripts/fetch_members.py`
+  - **后台跑**（全量 30–100 分钟）：`setsid nohup timeout 14400 python3 -u scripts/fetch_members.py > /tmp/opencode/pipe.log 2>&1 < /dev/null & disown` —— 发起命令要**快速返回**：发起调用自己超时的话任务会连坐被杀（实测）。
+  - **只改装配数据**（给成员加字段之类）时跳过照片解析：`mm.load(fetch, photo=False)` —— 旧站那 900 次快照扫描只服务照片，装配字段用不到。
+  - **跑完核对名册完整性**：`python3 scripts/check_roster.py`（视图级：按团筛选 vs 各团 Wikipedia 表；2026-10-04 用它抓到 3 个团缺转籍者）。
+- 规模随数据更新漂移 —— **以脚本输出为准**（产物测试钉人数，本文不写第二份）。
