@@ -738,7 +738,9 @@ def main(
     if love_loader is None:
         love_loader = love_members.load
     if morning_loader is None:
-        morning_loader = morningmusume_members.load
+        # 默认带解析缓存：重跑只解析缺的人（旧站那 900 次快照扫描一次跑崩就白烧 1.5 小时）。
+        # 注入自定义 loader 的测试不受影响（缓存是显式 opt-in）。
+        morning_loader = lambda fetch: morningmusume_members.load(fetch, use_cache=True)
     for d in (dirs["orig"], dirs["full"], dirs["thumb"]):
         os.makedirs(d, exist_ok=True)
 

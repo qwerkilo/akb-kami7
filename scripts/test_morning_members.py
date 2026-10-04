@@ -352,6 +352,85 @@ class BuildMembersTests(unittest.TestCase):
         self.assertEqual(self.by_name["野中美希"]["kana"], "のなか みき")
 
 
+class ResolvedCacheTests(unittest.TestCase):
+    """解析结果缓存：重跑时跳过旧站那 900 次快照扫描（一次跑崩就白烧 1.5 小时）。"""
+
+    def test_round_trip(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "_resolved.json")
+            mm._save_resolved({"a:甲": "https://x/a.jpg"}, p)
+            self.assertEqual(mm._load_resolved(p), {"a:甲": "https://x/a.jpg"})
+
+    def test_use_cache_prefills_urls_before_resolution(self):
+        """缓存里的成员要先填进 urls —— 各解析段只处理不在 urls 里的人，
+        这就是「重跑只解析缺的那些」的机制。"""
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "_resolved.json")
+            mm._save_resolved({"morningmusume:既存": "https://x/a.jpg"}, p)
+            seen = {}
+            former = [{"name": "既存", "file": "morningmusume:既存", "status": "former"}]
+
+            def fake_resolve(members, urls, fetch, warn=None, pause=0.0):
+                seen.update(urls)
+
+            with mock.patch.object(mm, "RESOLVED_CACHE", p), mock.patch.object(
+                mm, "resolve_former_photos", fake_resolve
+            ), mock.patch.object(
+                mm, "build_members", lambda o, w: (former, {})
+            ), mock.patch.object(
+                mm, "parse_list", lambda h: []
+            ), mock.patch.object(
+                mm.ja_wiki, "wiki_wikitext", lambda *a, **k: ""
+            ), mock.patch.object(
+                mm, "parse_all", lambda pages: {}
+            ):
+                mm.load(lambda u: "", photo=True, use_cache=True)
+            self.assertEqual(seen.get("morningmusume:既存"), "https://x/a.jpg")
+
+    def test_use_cache_saves_resolved_after_load(self):
+        """解析完要把结果写回缓存 —— 下一次重跑才便宜。"""
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "_resolved.json")
+            former = [{"name": "新", "file": "morningmusume:新", "status": "former"}]
+
+            def fake_resolve(members, urls, fetch, warn=None, pause=0.0):
+                urls["morningmusume:新"] = "https://x/new.jpg"
+
+            with mock.patch.object(mm, "RESOLVED_CACHE", p), mock.patch.object(
+                mm, "resolve_former_photos", fake_resolve
+            ), mock.patch.object(
+                mm, "build_members", lambda o, w: (former, {})
+            ), mock.patch.object(
+                mm, "parse_list", lambda h: []
+            ), mock.patch.object(
+                mm.ja_wiki, "wiki_wikitext", lambda *a, **k: ""
+            ), mock.patch.object(
+                mm, "parse_all", lambda pages: {}
+            ):
+                mm.load(lambda u: "", photo=True, use_cache=True)
+            self.assertEqual(
+                mm._load_resolved(p).get("morningmusume:新"), "https://x/new.jpg"
+            )
+
+    def test_missing_or_corrupt_cache_is_empty(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "_resolved.json")
+            self.assertEqual(mm._load_resolved(p), {}, "文件不存在要返回空，不能崩")
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write("{不是 json")
+            self.assertEqual(mm._load_resolved(p), {}, "坏了也要返回空（重解析即可）")
+
+
 class ResolveFormerPhotosTests(unittest.TestCase):
     """毕业成员的照片：旧列表页快照 → Wayback → Commons。每一级都要试，
     上一张 404 不能让整条链短路。"""

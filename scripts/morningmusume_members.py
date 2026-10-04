@@ -12,6 +12,8 @@
 
 全部为纯函数（fixture 驱动测试）；网络经注入的 text fetcher 访问，测试离线。
 """
+import json
+import os
 import re
 import time
 from urllib.parse import urljoin
@@ -19,6 +21,12 @@ from urllib.parse import urljoin
 import ja_wiki
 import photo_chain
 import roster
+
+# 解析结果缓存（file 键 → 照片 URL）：重跑时预填 urls，**只解析缺的那些** ——
+# 旧站那 900 次快照扫描只服务「还没照片的人」，一次跑崩就白烧 1.5 小时。
+RESOLVED_CACHE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "_orig", "_resolved.json"
+)
 
 SERIES = "morning"
 FILE_PREFIX = "morningmusume"
@@ -1287,7 +1295,28 @@ OFFICIAL_PATHS = {
 OFFICIAL_GROUPS = list(OFFICIAL_PATHS)
 
 
-def load(fetch, warn=print, photo=True):
+def _load_resolved(path=None):
+    """读解析缓存。缺失/损坏都返回空 —— 重解析即可，不能崩整轮。"""
+    try:
+        with open(path or RESOLVED_CACHE, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _save_resolved(urls, path=None):
+    """写解析缓存；失败不致命（下一轮重解析）。"""
+    try:
+        p = path or RESOLVED_CACHE
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        with open(p, "w", encoding="utf-8") as fh:
+            json.dump(urls, fh, ensure_ascii=False, sort_keys=True)
+    except OSError:
+        pass
+
+
+def load(fetch, warn=print, photo=True, use_cache=False):
     """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。"""
     official = {}
     for group in OFFICIAL_GROUPS:
@@ -1311,7 +1340,13 @@ def load(fetch, warn=print, photo=True):
         print("{}: {} 人（Wikipedia）".format(group, len(parsed.get(group, []))))
     members, urls = build_members(official, parsed)
     if photo:
+        if use_cache:
+            # 预填已解析过的（各解析段只处理不在 urls 里的人 → 天然增量）
+            for k, v in _load_resolved().items():
+                urls.setdefault(k, v)
         resolve_former_photos(members, urls, fetch, warn, pause=1.5)
+        if use_cache:
+            _save_resolved(urls)
     return members, urls
 
 
