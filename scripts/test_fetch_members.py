@@ -1204,6 +1204,26 @@ class CompressMembersTests(unittest.TestCase):
             self.assertFalse(fetch_members.usable(os.path.join(tmp, "missing.webp")))
             self.assertTrue(fetch_members.usable(good))
 
+    def test_tiny_source_image_is_treated_as_missing(self):
+        """1×1 占位图不是头像：删掉已生成的输出、img=False。
+
+        这条同时钉住「不许漏赋值」——当初的实现用 `continue` 跳过 `img` 赋值，
+        一条跑完 90 分钟的管线在最后一步 `KeyError: 'img'` 崩掉、整轮白跑。
+        没有这条测试时，1×1 分支是零覆盖的。
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            full, thumb = self._dirs(tmp)
+            orig = os.path.join(tmp, "tiny.png")
+            Image.new("RGB", (1, 1), (255, 0, 255)).save(orig)
+            members = [{"id": "m1", "name": "占位图"}]
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                fetch_members.compress_members(
+                    members, {"m1": orig}, False, full, thumb
+                )
+            self.assertFalse(members[0]["img"], "1×1 源图必须按缺图处理")
+            self.assertFalse(os.path.exists(os.path.join(full, "m1.webp")))
+            self.assertFalse(os.path.exists(os.path.join(thumb, "m1.webp")))
+
 
 if __name__ == "__main__":
     unittest.main()
