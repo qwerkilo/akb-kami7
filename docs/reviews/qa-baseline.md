@@ -2,6 +2,74 @@
 
 基线提交：`346ae89`。工具与口径见各节；本文件供下次质检对比。
 
+---
+
+# 2026-10-04 复检（基线提交 `1809411`，63 个提交之后）
+
+> 首检见下方「2026-09-26」。本回复检**跳过密钥扫描**（用户指定）；越权/注入改为**注入面审计**
+> （这个站有真实审计面：上游数据 → `members.js` → `innerHTML`）。
+
+## 模块裁剪结论
+
+| 模块       | 结论         | 工具                                              | 理由                                                         |
+| ---------- | ------------ | ------------------------------------------------- | ------------------------------------------------------------ |
+| CRAP（≤6） | 做           | lizard + node 内置覆盖率 + coverage.py            | 纯逻辑全部覆盖 100%（CRAP=CCN）；超线集中在 Python 管线      |
+| 单元测试   | 做（评估）   | node:test + unittest + 仓内 `scripts/mutate.mjs`  | 全绿（282 JS + 242 Python）；变异采样 9/9 被杀               |
+| Gherkin    | 不做         | —                                                 | 单人静态站；`e2e/` 四条命令已覆盖业务流，BDD 无协作收益      |
+| QA 流程    | 部分做       | —                                                 | 单人无 CI；已有闸门（`npm run check`）+ 检查点 + 两轴审查    |
+| 质量指标   | 做           | lizard / rg / 自写克隆探测 / npm audit            | 数字见下                                                     |
+| 变异测试   | 做（限预算） | 仓内 `scripts/mutate.mjs`（替代首检的 StrykerJS） | 9 个真实缺陷全被杀                                           |
+| 覆盖率     | 做           | `node --experimental-test-coverage` / `coverage`  | 数字见下                                                     |
+| 密钥扫描   | 跳过         | —                                                 | 用户指定跳过                                                 |
+| 越权/注入  | 部分做       | 手工 sink 审计                                    | 无服务端/鉴权/SQL；审计上游数据 → DOM 的转义链（结论：干净） |
+
+## 关键数字
+
+- **覆盖率**：core.js 行 99.62% / 分支 92.77% / 函数 100%；session.js 99.79/92.59/98；
+  poster.js 99.90%；i18n.js 行 99.91%（函数 % 低 = 文案表箭头函数按需调用）；
+  Python 总 97%、产品文件 95.7%。`app.js` 不被单测加载（缝⑦，只有 E2E）。
+- **CRAP > 6 且 CCN ≥ 3**：JS 23 个（全部覆盖 100%，最高 `deserializeState` 22）；
+  Python 44 个（未测工具脚本按 0% 计）。**活代码 CCN > 10 的只有 3 个**：
+  `love_members.build_members` 15、`parse_member_chunk` 12、`fetch_members.main` 11
+  （首检时 `main` 是 44 —— 已大幅改善）。
+- **变异采样**（core.js 6 + session.js 3）：**9/9 被杀**，无存活。
+- **质量指标**：代码/脚本内 TODO/FIXME = 0；重复率：JS 0.35%（`replay`/`replayTiers`
+  9 行自克隆）、生产 Python 0%、CSS 0%；依赖 devDeps 3（无生产依赖）、`npm audit` 0 漏洞；
+  Pillow 只写在文档里、无机器可读声明。
+- **注入面**：所有 HTML sink 的数据派生串都过 `esc`（`& < > "`；属性一律双引号所以 `'` 不构成逃逸）；
+  `eval`/`new Function`/`document.write` 生产代码 0 处；搜索串只进已转义的文案；
+  `members.js` 用 `json.dump` 序列化（引号/反斜杠正确转义，外链脚本无 `</script>` 问题）。
+
+## 发现（按严重度）
+
+1. **lizard 1.24.0 的 JS 解析不可信 —— 影响复杂度棘轮**（中）。
+   最小复现：`kanjiNumber` 被报成 `@310-759`、length 450（实际 310-315 六行）；
+   正则字面量与 `(expr).filter(...)` 形态会截断/吞并后续代码；`stay@1155-1210 CCN 20`
+   实际属于相邻的 `NAV_RULES` 转移表（这条首检后已记录）。棘轮是 lizard 对 lizard 自洽的，
+   所以不会误报，但**被截断的函数会藏住真实复杂度**。建议：JS 侧换 AST 口径（prettier 自带
+   parser）或至少在基线里注明该局限。
+2. **Python 三个 CCN > 10 的活函数**（低-中）：`build_members` 15、`parse_member_chunk` 12、
+   `fetch_members.main` 11 —— 按本仓「CCN > 10 才列修」口径，建议拆到 ≤10。
+3. **复杂度基线一条过期条目**（低）：`docs/reviews/complexity-baseline.txt` 里
+   `names@./core.js` 记 16，实际已降到 5；棘轮只拦增高，过期条目不拦下降 —— 建议清理。
+4. **两条健壮性发现**（低，非注入）：① `app.js` 的 `toggleSection` 用数据派生的 group/label
+   直接拼选择器（`.grp[data-group="${key}"]`），上游团名含 `"` 会抛 `DOMException`，建议
+   `CSS.escape`；② `m.id` 裸插 `data-id`/`src`，安全性押在 `^m[0-9a-f]{10}$` 形状上但没有
+   产物守卫钉它（建议补缝③）。
+5. **`check_roster.py` / `patch_file.py` 无测试**（低）：CRAP 按 0% 计（表里已标注），
+   维护脚本可选补一条 smoke test。
+
+## 复检跑过的命令（关键）
+
+```
+node --test --experimental-test-coverage        # 282 pass / 0 fail
+NODE_V8_COVERAGE=/tmp/opencode/v8cov node --test # 每函数覆盖（CRAP 用）
+cd scripts && coverage run -m unittest discover -s . -t . -p 'test_*.py' && coverage report
+lizard . -l javascript -l python -x '*/e2e/*'   # 与棘轮同一条扫描
+node scripts/mutate.mjs … -- npm test           # 9 个变异，全杀
+npm_config_proxy=http://127.0.0.1:7890 npm audit --registry=https://registry.npmjs.org  # 0 漏洞
+```
+
 ## 模块裁剪结论
 
 | 模块       | 结论         | 工具                                            | 理由                                                     |
