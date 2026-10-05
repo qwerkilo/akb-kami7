@@ -115,8 +115,10 @@ export function jsCcn(code) {
   return out;
 }
 
-// 自检：`node scripts/ccn.mjs --self-test`（不进 npm test —— 工具脚本，七处缝之外）
-if (process.argv.includes("--self-test")) {
+/** 自检：返回 {ok, failures}。complexity.mjs 会调用它 —— 一个能整体失效还全绿的
+ * 守卫比没有守卫更危险（两轴审查实测：jsCcn 直接 return [] 时棘轮仍绿）。 */
+export function selfTest() {
+  const failures = [];
   const cases = [
     ["function f(){}", 1],
     ["function f(a){ if(a) return 1; }", 2],
@@ -131,27 +133,27 @@ if (process.argv.includes("--self-test")) {
     ["function f(){ const g = () => { if (x) return 1; }; return 0; }", 1], // 嵌套不计入外层
     ["function f(a){ if(a){ const g = (b) => b ? 1 : 0; } }", 2],
   ];
-  let bad = 0;
   for (const [src, want] of cases) {
     const got = jsCcn(src)[0].ccn;
-    if (got !== want) {
-      bad += 1;
-      console.error(`✗ ${JSON.stringify(src)} 期望 ${want} 得到 ${got}`);
-    }
+    if (got !== want)
+      failures.push(`${JSON.stringify(src)} 期望 ${want} 得到 ${got}`);
   }
   // 嵌套函数要各进清单
   const nested = jsCcn("function f(){ const g = () => { if (x) return 1; }; }");
-  if (nested.length !== 2 || nested[1].ccn !== 2) {
-    bad += 1;
-    console.error("✗ 嵌套函数未独立列出", JSON.stringify(nested));
-  }
+  if (nested.length !== 2 || nested[1].ccn !== 2)
+    failures.push(`嵌套函数未独立列出 ${JSON.stringify(nested)}`);
   // 真实文件的回归点：lizard 会截断的两个函数
   const core = readFileSync(new URL("../core.js", import.meta.url), "utf8");
   const kn = jsCcn(core).find((f) => f.name === "kanjiNumber");
-  if (!kn || kn.ccn !== 7 || kn.to - kn.from > 10) {
-    bad += 1;
-    console.error("✗ kanjiNumber 口径漂移", JSON.stringify(kn));
-  }
-  console.log(bad ? `✗ ${bad} 条自检失败` : "✓ 自检全过");
-  process.exit(bad ? 1 : 0);
+  if (!kn || kn.ccn !== 7 || kn.to - kn.from > 10)
+    failures.push(`kanjiNumber 口径漂移 ${JSON.stringify(kn)}`);
+  return { ok: failures.length === 0, failures };
+}
+
+// CLI：`node scripts/ccn.mjs --self-test`
+if (process.argv.includes("--self-test")) {
+  const r = selfTest();
+  for (const f of r.failures) console.error(`✗ ${f}`);
+  console.log(r.ok ? "✓ 自检全过" : `✗ ${r.failures.length} 条自检失败`);
+  process.exit(r.ok ? 0 : 1);
 }

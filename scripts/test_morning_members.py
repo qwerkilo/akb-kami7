@@ -211,8 +211,6 @@ class ParseWikiMembersTests(unittest.TestCase):
         self.assertEqual(len(love_members.parse_wiki_members(FORMER_WIKI)), 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 # ── 装配层（工单 03）─────────────────────────────────────────────────────
@@ -354,6 +352,23 @@ class BuildMembersTests(unittest.TestCase):
 
 class ResolvedCacheTests(unittest.TestCase):
     """解析结果缓存：重跑时跳过旧站那 900 次快照扫描（一次跑崩就白烧 1.5 小时）。"""
+
+    def test_cache_path_is_outside_prune_dirs(self):
+        """缓存不能落在 prune_unused 会扫的目录里。
+
+        放 scripts/_orig 时每次成功跑完都会被清掉（stem 不是成员 id），
+        「重跑只解析缺的人」实际不成立 —— 2026-10-04 两轴审查抓到。
+        """
+        import fetch_members
+
+        cache = os.path.abspath(mm.RESOLVED_CACHE)
+        dirs = fetch_members.default_dirs()
+        for key in ("orig", "full", "thumb"):
+            p = os.path.abspath(dirs[key])
+            self.assertFalse(
+                cache == p or cache.startswith(p + os.sep),
+                f"缓存 {cache} 落在会被 prune_unused 清空的 {key} 目录里",
+            )
 
     def test_round_trip(self):
         import tempfile
@@ -731,8 +746,6 @@ class BuildSectionsTests(unittest.TestCase):
         self.assertEqual(nonaka["nick_aliases"], ["のなちゃん"])
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 # ── 工单 01：℃-ute 的 parse（按团配置节标记，复用モーニング娘。的解析器）────
@@ -1210,3 +1223,7 @@ class TestCrossGroupMerge(unittest.TestCase):
         self.assertEqual(len(members), 1)
         self.assertEqual(members[0]["group"], "Juice=Juice")
         self.assertEqual(members[0]["status"], "current")
+
+
+if __name__ == "__main__":
+    unittest.main()

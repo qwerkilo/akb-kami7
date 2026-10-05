@@ -56,15 +56,18 @@
    `_prepare_dirs`+`_roster_gate`+`_write_outputs`，全部 ≤10；顺序守卫改钉调用点。
 3. **复杂度基线一条过期条目**（低）：`names@./core.js` 记 16、实际 5。**已随迁移清掉**
    （AST 口径下 names 是 5，不在名单里）。
-4. **两条健壮性发现**（低，非注入）：① `app.js` 的 `toggleSection` 用数据派生的 group/label
-   直接拼选择器（`.grp[data-group="${key}"]`），上游团名含 `"` 会抛 `DOMException`，建议
-   `CSS.escape`；② `m.id` 裸插 `data-id`/`src`，安全性押在 `^m[0-9a-f]{10}$` 形状上但没有
-   产物守卫钉它（建议补缝③）。
-5. **`check_roster.py` / `patch_file.py` 无测试**（低）：CRAP 按 0% 计（表里已标注），
-   维护脚本可选补一条 smoke test。**未做**。
-6. **AST 口径新登记的 4 条 JS 债**（中，2026-10-04 新增）：`app.js` 的 `(anonymous)` 16
-   （键盘处理）与 `renderDuel` 16、`sectionHTML` 11、`poster.js` 的 `drawCollage` 11 ——
-   按「CCN>10 列修」逐个拆（改 `app.js`/`poster.js` 需跑 `npm run e2e`）。**未做**。
+4. **两条健壮性发现**（低，非注入）：① `toggleSection` 拼选择器 → **已修**（`CSS.escape(key)`）；
+   ② `m.id` 形状无守卫 → **已补**（缝③：`assert.match(m.id, /^m[0-9a-f]{10}$/)`）。
+5. **`check_roster.py` 无测试**（低）：**已补** 3 条 smoke（`_gap_line`、缺口/一致、
+   上游失败报 None 与「缺人」分开）；`patch_file.py` 仍无（一次性补丁工具，接受）。
+6. **AST 口径新登记的 4 条 JS 债**（中，2026-10-04 新增）：**已拆完** —— `app.js` 拆出
+   `skinArrowKey`/`duelArrowKey`/`renderDuelProgress`/`tierStripHTML`/`renderTierStrip`/`data-act`
+   查表，`poster.js` 拆出 `collageDots`/`collageRows`/`collageHeader`/`collageTape`/`collageCard`；
+   连带把 `core.js` 的 `deserializeState` 22 与 `romanize` 11 也拆了（`validDuel`/`validCut`/`sokuon`）。
+   **产品代码现在全部 ≤10**，基线只剩 2 条测试辅助（`bioDict` 17、`load_fetcher.fetch` 12）。
+   如实记账：点击委托收表时漏了 `#screen-reset` 的 id 分支 → 主 E2E 立刻红（29/32），已修。
+7. **e2e-pwa 的已知 flake**（低）：「断网下海报脸部有照片层次」单次取样会在照片解码前读到
+   只有底色的画布（实测 110 种色）→ **已修**（轮询 15s 内等到 >200 种色，断言强度不变）。
 
 ## 复检跑过的命令（关键）
 

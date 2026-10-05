@@ -24,6 +24,6 @@
     `AKB_PROXY=http://127.0.0.1:7890 no_proxy=48pedia.org,www.48pedia.org python3 scripts/fetch_members.py`
   - **后台跑**（全量 30–100 分钟）：`setsid nohup timeout 14400 python3 -u scripts/fetch_members.py > /tmp/opencode/pipe.log 2>&1 < /dev/null & disown` —— 发起命令要**快速返回**：发起调用自己超时的话任务会连坐被杀（实测）。
   - **只改装配数据**（给成员加字段之类）时跳过照片解析：`mm.load(fetch, photo=False)` —— 旧站那 900 次快照扫描只服务照片，装配字段用不到。
-  - **解析结果有缓存**（`scripts/_orig/_resolved.json`，gitignore）：重跑只解析缺的人；删掉它可强制全量重解析。
+  - **解析结果有缓存**（`scripts/_resolved.json`，gitignore）：重跑只解析缺的人；删掉它可强制全量重解析。**别放回 `_orig/`**：`prune_unused` 每次成功跑完会清空那里「stem 不是成员 id」的文件，缓存会被一起删掉（两轴审查抓到过）。
   - **跑完核对名册完整性**：`python3 scripts/check_roster.py`（视图级：按团筛选 vs 各团 Wikipedia 表；2026-10-04 用它抓到 3 个团缺转籍者）。
 - 规模随数据更新漂移 —— **以脚本输出为准**（产物测试钉人数，本文不写第二份）。

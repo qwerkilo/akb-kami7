@@ -1,4 +1,6 @@
 scripts/_orig/
+# 解析结果缓存（morningmusume_members.RESOLVED_CACHE）—— 别放回 _orig/，那里会被 prune_unused 清空
+scripts/_resolved.json
 scripts/_*.wiki
 __pycache__/
 node_modules/

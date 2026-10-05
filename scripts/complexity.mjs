@@ -17,11 +17,18 @@
 
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
-import { jsCcn } from "./ccn.mjs";
+import { jsCcn, selfTest } from "./ccn.mjs";
 
 const BASELINE = "docs/reviews/complexity-baseline.txt";
 const THRESHOLD = 10;
 const update = process.argv.includes("--update");
+
+// 先自检 CCN 计算器本身：它能整体失效还让棘轮全绿（变异 jsCcn→[] 实测存活）。
+const st = selfTest();
+if (!st.ok) {
+  console.error("✗ CCN 自检失败（结论不可信）：" + st.failures.join("；"));
+  process.exit(2);
+}
 
 const offenders = new Map();
 const add = (name, file, ccn, from, to) => {
@@ -66,7 +73,7 @@ try {
 }
 const KEY = /^(.+?)@(\d+)-(\d+)@(.+)$/;
 for (const line of out.split("\n")) {
-  // lizard 的列序是 NLOC CCN token PARAM length location —— **7 列**。
+  // lizard 的列序是 NLOC CCN token PARAM length location —— 6 列（5 个数字 + 符号）。
   const m = line.match(
     /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+@\S+)$/
   );

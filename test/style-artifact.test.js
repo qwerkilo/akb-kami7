@@ -818,7 +818,17 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
     /let lastTierIdx = null/,
     "lastTierIdx 必须在模块作用域（跨渲染记忆）"
   );
-  assert.match(app, /--fill/, "必须写 --fill（组内进度）");
+  // 钉进函数体**并剥注释**：全文件匹配（或函数体含注释）会被注释里的 "--fill" 满足
+  // —— 两轴审查实测：删掉真正写 --fill 的那行、只留注释，旧断言仍绿。
+  const stripHTML = /function tierStripHTML\(\) \{([\s\S]*?)\n  \}/.exec(
+    stripJsComments(app)
+  );
+  assert.ok(stripHTML, "找不到 tierStripHTML()");
+  assert.match(
+    stripHTML[1],
+    /--fill/,
+    "tierStripHTML 必须写 --fill（组内进度）"
+  );
   // 海报淡入：CSS 规则在，且 unveil 之后会被重新触发（像素到达才显影）
   assert.match(
     css,

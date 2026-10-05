@@ -70,6 +70,9 @@ test("每个分组有 label 与 members，成员字段完整且 id 唯一", () =
     assert.ok(Array.isArray(section.members));
     for (const m of section.members) {
       assert.equal(typeof m.id, "string");
+      // id 是 assign_ids 本地生成的 md5 形状。DOM 侧把它裸插进 data-id/src 与选择器，
+      // 安全性押在这个形状上（上游名字不参与 id 字符集）—— 2026-10-04 质检发现④。
+      assert.match(m.id, /^m[0-9a-f]{10}$/, `id 形状: ${m.id}`);
       assert.equal(typeof m.name, "string");
       assert.equal(typeof m.kana, "string", `kana 缺失: ${m.name}`);
       assert.equal(typeof m.nick, "string", `nick 缺失: ${m.name}`);

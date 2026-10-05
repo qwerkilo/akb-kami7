@@ -500,8 +500,6 @@ class ParseNickTest(unittest.TestCase):
         self.assertIsNone(love_members.parse_nick(chunk))
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class BuildBioTest(unittest.TestCase):
@@ -525,3 +523,7 @@ class BuildBioTest(unittest.TestCase):
     def test_romaji_comes_from_official(self):
         bio = love_members.build_bio({"romaji": "Mirei"}, {})
         self.assertEqual(bio["romaji"], "Mirei")
+
+
+if __name__ == "__main__":
+    unittest.main()

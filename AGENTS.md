@@ -4,8 +4,8 @@
 
 纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `session.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
 
-- 站点覆盖三系列共 13 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY），现役 + 毕业（人数以脚本输出为准，见 `docs/agents/data-pipeline.md`）。
-- 能力：三系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，层级与题数上限见 `docs/adr/0019-screening-then-rank.md`）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（classic / sticker）、PWA 可安装 + 离线。
+- 站点覆盖四系列共 24 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY）、早安家族十一团（モーニング娘。 / アンジュルム / Juice=Juice / つばきファクトリー / BEYOOOOONDS / OCHA NORMA / ロージークロニクル / Berryz工房 / カントリー・ガールズ / こぶしファクトリー / ℃-ute），现役 + 毕业（人数以脚本输出为准，见 `docs/agents/data-pipeline.md`）。
+- 能力：四系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，层级与题数上限见 `docs/adr/0019-screening-then-rank.md`）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（classic / sticker）、PWA 可安装 + 离线。
 - 层次：`core.js` 无 DOM 依赖的纯逻辑（搜索归一、两级分组、筛选轮次与层级、`mergeSort` 对决 replay、持久化载荷编解码、导航相位 `nav`/`steps`、`names()` 命名组合）；`session.js` 会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 海报绘制（7/16/40 × 四样式，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en/ja 文案；`app.js` 是 DOM 层：向导 → pick → 筛选 → duel → result（canvas 海报导出）。
 - `members.js` / `simplified.js` 是生成文件，不要手改。
 - 三语 UI（zh/en/ja）：文案在 `i18n.js`，`index.html` 的 `data-i18n` 引用同一批键。**加一个 UI 文案要同时改三种语言**（漏一种时 `test/i18n.test.js` 会红，它还额外要求 ja 与 zh 同集合）；出身地/星座/期生/状态这类可穷举字段走映射表（只服务 zh/en，ja 直出数据原文），趣味/特技走仓库内「日文原文 → zh/en」对照表，未收录自动回退原文。
@@ -159,7 +159,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 - 每次 review 结束后，向 `docs/reviews/checkpoints.md` 追加一条记录（格式见该文件）：日期、本次基点、审查范围、结论、遗留问题、下次基点（本次 HEAD 的 SHA）。
 - 下次 review 从上次记录的基点开始，不重复审查已经通过的部分。
-- 质检基线在 `docs/reviews/qa-baseline.md`；口径「CCN > 10 才列修」目前**没有任何自动化在守**（lizard 也不输出 CRAP，本仓无覆盖率工具链），要靠手动跑。
+- 质检基线在 `docs/reviews/qa-baseline.md`；口径「CCN > 10 才列修」由 `npm run complexity` 的趋势棘轮守（只拦新增/变高，2026-10-04 接进闸门）；CRAP 与覆盖率仍靠手动跑（lizard 不输出 CRAP，本仓无覆盖率工具链）。
 
 ## 约定
 

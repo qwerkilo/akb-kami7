@@ -24,8 +24,11 @@ import roster
 
 # 解析结果缓存（file 键 → 照片 URL）：重跑时预填 urls，**只解析缺的那些** ——
 # 旧站那 900 次快照扫描只服务「还没照片的人」，一次跑崩就白烧 1.5 小时。
+# 路径**不能**放在 scripts/_orig 里：prune_unused 每次成功跑完会清空那个目录里
+# 所有「stem 不是成员 id」的文件，缓存会被一起删掉（两轴审查抓到：放在 _orig 时
+# 「重跑只解析缺的人」实际不成立）。放在 scripts/ 下，三个 prune 目录之外。
 RESOLVED_CACHE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "_orig", "_resolved.json"
+    os.path.dirname(os.path.abspath(__file__)), "_resolved.json"
 )
 
 SERIES = "morning"

@@ -429,8 +429,10 @@
   }
 
   function toggleSection(level, key, content) {
+    // key 是数据派生的团体名/期生名；含引号时拼选择器会抛 DOMException（质检发现④）
+    const k = CSS.escape(key);
     const sec = roster.querySelector(
-      level === "grp" ? `.grp[data-group="${key}"]` : `.gen[data-sec="${key}"]`
+      level === "grp" ? `.grp[data-group="${k}"]` : `.gen[data-sec="${k}"]`
     );
     if (!sec) return;
     const c = level === "grp" ? "grp" : "gen";

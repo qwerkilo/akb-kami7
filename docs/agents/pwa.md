@@ -59,7 +59,7 @@
 
 **手动**：仓库根 `python3 -m http.server`（`127.0.0.1` 是安全上下文）→ DevTools Application 看 SW 与缓存。
 
-**黑盒**：`/tmp/opencode/e2e-pwa.cjs`（本机临时脚本，**/tmp 不持久**；第二版 `sw.js` 跑在 `/tmp` 副本里，不污染仓库）。要复跑就按它的结构重建：
+**黑盒**：`npm run e2e:pwa`（仓内 `e2e/e2e-pwa.cjs`；它在 `os.tmpdir()` 下另起一份站点副本，第二版 `sw.js` 跑在副本里，不污染仓库）。它做的是：
 
 1. 临时副本目录（壳文件复制过去 + `img` 软链）另起一个 `python3 -m http.server`。
 2. `context.setOffline(true)` 后 reload，验证挑人 → 对决 → 出图全程可用。

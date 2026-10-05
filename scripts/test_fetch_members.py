@@ -8,6 +8,7 @@ from contextlib import redirect_stderr, redirect_stdout
 
 from PIL import Image
 
+import check_roster
 import fetch_members
 
 
@@ -1225,8 +1226,42 @@ class CompressMembersTests(unittest.TestCase):
             self.assertFalse(os.path.exists(os.path.join(thumb, "m1.webp")))
 
 
-if __name__ == "__main__":
-    unittest.main()
+
+class CheckRosterSmokeTests(unittest.TestCase):
+    """维护脚本 check_roster 此前零测试（质检复检 CRAP 按 0% 计）——只钉比对逻辑本身。"""
+
+    def test_gap_line_lists_missing_and_extra(self):
+        self.assertEqual(check_roster._gap_line([], []), "")
+        self.assertEqual(check_roster._gap_line(["a"], []), "；缺: a")
+        self.assertEqual(check_roster._gap_line([], ["b"]), "；多: b")
+        self.assertEqual(check_roster._gap_line(["a"], ["b"]), "；缺: a；多: b")
+
+    def test_check_group_detects_gaps_and_match(self):
+        cfg = {"page": "X"}
+        parsed = [{"name": "a"}, {"name": "b"}]
+        with mock.patch.object(
+            check_roster.mm.ja_wiki, "wiki_wikitext", return_value=""
+        ), mock.patch.object(
+            check_roster.mm, "parse_wiki_members", return_value=parsed
+        ):
+            self.assertFalse(
+                check_roster.check_group("G", cfg, {"G": {"a"}}, lambda u: ""),
+                "视图缺 b，必须报缺口",
+            )
+            self.assertTrue(
+                check_roster.check_group("G", cfg, {"G": {"a", "b"}}, lambda u: ""),
+                "完全一致时返回 True",
+            )
+
+    def test_check_group_upstream_failure_is_not_a_gap(self):
+        with mock.patch.object(
+            check_roster.mm.ja_wiki, "wiki_wikitext", side_effect=RuntimeError("429")
+        ):
+            self.assertIsNone(
+                check_roster.check_group("G", {"page": "X"}, {"G": {"a"}}, None),
+                "上游失败要报 None（与「缺人」分开），否则网络问题会被当成名册缺口",
+            )
+
 
 
 class MorningSeriesPipelineTests(unittest.TestCase):
@@ -1489,3 +1524,7 @@ class NewSeriesBaselineTests(unittest.TestCase):
             ],
         )
         self.assertEqual(len(morning[1]["members"]), 8, "℃-ute 仍是 8 人")
+
+
+if __name__ == "__main__":
+    unittest.main()
