@@ -41,7 +41,7 @@
 | ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（`npm run e2e` / `:v5` / `:pwa` / `:header`，2026-10-04 入仓）                                                      |
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
-- **E2E 在 `e2e/`**（2026-10-04 入仓，此前每次会话重建、还挂着 5 条「已知红」没人修）：`npm run e2e`（主套件 245 项）/ `:v5` / `:pwa` / `:header`（窄屏 72 状态矩阵，含在线/离线）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
+- **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（窄屏矩阵，含在线/离线）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
 - 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
 - 缝④ 的夹具 id 前缀：`a1–a40` = 48g、`s1–s40` = 坂道、`l1–l40` = 等爱。写错前缀时 `toggleSelect` 静默返回 false，测试会以「筛不出东西」的方式假绿。
 - 断言要挑**有分辨力**的那一个：同一条测试里有的断言在错误路径上也会通过（曾有一条「complete」假绿、只有「已划人数」抓住）。
@@ -70,7 +70,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 ## 常用命令
 
 - 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
-- **提交闸门 = `npm run check`**（`prettier --check .` + `npm test` + `npm run complexity`）。格式化与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起（复杂度棘轮此前红了两批没人知道 —— 2026-10-04 retro 接进来的）。
+- **提交闸门 = `npm run check`**（`prettier --check .` + `npm test` + `npm run complexity`）。格式化与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过一次。
 - 格式化写回用（`check` 红了之后）：`PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。**顺序有陷阱**：lint-staged 只处理**已暂存**的文件，先跑 `graph:sync` 再 `git add` 会让它变成 no-op（本项目踩过两次）。
 - 仓库没有 lint / typecheck 脚本。

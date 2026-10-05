@@ -22,7 +22,11 @@ const update = process.argv.includes("--update");
 
 let out = "";
 try {
-  out = execSync("lizard . -l javascript -l python", { encoding: "utf8" });
+  // 排除 e2e/：测试脚本是**顺序检查序列**，每个 check 就是一个 if，CCN 天然高
+  // （主套件那个 IIFE 42、PWA 42）。棘轮守的是产品代码的形状，不是测试脚本。
+  out = execSync("lizard . -l javascript -l python -x '*/e2e/*'", {
+    encoding: "utf8",
+  });
 } catch (e) {
   // lizard 有超阈值函数时会非零退出，stdout 仍然有效
   out = e.stdout || "";

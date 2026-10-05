@@ -57,34 +57,39 @@ def site_view():
     return json.loads(r.stdout)
 
 
+def _gap_line(missing, extra):
+    out = "；缺: " + "、".join(missing) if missing else ""
+    return out + ("；多: " + "、".join(extra) if extra else "")
+
+
+def check_group(group, cfg, site, fetch):
+    """一个团的比对。返回 True=一致，False=有缺口，None=上游失败。"""
+    try:
+        text = mm.ja_wiki.wiki_wikitext(cfg["page"], fetch)
+        parsed = mm.parse_wiki_members(text, group)
+    except Exception as e:  # 抓取失败与「缺人」要分开报
+        print("  ? {}: 上游抓取/解析失败（{}）".format(group, e))
+        return None
+    wiki = [m["name"] for m in parsed]
+    got = set(site.get(group, []))
+    missing = [n for n in wiki if n not in got]
+    extra = [n for n in got if n not in wiki]
+    if missing or extra:
+        print(
+            "  ✗ {}: wiki {} / 视图 {}{}".format(
+                group, len(wiki), len(got), _gap_line(missing, extra)
+            )
+        )
+        return False
+    print("  ✓ {}: {} 人".format(group, len(wiki)))
+    return True
+
+
 def main():
     site = site_view()
     fetch = lambda u: fetch_members.decode_page(get(u))  # noqa: E731
-    bad = 0
-    for group, cfg in mm.GROUPS.items():
-        try:
-            text = mm.ja_wiki.wiki_wikitext(cfg["page"], fetch)
-            parsed = mm.parse_wiki_members(text, group)
-        except Exception as e:  # 抓取失败与「缺人」要分开报
-            print("  ? {}: 上游抓取/解析失败（{}）".format(group, e))
-            continue
-        wiki = [m["name"] for m in parsed]
-        got = set(site.get(group, []))
-        missing = [n for n in wiki if n not in got]
-        extra = [n for n in got if n not in wiki]
-        if missing or extra:
-            bad += 1
-            print(
-                "  ✗ {}: wiki {} / 视图 {}{}{}".format(
-                    group,
-                    len(wiki),
-                    len(got),
-                    "；缺: " + "、".join(missing) if missing else "",
-                    "；多: " + "、".join(extra) if extra else "",
-                )
-            )
-        else:
-            print("  ✓ {}: {} 人".format(group, len(wiki)))
+    results = [check_group(g, cfg, site, fetch) for g, cfg in mm.GROUPS.items()]
+    bad = results.count(False)
     print("\n结论:", "仍有缺口" if bad else "无缺口（视图与上游一致）")
     return 1 if bad else 0
 
