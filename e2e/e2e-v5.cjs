@@ -1,23 +1,6 @@
 /* 向导模式（v5 A）E2E：先红后绿。用法：node e2e-v5.cjs */
 const { spawn } = require("node:child_process");
-// playwright 解析：优先本地依赖，其次 npx 缓存（本机用 npx 装过）
-function loadPlaywright() {
-  const fs = require("node:fs");
-  const tries = ["playwright"];
-  try {
-    for (const d of fs.readdirSync("/root/.npm/_npx")) {
-      tries.push(`/root/.npm/_npx/${d}/node_modules/playwright`);
-    }
-  } catch {}
-  for (const t of tries) {
-    try {
-      return require(t);
-    } catch {}
-  }
-  throw new Error(
-    "找不到 playwright：npm i -D playwright 或用 npx playwright 装一次"
-  );
-}
+const { loadPlaywright } = require("./_playwright.cjs");
 const { chromium } = loadPlaywright();
 const ROOT = require("node:path").join(__dirname, "..");
 const PORT = 8777;

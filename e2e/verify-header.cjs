@@ -1,22 +1,5 @@
 // 复核 P0 修复：档位 × 语言 × 在线/离线，每个 tab 都必须点得到
-// playwright 解析：优先本地依赖，其次 npx 缓存（本机用 npx 装过）
-function loadPlaywright() {
-  const fs = require("node:fs");
-  const tries = ["playwright"];
-  try {
-    for (const d of fs.readdirSync("/root/.npm/_npx")) {
-      tries.push(`/root/.npm/_npx/${d}/node_modules/playwright`);
-    }
-  } catch {}
-  for (const t of tries) {
-    try {
-      return require(t);
-    } catch {}
-  }
-  throw new Error(
-    "找不到 playwright：npm i -D playwright 或用 npx playwright 装一次"
-  );
-}
+const { loadPlaywright } = require("./_playwright.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const path = require("node:path");

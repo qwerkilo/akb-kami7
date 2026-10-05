@@ -1,22 +1,5 @@
 const { spawn } = require("node:child_process");
-// playwright 解析：优先本地依赖，其次 npx 缓存（本机用 npx 装过）
-function loadPlaywright() {
-  const fs = require("node:fs");
-  const tries = ["playwright"];
-  try {
-    for (const d of fs.readdirSync("/root/.npm/_npx")) {
-      tries.push(`/root/.npm/_npx/${d}/node_modules/playwright`);
-    }
-  } catch {}
-  for (const t of tries) {
-    try {
-      return require(t);
-    } catch {}
-  }
-  throw new Error(
-    "找不到 playwright：npm i -D playwright 或用 npx playwright 装一次"
-  );
-}
+const { loadPlaywright } = require("./_playwright.cjs");
 const { chromium } = loadPlaywright();
 
 const ROOT = require("node:path").join(__dirname, "..");
@@ -82,6 +65,10 @@ async function goToPick(page) {
 }
 
 const results = [];
+// 失败日志按轮清空：此前只追加，跨轮历史混在一起（两轴审查的观察项）
+try {
+  require("node:fs").writeFileSync("/tmp/opencode/e2e-fails.log", "");
+} catch {}
 // 就绪屏障：页面「能交互」不等于「图与字体到位」。海报断言量的是画布像素，字体回落
 // 或图片没解码都会让底色断言假红（实测 0,0,0 / 255,255,255）。以前靠 page.goto 的
 // waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
@@ -678,7 +665,6 @@ function isExpectedResourceNoise(m) {
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
-    await ready(page);
     await openFilterPanel(page);
     await page.fill("#search", "宮澤");
     await page.waitForTimeout(350);
@@ -712,7 +698,6 @@ function isExpectedResourceNoise(m) {
     // -- 单团神7 全流程（SKE48）
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
-    await ready(page);
     await ready(page);
     await openFilterPanel(page);
     await page.selectOption("#group-filter", "SKE48");
@@ -1384,6 +1369,10 @@ function isExpectedResourceNoise(m) {
       `${skinAfter}/${skinStored}`
     );
     await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
+    // 启动的 show() 末尾会把页面滚回顶部。等挑人相位真的显示（= show() 已跑完）再继续，
+    // 否则下面的滚动断言与启动的 scrollTo 竞态 —— 负载高时启动变慢，实测出现过一次
+    // 400 -> 0（2026-10-05 两轴审查的重跑）；中等负载下 50 轮复现不出，按竞态修。
+    await page.waitForSelector("#phase-pick:not([hidden])", { timeout: 60000 });
     await page.waitForTimeout(400);
     check(
       "皮肤：刷新后保持贴纸",

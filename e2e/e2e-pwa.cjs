@@ -3,24 +3,7 @@
  * 3. 浏览过的成员离线有照片、没浏览过的显示占位；4. 离线胶囊随网络切换；
  * 5. 安装入口（合成 beforeinstallprompt）与 iOS 指引浮层；6. 更新横幅（临时副本跑第二版 sw.js）。
  */
-// playwright 解析：优先本地依赖，其次 npx 缓存（本机用 npx 装过）
-function loadPlaywright() {
-  const fs = require("node:fs");
-  const tries = ["playwright"];
-  try {
-    for (const d of fs.readdirSync("/root/.npm/_npx")) {
-      tries.push(`/root/.npm/_npx/${d}/node_modules/playwright`);
-    }
-  } catch {}
-  for (const t of tries) {
-    try {
-      return require(t);
-    } catch {}
-  }
-  throw new Error(
-    "找不到 playwright：npm i -D playwright 或用 npx playwright 装一次"
-  );
-}
+const { loadPlaywright } = require("./_playwright.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
@@ -190,16 +173,26 @@ async function pickMembers(page, n) {
   console.log("\n[2] 断网后完整走完 挑人 → 对决 → 出图");
   // 先等 document.fonts.ready 再量：否则在线侧可能量到 FOUT 期间的回退字体宽度，
   // 而离线侧量的是已应用的网络字体——两者差十几像素，断言变成量时序而不是量字体。
-  const fontOnline = await page.evaluate(async () => {
-    await document.fonts.ready;
-    return {
-      faces: document.fonts.size,
-      h1:
-        Math.round(
-          document.querySelector("h1").getBoundingClientRect().width * 10
-        ) / 10,
-    };
-  });
+  const measureFonts = () =>
+    page.evaluate(async () => {
+      await document.fonts.ready;
+      return {
+        faces: document.fonts.size,
+        h1:
+          Math.round(
+            document.querySelector("h1").getBoundingClientRect().width * 10
+          ) / 10,
+      };
+    });
+  let fontOnline = await measureFonts();
+  console.log(`  · 在线字体首测 ${fontOnline.faces} 个 face`);
+  if (fontOnline.faces === 0) {
+    // 已知环境 flake（2026-10-05 实测一次）：Google Fonts 请求偶发失败 → 0 个 face。
+    // 重载一次让页面重新拉字体 CSS（SW 已接管，壳从缓存来，不会动状态）。
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
+    fontOnline = await measureFonts();
+    console.log(`  · 重载后复测 ${fontOnline.faces} 个 face`);
+  }
   ok(fontOnline.faces > 0, `在线时字体已加载（${fontOnline.faces} 个 face）`);
   // 在线先看几张脸（让照片进缓存），并记下没看过的卡
   await pickMembers(page, 7);
@@ -210,7 +203,61 @@ async function pickMembers(page, n) {
       ).length
   );
   ok(seenCount > 0, `在线时已加载 ${seenCount} 张照片`);
-  // 找��个在线时也没加载过照片的成员（换个团体搜索，切到从未浏览过的段）
+  // 断网前先等 img/full 预热真的落进 SW 缓存：选中成员时 warmPhotos 是异步的
+  // （new Image() 在后台拉），立刻断网会把在途请求取消 → 离线海报退回占位。
+  // 实测 flake 两次（取样 110 种色）；画布画完就不再重画，所以必须让**画之前**图已在缓存里
+  // ——15s 轮询画布救不回来。
+  const wantFull = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('.card[aria-pressed="true"] img')].filter(
+        (i) => i.src.includes("/img/thumb/")
+      ).length
+  );
+  const cachedFull = () =>
+    page.evaluate(async () => {
+      let n = 0;
+      for (const name of await caches.keys()) {
+        if (!name.startsWith("akb-img-")) continue;
+        const c = await caches.open(name);
+        n += (await c.keys()).filter((r) =>
+          r.url.includes("/img/full/")
+        ).length;
+      }
+      return n;
+    });
+  let gotFull = 0;
+  for (let i = 0; i < 60; i++) {
+    gotFull = await cachedFull();
+    if (gotFull >= wantFull) break;
+    await page.waitForTimeout(500);
+  }
+  console.log(`  · 断网前 img/full 预热：${gotFull}/${wantFull}`);
+  // 同理等字体预热（warmFonts）：它先取 Google Fonts 的 CSS、再分批取 woff2。断网前若
+  // CSS 还没进缓存，离线重载会一个 face 都注册不出来（实测 flake：离线 face 0 vs 在线 496，
+  // h1 宽 85.1 vs 99）——等「CSS 已缓存 + 首批 woff2 到位」再断网。
+  const fontCacheInfo = () =>
+    page.evaluate(async () => {
+      for (const name of await caches.keys()) {
+        if (!name.startsWith("akb-font-")) continue;
+        const keys = await (await caches.open(name)).keys();
+        return {
+          n: keys.length,
+          css: keys.filter((r) => r.url.includes("fonts.googleapis.com"))
+            .length,
+        };
+      }
+      return { n: 0, css: 0 };
+    });
+  let gotFonts = { n: 0, css: 0 };
+  for (let i = 0; i < 60; i++) {
+    gotFonts = await fontCacheInfo();
+    if (gotFonts.css > 0 && gotFonts.n >= 17) break;
+    await page.waitForTimeout(500);
+  }
+  console.log(
+    `  · 断网前字体缓存：${gotFonts.n} 条（其中 CSS ${gotFonts.css} 条）`
+  );
+  // 找一个在线时也没加载过照片的成员（换个团体搜索，切到从未浏览过的段）
   await ctx.setOffline(true);
   // 曾经在这里加 Network.clearBrowserCache，想让「断网后仍有照片」不被浏览器 HTTP
   // 缓存兜住（两轴实测：删掉图片分类分支、akb-img-v1 归零，这两条断言照样绿）。
