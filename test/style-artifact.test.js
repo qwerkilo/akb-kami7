@@ -786,18 +786,30 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
     /function playOnce\(/.test(app),
     "切屏转场的兜底在 playOnce 里（降级时动画事件不来）"
   );
-  // 层级段：必须真的往 #duel-tiers 里写，且翻转只在换组时
+  // 层级段：必须真的往 #duel-tiers 里写，且翻转只在换组时。
+  // 2026-10-04 拆 CCN 后渲染体在 renderTierStrip（renderDuel 调它）——钉调用点 + 实现体。
   const duel = /function renderDuel\(\) \{([\s\S]*?)\n  \}/.exec(app);
   assert.ok(duel, "找不到 renderDuel()");
-  assert.match(duel[1], /\$\("#duel-tiers"\)/, "renderDuel 必须取 #duel-tiers");
   assert.match(
     duel[1],
+    /renderTierStrip\(\)/,
+    "renderDuel 必须调 renderTierStrip()"
+  );
+  const strip = /function renderTierStrip\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  assert.ok(strip, "找不到 renderTierStrip()");
+  assert.match(
+    strip[1],
+    /\$\("#duel-tiers"\)/,
+    "renderTierStrip 必须取 #duel-tiers"
+  );
+  assert.match(
+    strip[1],
     /classList\.toggle\(\s*"flip"/,
     "翻转必须按「组号变了」触发，不能每题都播（整排每次渲染都重建）"
   );
-  assert.match(duel[1], /lastTierIdx/, "必须记住上一次的组号");
+  assert.match(strip[1], /lastTierIdx/, "必须记住上一次的组号");
   assert.match(
-    duel[1],
+    strip[1],
     /lastTierIdx !== null && lastTierIdx !== nowIdx/,
     "必须与上一次的组号比较"
   );
@@ -806,7 +818,7 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
     /let lastTierIdx = null/,
     "lastTierIdx 必须在模块作用域（跨渲染记忆）"
   );
-  assert.match(duel[1], /--fill/, "必须写 --fill（组内进度）");
+  assert.match(app, /--fill/, "必须写 --fill（组内进度）");
   // 海报淡入：CSS 规则在，且 unveil 之后会被重新触发（像素到达才显影）
   assert.match(
     css,
@@ -1093,9 +1105,10 @@ test("折叠段：类名前缀只从 sectionHTML 一处产出（架构扫描候�
   // sectionHTML 是唯一的模板：level 只决定前缀与 data 属性名
   const tpl = /function sectionHTML\(o\) \{[\s\S]*?\n  \}/.exec(app);
   assert.ok(tpl, "app.js 里要有 sectionHTML(o)");
+  // 2026-10-04 拆 CCN 后前缀先算进 cls、data 属性名由 cls 派生 —— 语义不变（level 是唯一来源）
   for (const frag of [
-    'o.level === "grp" ? "grp" : "gen"',
-    'o.level === "grp" ? "group" : "sec"',
+    'const cls = o.level === "grp" ? "grp" : "gen"',
+    'const attr = cls === "grp" ? "group" : "sec"',
   ]) {
     assert.ok(tpl[0].includes(frag), `模板里要出现 ${frag}`);
   }

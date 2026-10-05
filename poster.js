@@ -807,12 +807,7 @@
   }
 
   // ---- 样式 D：贴纸拼贴（拍立得散落 + 胶带） ----
-  function drawCollage(ctx, T, opts, W, H) {
-    const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
-    const n = members.length;
-    const fr = frame(W, H);
-    ctx.fillStyle = T.colors.floor;
-    ctx.fillRect(0, 0, W, H);
+  function collageDots(ctx, T, W, H) {
     ctx.save();
     ctx.globalAlpha = 0.07;
     ctx.fillStyle = T.colors.ink;
@@ -824,8 +819,17 @@
       }
     }
     ctx.restore();
+  }
 
-    // 贴纸标题
+  function collageRows(n) {
+    if (n <= 7) return [4, 3];
+    if (n <= 16) return [6, 5, 5];
+    if (n <= 32) return [7, 7, 6, 6, 6];
+    return [8, 8, 8, 8, 8];
+  }
+
+  // 贴纸标题 + 右上角人数徽章
+  function collageHeader(ctx, T, title, dateText, n, fr, W) {
     const tw = Math.min(W - 144, 480);
     ctx.save();
     ctx.translate(fr.margin, fr.margin);
@@ -857,15 +861,75 @@
     ctx.textBaseline = "middle";
     ctx.fillText(String(n), 85, 28);
     ctx.restore();
+  }
 
-    const rows =
-      n <= 7
-        ? [4, 3]
-        : n <= 16
-          ? [6, 5, 5]
-          : n <= 32
-            ? [7, 7, 6, 6, 6]
-            : [8, 8, 8, 8, 8];
+  function collageTape(ctx, T, g) {
+    ctx.save();
+    ctx.translate(-g.cw / 2 + 26, -g.cardH / 2 + 4);
+    ctx.rotate(-0.42);
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = T.colors.tape;
+    ctx.fillRect(-30, -12, 60, 24);
+    ctx.restore();
+  }
+
+  // 一张拍立得卡：面板 + 照片 + 名字 + 名次角标（+ 偶尔一条胶带）
+  function collageCard(ctx, T, m, image, idx, g) {
+    ctx.save();
+    ctx.translate(g.x + g.cw / 2, g.y + g.cardH / 2);
+    ctx.rotate(g.rot);
+    panel(ctx, T, -g.cw / 2, -g.cardH / 2, g.cw, g.cardH, 6, {
+      color: "rgba(28,30,43,.18)",
+      blur: 12,
+      dy: 6,
+    });
+    ctx.save();
+    roundRect(ctx, -g.cw / 2 + 12, -g.cardH / 2 + 12, g.cw - 24, g.photoH, 3);
+    ctx.clip();
+    photo(
+      ctx,
+      T,
+      image,
+      { x: -g.cw / 2 + 12, y: -g.cardH / 2 + 12, w: g.cw - 24, h: g.photoH },
+      m.name
+    );
+    ctx.restore();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = T.colors.ink;
+    const ns = fitText(
+      ctx,
+      m.name,
+      g.cw - 56,
+      Math.min(19, g.cw * 0.16),
+      700,
+      T.fonts.jp
+    );
+    ctx.font = `700 ${ns}px ${T.fonts.jp}`;
+    ctx.fillText(m.name, -g.cw / 2 + 12, g.cardH / 2 - 16);
+    ctx.beginPath();
+    ctx.arc(g.cw / 2 - 30, g.cardH / 2 - 30, 17, 0, Math.PI * 2);
+    ctx.fillStyle = rankColor(idx + 1, T);
+    ctx.fill();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `400 22px ${T.fonts.display}`;
+    ctx.fillStyle = "#fff";
+    ctx.fillText(String(idx + 1), g.cw / 2 - 30, g.cardH / 2 - 29);
+    if (idx % 5 === 2 || idx % 7 === 3) collageTape(ctx, T, g);
+    ctx.restore();
+  }
+
+  function drawCollage(ctx, T, opts, W, H) {
+    const { members, images, title, dateText, hashtag, photoSrc } = opts;
+    const n = members.length;
+    const fr = frame(W, H);
+    ctx.fillStyle = T.colors.floor;
+    ctx.fillRect(0, 0, W, H);
+    collageDots(ctx, T, W, H);
+    collageHeader(ctx, T, title, dateText, n, fr, W);
+
+    const rows = collageRows(n);
     const perRow = Math.max(...rows);
     const gap = 18;
     const cw = (W - 80 - gap * (perRow - 1)) / perRow;
@@ -886,59 +950,14 @@
       for (let c = 0; c < rowN; c++, idx++) {
         const m = members[idx];
         if (!m) continue;
-        const x = x0 + c * (cw + gap) + jitter[(c + r) % jitter.length] * 0.8;
-        const rot = (((c * 7 + r * 5) % 11) - 5) * 0.008;
-        ctx.save();
-        ctx.translate(x + cw / 2, y + cardH / 2);
-        ctx.rotate(rot);
-        panel(ctx, T, -cw / 2, -cardH / 2, cw, cardH, 6, {
-          color: "rgba(28,30,43,.18)",
-          blur: 12,
-          dy: 6,
+        collageCard(ctx, T, m, images[idx], idx, {
+          x: x0 + c * (cw + gap) + jitter[(c + r) % jitter.length] * 0.8,
+          y,
+          cw,
+          cardH,
+          photoH,
+          rot: (((c * 7 + r * 5) % 11) - 5) * 0.008,
         });
-        ctx.save();
-        roundRect(ctx, -cw / 2 + 12, -cardH / 2 + 12, cw - 24, photoH, 3);
-        ctx.clip();
-        photo(
-          ctx,
-          T,
-          images[idx],
-          { x: -cw / 2 + 12, y: -cardH / 2 + 12, w: cw - 24, h: photoH },
-          members[idx].name
-        );
-        ctx.restore();
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
-        ctx.fillStyle = T.colors.ink;
-        const ns = fitText(
-          ctx,
-          m.name,
-          cw - 56,
-          Math.min(19, cw * 0.16),
-          700,
-          T.fonts.jp
-        );
-        ctx.font = `700 ${ns}px ${T.fonts.jp}`;
-        ctx.fillText(m.name, -cw / 2 + 12, cardH / 2 - 16);
-        ctx.beginPath();
-        ctx.arc(cw / 2 - 30, cardH / 2 - 30, 17, 0, Math.PI * 2);
-        ctx.fillStyle = rankColor(idx + 1, T);
-        ctx.fill();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = `400 22px ${T.fonts.display}`;
-        ctx.fillStyle = "#fff";
-        ctx.fillText(String(idx + 1), cw / 2 - 30, cardH / 2 - 29);
-        if (idx % 5 === 2 || idx % 7 === 3) {
-          ctx.save();
-          ctx.translate(-cw / 2 + 26, -cardH / 2 + 4);
-          ctx.rotate(-0.42);
-          ctx.globalAlpha = 0.85;
-          ctx.fillStyle = T.colors.tape;
-          ctx.fillRect(-30, -12, 60, 24);
-          ctx.restore();
-        }
-        ctx.restore();
       }
     }
     ctx.textAlign = "left";
@@ -946,7 +965,6 @@
     posterFooter(ctx, T, W, H, hashtag, photoSrc);
   }
 
-  // ---- 分派：a=现行金字塔（默认），b=杂志封面，c=榜单领奖台，d=贴纸拼贴 ----
   const STYLES = ["a", "b", "c", "d"];
 
   function draw(ctx, opts) {

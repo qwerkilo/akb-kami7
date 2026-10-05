@@ -302,17 +302,18 @@
   // 之前这是四套实现（两个渲染器 + 两个 toggle + 两个徽章循环）。
   // `sub` 由渲染的地方显式给出（顶层团体里的期生段是嵌套的），不再从筛选状态反推。
   function sectionHTML(o) {
+    // level 只决定前缀与 data 属性名；两层共用同一份模板（候选 6 收口）。
+    const cls = o.level === "grp" ? "grp" : "gen";
+    const attr = cls === "grp" ? "group" : "sec";
     const open = o.open;
-    return `<section class="${o.level === "grp" ? "grp" : "gen"}${o.sub ? " sub" : ""}" data-${
-      o.level === "grp" ? "group" : "sec"
-    }="${esc(o.id)}">
-      <button class="${o.level === "grp" ? "grp" : "gen"}-head" aria-expanded="${open}" aria-controls="${o.uid}">
+    return `<section class="${cls}${o.sub ? " sub" : ""}" data-${attr}="${esc(o.id)}">
+      <button class="${cls}-head" aria-expanded="${open}" aria-controls="${o.uid}">
         <i class="chev" aria-hidden="true"></i>
-        <span class="${o.level === "grp" ? "grp" : "gen"}-name">${esc(o.label)}</span>
-        <span class="${o.level === "grp" ? "grp" : "gen"}-count">${countText(o.node)}</span>
-        <span class="${o.level === "grp" ? "grp" : "gen"}-picked">${o.picked ? t("picked", o.picked) : ""}</span>
+        <span class="${cls}-name">${esc(o.label)}</span>
+        <span class="${cls}-count">${countText(o.node)}</span>
+        <span class="${cls}-picked">${o.picked ? t("picked", o.picked) : ""}</span>
       </button>
-      <div class="${o.level === "grp" ? "grp" : "gen"}-body" id="${o.uid}" ${open ? "" : "hidden"}>${o.body}</div>
+      <div class="${cls}-body" id="${o.uid}" ${open ? "" : "hidden"}>${o.body}</div>
     </section>`;
   }
 
@@ -802,62 +803,66 @@
   }
 
   let lastTierIdx = null;
-  function renderDuel() {
-    sync();
-    if (snap.phase === "result") return navigate("advance");
-    if (snap.phase !== "duel") return;
+  function renderDuelProgress() {
     $("#duel-max").textContent = snap.duel.max;
     $("#duel-step").textContent = snap.duel.step;
     $("#duel-bar").style.width = `${snap.duel.percent}%`;
     const extra = $("#duel-extra");
-    if (extra)
-      // 多轮筛选时对决跨层级（保留组 + 各轮划掉组），单一百分比看不出层级跳跃 →
-      // tier/tiers 就是为此而算的（ADR-0019）
-      extra.textContent = t(
-        "duel_extra",
-        snap.duel.percent,
-        snap.duel.remaining,
-        Math.max(1, Math.ceil(snap.duel.etaSeconds / 60)),
-        snap.duel.tier + 1,
-        snap.duel.tiers
-      );
-    // 层级段：一共 tiers 组、现在第 tier+1 组、已答 tierAnswered / 组内上限 tierMax
+    if (!extra) return;
+    // 多轮筛选时对决跨层级（保留组 + 各轮划掉组），单一百分比看不出层级跳跃 →
+    // tier/tiers 就是为此而算的（ADR-0019）
+    extra.textContent = t(
+      "duel_extra",
+      snap.duel.percent,
+      snap.duel.remaining,
+      Math.max(1, Math.ceil(snap.duel.etaSeconds / 60)),
+      snap.duel.tier + 1,
+      snap.duel.tiers
+    );
+  }
+
+  // 层级段：一共 tiers 组、现在第 tier+1 组、已答 tierAnswered / 组内上限 tierMax
+  function tierStripHTML() {
+    const n = Math.max(1, snap.duel.tiers || 1);
+    const now = Math.min(snap.duel.tier || 0, n - 1);
+    let html = "";
+    for (let i = 0; i < n; i++)
+      html += `<i class="${i < now ? "done" : i === now ? "now" : ""}"></i>`;
+    if (!html || !snap.duel.tierMax) return html;
+    // 组内进度：当前段的 --fill（渐变填充，不改尺寸）
+    const pct = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(((snap.duel.tierAnswered || 0) / snap.duel.tierMax) * 100)
+      )
+    );
+    return html.replace('class="now"', `class="now" style="--fill:${pct}%"`);
+  }
+
+  function renderTierStrip() {
     const tiers = $("#duel-tiers");
-    if (tiers) {
-      // 翻转只在**换组**时来一次：整排每次渲染都重建，不判一下就会每答一题
-      // 都播一次 200ms 的装饰（效率区的每次点击不该有这种东西）。
-      const nowIdx = Math.min(
-        snap.duel.tier || 0,
-        Math.max(1, snap.duel.tiers || 1) - 1
-      );
-      tiers.classList.toggle(
-        "flip",
-        lastTierIdx !== null && lastTierIdx !== nowIdx
-      );
-      lastTierIdx = nowIdx;
-      const n = Math.max(1, snap.duel.tiers || 1);
-      const now = Math.min(snap.duel.tier || 0, n - 1);
-      let html = "";
-      for (let i = 0; i < n; i++)
-        html += `<i class="${i < now ? "done" : i === now ? "now" : ""}"></i>`;
-      // 组内进度：当前段的 --fill（渐变填充，不改尺寸）
-      if (html && snap.duel.tierMax) {
-        const pct = Math.max(
-          0,
-          Math.min(
-            100,
-            Math.round(
-              ((snap.duel.tierAnswered || 0) / snap.duel.tierMax) * 100
-            )
-          )
-        );
-        html = html.replace(
-          'class="now"',
-          `class="now" style="--fill:${pct}%"`
-        );
-      }
-      tiers.innerHTML = html;
-    }
+    if (!tiers) return;
+    // 翻转只在**换组**时来一次：整排每次渲染都重建，不判一下就会每答一题
+    // 都播一次 200ms 的装饰（效率区的每次点击不该有这种东西）。
+    const nowIdx = Math.min(
+      snap.duel.tier || 0,
+      Math.max(1, snap.duel.tiers || 1) - 1
+    );
+    tiers.classList.toggle(
+      "flip",
+      lastTierIdx !== null && lastTierIdx !== nowIdx
+    );
+    lastTierIdx = nowIdx;
+    tiers.innerHTML = tierStripHTML();
+  }
+
+  function renderDuel() {
+    sync();
+    if (snap.phase === "result") return navigate("advance");
+    if (snap.phase !== "duel") return;
+    renderDuelProgress();
+    renderTierStrip();
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
@@ -935,36 +940,38 @@
     if (profileId) return closeProfile();
   });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      const group = e.target.closest?.(".seg-skin");
-      if (group) {
-        const items = [...group.querySelectorAll("button")];
-        const idx = items.indexOf(e.target);
-        if (idx >= 0) {
-          e.preventDefault();
-          const next =
-            items[
-              (idx + (e.key === "ArrowRight" ? 1 : items.length - 1)) %
-                items.length
-            ];
-          next.focus();
-          switchSkin(next.dataset.skin);
-        }
-        return;
-      }
-    }
-    if (
-      !canDuelInput() ||
-      e.target.closest?.("input, textarea") ||
-      e.ctrlKey ||
-      e.metaKey ||
-      e.altKey
-    )
-      return;
+  // 皮肤段控件的左右方向键。返回 true = 已处理（焦点在段内按钮上）。
+  function skinArrowKey(e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return false;
+    const group = e.target.closest?.(".seg-skin");
+    if (!group) return false;
+    const items = [...group.querySelectorAll("button")];
+    const idx = items.indexOf(e.target);
+    if (idx < 0) return false;
+    e.preventDefault();
+    const next =
+      items[
+        (idx + (e.key === "ArrowRight" ? 1 : items.length - 1)) % items.length
+      ];
+    next.focus();
+    switchSkin(next.dataset.skin);
+    return true;
+  }
+
+  // 对决页键盘：←→ 选边、z/Backspace 撤回。输入框内与带修饰键时不接管。
+  const UNDO_KEYS = new Set(["z", "Z", "Backspace"]);
+  function duelArrowKey(e) {
+    if (!canDuelInput()) return;
+    if (e.target.closest?.("input, textarea")) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key === "ArrowLeft") answer(true);
     else if (e.key === "ArrowRight") answer(false);
-    else if (e.key === "z" || e.key === "Z" || e.key === "Backspace") undo();
+    else if (UNDO_KEYS.has(e.key)) undo();
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (skinArrowKey(e)) return;
+    duelArrowKey(e);
   });
 
   /* ---------------- result ---------------- */
@@ -1484,34 +1491,35 @@
     if (f) f.focus();
   }
 
-  document.addEventListener("click", (e) => {
-    const step = e.target.closest("#steps [data-step]");
-    if (step && !step.disabled) {
-      navigate(step.dataset.step);
-      return;
-    }
-    if (e.target.closest('[data-act="coach-ok"]')) {
+  // data-act 的动作查表（原型设为 null，data-act 是任意字符串，防原型链上的名字）。
+  const CLICK_ACTIONS = Object.assign(Object.create(null), {
+    "coach-ok": () => {
       rememberFlag(COACH_KEY);
       $("#coach").hidden = true;
+    },
+    "resume-go": () => navigate("resume"),
+    "resume-drop": () => navigate("drop"),
+    "intro-go": closeIntro,
+    "intro-skip": closeIntro,
+  });
+
+  document.addEventListener("click", (e) => {
+    const step = e.target.closest("#steps [data-step]");
+    if (step && !step.disabled) return navigate(step.dataset.step);
+    const act = e.target.closest("[data-act]");
+    if (act) {
+      const fn = CLICK_ACTIONS[act.dataset.act];
+      if (fn) return fn();
+    }
+    // 全部恢复是 id 不是 data-act —— 拆委托表时漏过这条，E2E 抓到（29/32）
+    if (e.target.closest("#screen-reset")) {
+      if (S.resetScreening()) renderScreen();
       return;
     }
     const mark = e.target.closest("[data-cut]");
     if (mark) {
       S.toggleCut(mark.dataset.cut);
       renderScreen();
-      return;
-    }
-    if (e.target.closest("#screen-reset")) {
-      if (S.resetScreening()) renderScreen();
-      return;
-    }
-    if (e.target.closest('[data-act="resume-go"]')) return navigate("resume");
-    if (e.target.closest('[data-act="resume-drop"]')) return navigate("drop");
-    if (
-      e.target.closest('[data-act="intro-go"]') ||
-      e.target.closest('[data-act="intro-skip"]')
-    ) {
-      closeIntro();
     }
   });
 

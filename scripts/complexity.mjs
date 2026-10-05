@@ -85,7 +85,14 @@ const cur =
   list.map(([k, v]) => `${v.ccn}\t${k}\t${v.from}-${v.to}`).join("\n") + "\n";
 
 if (update) {
-  writeFileSync(BASELINE, cur);
+  // 保留原有 `#` 注释行（登记口径/债的说明），只换数据行
+  const header = existsSync(BASELINE)
+    ? readFileSync(BASELINE, "utf8")
+        .split("\n")
+        .filter((l) => l.startsWith("#"))
+        .join("\n")
+    : "";
+  writeFileSync(BASELINE, header ? header + "\n" + cur : cur);
   console.log(
     `✓ 基线已更新（${list.length} 处 CCN>${THRESHOLD}，身份=名字@文件）`
   );
