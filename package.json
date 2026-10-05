@@ -13,7 +13,8 @@
     "e2e": "node e2e/e2e.cjs",
     "e2e:v5": "node e2e/e2e-v5.cjs",
     "e2e:pwa": "node e2e/e2e-pwa.cjs",
-    "e2e:header": "node e2e/verify-header.cjs"
+    "e2e:header": "node e2e/verify-header.cjs",
+    "e2e:all": "node e2e/run-all.cjs"
   },
   "devDependencies": {
     "husky": "^9.1.7",
