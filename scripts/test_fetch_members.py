@@ -1399,12 +1399,16 @@ class GateSeesEverySeriesTests(unittest.TestCase):
         self.assertTrue(any("=LOVE" in p for p in problems))
 
     def test_main_runs_the_gate_after_all_three_loaders(self):
-        """把顺序钉住：门在 main() 里必须排在三个 loader 之后。"""
+        """把顺序钉住：门在 main() 里必须排在三个 loader 之后。
+
+        门体在 2026-10-04 拆进 `_roster_gate`（main 的 CCN 11→≤10），所以这里钉
+        **调用点**的顺序，并另外确认 `_roster_gate` 里真的在做规模判定。"""
         import inspect
 
         src = inspect.getsource(fetch_members.main)
-        gate = src.index("roster_problems(")
+        gate = src.index("_roster_gate(")
         self.assertLess(src.index("all_members = members + love + morning"), gate)
+        self.assertIn("roster_problems(", inspect.getsource(fetch_members._roster_gate))
 
 
 # ── 工单 03：一个系列接第二个团时，规模门与基线怎么算 ────────────────────

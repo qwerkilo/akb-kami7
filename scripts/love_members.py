@@ -145,6 +145,13 @@ def parse_member_chunk(chunk):
     if kana_cell:
         rec["kana"] = kana_cell.group(1).strip()
     rec["birth"] = roster.ymd(birth.group(1), birth.group(2), birth.group(3))
+    rec.update(_member_optional(chunk))
+    return nm, rec
+
+
+def _member_optional(chunk):
+    """身高/血型/昵称：有才带上。"""
+    rec = {}
     height = re.search(r"([\d.]+)\s*(?:&nbsp;)?\s*cm", chunk)
     if height:
         rec["height"] = height.group(1) + "cm"
@@ -154,7 +161,7 @@ def parse_member_chunk(chunk):
     nick = parse_nick(chunk)
     if nick:
         rec["nick"] = nick
-    return nm, rec
+    return rec
 
 
 def parse_wiki_members(wikitext):
@@ -234,6 +241,31 @@ def build_bio(item, w):
     return bio
 
 
+def _member_record(group, item, wiki_name, w, urls):
+    """一个人的记录。官网项优先，Wikipedia 兜底；照片 URL 顺手写进 urls。"""
+    name = item["name"] if item else wiki_name
+    rec = {
+        "name": name,
+        "kana": w.get("kana") or (item["romaji"].lower() if item else ""),
+        "nick": w.get("nick") or "",
+        "status": "former" if w.get("former") else "current",
+        "group": group,
+        "series": SERIES,
+        "generation": GENERATION,
+    }
+    if w.get("grad"):
+        rec["end"] = w["grad"]
+    bio = build_bio(item, w)
+    if bio:
+        rec["bio"] = bio
+    file_key = "love:{}:{}".format(group, name)
+    rec["file"] = file_key
+    photo = (item or {}).get("photo")
+    if photo:
+        urls[file_key] = photo
+    return rec
+
+
 def build_members(official, wiki):
     """official: {group: [parse_list 项（含 detail）]}；wiki: {group: parse_wiki_members}。
     返回 (members, urls)。"""
@@ -247,28 +279,9 @@ def build_members(official, wiki):
         for person_key in keys:
             pair = wiki_by_norm.get(person_key)
             w = pair[1] if pair else {}
+            wiki_name = pair[0] if pair else None
             item = by_name.get(person_key)
-            name = item["name"] if item else pair[0]
-            bio = build_bio(item, w)
-            rec = {
-                "name": name,
-                "kana": w.get("kana") or (item["romaji"].lower() if item else ""),
-                "nick": w.get("nick") or "",
-                "status": "former" if w.get("former") else "current",
-                "group": group,
-                "series": SERIES,
-                "generation": GENERATION,
-            }
-            if w.get("grad"):
-                rec["end"] = w["grad"]
-            if bio:
-                rec["bio"] = bio
-            file_key = "love:{}:{}".format(group, name)
-            rec["file"] = file_key
-            photo = (item or {}).get("photo")
-            if photo:
-                urls[file_key] = photo
-            members.append(rec)
+            members.append(_member_record(group, item, wiki_name, w, urls))
     return members, urls
 
 

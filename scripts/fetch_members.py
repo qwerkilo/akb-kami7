@@ -719,6 +719,38 @@ def _load_series(label, loader, fetch_url):
         )
 
 
+def _prepare_dirs(dirs):
+    for d in (dirs["orig"], dirs["full"], dirs["thumb"]):
+        os.makedirs(d, exist_ok=True)
+
+
+def _roster_gate(all_members, dirs, accept_drop):
+    """规模门：名册相对基线塌了就不写入（prune_unused 会删图）。"""
+    problems = roster_problems(all_members, read_baseline(dirs["root"]))
+    if not problems:
+        return
+    detail = "；".join(problems)
+    if not accept_drop:
+        raise SystemExit(
+            f"名册异常（{detail}）。为避免 prune_unused 删掉已有图片，本次不写入。"
+            "确认是上游真的少了人，再加 --accept-drop 放行。"
+        )
+    print(f"[--accept-drop] 放行名册异常：{detail}", file=sys.stderr)
+
+
+def _write_outputs(dirs, members, love, morning, all_members, sizes):
+    sections = (
+        build_sections(members)
+        + love_members.build_sections(love)
+        + morningmusume_members.build_sections(morning)
+    )
+    write_members_js(sections, os.path.join(dirs["root"], "members.js"))
+    simplified = build_simplified([m["name"] for m in all_members])
+    if simplified is not None:
+        write_simplified_js(simplified, os.path.join(dirs["root"], "simplified.js"))
+    report_generation(sections, all_members, sizes)
+
+
 def main(
     argv=None,
     dirs=None,
@@ -741,8 +773,7 @@ def main(
         # 默认带解析缓存：重跑只解析缺的人（旧站那 900 次快照扫描一次跑崩就白烧 1.5 小时）。
         # 注入自定义 loader 的测试不受影响（缓存是显式 opt-in）。
         morning_loader = lambda fetch: morningmusume_members.load(fetch, use_cache=True)
-    for d in (dirs["orig"], dirs["full"], dirs["thumb"]):
-        os.makedirs(d, exist_ok=True)
+    _prepare_dirs(dirs)
 
     members = merge_members(load_rows(fetch_page))
     print(f"members after dedupe: {len(members)}")
@@ -755,15 +786,7 @@ def main(
     # 规模门必须排在**三个 loader 之后**：基线的 groups 里含等爱与早安的团，
     # 而门若紧跟在 48G/坂道 之后，那些团还没被加载 —— 每次都算「一个成员都没解析到」
     # 并中止。真实抓取才发现这条（等爱上线后没人真跑过一次完整抓取）。
-    problems = roster_problems(all_members, read_baseline(dirs["root"]))
-    if problems:
-        detail = "；".join(problems)
-        if not accept_drop:
-            raise SystemExit(
-                f"名册异常（{detail}）。为避免 prune_unused 删掉已有图片，本次不写入。"
-                "确认是上游真的少了人，再加 --accept-drop 放行。"
-            )
-        print(f"[--accept-drop] 放行名册异常：{detail}", file=sys.stderr)
+    _roster_gate(all_members, dirs, accept_drop)
 
     assign_ids(all_members)
 
@@ -782,16 +805,7 @@ def main(
         )
     )
 
-    sections = (
-        build_sections(members)
-        + love_members.build_sections(love)
-        + morningmusume_members.build_sections(morning)
-    )
-    write_members_js(sections, os.path.join(dirs["root"], "members.js"))
-    simplified = build_simplified([m["name"] for m in all_members])
-    if simplified is not None:
-        write_simplified_js(simplified, os.path.join(dirs["root"], "simplified.js"))
-    report_generation(sections, all_members, sizes)
+    _write_outputs(dirs, members, love, morning, all_members, sizes)
 
 
 if __name__ == "__main__":

@@ -1,10 +1,16 @@
-22	deserializeState@./core.js	767-821
-20	stay@./core.js	1068-1123
-17	bioDict@./test/core.test.js	483-505
-16	names@./core.js	535-580
-15	build_members@./scripts/love_members.py	282-317
-14	kanjiNumber@./core.js	301-672
-12	load_fetcher.fetch@./scripts/test_love_members.py	434-455
-12	parse_member_chunk@./scripts/love_members.py	119-155
-11	main@./scripts/fetch_members.py	640-703
+# 2026-10-04 起 JS 用 AST 口径（scripts/ccn.mjs）：lizard 1.24.0 的 JS 解析会被正则字面量
+# 截断（kanjiNumber 报成 450 行/CCN 14、stay 的 20 实为相邻 NAV_RULES 表），会藏住真实热点。
+# 这次迁移：去掉 3 条假的（stay 20 / kanjiNumber 14 / names 16），新登记 4 条真的
+# （app.js 的 (anonymous) 16 与 renderDuel 16、poster.js 的 drawCollage 11、app.js 的 sectionHTML 11）
+# —— 都是此前被截断藏住的债，按「CCN>10 列修」逐个处理。
+22	deserializeState@./core.js	854-908
+17	bioDict@./test/core.test.js	499-521
+16	(anonymous)@./app.js	938-968
+16	renderDuel@./app.js	805-866
+15	build_members@./scripts/love_members.py	237-272
+12	load_fetcher.fetch@./scripts/test_love_members.py	415-436
+12	parse_member_chunk@./scripts/love_members.py	121-157
+11	drawCollage@./poster.js	810-947
+11	main@./scripts/fetch_members.py	722-794
 11	romanize@./core.js	201-230
+11	sectionHTML@./app.js	304-317
