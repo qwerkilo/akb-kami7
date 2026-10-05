@@ -9,7 +9,11 @@
     "prepare": "husky",
     "check": "npm run format:check && npm test && npm run complexity",
     "format:check": "node node_modules/prettier/bin/prettier.cjs --check .",
-    "complexity": "node scripts/complexity.mjs"
+    "complexity": "node scripts/complexity.mjs",
+    "e2e": "node e2e/e2e.cjs",
+    "e2e:v5": "node e2e/e2e-v5.cjs",
+    "e2e:pwa": "node e2e/e2e-pwa.cjs",
+    "e2e:header": "node e2e/verify-header.cjs"
   },
   "devDependencies": {
     "husky": "^9.1.7",
