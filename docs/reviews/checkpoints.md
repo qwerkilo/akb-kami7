@@ -1125,3 +1125,53 @@
   —— 先实现后写测试（补偿：3 个变异全被杀，含产物侧丢 `groups` 的那条，bite 已证）；
   ② 4 条 core 测试一次写完（横向切片），不是一条一循环。下批按一条一循环做。
 - 下次基点：`345ae08`。
+
+## 第五十四轮 · 2026-10-05 · retro ①–⑤ + E2E 入仓 + 质检复检（AST 口径）+ 两轴审查
+
+- 本次基点：`345ae08`（第五十三轮结束）；范围 **16 个提交**（`0e431ef` 检查点之后的
+  `8d2f8c6` 起算）—— 本批不是单一功能，是一轮维护：retro、质检复检、工具换口径、拆债、审查修复。
+- **retro ①–⑤ 全部落地**：
+  - ① `npm run complexity` 接进提交闸门（此前棘轮存在但没人跑 —— 本会话它红了两批、6 个新热点，
+    全程没有自动化报警）；② `compress_members` 的 1×1 过小图分支补测试（那条分支曾让跑完 90 分钟
+    的管线在最后一步 `KeyError` 崩掉、整轮白跑）；③ 数据管线本机运行配方写进 `data-pipeline.md`
+    （直连 vs 代理的两种网络组合、后台跑法、`photo=False` 预演）+ `check_roster.py` 入仓；
+    ④ 解析结果缓存（`scripts/_resolved.json`，重跑只解析缺的人）；⑤ **E2E 套件入仓**（`e2e/`，
+    `npm run e2e` / `:v5` / `:pwa` / `:header`），并把 5 条「已知红」修到全绿（390px 块的
+    `click('html')` 视口中心落在首组段头 → 把 16 张卡全折叠了；早安块结束时没切回等爱）。
+- **质检复检（跳过密钥）**：`docs/reviews/qa-baseline.md` 的「2026-10-04 复检」段。7 条发现全部收口：
+  ① lizard 1.24.0 的 **JS 解析会被正则字面量截断**（`kanjiNumber` 报成 450 行/14，实际 6 行/7；
+  `stay` 的 20 实为相邻 `NAV_RULES` 表）→ 新增 `scripts/ccn.mjs` 换 **AST 口径**（prettier babel
+  parser），迁移时去掉 3 条假的、**暴露 4 条真的**（`(anonymous)` 16 / `renderDuel` 16 /
+  `sectionHTML` 11 / `drawCollage` 11）；② Python 3 个热点拆到 ≤10；③ 基线过期条目清理；
+  ④ `CSS.escape` + `m.id` 形状守卫；⑤ `check_roster` smoke；⑥ 上述 4 条 JS 债 + `core` 的
+  `deserializeState` 22 / `romanize` 11 全部拆到 ≤10 —— **产品代码现在全部 ≤10**，基线只剩 2 条
+  测试辅助；⑦ e2e-pwa 的「断网海报脸部有照片层次」改成轮询（单次取样会读到照片解码前的画布）。
+- **两轴审查**（基点 `345ae08..HEAD` + 工作区）：
+  - Standards 抓到 **3 条真问题**，全部修复并逐个变异验证：① 解析缓存放 `scripts/_orig/` →
+    每次成功跑完被 `prune_unused` 删掉（「重跑只解析缺的人」不成立）→ 搬到 `scripts/_resolved.json`
+    - `.gitignore` + 「不得落在三个 prune 目录」守卫；② `--fill` 守卫放宽到全文件匹配、**注释即可
+      满足**（变异存活）→ 剥注释后钉 `tierStripHTML` 函数体；③ `ccn.mjs --self-test` 没接进闸门
+      （`jsCcn → []` 变异存活）→ 导出 `selfTest()` 由 `complexity.mjs` 调用（失败 exit 2）。
+      另修：三个 Python 测试文件**文件中间的野 `unittest.main()`**（直跑漏 75/12/4 条）、
+      AGENTS.md 两处过期、E2E「不入仓」残留、`verify-header` 补 try/finally、lizard「7 列」实为 6 列。
+  - Spec 轴：7 条发现全部真实收口、无产品越界（`members.js` / `simplified.js` 零 diff）。
+  - 审查的观察项也一并做了（`fae19a5`）：`loadPlaywright()` 四份重复收成 `e2e/_playwright.cjs`、
+    `e2e-fails.log` 按轮清空、两处重复 `ready(page)` 删除、`e2e-pwa.cjs` 注释里的 U+FFFD 修掉。
+- **两条环境 flake 的处置（如实记账）**：
+  - 「切皮肤保留滚动位置（未回顶）」在审查的重跑里出现过一次 **400 → 0**（当时两台子代理并发跑
+    E2E + `npm run check`）。diagnosing-bugs 式紧回路复现：50 轮（同会话）+ 20 轮（含 reload）
+    - 20 轮（6 个忙循环加压）**全部 0 次失败**；机制按「与启动的 `show()` 末尾 `scrollTo(top:0)`
+      竞态」处理 —— 测试在 reload 后改为先等 `#phase-pick:not([hidden])`（= show() 已跑完）再量滚动。
+  - e2e-pwa 的「在线时字体已加载」出现过一次 **0 个 face**（Google Fonts 请求偶发失败）→
+    测试侧加重载一次再量的重试；随后又出现**离线**字体 0 face（在线 496）——根因是 warmFonts
+    先取 CSS 再分批取 woff2，CSS 未进缓存就断网 → 离线重载注册不出 face。**三处 flake 全部
+    改成「断网前等预热真的进缓存」**（img/full 7/7、字体 17 条含 CSS 1 条），并留了诊断日志行；
+    连跑三次 pwa 43/43。
+- **本批我自己的错（如实记账）**：① 点击委托收表时漏 `#screen-reset` 的 id 分支 → 主 E2E 立刻红
+  （29/32），修复后 245/245；② 两次**红闸门提交**（`;` 串 check→commit、`grep` 截掉末尾 ✗）→
+  纪律改成 `&&` 串 + **以退出码为准**，写进 AGENTS.md；③ `--fill` 守卫第一版放宽到全文件（变异存活）；
+  ④ 解析缓存放 `_orig` 与文档承诺不符（两轴审查抓到）；⑤ 断言「点一次出卡」在℃-ute 上错了一次
+  （团体段里嵌期生段，要点两次 —— 既有行为，不是 bug）。
+- **遗留**：`patch_file.py` 无测试（一次性补丁工具，接受）；桌面宽度 E2E 未覆盖（记录在案）；
+  HP 照片残留 23 人（源的真实上限，逐人原因已登记）；本地领先 **71 个提交**未推送（用户要求先不推）。
+- 下次基点：`fae19a5`。
