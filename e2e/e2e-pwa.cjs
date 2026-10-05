@@ -387,22 +387,32 @@ async function pickMembers(page, n) {
     (onResult.canvas || 0) > 100,
     `断网下海报画布有内容（采样非空像素 ${onResult.canvas}）`
   );
-  const faceOffline = await page.evaluate(() => {
-    const c = document.querySelector("canvas");
-    if (!c) return null;
-    // 画布中部：7 档金字塔的第一排头像位置，看有没有照片像素（色彩种类多 = 有图）
-    const g = c.getContext("2d");
-    const d = g.getImageData(
-      Math.round(c.width * 0.2),
-      Math.round(c.height * 0.12),
-      c.width,
-      Math.round(c.height * 0.2)
-    ).data;
-    const kinds = new Set();
-    for (let i = 0; i < d.length; i += 4 * 37)
-      kinds.add(`${d[i]},${d[i + 1]},${d[i + 2]}`);
-    return kinds.size;
-  });
+  // 已知 flake（本仓记录过多次）：单次取样会在照片解码完成前读到只有底色的画布
+  // （实测 110 种色）。轮询到「色彩种类 > 200」或 15s 超时，再断言最终值 ——
+  // 断言的强度不变（仍要求 > 200），只是允许照片晚到。
+  const sampleFace = () =>
+    page.evaluate(() => {
+      const c = document.querySelector("canvas");
+      if (!c) return null;
+      // 画布中部：7 档金字塔的第一排头像位置，看有没有照片像素（色彩种类多 = 有图）
+      const g = c.getContext("2d");
+      const d = g.getImageData(
+        Math.round(c.width * 0.2),
+        Math.round(c.height * 0.12),
+        c.width,
+        Math.round(c.height * 0.2)
+      ).data;
+      const kinds = new Set();
+      for (let i = 0; i < d.length; i += 4 * 37)
+        kinds.add(`${d[i]},${d[i + 1]},${d[i + 2]}`);
+      return kinds.size;
+    });
+  let faceOffline = 0;
+  for (let i = 0; i < 30; i++) {
+    faceOffline = await sampleFace();
+    if (faceOffline > 200) break;
+    await page.waitForTimeout(500);
+  }
   ok(
     (faceOffline || 0) > 200,
     `断网下海报脸部区域有照片层次（取样色彩种类 ${faceOffline}）`

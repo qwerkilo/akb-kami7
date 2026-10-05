@@ -1,10 +1,6 @@
-# 2026-10-04 起 JS 用 AST 口径（scripts/ccn.mjs）：lizard 1.24.0 的 JS 解析会被正则字面量
-# 截断（kanjiNumber 报成 450 行/CCN 14、stay 的 20 实为相邻 NAV_RULES 表），会藏住真实热点。
-# 这次迁移：去掉 3 条假的（stay 20 / kanjiNumber 14 / names 16），新登记 4 条真的
-# （app.js 的 (anonymous) 16 与 renderDuel 16、poster.js 的 drawCollage 11、app.js 的 sectionHTML 11）。
-# 2026-10-04 同批把那 4 条拆到 ≤10（E2E 全绿）—— 现在名单只剩：core 2 条（deserializeState 22、
-# romanize 11）+ 测试辅助 2 条（bioDict 17、load_fetcher.fetch 12）。
-22	deserializeState@./core.js	854-908
+# 2026-10-04：JS 改用 AST 口径（scripts/ccn.mjs）—— lizard 1.24.0 的 JS 解析会被正则
+# 字面量截断（kanjiNumber 报成 450 行/CCN 14、stay 的 20 实为相邻 NAV_RULES 表），会藏住真热点。
+# 迁移时暴露的 4 条 JS 债（app.js×3、poster.js×1）与 core 的 deserializeState 22 / romanize 11
+# 已同批拆到 ≤10。现在只剩两条**测试辅助**（非产品代码，保留为已知债）：
 17	bioDict@./test/core.test.js	499-521
 12	load_fetcher.fetch@./scripts/test_love_members.py	415-436
-11	romanize@./core.js	201-230

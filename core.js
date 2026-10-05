@@ -198,6 +198,15 @@
   };
   const ROMAJI_ALT_TABLE = { ...ROMAJI, ...ROMAJI_ALT };
 
+  // 「っ」促音：后接音节的辅音加倍。表固定用 ROMAJI_ALT_TABLE（与 alt 无关，历史行为）
+  function sokuon(src, i) {
+    const next =
+      ROMAJI_ALT_TABLE[src.slice(i + 1, i + 3)] ||
+      ROMAJI_ALT_TABLE[src[i + 1]] ||
+      "";
+    return next[0] || "";
+  }
+
   function romanize(s, alt) {
     const table = alt ? ROMAJI_ALT_TABLE : ROMAJI;
     const src = String(s == null ? "" : s)
@@ -211,11 +220,7 @@
       const c = src[i];
       if (c === "ー") continue;
       if (c === "っ") {
-        const next =
-          ROMAJI_ALT_TABLE[src.slice(i + 1, i + 3)] ||
-          ROMAJI_ALT_TABLE[src[i + 1]] ||
-          "";
-        out += next[0] || "";
+        out += sokuon(src, i);
         continue;
       }
       const pair = table[src.slice(i, i + 2)];
@@ -851,6 +856,37 @@
     });
   }
 
+  // 对决：旧格式是扁平的 order（= 单层级），新格式是按层级分组的 tiers
+  function validDuel(s) {
+    if (!s.duel) return null;
+    const tiers = Array.isArray(s.duel.tiers)
+      ? s.duel.tiers.filter((g) => Array.isArray(g) && g.length)
+      : Array.isArray(s.duel.order) && s.duel.order.length
+        ? [s.duel.order]
+        : [];
+    const flat = tiers.flat();
+    const cap = tiers.reduce((sum, g) => sum + worstCase(g.length), 0);
+    if (!flat.length) return null;
+    if (!flat.every((x) => typeof x === "string")) return null;
+    if (!Array.isArray(s.duel.answers)) return null;
+    if (s.duel.answers.length > cap) return null;
+    if (!s.duel.answers.every((x) => typeof x === "boolean")) return null;
+    return { tiers, answers: s.duel.answers };
+  }
+
+  // 划除必须落在已选里（脏存档会被过滤掉，而不是带进会话）。
+  // 旧格式是平面 id 数组 → 视为「全部在第一轮」；再跨轮去重：同一个人出现在两轮
+  // → screenTiers 会把他放进两层 → 对决里同一张脸出现两次、海报出现重复。
+  // 应用自己产生不了这种数据（toggleCut 要求 id 在本轮 pool 里），但手改存档可以。
+  function validCut(s, selected, size) {
+    const flat = Array.isArray(s.cut)
+      ? s.cut.filter((x) => typeof x === "string" && selected.includes(x))
+      : [];
+    const nested =
+      Array.isArray(s.cut) && Array.isArray(s.cut[0]) ? s.cut : null;
+    return clampCut(selected, nested ? nested : [flat], size);
+  }
+
   function deserializeState(raw) {
     try {
       const s = JSON.parse(raw);
@@ -861,42 +897,11 @@
       const selected = Array.isArray(s.selected)
         ? s.selected.filter((x) => typeof x === "string").slice(0, size)
         : [];
-      // 对决：旧格式是扁平的 order（= 单层级），新格式是按层级分组的 tiers
-      let duel = null;
-      if (s.duel) {
-        const tiers = Array.isArray(s.duel.tiers)
-          ? s.duel.tiers.filter((g) => Array.isArray(g) && g.length)
-          : Array.isArray(s.duel.order) && s.duel.order.length
-            ? [s.duel.order]
-            : [];
-        const flat = tiers.flat();
-        const cap = tiers.reduce((sum, g) => sum + worstCase(g.length), 0);
-        if (
-          flat.length &&
-          flat.every((x) => typeof x === "string") &&
-          Array.isArray(s.duel.answers) &&
-          s.duel.answers.length <= cap &&
-          s.duel.answers.every((x) => typeof x === "boolean")
-        ) {
-          duel = { tiers, answers: s.duel.answers };
-        }
-      }
-      // 划除必须落在已选里（脏存档会被过滤掉，而不是带进会话）。
-      // 旧格式是平面 id 数组 → 视为「全部在第一轮」。
-      const flat = Array.isArray(s.cut)
-        ? s.cut.filter((x) => typeof x === "string" && selected.includes(x))
-        : [];
-      const nested =
-        Array.isArray(s.cut) && Array.isArray(s.cut[0]) ? s.cut : null;
-      // 还要跨轮去重：同一个人出现在两轮 → screenTiers 会把他放进两层
-      // → 对决里同一张脸出现两次、海报出现重复。应用自己产生不了这种数据
-      // （toggleCut 要求 id 在本轮 pool 里），但手改存档可以。
-      const cut = clampCut(selected, nested ? nested : [flat], size);
       return {
         size,
         selected,
-        duel,
-        cut,
+        duel: validDuel(s),
+        cut: validCut(s, selected, size),
         deeperRound:
           Number.isInteger(s.deeperRound) && s.deeperRound > 0
             ? s.deeperRound
