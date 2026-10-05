@@ -42,22 +42,29 @@
 
 ## 发现（按严重度）
 
-1. **lizard 1.24.0 的 JS 解析不可信 —— 影响复杂度棘轮**（中）。
+1. **lizard 1.24.0 的 JS 解析不可信 —— 影响复杂度棘轮**（中）。**已修（2026-10-04）**：
+   JS 侧改用 AST 口径（`scripts/ccn.mjs`，prettier 自带 babel parser + 自检）；基线迁移后
+   去掉 3 条假的、**新登记 4 条真债**（app.js 的 `(anonymous)` 16 / `renderDuel` 16 /
+   `sectionHTML` 11、poster.js 的 `drawCollage` 11 —— 此前被截断藏住）。
    最小复现：`kanjiNumber` 被报成 `@310-759`、length 450（实际 310-315 六行）；
    正则字面量与 `(expr).filter(...)` 形态会截断/吞并后续代码；`stay@1155-1210 CCN 20`
    实际属于相邻的 `NAV_RULES` 转移表（这条首检后已记录）。棘轮是 lizard 对 lizard 自洽的，
    所以不会误报，但**被截断的函数会藏住真实复杂度**。建议：JS 侧换 AST 口径（prettier 自带
    parser）或至少在基线里注明该局限。
 2. **Python 三个 CCN > 10 的活函数**（低-中）：`build_members` 15、`parse_member_chunk` 12、
-   `fetch_members.main` 11 —— 按本仓「CCN > 10 才列修」口径，建议拆到 ≤10。
-3. **复杂度基线一条过期条目**（低）：`docs/reviews/complexity-baseline.txt` 里
-   `names@./core.js` 记 16，实际已降到 5；棘轮只拦增高，过期条目不拦下降 —— 建议清理。
+   `fetch_members.main` 11。**已修（2026-10-04）**：分别拆出 `_member_record` / `_member_optional` /
+   `_prepare_dirs`+`_roster_gate`+`_write_outputs`，全部 ≤10；顺序守卫改钉调用点。
+3. **复杂度基线一条过期条目**（低）：`names@./core.js` 记 16、实际 5。**已随迁移清掉**
+   （AST 口径下 names 是 5，不在名单里）。
 4. **两条健壮性发现**（低，非注入）：① `app.js` 的 `toggleSection` 用数据派生的 group/label
    直接拼选择器（`.grp[data-group="${key}"]`），上游团名含 `"` 会抛 `DOMException`，建议
    `CSS.escape`；② `m.id` 裸插 `data-id`/`src`，安全性押在 `^m[0-9a-f]{10}$` 形状上但没有
    产物守卫钉它（建议补缝③）。
 5. **`check_roster.py` / `patch_file.py` 无测试**（低）：CRAP 按 0% 计（表里已标注），
-   维护脚本可选补一条 smoke test。
+   维护脚本可选补一条 smoke test。**未做**。
+6. **AST 口径新登记的 4 条 JS 债**（中，2026-10-04 新增）：`app.js` 的 `(anonymous)` 16
+   （键盘处理）与 `renderDuel` 16、`sectionHTML` 11、`poster.js` 的 `drawCollage` 11 ——
+   按「CCN>10 列修」逐个拆（改 `app.js`/`poster.js` 需跑 `npm run e2e`）。**未做**。
 
 ## 复检跑过的命令（关键）
 
