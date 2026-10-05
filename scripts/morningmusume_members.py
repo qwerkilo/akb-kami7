@@ -1113,6 +1113,10 @@ def _match_page(html, original, ts, by_name, urls):
             continue
         if not tenure_ok(m, ts):
             continue
+        if photo_chain.is_placeholder_src(src):
+            # 占位图（`transparent.gif` 之类）不是照片：跳过它，让回退链继续往下走
+            # （实测四个 Berryz 被配成同一张透明 gif，压缩阶段才发现、整轮白跑完）。
+            continue
         # 旧站来源的图**一律套 Wayback**：路径早已 404，而且 cdn.helloproject.com
         # 对脚本一律 403（实测 43 张下载全失败）—— 存档里才有真图。裸相对先相对
         # 原页面解析成绝对 URL；斜杠前缀补域名。
@@ -1230,6 +1234,12 @@ def _resolve_commons(members, urls, fetch, warn, pause):
         if pause:
             time.sleep(pause)
         resolved = photo_chain.commons_photo(m["name"], fetch)
+        if not resolved:
+            # 条目首图没有时再搜 Commons 文件命名空间：不少毕业者的照片在 Commons
+            # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
+            if pause:
+                time.sleep(pause)
+            resolved = photo_chain.commons_search_photo(m["name"], fetch)
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
         if not resolved and m.get("photo_url"):
@@ -1298,6 +1308,19 @@ OFFICIAL_PATHS = {
 OFFICIAL_GROUPS = list(OFFICIAL_PATHS)
 
 
+def _prefill(urls, cached):
+    """把缓存里已解析的 URL 预填进 urls（`setdefault`，不覆盖已解析的）。
+
+    **跳过占位图**：旧站用透明 gif 占位、`alt` 写成员名（实测四个 Berryz 的缓存里是
+    同一张 `transparent.gif`），留着它会让该成员永远不再重解析 —— 占位 URL 不该有
+    缓存效力，它只是「这条源没给出照片」的记录。
+    """
+    for k, v in cached.items():
+        if photo_chain.is_placeholder_src(v):
+            continue
+        urls.setdefault(k, v)
+
+
 def _load_resolved(path=None):
     """读解析缓存。缺失/损坏都返回空 —— 重解析即可，不能崩整轮。"""
     try:
@@ -1345,8 +1368,7 @@ def load(fetch, warn=print, photo=True, use_cache=False):
     if photo:
         if use_cache:
             # 预填已解析过的（各解析段只处理不在 urls 里的人 → 天然增量）
-            for k, v in _load_resolved().items():
-                urls.setdefault(k, v)
+            _prefill(urls, _load_resolved())
         resolve_former_photos(members, urls, fetch, warn, pause=1.5)
         if use_cache:
             _save_resolved(urls)

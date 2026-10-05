@@ -250,36 +250,23 @@ test("img 标志与站内图片文件一致（img:true ⟺ full 与 thumb 都在
 // 数据回归不该静默把已有照片变成占位卡；补到照片的人也要从名单里删掉（否则名单
 // 会漂成「历史记录」而不是「当前残留」）。分组理由见 issues/03-regenerate.md。
 const MISSING_ALLOWED = [
-  // 1997–2001 期モー娘。：旧站没有他们的页
+  // 1997–2001 期モー娘。：旧站没有他们的页、Commons 无本人文件
   "石黒彩",
   "市井紗耶香",
-  "後藤真希",
   "福田明日香",
-  // ℃-ute
+  // ℃-ute：旧站无页、Commons 只有同名他人（如村上愛 → 篮球选手村上恵）
   "有原栞菜",
   "梅田えりか",
   "村上愛",
   // アンジュルム
   "小川紗季",
   "小数賀芙由香",
-  "福田花音",
   "前田憂佳",
-  // Juice=Juice
-  "大塚愛菜",
-  "金澤朋子",
-  "高木紗友希",
   // つばきファクトリー
   "八木栞",
   // OCHA NORMA
   "石栗奏美",
   "田代すみれ",
-  // Berryz工房：旧站快照里是 1×1 占位图（按缺图处理）
-  "熊井友理奈",
-  "清水佐紀",
-  "菅谷梨沙子",
-  "須藤茉麻",
-  "徳永千奈美",
-  "夏焼雅",
 ];
 
 test("缺图残留名单只许缩小（新增缺图必须红）", () => {
@@ -339,11 +326,20 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   );
 
   // 共享模块里只允许这三段 —— 站点有关的（archived_*）编码的是某个站的 HTML 形状
-  const defs = [...chain.matchAll(/^def (\w+)/gm)].map((m) => m[1]).sort();
+  const defs = [...chain.matchAll(/^def (\w+)/gm)]
+    .map((m) => m[1])
+    .filter((d) => !d.startsWith("_")) // 私有助手（_norm_name/_search_hits）不算一段
+    .sort();
   assert.deepEqual(
     defs,
-    ["cdx_rows", "commons_photo", "wayback_photo"],
-    "photo_chain.py 只该有与站点无关的三段（多了说明站点相关的漏进来了，少了说明共享的没搬干净）"
+    [
+      "cdx_rows",
+      "commons_photo",
+      "commons_search_photo",
+      "is_placeholder_src",
+      "wayback_photo",
+    ],
+    "photo_chain.py 只该有与站点无关的取数段与判定谓词（多了说明站点相关的漏进来了，少了说明共享的没搬干净）"
   );
   for (const siteBound of ["archived_photo_pairs", "archived_list_photos"]) {
     assert.ok(

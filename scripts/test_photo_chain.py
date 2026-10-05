@@ -106,6 +106,190 @@ class CommonsPhotoCharacterizationTests(unittest.TestCase):
         self.assertIsNone(photo_chain.commons_photo("x", boom))
 
 
+class PlaceholderSrcTests(unittest.TestCase):
+    """占位图判定：旧站用透明 gif 占位、alt 写成员名 —— 实测四个 Berryz 被配成同一张
+    transparent.gif（1×1），压缩阶段才发现。"""
+
+    def test_detects_transparent_and_spacer(self):
+        self.assertTrue(
+            photo_chain.is_placeholder_src(
+                "https://web.archive.org/web/20150315010217id_/http://cdn.helloproject.com/img/transparent.gif"
+            )
+        )
+        for u in (
+            "http://x/img/blank.gif",
+            "http://x/img/spacer.png",
+            "http://x/1x1.gif",
+            "http://x/pixel.gif",
+        ):
+            self.assertTrue(photo_chain.is_placeholder_src(u), u)
+
+    def test_real_photos_are_not_placeholders(self):
+        for u in (
+            "http://cdn.helloproject.com/img/artist/m/f45e21d3.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/b/b5/GotoMaki2025.jpg",
+            "http://www.helloproject.com/berryz/img/shimizu.jpg",
+        ):
+            self.assertFalse(photo_chain.is_placeholder_src(u), u)
+        self.assertFalse(photo_chain.is_placeholder_src(""))
+        self.assertFalse(photo_chain.is_placeholder_src(None))
+
+
+class CommonsSearchPhotoTests(unittest.TestCase):
+    """Commons 文件命名空间搜索：pageimages 只回条目首图，这张表补「条目不使用、
+    但 Commons 有文件」的那批（2026-10-05 实测：Berryz 四人 + 後藤真希）。"""
+
+    @staticmethod
+    def _fetch(hits, pages):
+        def fetch(url):
+            if "list=search" in url:
+                return json.dumps({"query": {"search": [{"title": t} for t in hits]}})
+            return json.dumps({"query": {"pages": pages}})
+
+        return fetch
+
+    def test_takes_file_whose_description_names_the_person(self):
+        """Berryz AnimeNEXT 系列的真实形状：描述写「Maasa Sudo (須藤 茉麻)」（名字带空格）。"""
+        fetch = self._fetch(
+            ["File:Berryz Kobo at AnimeNEXT 20120609 15.38.42sudo.jpg"],
+            {
+                "1": {
+                    "title": "File:Berryz Kobo at AnimeNEXT 20120609 15.38.42sudo.jpg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/sudo.jpg",
+                            "width": 221,
+                            "height": 306,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "Maasa Sudo (須藤 茉麻)"}
+                            },
+                        }
+                    ],
+                }
+            },
+        )
+        self.assertEqual(
+            photo_chain.commons_search_photo("須藤茉麻", fetch), "https://upload/sudo.jpg"
+        )
+
+    def test_rejects_same_surname_other_person(self):
+        """实测同名陷阱：搜「村上愛」命中篮球选手村上恵的图 —— 描述里不是本人，必须拒。"""
+        fetch = self._fetch(
+            ["File:Muramegu.jpg"],
+            {
+                "1": {
+                    "title": "File:Muramegu.jpg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/megu.jpg",
+                            "width": 2185,
+                            "height": 1942,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "村上恵　横浜ビー・コルセアーズ　3/24"}
+                            },
+                        }
+                    ],
+                }
+            },
+        )
+        self.assertIsNone(photo_chain.commons_search_photo("村上愛", fetch))
+
+    def test_skips_video_frames(self):
+        """「Media from YouTube / Extracted images」是视频截帧，授权是上传者自述 —— 不用。"""
+        fetch = self._fetch(
+            ["File:金澤朋子.png"],
+            {
+                "1": {
+                    "title": "File:金澤朋子.png",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/kanazawa.png",
+                            "width": 257,
+                            "height": 245,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "Juice=Juiceです。"},
+                                "Categories": {
+                                    "value": "Media from YouTube|Extracted images|Juice=Juice"
+                                },
+                            },
+                        }
+                    ],
+                }
+            },
+        )
+        self.assertIsNone(photo_chain.commons_search_photo("金澤朋子", fetch))
+
+    def test_skips_junk_and_picks_largest_match(self):
+        fetch = self._fetch(
+            ["File:Flag of Japan.svg", "File:A small.jpg", "File:A large.jpg"],
+            {
+                "1": {
+                    "title": "File:A small.jpg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/small.jpg",
+                            "width": 200,
+                            "height": 300,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "後藤真希 live"}
+                            },
+                        }
+                    ],
+                },
+                "2": {
+                    "title": "File:A large.jpg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/large.jpg",
+                            "width": 2048,
+                            "height": 1570,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "後藤真希GOTOMAKI"}
+                            },
+                        }
+                    ],
+                },
+            },
+        )
+        self.assertEqual(
+            photo_chain.commons_search_photo("後藤真希", fetch), "https://upload/large.jpg"
+        )
+
+    def test_does_not_reject_on_risky_substrings(self):
+        """junk 表只许收「明确是图标」的词 —— 短词（tone/map/move/star）会命中人名的
+        子串，误杀才是这里的风险（真正的把关是身份校验）。"""
+        fetch = self._fetch(
+            ["File:Morning Musume Star Live 2005.jpg"],
+            {
+                "1": {
+                    "title": "File:Morning Musume Star Live 2005.jpg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/goto.jpg",
+                            "width": 800,
+                            "height": 600,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "後藤真希 live"}
+                            },
+                        }
+                    ],
+                }
+            },
+        )
+        self.assertEqual(
+            photo_chain.commons_search_photo("後藤真希", fetch), "https://upload/goto.jpg"
+        )
+
+    def test_malformed_payload_yields_none(self):
+        for payload in ("not json", "[]", "null"):
+            self.assertIsNone(photo_chain.commons_search_photo("x", lambda url: payload))
+
+        def boom(url):
+            raise OSError("commons down")
+
+        self.assertIsNone(photo_chain.commons_search_photo("x", boom))
+
+
 class WaybackPhotoTests(unittest.TestCase):
     def test_wayback_photo_uses_first_snapshot(self):
         def fetch(url):

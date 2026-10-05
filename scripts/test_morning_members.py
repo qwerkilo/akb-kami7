@@ -517,6 +517,46 @@ class OldSitePhotoTests(unittest.TestCase):
 <img src="/images/artist_photo/cute01_s.jpg" alt="梅田えりか" width="100"/>
 </body></html>"""
 
+    def test_prefill_skips_placeholder_urls(self):
+        """缓存里的占位图不该有缓存效力：跳过它，该成员这一轮才会重新解析（实测
+        transparent.gif 曾让四个 Berryz 永远停在 1×1）。"""
+        urls = {}
+        mm._prefill(
+            urls,
+            {"a": "http://cdn.helloproject.com/img/transparent.gif", "b": "http://x/real.jpg"},
+        )
+        self.assertEqual(urls, {"b": "http://x/real.jpg"})
+
+    def test_prefill_keeps_real_urls_and_does_not_overwrite(self):
+        urls = {"a": "http://fresh/a.jpg"}
+        mm._prefill(urls, {"a": "http://cached/a.jpg", "b": "http://cached/b.jpg"})
+        self.assertEqual(urls, {"a": "http://fresh/a.jpg", "b": "http://cached/b.jpg"})
+
+    def test_match_page_skips_placeholder_src(self):
+        """实测：旧站把透明 gif 当成员照（alt 里是姓名）——四个 Berryz 成员被配成同一张
+        transparent.gif（1×1），压缩阶段才发现、整轮白跑完。占位图必须跳过，让链往下走。"""
+        html = '<img src="/img/transparent.gif" ALT="清水佐紀">'
+        by_name = {"清水佐紀": {"file": "f1", "join": "", "end": ""}}
+        urls = {}
+        mm._match_page(
+            html, "http://www.helloproject.com/berryz/", "20150315010217", by_name, urls
+        )
+        self.assertEqual(urls, {})
+
+    def test_match_page_accepts_real_photo(self):
+        html = '<img src="/berryz/img/shimizu.jpg" ALT="清水佐紀">'
+        by_name = {"清水佐紀": {"file": "f1", "join": "", "end": ""}}
+        urls = {}
+        mm._match_page(
+            html, "http://www.helloproject.com/berryz/", "20150315010217", by_name, urls
+        )
+        self.assertEqual(
+            urls,
+            {
+                "f1": "https://web.archive.org/web/20150315010217id_/http://www.helloproject.com/berryz/img/shimizu.jpg"
+            },
+        )
+
     def test_parse_img_pairs_keeps_order_and_missing_alt(self):
         pairs = mm.parse_img_pairs('<img src="a.jpg"><img alt="X" src="b.jpg">')
         self.assertEqual(pairs, [("", "a.jpg"), ("X", "b.jpg")])
