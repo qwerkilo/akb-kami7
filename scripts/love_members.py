@@ -294,11 +294,14 @@ def _needs_photo(m, urls, skip):
     return not (skip and skip(m))
 
 
-def resolve_former_photos(members, urls, fetch, warn=print, skip=None):
+def resolve_former_photos(members, urls, fetch, warn=print, skip=None, notes=None):
     """官网列表缺照片的成员（通常是已毕业）：Web Archive 列表快照 → 快照图片 → Commons。
 
     `skip(member)` 为真的人不解析（增量跑：已有站内照片，ADR-0023）。
+    `notes`（工单 01 / ADR-0024）：没解析到的原因交给调用方（报告由管线打一份）。
     """
+    if notes is None:
+        notes = {}
     need = [m for m in members if _needs_photo(m, urls, skip)]
     by_group = {}
     for m in need:
@@ -306,27 +309,34 @@ def resolve_former_photos(members, urls, fetch, warn=print, skip=None):
     for group, ms in by_group.items():
         photos = {norm_name(k): v for k, v in archived_list_photos(group, fetch).items()}
         for m in ms:
-            photo = photos.get(norm_name(m["name"]))
-            resolved = None
-            if photo:
-                resolved = photo_chain.wayback_photo(photo, fetch)
-            if not resolved:
-                resolved = photo_chain.commons_photo(m["name"], fetch)
-            if resolved:
-                urls[m["file"]] = resolved
-            else:
-                # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
-                # 只有连站内文件都没有的才真的显示占位。
-                warn(
-                    "warning: 等爱成员（多为已毕业）上游照片解析不到（沿用站内已有照片，若无则占位）：{} {}".format(
-                        group, m["name"]
-                    )
-                )
+            _resolve_member_photo(m, photos, fetch, urls, notes)
     return members, urls
 
 
-def load(fetch, warn=print, skip_photo=None):
-    """抓取三个官网 + Wikipedia 并装配；返回 (members, urls)。"""
+def _resolve_member_photo(m, photos, fetch, urls, notes):
+    """一个人的照片：快照列表里的图 → Commons；落空把原因交给 `notes`。
+
+    原因交给调用方（工单 01 / Q6-B：不再逐人 warn —— 报告只打一份）。上游解析不到时，
+    仓库里已有照片的成员会沿用本地文件（img 仍为 true），只有连站内文件都没有的才真的
+    显示占位。
+    """
+    photo = photos.get(norm_name(m["name"]))
+    resolved = photo_chain.wayback_photo(photo, fetch) if photo else None
+    reason = None
+    if not resolved:
+        resolved, reason = photo_chain.commons_photo(m["name"], fetch)
+    if resolved:
+        urls[m["file"]] = resolved
+    else:
+        notes.setdefault(m["file"], reason or "源里没有")
+
+
+def load(fetch, warn=print, skip_photo=None, notes=None):
+    """抓取三个官网 + Wikipedia 并装配；返回 (members, urls)。
+
+    `notes`（工单 01 / ADR-0024）：照片解析没找到的原因（复用 morning 的
+    `resolve_former_photos`，它把原因写进这里）—— 报告由管线打一份。
+    """
 
     official = {}
     # 官网详情页是这里最慢的一段（每团 1 列表 + 每人 1 详情）：给心跳，别让日志静默
@@ -357,7 +367,7 @@ def load(fetch, warn=print, skip_photo=None):
             st.tick()
             print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
     members, urls = build_members(official, wiki)
-    resolve_former_photos(members, urls, fetch, warn, skip=skip_photo)
+    resolve_former_photos(members, urls, fetch, warn, skip=skip_photo, notes=notes)
     return members, urls
 
 

@@ -565,16 +565,19 @@ def photo_skip_for(refresh_photos, root, full_dir, thumb_dir):
     return photo_skip_predicate(prev, full_dir, thumb_dir)
 
 
-def default_loaders(skip_photo, use_cache):
+def default_loaders(skip_photo, use_cache, notes=None):
     """默认的两个 loader（等爱 / 早安）。
 
     抽出来是为了让「跳过接进了哪个 loader」「缓存开不开」可测 —— 接线的 bug 只表现为
     「跑了但没跳过」或「refresh 了却仍读缓存」。
+
+    `notes`（工单 01 / ADR-0024）：照片原因表的**同一份**（main 建、loader 写、
+    报告读）—— 漏一处的症状是「原因在报告里永远是未记录」。
     """
     return (
-        lambda fetch: love_members.load(fetch, skip_photo=skip_photo),
+        lambda fetch: love_members.load(fetch, skip_photo=skip_photo, notes=notes),
         lambda fetch: morningmusume_members.load(
-            fetch, use_cache=use_cache, skip_photo=skip_photo
+            fetch, use_cache=use_cache, skip_photo=skip_photo, notes=notes
         ),
     )
 
@@ -744,23 +747,33 @@ def report_missing_info(missing):
         print("no image info:", missing)
 
 
-def warn_missing_images(members, failures=None):
-    """缺图名单 + 「取不下来」的原因（工单 10）：解析不到的原因由各 loader 的
-    `_report_photo_reasons` 逐人打（工单 09）；这里补的是**解析到了但下载/压缩失败**
-    的那批 —— 否则读汇总的人会以为缺图全是「源里没有」。"""
-    no_img = [m["name"] for m in members if not m["img"]]
-    if no_img:
-        print(f"warning: {len(no_img)} 位成员没有照片（界面显示占位）：{'、'.join(no_img[:10])}")
-    if failures:
-        lines = [
-            "  {}：{}".format(m["name"], failures[m["id"]])
-            for m in members
-            if not m["img"] and m["id"] in failures
-        ]
-        if lines:
-            print("照片解析到了但取不下来 {} 人（原因）：".format(len(lines)))
-            for line in lines:
-                print(line)
+def warn_missing_images(members, failures=None, notes=None):
+    """缺图名单 + 逐人原因 —— **一份报告**（ADR-0024）。
+
+    原因来自两张表，在报告处合并：解析阶段（`notes`，按成员身份 `file`）与
+    下载/压缩阶段（`failures`，按照片文件 `id`）。缺图名单与原因表同源：
+    覆盖集合 == 缺图名单（结构性，不再依赖「当前数据下成立」）。
+    """
+    missing = [m for m in members if not m["img"]]
+    if missing:
+        print(
+            f"warning: {len(missing)} 位成员没有照片（界面显示占位）："
+            f"{'、'.join(m['name'] for m in missing[:10])}"
+        )
+    if not missing:
+        return
+    lines = [
+        "  {}：{}".format(m["name"], _photo_reason(m, failures, notes))
+        for m in missing
+    ]
+    print("没有照片 {} 人（原因）：".format(len(lines)))
+    for line in lines:
+        print(line)
+
+
+def _photo_reason(m, failures, notes):
+    """一个成员的缺图原因：解析阶段（notes，按 file）优先于下载/压缩（failures，按 id）。"""
+    return (notes or {}).get(m["file"]) or (failures or {}).get(m["id"]) or "未记录"
 
 
 def report_removed(removed):
@@ -945,8 +958,9 @@ def main(
     skip_photo = photo_skip_for(
         refresh_photos, dirs["root"], dirs["full"], dirs["thumb"]
     )
+    photo_notes = {}  # file → 解析阶段没找到的原因（loader 写、报告读；ADR-0024）
     default_love, default_morning = default_loaders(
-        skip_photo, use_cache=not refresh_photos
+        skip_photo, use_cache=not refresh_photos, notes=photo_notes
     )
     if love_loader is None:
         love_loader = default_love
@@ -991,7 +1005,7 @@ def main(
         sizes = compress_members(
             all_members, paths, force, dirs["full"], dirs["thumb"], failures
         )
-    warn_missing_images(all_members, failures)
+    warn_missing_images(all_members, failures, photo_notes)
     report_removed(
         prune_unused(
             {m["id"] for m in all_members},

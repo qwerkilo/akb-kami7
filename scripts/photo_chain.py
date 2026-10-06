@@ -57,26 +57,27 @@ def wayback_photo(url, fetch):
     return "https://web.archive.org/web/{}id_/{}".format(rows[0][1], url)
 
 
-def commons_photo(name, fetch, errors=None):
+def commons_photo(name, fetch):
+    """条目首图。返回 `(url, reason)`（ADR-0024）：命中给 url；请求失败/形状异常
+    「查询失败」；查了但没有「源里没有」。
+
+    返回值未必是预期的形状：实测端点在异常时会回 JSON 数组而不是对象 ——
+    抓取路径上抛异常会让整条早安装配停摆，所以失败也走返回值（不是异常）。
+    """
     query = WIKI_API + "?" + urllib.parse.urlencode(
         {"action": "query", "titles": name, "prop": "pageimages", "pithumbsize": "800", "format": "json"}
     )
     try:
         data = json.loads(fetch(query))
-    except Exception as e:
-        _note(errors, e)
-        return None
-    # 返回值未必是预期的形状：实测端点在异常时会回 JSON 数组而不是对象，
-    # 而原来只把 json.loads 包在 try 里，后面的 .get 就抛出去了 ——
-    # 抓取路径上抛异常会让整条早安装配停摆。取不到就当没有。
+    except Exception:
+        return None, "查询失败"
     if not isinstance(data, dict):
-        _note(errors, ValueError("unexpected payload shape"))
-        return None
+        return None, "查询失败"
     for page in (data.get("query") or {}).get("pages", {}).values():
         src = (page.get("thumbnail") or {}).get("source")
         if src:
-            return src
-    return None
+            return src, None
+    return None, "源里没有"
 
 
 def norm_name(s):
@@ -84,14 +85,12 @@ def norm_name(s):
     return re.sub(r"\s+", "", s or "")
 
 
-def _note(errors, e):
-    """把「请求失败」记进调用方的 errors 列表（工单 09）：失败与「查了但没有」必须
-    分得开 —— 429 被记成「源里没有照片」是本仓记录过的坑。"""
-    if errors is not None:
-        errors.append(e)
+def _search_hits(name, fetch):
+    """Commons 文件命名空间搜索的标题列表。
 
-
-def _search_hits(name, fetch, errors=None):
+    失败**抛**（请求失败与形状异常都算）—— 由 `commons_search_photo` 翻成原因：
+    原因在产生处写一次（ADR-0024），不再经过调用方传入的列表中转。
+    """
     query = COMMONS_API + "?" + urllib.parse.urlencode(
         {
             "action": "query",
@@ -102,16 +101,10 @@ def _search_hits(name, fetch, errors=None):
             "format": "json",
         }
     )
-    try:
-        data = json.loads(fetch(query))
-    except Exception as e:
-        _note(errors, e)
-        return []
+    data = json.loads(fetch(query))
     if not isinstance(data, dict):
-        # 形状异常也是失败形状（端点在异常时回 JSON 数组）—— 不记的话会被写成
-        # 「源里没有」（两轴审查）。
-        _note(errors, ValueError("unexpected payload shape"))
-        return []
+        # 形状异常也是失败形状（端点在异常时回 JSON 数组）
+        raise ValueError("unexpected payload shape")
     return [
         h.get("title", "")
         for h in (data.get("query") or {}).get("search", [])
@@ -119,8 +112,11 @@ def _search_hits(name, fetch, errors=None):
     ]
 
 
-def _imageinfo(titles, fetch, errors=None):
-    """一批取回候选文件的 imageinfo（titles=A|B|…，一次请求）。形状不对返回 {}。"""
+def _imageinfo(titles, fetch):
+    """一批取回候选文件的 imageinfo（titles=A|B|…，一次请求）。
+
+    失败抛（请求失败/形状异常）；正常的「没有 imageinfo」回 `{}`（那是「源里没有」）。
+    """
     query = COMMONS_API + "?" + urllib.parse.urlencode(
         {
             "action": "query",
@@ -130,13 +126,9 @@ def _imageinfo(titles, fetch, errors=None):
             "format": "json",
         }
     )
-    try:
-        data = json.loads(fetch(query))
-    except Exception as e:
-        _note(errors, e)
-        return {}
+    data = json.loads(fetch(query))
     if not isinstance(data, dict):
-        _note(errors, ValueError("unexpected payload shape"))
+        raise ValueError("unexpected payload shape")
         return {}
     return (data.get("query") or {}).get("pages", {})
 
@@ -183,24 +175,32 @@ def _portrait_candidate(page, want):
     return ((info.get("width") or 0) * (info.get("height") or 0), src)
 
 
-def commons_search_photo(name, fetch, errors=None):
+def commons_search_photo(name, fetch):
     """Commons 文件命名空间搜索（`commons_photo` 的补充）：`commons_photo` 只回
     **条目首图**，而不少毕业成员的照片在 Commons 有文件、却没被用进条目（实测：
     Berryz 四人的 AnimeNEXT 单人照、後藤真希 2025）。
 
     身份校验与视频截帧过滤见 `_portrait_candidate`；命中多个时取像素面积最大的。
-    取不到返回 None（与另两段一致）。
+    返回 `(url, reason)`（ADR-0024）：请求失败「查询失败」、查了但没有「源里没有」。
     """
-    want = norm_name(name)
-    cands = [
-        t
-        for t in _search_hits(name, fetch, errors)
-        if not any(j in t.lower() for j in _SEARCH_JUNK)
-    ]
-    if not cands:
-        return None
+    try:
+        hits = _search_hits(name, fetch)
+        cands = [
+            t for t in hits if not any(j in t.lower() for j in _SEARCH_JUNK)
+        ]
+        if not cands:
+            return None, "源里没有"
+        pages = _imageinfo(cands[:6], fetch)
+    except Exception:
+        return None, "查询失败"
+    url = _best_candidate(pages, norm_name(name))
+    return (url, None) if url else (None, "源里没有")
+
+
+def _best_candidate(pages, want):
+    """候选里取像素面积最大的（身份校验与视频截帧过滤见 `_portrait_candidate`）。"""
     best = None
-    for page in _imageinfo(cands[:6], fetch, errors).values():
+    for page in pages.values():
         cand = _portrait_candidate(page, want)
         if cand and (best is None or cand[0] > best[0]):
             best = cand

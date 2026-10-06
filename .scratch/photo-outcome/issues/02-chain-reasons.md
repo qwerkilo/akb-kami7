@@ -1,6 +1,6 @@
 # 工单 02：链的失败语义（`errors` → `(url, reason)`）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 01
 
 ## 背景
@@ -31,3 +31,26 @@
 ## 注意
 
 - `cdx_rows` / `wayback_photo` 不在范围（已知限制，见 ADR-0024 的后果）。
+
+## 实现记录（2026-10-06）
+
+- `commons_photo(name, fetch) -> (url, reason)`、`commons_search_photo(name, fetch) -> (url, reason)`：
+  命中 `(url, None)`；请求失败/形状异常 `(None, "查询失败")`；查了但没有 `(None, "源里没有")`。
+  内部 `_search_hits` / `_imageinfo` 改成**失败抛**（原因由外层翻一次），`_note` 删除。
+- `morningmusume_members._commons_for` 返回 `(url, reason)`（photo_url 兜底成功时 reason
+  清空）；`_resolve_commons` 用 `notes.setdefault(file, reason or "源里没有")`（旧站截断
+  原因仍优先）。love 的 `_resolve_member_photo` 同改（**等爱的缺图者从「未记录」变成有原因**）。
+- 守卫（缝③）：`photo_chain.py` 里不许出现 `errors`（剥注释再扫）+ 两个签名 + 链必须自己
+  产生两个原因串。
+- 测试：`test_photo_chain` 的 22 处调用点按新契约更新（命中 → `(url, None)`；坏载荷/形状
+  异常 → 「查询失败」；空 → 「源里没有」），三组以 `errors` 写的测试重写成 `ReasonTests` /
+  `ShapeAnomalyTests` / `SameWritingLimitationTests`；love 新增「429 不许压成源里没有」。
+- 变异 **2 个全杀**（失败并进「源里没有」/ love 的原因写死）；守卫承重（去掉签名里的
+  二元组或恢复 errors 会红）。
+- 真实源抽查（3s 节流）：後藤真希命中（与缓存一致）、福田明日香「源里没有」（与缓存
+  一致）；須藤茉麻/夏焼雅在**链的更早一段**（`/og/`/旧站）命中，直接调 Commons 得到的
+  是另一张合法图 —— 不是回归（链序未动）。
+- 复杂度：`commons_search_photo` 11 → 拆 `_best_candidate`。
+
+**真实跑**：同工单 01（三次尝试都被 ≠ME 站那一页的 500/超时挡住，门正确中止未写入）；
+真实源抽查见上（Commons/Wikipedia 通，命中与缓存一致）。

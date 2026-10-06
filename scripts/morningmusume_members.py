@@ -1319,48 +1319,48 @@ def _commons_for(m, fetch, pause):
     Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
     不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
 
-    返回 `(url, errors)`（工单 09）：url 为 None 且 errors 非空 = 请求失败；
-    errors 空 = 查了但没有（调用方据此分「查询失败」与「源里没有」）。
+    返回 `(url, reason)`（ADR-0024）：链自己给出原因（「查询失败」/「源里没有」），
+    调用方不再需要 `errors` 中转。
     """
-    errors = []
     if pause:
         time.sleep(pause)
-    resolved = photo_chain.commons_photo(m["name"], fetch, errors)
+    resolved, reason = photo_chain.commons_photo(m["name"], fetch)
     if not resolved:
         # 条目首图没有时再搜 Commons 文件命名空间：不少毕业者的照片在 Commons
         # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
         if pause:
             time.sleep(pause)
-        resolved = photo_chain.commons_search_photo(m["name"], fetch, errors)
+        resolved, reason = photo_chain.commons_search_photo(m["name"], fetch)
     if not resolved and m.get("photo_url"):
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
-        resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
-    return resolved, errors
+        fallback = photo_chain.wayback_photo(m["photo_url"], fetch)
+        if fallback:
+            return fallback, None
+    return resolved, reason
 
 
-def _resolve_commons(members, urls, fetch, warn, pause, notes=None):
+def _resolve_commons(members, urls, fetch, warn, pause, notes):
     """链尾：Wikipedia Commons（现役与兜底；失败被 `commons_photo` 吞成 None）。"""
     todo = [m for m in members if m["status"] == "former" and m["file"] not in urls]
     with progress.stage("Commons", total=len(todo)):
         for m in todo:
-            resolved, errors = _commons_for(m, fetch, pause)
+            resolved, reason = _commons_for(m, fetch, pause)
             if resolved:
                 urls[m["file"]] = resolved
             else:
-                if notes is not None:
-                    # 旧站的原因（预算/上限截断）优先：Commons 是链尾，覆盖会让
-                    # 工单 09 的整条目的落空（两轴审查：全链路报告永远看不到截断）。
-                    notes.setdefault(
-                        m["file"], "查询失败" if errors else "源里没有"
-                    )
-                # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
+                # 旧站的原因（预算/上限截断）优先：Commons 是链尾，覆盖会让
+                # 工单 09 的整条目的落空（两轴审查：全链路报告永远看不到截断）。
+                notes.setdefault(m["file"], reason or "源里没有")
+                # 不再逐人 warn（工单 01 / Q6-B）：同一条信息由管线的一份报告给出 ——
+                # 上游解析不到时，仓库里已有照片的成员会沿用本地文件（img 仍为 true），
                 # 只有连站内文件都没有的才真的显示占位。
-                warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
             progress.tick(ok=bool(resolved))
 
 
-def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0, skip=None):
+def resolve_former_photos(
+    members, urls, fetch, warn=print, pause=0.0, skip=None, notes=None
+):
     """毕业成员的头像。**照片回退链**（CONTEXT）三节，按序：
 
     1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
@@ -1373,9 +1373,13 @@ def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0, skip=None
 
     `skip(member)` 为真的人**整条链都不走**（增量跑：已有站内照片，ADR-0023）——
     在这里过滤一次，三个源共享同一份目标名单。
+
+    `notes`（工单 01 / ADR-0024）：没解析到的原因**交给调用方**（`notes[file]`），
+    这里不打汇总 —— 报告由管线合并解析阶段与下载/压缩阶段后打**一份**。
     """
     target = [m for m in members if not (skip and skip(m))]
-    notes = {}  # file → 没解析到的原因（工单 09：查询失败 / 源里没有 / 预算内未扫完）
+    if notes is None:
+        notes = {}  # 独立调用（测试）没有报告需求，原因随调用方处置
     # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的
     _resolve_og(target, urls, fetch)
     try:
@@ -1383,22 +1387,7 @@ def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0, skip=None
     except Exception as e:
         warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
     _resolve_commons(target, urls, fetch, warn, pause, notes)
-    _report_photo_reasons(target, urls, notes, warn)
     return members, urls
-
-
-def _report_photo_reasons(members, urls, notes, warn):
-    """没解析到照片的人**逐人原因**（工单 09）：把「源里没有」与「查询失败」
-    「预算内未扫完」分开 —— 预算截断被记成源的性质是本仓翻过的车。"""
-    lines = [
-        "  {}：{}".format(m["name"], notes.get(m["file"], "未记录"))
-        for m in members
-        if m["status"] == "former" and m["file"] not in urls
-    ]
-    if lines:
-        warn("照片未解析到 {} 人（原因）：".format(len(lines)))
-        for line in lines:
-            warn(line)
 
 def build_sections(members):
     """早安是**一系列两团**（モーニング娘。+ ℃-ute），且期生有 18 期 —— 所以不分组，段 label 用团名本身；
@@ -1470,8 +1459,12 @@ def _save_resolved(urls, path=None):
         pass
 
 
-def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None):
-    """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。"""
+def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None, notes=None):
+    """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。
+
+    `notes`（工单 01）：照片解析没找到的原因，`notes[file]` —— 由管线合并进唯一
+    的那份报告（ADR-0024）。不传就只有成员与 urls（独立使用/测试）。
+    """
     official = {}
     # 详情页是数据阶段的大头（7 列表 + 70 详情）：给心跳，别让日志静默几分钟
     with progress.stage("早安：官网列表+详情") as st:
@@ -1508,7 +1501,9 @@ def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None):
         if use_cache:
             # 预填已解析过的（各解析段只处理不在 urls 里的人 → 天然增量）
             _prefill(urls, _load_resolved())
-        resolve_former_photos(members, urls, fetch, warn, pause=1.5, skip=skip_photo)
+        resolve_former_photos(
+            members, urls, fetch, warn, pause=1.5, skip=skip_photo, notes=notes
+        )
         if use_cache:
             _save_resolved(urls)
     return members, urls

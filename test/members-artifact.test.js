@@ -584,3 +584,32 @@ test("现役成员不得跨系列重复；已知的同名不同人按名单放�
     );
   }
 });
+
+test("照片回退链：原因在链里产生，不再有 errors 中转（工单 02 / ADR-0024）", () => {
+  const raw = fs.readFileSync(
+    path.join(__dirname, "..", "scripts", "photo_chain.py"),
+    "utf8"
+  );
+  // 剥注释再扫（本仓记录过「守卫扫到注释里的字面量」的坑）
+  const chain = raw.replace(/#[^\n]*/g, "");
+  assert.ok(
+    !/\berrors\b/.test(chain),
+    "photo_chain 不许再有 errors 参数/列表 —— 原因由 (url, reason) 返回（ADR-0024）"
+  );
+  assert.match(
+    chain,
+    /def commons_photo\(name, fetch\):/,
+    "commons_photo 的签名"
+  );
+  assert.match(
+    chain,
+    /def commons_search_photo\(name, fetch\):/,
+    "commons_search_photo 的签名"
+  );
+  for (const reason of ["查询失败", "源里没有"]) {
+    assert.ok(
+      chain.includes(`"${reason}"`),
+      `链必须自己产生「${reason}」（原因在产生处写一次）`
+    );
+  }
+});

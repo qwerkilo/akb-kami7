@@ -166,12 +166,34 @@ class PhotoFallbackTests(unittest.TestCase):
             {"name": "福山萌叶", "group": "≒JOY", "status": "former", "file": "love:≒JOY:福山萌叶"},
         ]
         urls = {}
-        warned = []
-        love_members.resolve_former_photos(members, urls, fetch, warn=warned.append)
+        notes = {}
+        love_members.resolve_former_photos(members, urls, fetch, notes=notes)
         self.assertIn("20210201000000id_", urls["love:=LOVE:佐竹のん乃"])
         self.assertEqual(urls["love:=LOVE:齊藤なぎさ"], "https://upload/nagisa.jpg")
         self.assertNotIn("love:≒JOY:福山萌叶", urls)
-        self.assertTrue(any("福山萌叶" in w for w in warned))
+        # 工单 01：原因交给 notes（不再逐人 warn）
+        self.assertEqual(notes.get("love:≒JOY:福山萌叶"), "源里没有")
+
+    def test_query_failure_reason_is_not_flattened_to_source_empty(self):
+        """工单 02：Commons 请求失败 → 「查询失败」，不许压成「源里没有」
+        （429 被记成「源里没有」是本仓记录过的坑）。"""
+        members = [
+            {
+                "name": "佐竹のん乃",
+                "group": "=LOVE",
+                "status": "former",
+                "file": "love:=LOVE:佐竹のん乃",
+            }
+        ]
+
+        def fetch(url):
+            if "web.archive.org/cdx" in url:
+                return ""  # 没有归档列表
+            raise RuntimeError("429 Too Many Requests")
+
+        urls, notes = {}, {}
+        love_members.resolve_former_photos(members, urls, fetch, notes=notes)
+        self.assertEqual(notes.get("love:=LOVE:佐竹のん乃"), "查询失败")
 
 
 class BuildMembersTests(unittest.TestCase):
@@ -464,8 +486,8 @@ def load_fetcher(fail_detail=None, fail_cdx=False):
 
 class LoadTests(unittest.TestCase):
     def test_load_assembles_members_and_photo_urls(self):
-        warned = []
-        members, urls = love_members.load(load_fetcher(), warn=warned.append)
+        notes = {}
+        members, urls = love_members.load(load_fetcher(), notes=notes)
         by_group = {}
         for m in members:
             by_group.setdefault(m["group"], []).append(m)
@@ -489,7 +511,8 @@ class LoadTests(unittest.TestCase):
             urls["love:≒JOY:逢田 珠里依"],
             "https://nearly-equal-joy.jp/image/profile/aida_jurii.jpg",
         )
-        self.assertTrue(any("佐竹のん乃" in w for w in warned))
+        # 工单 01：解析不到的人由 notes 记录原因（报告由管线打一份，不再逐人 warn）
+        self.assertEqual(notes.get("love:=LOVE:佐竹のん乃"), "源里没有")
 
     def test_load_propagates_detail_failure_for_fail_fast(self):
         with self.assertRaises(OSError):

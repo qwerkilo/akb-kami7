@@ -51,6 +51,7 @@ class WiringTests(unittest.TestCase):
 
     def test_skip_photo_and_cache_reach_the_right_loaders(self):
         sentinel = lambda m: True
+        notes_sentinel = {"f1": "源里没有"}
         seen = {}
 
         def fake_love(fetch, **kw):
@@ -64,12 +65,54 @@ class WiringTests(unittest.TestCase):
         with mock.patch.object(love_members, "load", fake_love), mock.patch.object(
             morningmusume_members, "load", fake_morning
         ):
-            love_loader, morning_loader = fetch_members.default_loaders(sentinel, use_cache=False)
+            love_loader, morning_loader = fetch_members.default_loaders(
+                sentinel, use_cache=False, notes=notes_sentinel
+            )
             love_loader(lambda url: "")
             morning_loader(lambda url: "")
         self.assertIs(seen["love"]["skip_photo"], sentinel)
         self.assertIs(seen["morning"]["skip_photo"], sentinel)
         self.assertFalse(seen["morning"]["use_cache"])
+        # 同一份 notes 必须进两个 loader（工单 01 的接线；等爱复用 morning 的链）
+        self.assertIs(seen["love"]["notes"], notes_sentinel)
+        self.assertIs(seen["morning"]["notes"], notes_sentinel)
+
+    def test_notes_reach_the_morning_loader_and_the_report(self):
+        """工单 01 的接线：同一份 `notes` 既进 morning loader、又进报告 ——
+        漏一处的症状是「原因在报告里永远是未记录」（本仓的接线 bug 类）。"""
+        seen = {}
+
+        def fake_load(fetch, **kw):
+            seen.update(kw)
+            kw["notes"]["f1"] = "源里没有"
+            return [], {}
+
+        captured = {}
+
+        def fake_warn(members, failures=None, notes=None):
+            captured["notes"] = notes
+
+        with mock.patch.object(morningmusume_members, "load", fake_load), mock.patch.object(
+            fetch_members, "warn_missing_images", fake_warn
+        ), mock.patch.object(fetch_members, "default_loaders") as dl:
+            def make_loaders(skip_photo, use_cache, notes=None):
+                captured["dl_notes"] = notes
+                return (lambda fetch: ([], {}), lambda fetch: fake_load(fetch, notes=notes))
+
+            dl.side_effect = make_loaders
+            with tempfile.TemporaryDirectory() as td:
+                dirs = {k: os.path.join(td, k) for k in ("root", "orig", "full", "thumb")}
+                for d in dirs.values():
+                    os.makedirs(d)
+                fetch_members.main(
+                    argv=[],
+                    dirs=dirs,
+                    fetch_page=lambda *a, **k: "",
+                    api_fn=lambda *a, **k: {},
+                    fetch_url=lambda url: b"",
+                )
+        self.assertIs(captured["dl_notes"], captured["notes"])
+        self.assertEqual(captured["notes"].get("f1"), "源里没有")
 
 
 class ParseArgsTests(unittest.TestCase):
@@ -1709,8 +1752,8 @@ class PhotoFailureReasonTests(unittest.TestCase):
 
     def test_missing_summary_names_the_failures(self):
         members = [
-            {"id": "m1", "name": "有原栞菜", "img": False},
-            {"id": "m2", "name": "福田明日香", "img": False},
+            {"id": "m1", "name": "有原栞菜", "file": "f1", "img": False},
+            {"id": "m2", "name": "福田明日香", "file": "f2", "img": False},
         ]
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
@@ -1726,10 +1769,11 @@ class MissingUnionTests(unittest.TestCase):
     且原因段与缺图名单不重不漏。"""
 
     def test_union_of_sections_equals_missing_list(self):
+        """工单 01 后：一份报告 —— 覆盖集合 == 缺图名单（失败过但最终有图的不列）。"""
         members = [
-            {"id": "m1", "name": "有原栞菜", "img": False},  # 解析到、取不下来
-            {"id": "m2", "name": "福田明日香", "img": False},  # 上游未解析到
-            {"id": "m3", "name": "梅田えりか", "img": True},  # 失败过但最终有图
+            {"id": "m1", "name": "有原栞菜", "file": "f1", "img": False},  # 取不下来
+            {"id": "m2", "name": "福田明日香", "file": "f2", "img": False},  # 未解析到
+            {"id": "m3", "name": "梅田えりか", "file": "f3", "img": True},  # 失败过但最终有图
         ]
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
@@ -1737,10 +1781,49 @@ class MissingUnionTests(unittest.TestCase):
                 members, {"m1": "下载失败", "m3": "下载失败"}
             )
         out = buf.getvalue()
-        # 第二段只列 m1（m3 有图，不列）
-        self.assertIn("有原栞菜", out)
-        self.assertIn("照片解析到了但取不下来 1 人", out)
-        self.assertNotIn("梅田えりか", out)
-        # 缺图名单含 m1、m2；m3 不在
         self.assertIn("2 位成员没有照片", out)
-        self.assertNotIn("梅田えりか", out.split("照片解析到了")[0])
+        self.assertIn("没有照片 2 人（原因）：", out)
+        self.assertIn("有原栞菜：下载失败", out)
+        self.assertIn("福田明日香：未记录", out)
+        self.assertNotIn("梅田えりか", out)
+
+
+class SinglePhotoReportTests(unittest.TestCase):
+    """工单 01（ADR-0024）：报告只一份 —— 解析阶段的原因（notes，按 file）与
+    下载/压缩阶段的失败（failures，按 id）在报告处合并；覆盖集合 == 缺图名单，
+    每人恰好一行（不再分「未解析到」与「取不下来」两段）。"""
+
+    def test_single_report_merges_notes_and_failures(self):
+        members = [
+            {"id": "m1", "name": "有原栞菜", "file": "f1", "img": False},  # 取不下来
+            {"id": "m2", "name": "福田明日香", "file": "f2", "img": False},  # 源里没有
+            {"id": "m3", "name": "梅田えりか", "file": "f3", "img": False},  # 未记录
+            {"id": "m4", "name": "野中美希", "file": "f4", "img": True},  # 有图，不列
+        ]
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            fetch_members.warn_missing_images(
+                members, {"m1": "下载失败"}, {"f2": "源里没有"}
+            )
+        out = buf.getvalue()
+        self.assertIn("没有照片 3 人（原因）：", out)
+        self.assertIn("有原栞菜：下载失败", out)
+        self.assertIn("福田明日香：源里没有", out)
+        self.assertIn("梅田えりか：未记录", out)
+        report = out.split("没有照片 3 人（原因）：")[1]
+        lines = [x for x in report.splitlines() if x.strip()]
+        self.assertEqual(len(lines), 3, "每人恰好一行：\n" + report)
+        self.assertNotIn("野中美希", report)
+        # 单一报告：不再有两段的标题
+        self.assertNotIn("照片解析到了但取不下来", out)
+        self.assertNotIn("照片未解析到", out)
+
+    def test_notes_win_over_failures_for_the_same_member(self):
+        """同一人两张表都有（理论上不该发生）：notes 优先（解析阶段在前）。"""
+        members = [{"id": "m1", "name": "X", "file": "f1", "img": False}]
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            fetch_members.warn_missing_images(
+                members, {"m1": "下载失败"}, {"f1": "源里没有"}
+            )
+        self.assertIn("X：源里没有", buf.getvalue())

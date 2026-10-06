@@ -394,7 +394,9 @@ class ResolvedCacheTests(unittest.TestCase):
             seen = {}
             former = [{"name": "既存", "file": "morningmusume:既存", "status": "former"}]
 
-            def fake_resolve(members, urls, fetch, warn=None, pause=0.0, skip=None):
+            def fake_resolve(
+                members, urls, fetch, warn=None, pause=0.0, skip=None, notes=None
+            ):
                 seen.update(urls)
 
             with mock.patch.object(mm, "RESOLVED_CACHE", p), mock.patch.object(
@@ -420,7 +422,9 @@ class ResolvedCacheTests(unittest.TestCase):
             p = os.path.join(td, "_resolved.json")
             former = [{"name": "新", "file": "morningmusume:新", "status": "former"}]
 
-            def fake_resolve(members, urls, fetch, warn=None, pause=0.0, skip=None):
+            def fake_resolve(
+                members, urls, fetch, warn=None, pause=0.0, skip=None, notes=None
+            ):
                 urls["morningmusume:新"] = "https://x/new.jpg"
 
             with mock.patch.object(mm, "RESOLVED_CACHE", p), mock.patch.object(
@@ -494,8 +498,9 @@ class ResolveFormerPhotosTests(unittest.TestCase):
         self.assertTrue(urls.get(members[1]["file"], "").startswith("https://web.archive.org/"))
         self.assertTrue(any("石黒彩" in u or True for u in seen))
 
-    def test_former_with_no_source_warns_instead_of_silently_dropping(self):
-        """解析不到时要**喊一声**：站里会显示占位卡，但没人知道是谁。"""
+    def test_former_with_no_source_records_reason_in_notes(self):
+        """解析不到时原因必须**交给调用方**（工单 01 / ADR-0024）：报告由管线打一份，
+        解析阶段不再自己打逐人 warn —— 「有人喊过」由 `notes` 的键值保证。"""
         msgs = []
         members = self._members()
         urls = {members[0]["file"]: "/upload/images/a.webp"}
@@ -509,13 +514,12 @@ class ResolveFormerPhotosTests(unittest.TestCase):
                 return json.dumps({"query": {"pages": {}}})
             return "[]"  # CDX 等其它端点
 
-        mm.resolve_former_photos(members, urls, empty, warn=msgs.append)
+        notes = {}
+        mm.resolve_former_photos(members, urls, empty, warn=msgs.append, notes=notes)
         self.assertNotIn(members[1]["file"], urls)
-        # 工单 09 起还有一行「照片未解析到 N 人（原因）」汇总 —— 断言 intent 不变：
-        # **有人喊过**、且喊到了具体的人（不钉消息条数，条数会随汇总行漂）。
-        joined = "\n".join(msgs)
-        self.assertIn("石黒彩", joined)
-        self.assertIn("源里没有", joined)
+        self.assertEqual(notes.get(members[1]["file"]), "源里没有")
+        # 解析阶段保持安静（Q6-B）：不再有逐人「解析不到」行
+        self.assertNotIn("解析不到", "\n".join(msgs))
 
 
 OG_HTML = """<div class="commonGrid--base">
@@ -1470,18 +1474,21 @@ class PhotoReasonTests(unittest.TestCase):
             mm._resolve_old_site_groups(members, {}, urls, fake_fetch, 0, 900, notes)
         self.assertEqual(notes.get("m1"), "旧站预算内未扫完")
 
-    def test_report_lists_reasons_per_person(self):
-        """收口要逐人给原因（判据 1/2 的可读面）：查询失败与源里没有分开列。"""
+    def test_resolve_fills_notes_and_prints_no_summary(self):
+        """工单 01：解析阶段把原因交给调用方（`notes`），自己不打印汇总。"""
         members = [dict(self.MEMBER)]
         warns = []
+        notes = {}
 
         def boom(url):
             raise RuntimeError("429")
 
-        mm.resolve_former_photos(members, {}, boom, warn=warns.append, pause=0)
-        joined = "\n".join(warns)
-        self.assertIn("照片未解析到 1 人（原因）：", joined)
-        self.assertIn("後藤真希：查询失败", joined)
+        mm.resolve_former_photos(
+            members, {}, boom, warn=warns.append, pause=0, notes=notes
+        )
+        self.assertEqual(notes.get(self.MEMBER["file"]), "查询失败")
+        self.assertNotIn("照片未解析到", "\n".join(warns))
+        self.assertNotIn("解析不到", "\n".join(warns))
 
     def test_old_site_reason_survives_the_commons_stage(self):
         """链尾的 Commons 不得覆盖旧站的原因（两轴审查抓到：覆盖让工单 09 的整条

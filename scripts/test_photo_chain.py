@@ -78,32 +78,42 @@ class CommonsPhotoCharacterizationTests(unittest.TestCase):
                 {"query": {"pages": {"1": {"thumbnail": {"source": "https://upload/c.jpg"}}}}}
             )
 
-        self.assertEqual(photo_chain.commons_photo("齊藤なぎさ", fetch), "https://upload/c.jpg")
+        self.assertEqual(
+            photo_chain.commons_photo("齊藤なぎさ", fetch), ("https://upload/c.jpg", None)
+        )
         q = urllib.parse.parse_qs(urllib.parse.urlparse(seen["url"]).query)
         self.assertEqual(q["titles"], ["齊藤なぎさ"])
         self.assertEqual(q["prop"], ["pageimages"])
         self.assertEqual(q["pithumbsize"], ["800"])
         self.assertEqual(urllib.parse.urlparse(seen["url"]).netloc, "ja.wikipedia.org")
 
-    def test_no_thumbnail_yields_none(self):
-        self.assertIsNone(
-            photo_chain.commons_photo("x", lambda url: json.dumps({"query": {"pages": {"1": {}}}}))
+    def test_no_thumbnail_yields_source_empty(self):
+        self.assertEqual(
+            photo_chain.commons_photo(
+                "x", lambda url: json.dumps({"query": {"pages": {"1": {}}}})
+            ),
+            (None, "源里没有"),
         )
 
-    def test_malformed_or_erroring_payload_yields_none(self):
-        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "not json"))
+    def test_malformed_or_erroring_payload_yields_query_failed(self):
+        self.assertEqual(
+            photo_chain.commons_photo("x", lambda url: "not json"), (None, "查询失败")
+        )
 
-    def test_json_that_is_not_an_object_yields_none(self):
+    def test_json_that_is_not_an_object_yields_query_failed(self):
         """端点在异常时会回 JSON 数组而不是对象。原来只把 json.loads 包进 try，
-        后面的 .get 就抛出去了 —— 抓取路径上抛异常会让整条装配停摆。"""
-        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "[]"))
-        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "[1, 2]"))
-        self.assertIsNone(photo_chain.commons_photo("x", lambda url: "null"))
+        后面的 .get 就抛出去了 —— 抓取路径上抛异常会让整条装配停摆。
+        形状异常是**失败形状**（工单 09）：原因记「查询失败」。"""
+        for payload in ("[]", "[1, 2]", "null"):
+            self.assertEqual(
+                photo_chain.commons_photo("x", lambda url, p=payload: p),
+                (None, "查询失败"),
+            )
 
         def boom(url):
             raise OSError("commons down")
 
-        self.assertIsNone(photo_chain.commons_photo("x", boom))
+        self.assertEqual(photo_chain.commons_photo("x", boom), (None, "查询失败"))
 
 
 class PlaceholderSrcTests(unittest.TestCase):
@@ -169,7 +179,8 @@ class CommonsSearchPhotoTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            photo_chain.commons_search_photo("須藤茉麻", fetch), "https://upload/sudo.jpg"
+            photo_chain.commons_search_photo("須藤茉麻", fetch),
+            ("https://upload/sudo.jpg", None),
         )
 
     def test_rejects_same_surname_other_person(self):
@@ -192,7 +203,9 @@ class CommonsSearchPhotoTests(unittest.TestCase):
                 }
             },
         )
-        self.assertIsNone(photo_chain.commons_search_photo("村上愛", fetch))
+        self.assertEqual(
+            photo_chain.commons_search_photo("村上愛", fetch), (None, "源里没有")
+        )
 
     def test_skips_video_frames(self):
         """「Media from YouTube / Extracted images」是视频截帧，授权是上传者自述 —— 不用。"""
@@ -217,7 +230,9 @@ class CommonsSearchPhotoTests(unittest.TestCase):
                 }
             },
         )
-        self.assertIsNone(photo_chain.commons_search_photo("金澤朋子", fetch))
+        self.assertEqual(
+            photo_chain.commons_search_photo("金澤朋子", fetch), (None, "源里没有")
+        )
 
     def test_skips_junk_and_picks_largest_match(self):
         fetch = self._fetch(
@@ -267,7 +282,8 @@ class CommonsSearchPhotoTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            photo_chain.commons_search_photo("後藤真希", fetch), "https://upload/large.jpg"
+            photo_chain.commons_search_photo("後藤真希", fetch),
+            ("https://upload/large.jpg", None),
         )
 
     def test_does_not_reject_on_risky_substrings(self):
@@ -292,17 +308,21 @@ class CommonsSearchPhotoTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            photo_chain.commons_search_photo("後藤真希", fetch), "https://upload/goto.jpg"
+            photo_chain.commons_search_photo("後藤真希", fetch),
+            ("https://upload/goto.jpg", None),
         )
 
     def test_malformed_payload_yields_none(self):
         for payload in ("not json", "[]", "null"):
-            self.assertIsNone(photo_chain.commons_search_photo("x", lambda url: payload))
+            self.assertEqual(
+                photo_chain.commons_search_photo("x", lambda url, p=payload: p),
+                (None, "查询失败"),
+            )
 
         def boom(url):
             raise OSError("commons down")
 
-        self.assertIsNone(photo_chain.commons_search_photo("x", boom))
+        self.assertEqual(photo_chain.commons_search_photo("x", boom), (None, "查询失败"))
 
 
 class WaybackPhotoTests(unittest.TestCase):
@@ -328,69 +348,51 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class FailureVisibilityTests(unittest.TestCase):
-    """工单 09：请求失败要能被调用方看见（errors），与「查了但没有」分开 ——
-    429 被记成「源里没有」是本仓记录过的坑（docs/agents/data-pipeline.md）。"""
+class ReasonTests(unittest.TestCase):
+    """工单 02 / ADR-0024：链自己给原因（「查询失败」/「源里没有」）——
+    请求失败与「查了但没有」必须分得开（429 被记成「源里没有」是本仓记录过的坑）。"""
 
-    def test_search_request_failure_is_reported(self):
+    def test_search_request_failure_is_query_failed(self):
         def boom(url):
             raise RuntimeError("429 Too Many Requests")
 
-        errors = []
-        self.assertIsNone(
-            photo_chain.commons_search_photo("後藤真希", boom, errors=errors)
-        )
-        self.assertEqual(len(errors), 1)
-        self.assertIn("429", str(errors[0]))
+        self.assertEqual(photo_chain.commons_search_photo("後藤真希", boom), (None, "查询失败"))
 
-    def test_search_empty_result_is_not_a_failure(self):
+    def test_search_empty_result_is_source_empty(self):
         def empty(url):
             if "list=search" in url:
                 return json.dumps({"query": {"search": []}})
             return json.dumps({"query": {"pages": {}}})
 
-        errors = []
-        self.assertIsNone(
-            photo_chain.commons_search_photo("後藤真希", empty, errors=errors)
-        )
-        self.assertEqual(errors, [])
+        self.assertEqual(photo_chain.commons_search_photo("後藤真希", empty), (None, "源里没有"))
 
-    def test_pageimages_failure_is_reported(self):
+    def test_pageimages_failure_is_query_failed(self):
         def boom(url):
             raise RuntimeError("503")
 
-        errors = []
-        self.assertIsNone(photo_chain.commons_photo("後藤真希", boom, errors=errors))
-        self.assertEqual(len(errors), 1)
+        self.assertEqual(photo_chain.commons_photo("後藤真希", boom), (None, "查询失败"))
 
 
 class ShapeAnomalyTests(unittest.TestCase):
-    """形状异常（端点异常时回 JSON 数组）也是**失败形状**，不是「源里没有」——
-    两轴审查：这三处此前直接返回空、被记成「源里没有」。"""
+    """形状异常（端点异常时回 JSON 数组）也是**失败形状**，不是「源里没有」。"""
 
     def test_array_payload_is_a_failure_not_an_empty_result(self):
         def arr(url):
             return json.dumps(["not", "a", "dict"])
 
-        errors = []
-        self.assertIsNone(photo_chain.commons_photo("後藤真希", arr, errors=errors))
-        self.assertEqual(len(errors), 1)
+        self.assertEqual(photo_chain.commons_photo("後藤真希", arr), (None, "查询失败"))
 
     def test_array_payload_in_search_is_a_failure(self):
         def arr(url):
             return json.dumps(["nope"])
 
-        errors = []
-        self.assertIsNone(
-            photo_chain.commons_search_photo("後藤真希", arr, errors=errors)
-        )
-        self.assertEqual(len(errors), 1)
+        self.assertEqual(photo_chain.commons_search_photo("後藤真希", arr), (None, "查询失败"))
 
 
 class SameWritingLimitationTests(unittest.TestCase):
     """工单 09 判据 3：**已知限制**——子串校验挡得住不同写法的同名（村上愛 vs 村上恵），
     挡不住**同写法的两个人**；`commons_photo`（条目首图）路径更弱（无姓名校验）。
-    测试名写明这是记录限制，不是验收正确性（要更严得要求姓名出现在文件标题或交叉核对分类）。"""
+    测试名写明这是记录限制，不是验收正确性。"""
 
     @staticmethod
     def _fetch(hits, pages):
@@ -422,7 +424,8 @@ class SameWritingLimitationTests(unittest.TestCase):
         )
         # 记录当前行为：同写法他人**会**被采纳（已知限制，见 ADR-0022 补充）
         self.assertEqual(
-            photo_chain.commons_search_photo("小川紗季", fetch), "https://upload/ballet.jpg"
+            photo_chain.commons_search_photo("小川紗季", fetch),
+            ("https://upload/ballet.jpg", None),
         )
 
     def test_cross_field_concatenation_no_longer_false_matches(self):
@@ -444,4 +447,6 @@ class SameWritingLimitationTests(unittest.TestCase):
                 }
             },
         )
-        self.assertIsNone(photo_chain.commons_search_photo("前田憂佳", fetch))
+        self.assertEqual(
+            photo_chain.commons_search_photo("前田憂佳", fetch), (None, "源里没有")
+        )
