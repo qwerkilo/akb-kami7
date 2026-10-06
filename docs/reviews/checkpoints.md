@@ -1324,4 +1324,4 @@
   check 数 245/54/43/72 **不变** —— 硬等待保持「门」语义、不灌进断言计数）；
   单测 19 条（`test/e2e-check.test.js` 8 + `test/e2e-source.test.js` 6 + `test/e2e-wait.test.js` 5）；
   变异 5 个全杀（守卫 3 + 导入守卫 1 + 记录器 1）。
-- 下次基点：待推后取 HEAD。
+- 下次基点：`0d998ee`。
