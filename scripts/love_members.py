@@ -50,8 +50,8 @@ DETAIL_MAP = {
 }
 
 
-def norm_name(name):
-    return re.sub(r"\s+", "", name or "")
+# 与 photo_chain 是同一份「去空白归一」（两轴审查：同值第二份实现）
+norm_name = photo_chain.norm_name
 
 
 WAYBACK_PREFIX = re.compile(r"^https?://web\.archive\.org/web/\d+[a-z]*_/")

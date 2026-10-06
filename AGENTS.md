@@ -38,7 +38,7 @@
 | ④ `session.js`      | 注入内存 storage + 假成员表                | `test/session.test.js`                                                                                                     |
 | ⑤ `poster.js`       | 注入假 ctx 与 tokens                       | `test/poster.test.js`                                                                                                      |
 | ⑥ `i18n` 键完整性   | 含**拼出来的键家族**（死键守卫查不到它们） | `test/i18n.test.js`                                                                                                        |
-| ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（`npm run e2e` / `:v5` / `:pwa` / `:header`）                                                                       |
+| ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（`npm run e2e` / `:v5` / `:pwa` / `:header`；全量并行 `e2e:all`）                                                   |
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
 - **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（窄屏矩阵，含在线/离线）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。

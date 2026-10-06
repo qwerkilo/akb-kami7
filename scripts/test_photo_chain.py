@@ -223,6 +223,21 @@ class CommonsSearchPhotoTests(unittest.TestCase):
         fetch = self._fetch(
             ["File:Flag of Japan.svg", "File:A small.jpg", "File:A large.jpg"],
             {
+                # junk 页也配一张**更大**的图：不配的话「删掉过滤」结果不变 —— 变异验证
+                # 抓出过这个假绿（两轴审查）。
+                "0": {
+                    "title": "File:Flag of Japan.svg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/flag.svg",
+                            "width": 900,
+                            "height": 900,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "後藤真希のライブ"}
+                            },
+                        }
+                    ],
+                },
                 "1": {
                     "title": "File:A small.jpg",
                     "imageinfo": [

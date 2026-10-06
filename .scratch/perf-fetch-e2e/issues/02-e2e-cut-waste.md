@@ -1,6 +1,6 @@
 # 工单 02：E2E 砍浪费（header / v2 / v5）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## 目标

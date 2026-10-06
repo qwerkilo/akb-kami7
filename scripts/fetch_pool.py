@@ -27,9 +27,11 @@ HOST_LIMITS = {
     "web.archive.org": (2, 0.2),
 }
 DEFAULT = (2, 0.2)
-# 429/521/503 时的自适应降速：间隔翻倍，封顶 5s（Wayback 521 有前科、Commons 429 也是）
+# 429/521/503 时的自适应降速：间隔翻倍，封顶 5s（Wayback 521 有前科、Commons 429 也是）；
+# 连续成功 RECOVER_AFTER 次后间隔减半（下限回到 base）—— 降速要能恢复。
 PENALTY_CODES = (429, 503, 521)
 MAX_INTERVAL = 5.0
+RECOVER_AFTER = 10
 
 _now = time.monotonic  # 测试注入假时钟
 
@@ -44,13 +46,25 @@ class _Gate:
     def __init__(self, limit, interval):
         self.sem = threading.Semaphore(limit)
         self.lock = threading.Lock()
+        self.base = interval
         self.interval = interval
         self.last = None
+        self.streak = 0  # 连续成功数（用于「成功后退回」）
 
     def penalize(self):
         """限流信号（429/521/503）：间隔翻倍，封顶 MAX_INTERVAL。"""
         with self.lock:
-            self.interval = min(self.interval * 2 or 0.1, MAX_INTERVAL)
+            self.streak = 0
+            self.interval = min(max(self.interval * 2, 0.1), MAX_INTERVAL)
+
+    def reward(self):
+        """连续成功 RECOVER_AFTER 次 → 间隔减半（下限 base）—— 429 过去之后要能恢复，
+        否则一次限流会让该主机整个进程生命周期都按翻倍间隔跑。"""
+        with self.lock:
+            self.streak += 1
+            if self.streak >= RECOVER_AFTER and self.interval > self.base:
+                self.interval = max(self.interval / 2, self.base)
+                self.streak = 0
 
     def __enter__(self):
         self.sem.acquire()
@@ -107,11 +121,13 @@ def fetch_many(urls, fn, workers=8, limits=None, host=None, raise_first=True):
         gate = _gate_for(h, limits)
         with gate:
             try:
-                return url, fn(url)
+                out = fn(url)
             except Exception as e:  # noqa: BLE001
                 if getattr(e, "code", None) in PENALTY_CODES:
                     gate.penalize()
                 raise
+            gate.reward()
+            return url, out
 
     out = {}
     errors = []

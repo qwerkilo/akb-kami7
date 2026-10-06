@@ -1,6 +1,6 @@
 # 工单 05：管线进度（阶段行 + 心跳）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## 目标

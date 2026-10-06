@@ -1,6 +1,6 @@
 # 工单 06：管线并发 + 限流（确定性）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 04
 
 ## 目标
@@ -64,7 +64,12 @@
 **另一条订正**：整轮的总时长主要由**网络当时的快慢**决定（今天两次 14m08s vs 15m32s，
 数据阶段 2.4 vs 5.6 分钟）—— 单次跑的数字不要当基准，要看阶段拆解。
 
-## 注意
+## 两轴审查后的补做（2026-10-06）
+
+审查抓到**判据 3 的「成功后退回」没做也没记录**（唯一一处静默跳过）—— 已补：
+`_Gate.reward()`，连续成功 `RECOVER_AFTER=10` 次 → 间隔减半（下限回到 base）。
+补测试 1 条（`test_success_streak_recovers_the_interval`）。另修两处注释漂移
+（「Wayback 3 并发 · 0.5s」→ 指向 `fetch_pool.HOST_LIMITS`，注释不写当前状态数字）。
 
 ## 注意
 

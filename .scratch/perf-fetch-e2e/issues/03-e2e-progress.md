@@ -1,6 +1,6 @@
 # 工单 03：E2E 进度（块头 + 长等待）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## 目标

@@ -55,12 +55,31 @@ class FetchManyTests(unittest.TestCase):
         self.assertEqual(self.peak["b.test"], 1)
 
     def test_hosts_do_not_block_each_other(self):
+        """要有判别力：全局串行化时「同时在飞」永远只有 1 —— 断言组合峰值 > 单主机上限。"""
+        self.total_inflight = 0
+
+        def fn(url):
+            host = url.split("//")[1].split("/")[0]
+            with self._lock:
+                self.total_inflight += 1
+                self.peak["total"] = max(self.peak.get("total", 0), self.total_inflight)
+                cur = self.peak.get("cur_" + host, 0) + 1
+                self.peak["cur_" + host] = cur
+                self.peak[host] = max(self.peak.get(host, 0), cur)
+            try:
+                time.sleep(0.05)
+                return "v:" + url
+            finally:
+                with self._lock:
+                    self.total_inflight -= 1
+                    self.peak["cur_" + host] -= 1
+
         urls = [f"http://a.test/{i}" for i in range(3)] + [
             f"http://b.test/{i}" for i in range(3)
         ]
-        fetch_pool.fetch_many(urls, self._fn_factory(), limits=self.limits)
-        self.assertGreaterEqual(self.peak["a.test"], 1)
-        self.assertGreaterEqual(self.peak["b.test"], 1)
+        fetch_pool.fetch_many(urls, fn, limits=self.limits)
+        # a 上限 2、b 上限 1 → 全局串行只有 1；真并行至少 3 同时在场过
+        self.assertGreaterEqual(self.peak["total"], 3)
 
     def test_interval_between_same_host_requests(self):
         stamps = []
@@ -133,6 +152,20 @@ class FetchManyTests(unittest.TestCase):
         for _ in range(5):
             gate.penalize()
         self.assertEqual(gate.interval, fetch_pool.MAX_INTERVAL)
+
+    def test_success_streak_recovers_the_interval(self):
+        """成功后退回：连续成功 RECOVER_AFTER 次 → 间隔减半（下限 base）。"""
+        gate = fetch_pool._Gate(1, 0.5)
+        gate.penalize()
+        self.assertEqual(gate.interval, 1.0)
+        for _ in range(fetch_pool.RECOVER_AFTER - 1):
+            gate.reward()
+        self.assertEqual(gate.interval, 1.0, "还没到恢复阈值")
+        gate.reward()
+        self.assertEqual(gate.interval, 0.5)
+        for _ in range(fetch_pool.RECOVER_AFTER * 2):
+            gate.reward()
+        self.assertEqual(gate.interval, 0.5, "不该低于 base")
 
     def test_429_penalty_triggered_by_code(self):
         """429 之后同主机的下一次抓取要等翻倍后的间隔（假时钟全程量，别混真实时钟）。"""

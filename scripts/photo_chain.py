@@ -77,7 +77,7 @@ def commons_photo(name, fetch):
     return None
 
 
-def _norm_name(s):
+def norm_name(s):
     """描述里常写「熊井 友理奈」（名字中间带空格）—— 去空白后比对。"""
     return re.sub(r"\s+", "", s or "")
 
@@ -151,7 +151,9 @@ def _mentions_name(page, em, want):
     """文件名或描述里出现本人姓名（去空白后比对）—— 不做校验会张冠李戴（实测同名
     陷阱：搜「村上愛」命中篮球选手村上恵的图）。"""
     desc = (em.get("ImageDescription") or {}).get("value", "")
-    return want in _norm_name(page.get("title", "")) + _norm_name(desc)
+    # 分别比对，**不要拼接**：title="File:前田" + desc="憂佳です" 拼出来会假命中
+    # 「前田憂佳」（跨界误配，两轴审查抓到）。
+    return want in norm_name(page.get("title", "")) or want in norm_name(desc)
 
 
 def _portrait_candidate(page, want):
@@ -174,7 +176,7 @@ def commons_search_photo(name, fetch):
     身份校验与视频截帧过滤见 `_portrait_candidate`；命中多个时取像素面积最大的。
     取不到返回 None（与另两段一致）。
     """
-    want = _norm_name(name)
+    want = norm_name(name)
     cands = [
         t
         for t in _search_hits(name, fetch)

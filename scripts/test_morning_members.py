@@ -561,7 +561,7 @@ class ScanBudgetTests(unittest.TestCase):
             calls.append(url)
             return "<html></html>"
 
-        fetched = mm._pick_old_site_group(best, {}, {}, fetch, pause, budget, 0, limit)
+        fetched = mm._pick_old_site_group(best, {}, {}, fetch, budget, 0, limit)
         return fetched, calls
 
     def test_budget_counts_fetches_not_urls(self):
@@ -581,14 +581,13 @@ class ScanBudgetTests(unittest.TestCase):
         """每团预算 = max(30, 15 × 该团缺图人数) —— 为 3 个人试 180 个 URL 是 60 倍超支。"""
         seen = {}
 
-        def fake_candidates(prefixes, fetch, missing, pause):
+        def fake_candidates(prefixes, fetch, missing):
             seen[prefixes[0]] = len(missing)
             return {}  # 没有候选 → 只观察预算
 
-        real = mm._pick_old_site_group
         budgets = []
 
-        def fake_pick(best, by_name, urls, fetch, pause, budget, fetched, limit):
+        def fake_pick(best, by_name, urls, fetch, budget, fetched, limit):
             budgets.append(budget)
             return fetched
 
@@ -623,7 +622,7 @@ class ScanConcurrencyTests(unittest.TestCase):
             return pages["http://x/a"] if "/x/a" in u else pages["http://x/b"]
 
         urls = {}
-        fetched = mm._pick_old_site_group(best, by_name, urls, fake, 0, 100, 0, 900)
+        fetched = mm._pick_old_site_group(best, by_name, urls, fake, 100, 0, 900)
         self.assertEqual(fetched, 2)
         self.assertIn("pic/a.jpg", urls["f1"], "URL 序靠前的候选必须先应用")
 
@@ -640,7 +639,7 @@ class ScanConcurrencyTests(unittest.TestCase):
             return '<img ALT="甲" SRC="http://pic/b.jpg">'
 
         urls = {}
-        mm._pick_old_site_group(best, by_name, urls, fake, 0, 100, 0, 900)
+        mm._pick_old_site_group(best, by_name, urls, fake, 100, 0, 900)
         self.assertIn("pic/b.jpg", urls["f1"])
 
 

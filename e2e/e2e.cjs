@@ -1632,7 +1632,7 @@ function isExpectedResourceNoise(m) {
     check("无 JS 报错", errors.length === 0, errors.join(" | ").slice(0, 300));
 
     // -- 390px：系列 tab 必须点得到（工单 04 的 flex:none 曾把「等爱」压在「更多」底下）
-    block("390px");
+    block("390px：tab 可达");
     // 主流程是 420px 视口，抓不到这个，所以单独开 390px 的 context。
     // 维度：语言（标签满宽 zh 201 / en 254 / ja 212）、档位（en 16 档品牌 "Senbatsu" 133
     // 比 7 档的 96 宽 37）、系列（品牌随系列变宽）。三个维度缺一个就漏 —— 我第一版只跑
@@ -1642,7 +1642,7 @@ function isExpectedResourceNoise(m) {
     // 跑不动「语言 × 档位 × 系列 × 在线/离线」的完整矩阵。这里只留语言 × 系列，
     // 档位与离线两维交给 /tmp/opencode/verify-header.cjs（54 状态 + 「没有横向滚动」）。
     // -- 390px：首屏必须见脸（工单 02 的判据）。新访客（未关引导卡）第一张成员卡
-    block("390px");
+    block("390px：首屏见脸");
     // 原本在第 738px —— 视口 844 的 87% 之前全是页头/步骤条/引导卡/进度/9 个筛选控件，
     // 而底部托盘 100px 又盖住它。「首屏见脸」此前只在关掉引导卡之后才成立。
     //

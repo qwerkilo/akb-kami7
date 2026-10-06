@@ -196,11 +196,29 @@ async function main() {
     console.log("✓ 自检全过（含失败路径）");
     return;
   }
+  // 参数校验：缺值/非法值要**明确报错**，不能算出 NaN 然后「0/0 通过、exit 0」
+  // （把「失败」记成「通过」正是最坏的假绿方向）。注意 --max-parallel 也可能是
+  // 第一个参数（argv[0]）—— 早先写成 `mi > 0` 会把它静默忽略。
   const mi = argv.indexOf("--max-parallel");
+  let maxParallel = null;
+  if (mi >= 0) {
+    maxParallel = Number(argv[mi + 1]);
+    if (!Number.isInteger(maxParallel) || maxParallel < 1) {
+      console.error(
+        `✗ --max-parallel 需要一个正整数，实得 ${JSON.stringify(argv[mi + 1])}`
+      );
+      process.exit(2);
+    }
+  }
   const only = (() => {
     const i = argv.indexOf("--only");
     if (i < 0) return null;
-    return new Set(argv[i + 1].split(",").map((s) => s.trim()));
+    const val = argv[i + 1];
+    if (!val) {
+      console.error("✗ --only 需要一个逗号分隔的套件名（v5,pwa,header,e2e）");
+      process.exit(2);
+    }
+    return new Set(val.split(",").map((s) => s.trim()));
   })();
   const suites = only ? SUITES.filter((s) => only.has(s.name)) : SUITES;
   if (!suites.length) {
@@ -215,12 +233,16 @@ async function main() {
   const LOGDIR = join(tmpdir(), "akb-e2e-logs");
   mkdirSync(LOGDIR, { recursive: true });
   const avail = availMemMb();
-  const parallel = mi > 0 ? Number(argv[mi + 1]) : pickParallel(avail);
+  const parallel = maxParallel ?? pickParallel(avail);
   console.log(
     `并行跑 ${suites.length} 个套件（可用内存 ${avail.toFixed(0)}MB → 并发 ${parallel}；` +
       `基线 check 数 ${suites.map((s) => `${s.name}=${s.expect}`).join(" ")}）`
   );
 
+  if (!suites.length) {
+    console.error("✗ 一个套件都没选中 —— 不跑就等于没验证，退出码不能是 0");
+    process.exit(2);
+  }
   const results = [];
   let next = 0;
   const worker = async () => {
@@ -269,6 +291,7 @@ if (require.main === module) {
 
 module.exports = {
   SUITES,
+  parseArgs,
   pickParallel,
   tailLines,
   parseCounts,

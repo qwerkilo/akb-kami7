@@ -330,6 +330,7 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
       "commons_photo",
       "commons_search_photo",
       "is_placeholder_src",
+      "norm_name",
       "wayback_photo",
     ],
     "photo_chain.py 只该有与站点无关的取数段与判定谓词（多了说明站点相关的漏进来了，少了说明共享的没搬干净）"

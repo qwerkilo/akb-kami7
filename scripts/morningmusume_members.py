@@ -1085,7 +1085,7 @@ def _snapshot_url(ts, url):
     return "https://web.archive.org/web/{}id_/{}".format(ts, url)
 
 
-def _old_site_candidates(prefixes, fetch, missing, pause):
+def _old_site_candidates(prefixes, fetch, missing):
     """按前缀枚举 CDX → `{归一 URL: [在籍内快照 ts…]}`（只收 HTML）。
 
     前缀彼此独立：并发查询（按主机限流），按前缀原顺序归并（确定性）。
@@ -1162,7 +1162,7 @@ def _apply_scan_pages(tasks, snap_urls, pages, by_name, urls):
         _match_page(html, original, ts, by_name, urls)
 
 
-def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, limit):
+def _pick_old_site_group(best, by_name, urls, fetch, budget, fetched, limit):
     """按预算抓快照并配对（每 URL 试最早 3 个）；返回更新后的 fetched。
 
     预算按**抓取次数**算（不是 URL 数）：每次抓取才是真实成本（网络 + 节流），
@@ -1174,9 +1174,9 @@ def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, lim
     团体导航页、alt 全是团名，一个成员都配不到）。
     """
     tasks = _scan_tasks(best, budget, fetched, limit)
-    # 并发抓（Wayback 3 并发 · 0.5s 最小间隔；调用方的 pause 是 Commons 的节流，
-    # 不套在 Wayback 上 —— 它的实测问题是 521 偶发，不是限流），但**按任务顺序**
-    # 应用配对：同一成员多个候选时先到者胜，与串行结果一致（确定性）。
+    # 并发抓（每主机的并发/间隔见 `fetch_pool.HOST_LIMITS`；调用方的 pause 是
+    # Commons 的节流，不套在 Wayback 上），但**按任务顺序**应用配对：同一成员多个
+    # 候选时先到者胜，与串行结果一致（确定性）。
     snap_urls = [_snapshot_url(ts, original) for original, ts in tasks]
     pages = fetch_pool.fetch_many(
         snap_urls, fetch, host="web.archive.org", raise_first=False
@@ -1214,7 +1214,6 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
     """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。"""
     fetched = 0
     groups = _groups_with_missing(missing)
-    groups_left = len(groups)
     # 心跳的「总数」= 各团预算之和（全局上限再夹一次）：比写 limit 更接近真实工作量
     with progress.stage(
         "旧站扫描", total=min(limit, sum(_group_budget(missing, g) for g in groups))
@@ -1225,10 +1224,9 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
             if not any(m.get("group") == group for m in missing):
                 continue
             budget = _group_budget(missing, group)
-            groups_left -= 1
-            best = _old_site_candidates(prefixes, fetch, missing, pause)
+            best = _old_site_candidates(prefixes, fetch, missing)
             fetched = _pick_old_site_group(
-                best, by_name, urls, fetch, pause, budget, fetched, limit
+                best, by_name, urls, fetch, budget, fetched, limit
             )
     return fetched
 

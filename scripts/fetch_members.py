@@ -514,6 +514,28 @@ def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
     return [r for r in rows if not r["join"].startswith(exclude)]
 
 
+def _warn_skipped_without_files(members, skip_photo, dirs):
+    """跳过的判据是「上一轮的 (团,名) → id」：同名新人出现时 assign_ids 会把 "" 后缀
+    让给先出现者、旧成员换 id，而旧文件挂在旧 id 下 —— 那时跳过就是「跳过了但文件在
+    新 id 下不存在」。按新 id 复核一次，缺了就打警告（缺图棘轮会在提交时红，但管线
+    本身不该静默）。
+    """
+    skipped = getattr(skip_photo, "skipped", set())
+    for m in members:
+        if (m.get("group"), m.get("name")) not in skipped:
+            continue
+        if all(
+            usable(os.path.join(d, m["id"] + ".webp"))
+            for d in (dirs["full"], dirs["thumb"])
+        ):
+            continue
+        print(
+            f"warning: 跳过了 {m['name']} 的照片解析，但新 id {m['id']} 下没有站内文件"
+            "（同名新人换 id？）—— 下轮请 --refresh-photos",
+            file=sys.stderr,
+        )
+
+
 def photo_skip_for(refresh_photos, root, full_dir, thumb_dir):
     """本次跑要跳过谁的照片解析（ADR-0023）。
 
@@ -523,7 +545,15 @@ def photo_skip_for(refresh_photos, root, full_dir, thumb_dir):
     """
     if refresh_photos:
         return None
-    return photo_skip_predicate(read_prev_members(root), full_dir, thumb_dir)
+    prev = read_prev_members(root)
+    if not prev:
+        # 读不到上一轮名册 → 全量重解析照片（多做不偷懒）。但要说出来：否则「这轮
+        # 为什么照片阶段变长了」只能靠猜。
+        print(
+            "members.js 读不到上一轮名册 → 本轮全量解析照片（增量跳过不生效）",
+            file=sys.stderr,
+        )
+    return photo_skip_predicate(prev, full_dir, thumb_dir)
 
 
 def default_loaders(skip_photo, use_cache):
@@ -619,6 +649,7 @@ def photo_skip_predicate(prev_members, full_dir, thumb_dir):
     def skip(member):
         return (member.get("group"), member.get("name")) in have
 
+    skip.skipped = have  # 供调用方按**新 id** 复核（assign_ids 可能给同名新人换 id）
     return skip
 
 
@@ -912,13 +943,18 @@ def main(
 
     assign_ids(all_members)
 
-    with progress.stage("48pedia 图片 URL", total=len(member_files(members))):
+    _warn_skipped_without_files(all_members, skip_photo, dirs)
+
+    # total 是**批数**：tick 每批一次（早先写文件数 → 心跳显示 3/1335 这种假进度）
+    n_files = len(member_files(members))
+    with progress.stage("48pedia 图片 URL", total=(n_files + 49) // 50):
         urls = image_urls(member_files(members), api_fn)
     urls.update(love_urls)
     urls.update(morning_urls)
     report_missing_info(resolve_missing(members, urls))
 
-    with progress.stage("下载原图", total=len(all_members)):
+    n_jobs = sum(1 for m in all_members if m["file"] in urls)
+    with progress.stage("下载原图", total=n_jobs):
         paths = collect_paths(all_members, urls, no_dl, fetch_url, dirs["orig"])
     with progress.stage("压缩", total=len(all_members)):
         sizes = compress_members(all_members, paths, force, dirs["full"], dirs["thumb"])
