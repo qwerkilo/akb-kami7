@@ -11,18 +11,24 @@ const os = require("node:os");
 const path = require("node:path");
 const { elapsed } = require("./_progress.cjs");
 
-/** 失败日志路径：tmpdir 派生 + 确保目录存在（不能写死 /tmp/opencode —— CI 上没有）。 */
-function failLogPath() {
+/**
+ * 失败日志路径：tmpdir 派生 + 确保目录存在（不能写死 /tmp/opencode —— CI 上没有）。
+ * **每个套件一份**：并行四套件共写一个文件时条目无法归属（两轴审查）。
+ */
+function failLogPath(name = "all") {
   const dir = path.join(os.tmpdir(), "akb-e2e-logs");
   try {
     fs.mkdirSync(dir, { recursive: true });
   } catch {}
-  return path.join(dir, "e2e-fails.log");
+  return path.join(dir, `e2e-fails-${name}.log`);
 }
 
 function summaryLine(name, passed, total) {
   return `[${name}] ${passed}/${total} 通过`;
 }
+
+/** 打印与日志里的 detail 截断长度（一处）。 */
+const TRUNC = 200;
 
 /**
  * 建一个检查记录器。返回 `{ check, done }`：
@@ -34,16 +40,33 @@ function summaryLine(name, passed, total) {
 function createChecker({
   name,
   expect = null,
-  logFile = failLogPath(),
+  logFile = failLogPath(name),
   print = console.log,
 } = {}) {
+  // 每轮清空（第五十四轮审查的落地项）：跨轮历史混在一起时无法判断本轮失败
+  try {
+    fs.writeFileSync(logFile, "");
+  } catch {}
   const results = [];
-  const check = (label, ok, detail = "") => {
-    results.push({ label, ok: !!ok, detail: String(detail ?? "") });
-    const tail = ok || !detail ? "" : `  — ${String(detail).slice(0, 160)}`;
-    print(`[${elapsed()}] ${ok ? "PASS" : "FAIL"}  ${label}${tail}`);
+  const append = (line) => {
+    // 失败日志是诊断，不能反过来杀死失败路径（写失败也吞）
+    try {
+      fs.appendFileSync(logFile, line + "\n");
+    } catch {}
   };
+  const check = (label, ok, detail = "") => {
+    const text = String(detail ?? "");
+    results.push({ label, ok: !!ok, detail: text });
+    const tail = ok || !text ? "" : `  — ${text.slice(0, TRUNC)}`;
+    print(`[${elapsed()}] ${ok ? "PASS" : "FAIL"}  ${label}${tail}`);
+    // 失败**即时**写（旧 e2e.cjs 的行为）：套件在 done() 前崩了，这一轮失败仍留痕
+    if (!ok) append(`${label}  — ${text.slice(0, TRUNC)}`);
+  };
+  let exitCode = 1; // done() 之前退出（崩溃）按失败算
+  let finished = false;
   const done = () => {
+    if (finished) return exitCode; // 幂等：重复调用不重复打印/写日志
+    finished = true;
     const failed = results.filter((r) => !r.ok);
     const total = results.length;
     const passed = total - failed.length;
@@ -52,18 +75,9 @@ function createChecker({
       print(`失败 ${failed.length} 条：`);
       for (const r of failed) {
         print(
-          `  - ${r.label}${r.detail ? `  — ${r.detail.slice(0, 200)}` : ""}`
+          `  - ${r.label}${r.detail ? `  — ${r.detail.slice(0, TRUNC)}` : ""}`
         );
       }
-      // 失败日志是诊断，不能反过来杀死失败路径（路径已确保存在；写失败也吞）
-      try {
-        fs.appendFileSync(
-          logFile,
-          failed
-            .map((r) => `${r.label}  — ${r.detail.slice(0, 200)}`)
-            .join("\n") + "\n"
-        );
-      } catch {}
     }
     if (mismatch) {
       print(
@@ -71,9 +85,10 @@ function createChecker({
       );
     }
     print(summaryLine(name, passed, total));
-    return failed.length || mismatch ? 1 : 0;
+    exitCode = failed.length || mismatch ? 1 : 0;
+    return exitCode;
   };
-  return { check, done, results };
+  return { check, done };
 }
 
 module.exports = { createChecker, failLogPath, summaryLine };

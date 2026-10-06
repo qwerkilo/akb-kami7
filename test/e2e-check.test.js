@@ -99,8 +99,40 @@ test("detail 截断：超长 detail 不进日志与打印", () => {
   assert.ok(failLine.length < 300, "打印要截断：" + failLine.length);
 });
 
-test("failLogPath 由 tmpdir 派生并确保目录存在", () => {
-  const p = failLogPath();
+test("failLogPath 由 tmpdir 派生、每套件一份、目录存在", () => {
+  const p = failLogPath("v5");
   assert.ok(p.startsWith(os.tmpdir()), "不许写死路径：" + p);
+  assert.ok(
+    p.endsWith("e2e-fails-v5.log"),
+    "每套件一份（并行时条目可归属）：" + p
+  );
   assert.ok(fs.existsSync(path.dirname(p)), "目录要被创建");
+});
+
+test("失败即时写 + 构造时清空（旧 e2e.cjs 的行为；崩在 done() 前也留痕）", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "akb-check-"));
+  const logFile = path.join(dir, "fails.log");
+  fs.writeFileSync(logFile, "上一轮的历史\n");
+  const { print } = makePrinter();
+  const c = createChecker({ name: "x", print, logFile });
+  assert.equal(fs.readFileSync(logFile, "utf8"), "", "构造时清空");
+  c.check("坏", false, "爆炸");
+  assert.match(
+    fs.readFileSync(logFile, "utf8"),
+    /坏  — 爆炸/,
+    "未 done 也已写"
+  );
+  c.done();
+  // done() 不重复追加（即时写已覆盖）
+  assert.equal(fs.readFileSync(logFile, "utf8").trim().split("\n").length, 1);
+});
+
+test("done() 幂等：重复调用不重复打印/写日志", () => {
+  const { lines, print } = makePrinter();
+  const c = createChecker({ name: "y", print, logFile: null });
+  c.check("坏", false);
+  const first = c.done();
+  const after = lines.length;
+  assert.equal(c.done(), first);
+  assert.equal(lines.length, after, "第二次 done() 不再打印");
 });

@@ -146,41 +146,37 @@ test("e2e 脚本用到的共享助手必须真的 import 了（本批踩过：wa
 });
 
 test("检查记录只有一处：runner 不解析收尾行、套件不自报收尾（第五轮扫描候选 3）", () => {
-  const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
+  const strip = (src) =>
+    src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const runner = strip(fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8"));
   for (const dead of ["parseCounts", "compareCounts", "expect:"]) {
     assert.ok(
       !runner.includes(dead),
       `run-all.cjs 不许再有 ${dead} —— 数守恒由套件自报（createChecker({expect})）`
     );
   }
-  // 收尾行的格式只许在 _check.cjs 里出现
-  const summaryBits = ["checks passed", "项通过", "个状态正常", "通过`"];
-  for (const f of [
-    "e2e.cjs",
-    "e2e-v5.cjs",
-    "e2e-pwa.cjs",
-    "verify-header.cjs",
-  ]) {
-    const src = fs.readFileSync(path.join(DIR, f), "utf8");
-    for (const bit of summaryBits) {
-      assert.ok(
-        !src.includes(bit),
-        `${f} 不许自己拼收尾行（含「${bit}」）—— 走 e2e/_check.cjs`
-      );
-    }
-  }
-  // 四个套件都必须用共享记录器
-  for (const f of [
-    "e2e.cjs",
-    "e2e-v5.cjs",
-    "e2e-pwa.cjs",
-    "verify-header.cjs",
-  ]) {
-    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+  const suites = ["e2e.cjs", "e2e-v5.cjs", "e2e-pwa.cjs", "verify-header.cjs"];
+  for (const f of suites) {
+    const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
+    // 承重点三条：走记录器、带数守恒声明、收尾真的接上 exit code
     assert.match(
       src,
       /createChecker\(/,
       `${f} 必须用 createChecker（不许自己记账）`
     );
+    assert.match(src, /expect:\s*\d+/, `${f} 必须声明 expect（数守恒）`);
+    assert.match(
+      src,
+      /process\.exit\(checker\.done\(\)\)|=\s*checker\.done\(\)/,
+      `${f} 必须把 checker.done() 接到退出码`
+    );
+    // 收尾行只许在 _check.cjs 拼（模板串与双引号都算）
+    assert.ok(
+      !/console\.log\([^)]*通过/.test(src),
+      `${f} 不许自己 console.log 收尾行 —— 走 e2e/_check.cjs`
+    );
+    for (const bit of ["checks passed", "项通过", "个状态正常"]) {
+      assert.ok(!src.includes(bit), `${f} 不许自己拼收尾行（含「${bit}」）`);
+    }
   }
 });

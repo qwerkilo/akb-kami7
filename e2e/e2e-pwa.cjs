@@ -804,7 +804,10 @@ async function pickMembers(page, n) {
     [...errs, ...rej].slice(0, 3).join(" | ")
   );
 
-  process.exit(checker.done());
+  // 先收尾（打印/写日志），再关浏览器与服务器，最后退出 ——
+  // `process.exit()` 之后的行是死代码（两轴审查抓到：8781 上留过孤儿进程）。
+  const code = checker.done();
   await browser.close();
   server.kill();
+  process.exit(code);
 })();

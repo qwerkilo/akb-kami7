@@ -58,3 +58,8 @@
 - 复用 `scripts/preflight.mjs` 的读数口径（它已经会报可用内存与遗留服务器）。
 - 不要给 runner 加「自动重试」（会掩盖 flake —— 本项目的 flake 有前科，要看见它）。
 - 每套件的输出**重定向到文件**，结束行打印「套件 / check 数 / 耗时 / 结论」。
+
+## 后续（第五轮扫描候选 3，2026-10-06）
+
+`parseCounts` / `compareCounts` / `SUITES[].expect` 已删除 —— 收尾行与数守恒由
+`e2e/_check.cjs` 统一，套件自报 `EXPECT`。本文档上文提到它们的地方是当时的实现记录。
