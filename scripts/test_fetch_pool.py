@@ -15,6 +15,7 @@ class FetchManyTests(unittest.TestCase):
         # 模块级全局状态会跨模块泄漏 —— 在同一个进程里按字母序跑时踩过）。
         self.addCleanup(setattr, fetch_pool, "INTERVAL_SCALE", fetch_pool.INTERVAL_SCALE)
         fetch_pool.INTERVAL_SCALE = 1.0
+        fetch_pool.reset_gates()  # 闸门是模块级的（429 降速要跨调用保留）→ 测试间要清
         self.limits = {"a.test": (2, 0.0), "b.test": (1, 0.0)}
         self.peak = {}  # 每主机的**峰值**在飞数（不是当前值 —— 后者跑完归零）
         self._lock = threading.Lock()
@@ -109,6 +110,59 @@ class FetchManyTests(unittest.TestCase):
         )
         self.assertEqual(out, {"条目甲": "v:条目甲", "条目乙": "v:条目乙"})
         self.assertEqual(sorted(seen), ["条目乙", "条目甲"])
+
+    def test_raise_first_false_returns_exceptions(self):
+        """旧站扫描要「跳过失败、继续下一个候选」—— 失败的键在结果里是异常对象。"""
+        urls = ["http://a.test/1", "http://a.test/2"]
+        out = fetch_pool.fetch_many(
+            urls,
+            self._fn_factory(fail={urls[0]}),
+            limits=self.limits,
+            raise_first=False,
+        )
+        self.assertIsInstance(out[urls[0]], RuntimeError)
+        self.assertEqual(out[urls[1]], "v:" + urls[1])
+
+    def test_429_doubles_the_interval(self):
+        """限流信号（429/521/503）→ 该主机间隔翻倍，封顶 5s。"""
+        gate = fetch_pool._Gate(2, 0.5)
+        gate.penalize()
+        self.assertEqual(gate.interval, 1.0)
+        gate.penalize()
+        self.assertEqual(gate.interval, 2.0)
+        for _ in range(5):
+            gate.penalize()
+        self.assertEqual(gate.interval, fetch_pool.MAX_INTERVAL)
+
+    def test_429_penalty_triggered_by_code(self):
+        """429 之后同主机的下一次抓取要等翻倍后的间隔（假时钟全程量，别混真实时钟）。"""
+        class Boom(Exception):
+            code = 429
+
+        fake = [0.0]
+        stamps = []
+
+        def now():
+            return fake[0]
+
+        def fn(url):
+            stamps.append(fake[0])
+            if len(stamps) == 1:
+                raise Boom()
+            return 1
+
+        with mock.patch.object(fetch_pool, "_now", now), mock.patch.object(
+            fetch_pool.time, "sleep", lambda s: fake.__setitem__(0, fake[0] + s)
+        ):
+            with self.assertRaises(Boom):
+                fetch_pool.fetch_many(
+                    ["http://d.test/1"], fn, limits={"d.test": (1, 0.5)}
+                )
+            fetch_pool.fetch_many(
+                ["http://d.test/2"], fn, limits={"d.test": (1, 0.5)}
+            )
+        # 第一次失败把该主机间隔翻到 1.0 → 第二次抓取至少等 1.0s
+        self.assertGreaterEqual(stamps[1] - stamps[0], 1.0)
 
     def test_no_error_when_all_succeed(self):
         out = fetch_pool.fetch_many(

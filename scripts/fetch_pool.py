@@ -22,8 +22,14 @@ HOST_LIMITS = {
     "ja.wikipedia.org": (3, 0.2),
     "48pedia.org": (2, 0.5),
     "www.48pedia.org": (2, 0.5),
+    # Wayback 实测：2 并发稳定最快（同批 8 个快照 URL 交替跑两轮：2 并发 5.9/6.5s、
+    # 串行 13.6/31.2s、**3 并发 24.5/41.2s** —— 更多并发被限流、反而更慢）。
+    "web.archive.org": (2, 0.2),
 }
 DEFAULT = (2, 0.2)
+# 429/521/503 时的自适应降速：间隔翻倍，封顶 5s（Wayback 521 有前科、Commons 429 也是）
+PENALTY_CODES = (429, 503, 521)
+MAX_INTERVAL = 5.0
 
 _now = time.monotonic  # 测试注入假时钟
 
@@ -40,6 +46,11 @@ class _Gate:
         self.lock = threading.Lock()
         self.interval = interval
         self.last = None
+
+    def penalize(self):
+        """限流信号（429/521/503）：间隔翻倍，封顶 MAX_INTERVAL。"""
+        with self.lock:
+            self.interval = min(self.interval * 2 or 0.1, MAX_INTERVAL)
 
     def __enter__(self):
         self.sem.acquire()
@@ -59,27 +70,48 @@ class _Gate:
         return False
 
 
-def fetch_many(urls, fn, workers=8, limits=None, host=None):
+# 闸门是**模块级**的（按主机）：429 的降速要跨调用保留（一次扫描按团分多次
+# fetch_many），否则每次调用都从初始间隔重新开始，自适应就白做了。
+_gates = {}
+_gates_lock = threading.Lock()
+
+
+def reset_gates():
+    """测试用：清空闸门（间隔/并发状态跨测试会污染）。"""
+    with _gates_lock:
+        _gates.clear()
+
+
+def _gate_for(host, limits):
+    with _gates_lock:
+        if host not in _gates:
+            limit, interval = limits.get(host, DEFAULT)
+            _gates[host] = _Gate(limit, interval)
+        return _gates[host]
+
+
+def fetch_many(urls, fn, workers=8, limits=None, host=None, raise_first=True):
     """并发取 `urls`（`fn(url)`），返回 `{url: 值}`；错误按输入顺序重抛第一个。
 
     `limits` 覆盖 `HOST_LIMITS`（测试用）。`workers` 是全局线程数上限。
     `host` 给「键不是 URL」的调用方（维基条目名、48pedia 批量查询）：整批都算这个主机。
+    `raise_first=False` 时不抛：失败的键在结果里是那个异常对象（旧站扫描要「跳过
+    失败、继续下一个候选」的语义，与串行版一致）。
+
+    429/521/503 会让该主机的间隔翻倍（自适应降速）—— 源站压力大时自动退让。
     """
     limits = limits or HOST_LIMITS
-    gates = {}
-    gate_lock = threading.Lock()
-
-    def gate_for(host):
-        with gate_lock:
-            if host not in gates:
-                limit, interval = limits.get(host, DEFAULT)
-                gates[host] = _Gate(limit, interval)
-            return gates[host]
 
     def one(url):
         h = host or urlparse(url).netloc
-        with gate_for(h):
-            return url, fn(url)
+        gate = _gate_for(h, limits)
+        with gate:
+            try:
+                return url, fn(url)
+            except Exception as e:  # noqa: BLE001
+                if getattr(e, "code", None) in PENALTY_CODES:
+                    gate.penalize()
+                raise
 
     out = {}
     errors = []
@@ -91,7 +123,9 @@ def fetch_many(urls, fn, workers=8, limits=None, host=None):
                 out[url] = value
             except Exception as e:  # noqa: BLE001 —— 按输入顺序收集，最后重抛第一个
                 errors.append((i, e))
-    if errors:
+    if errors and raise_first:
         errors.sort(key=lambda x: x[0])
         raise errors[0][1]
+    for i, e in errors:
+        out[urls[i]] = e
     return out

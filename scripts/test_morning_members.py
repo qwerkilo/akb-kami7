@@ -604,6 +604,46 @@ class ScanBudgetTests(unittest.TestCase):
         self.assertEqual(budgets, [45, 30])
 
 
+class ScanConcurrencyTests(unittest.TestCase):
+    """工单 06：快照抓取并发（Wayback 3 并发 · 0.5s 间隔），但**按任务顺序**应用配对 ——
+    同一成员多个候选时先到者胜，与串行逐键相同（确定性）。"""
+
+    def test_pooled_pick_keeps_url_order(self):
+        """两个候选页都有命中 → 取 URL 序靠前的（sorted(best) 的第一个）。"""
+        best = {"http://x/a": ["20200101000000"], "http://x/b": ["20190101000000"]}
+        by_name = {
+            "甲": {"name": "甲", "file": "f1", "status": "former", "group": "G", "join": "", "end": ""}
+        }
+        pages = {
+            "http://x/a": '<img ALT="甲" SRC="http://pic/a.jpg">',
+            "http://x/b": '<img ALT="甲" SRC="http://pic/b.jpg">',
+        }
+
+        def fake(u):
+            return pages["http://x/a"] if "/x/a" in u else pages["http://x/b"]
+
+        urls = {}
+        fetched = mm._pick_old_site_group(best, by_name, urls, fake, 0, 100, 0, 900)
+        self.assertEqual(fetched, 2)
+        self.assertIn("pic/a.jpg", urls["f1"], "URL 序靠前的候选必须先应用")
+
+    def test_failed_snapshot_is_skipped_not_fatal(self):
+        """单张快照失败要跳过、继续别的候选（与串行一致）—— 并发版用 raise_first=False。"""
+        best = {"http://x/a": ["20200101000000"], "http://x/b": ["20190101000000"]}
+        by_name = {
+            "甲": {"name": "甲", "file": "f1", "status": "former", "group": "G", "join": "", "end": ""}
+        }
+
+        def fake(u):
+            if "/x/a" in u:
+                raise RuntimeError("521")
+            return '<img ALT="甲" SRC="http://pic/b.jpg">'
+
+        urls = {}
+        mm._pick_old_site_group(best, by_name, urls, fake, 0, 100, 0, 900)
+        self.assertIn("pic/b.jpg", urls["f1"])
+
+
 class OldSitePhotoTests(unittest.TestCase):
     """工单 02：旧官网 Wayback 源（按团枚举 + alt 配对 + 在籍期校验，ADR-0022）。"""
 

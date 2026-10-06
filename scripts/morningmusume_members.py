@@ -1086,14 +1086,19 @@ def _snapshot_url(ts, url):
 
 
 def _old_site_candidates(prefixes, fetch, missing, pause):
-    """按前缀枚举 CDX → `{归一 URL: [在籍内快照 ts…]}`（只收 HTML）。"""
+    """按前缀枚举 CDX → `{归一 URL: [在籍内快照 ts…]}`（只收 HTML）。
+
+    前缀彼此独立：并发查询（按主机限流），按前缀原顺序归并（确定性）。
+    """
     best = {}
+    # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
+    rows_by_prefix = fetch_pool.fetch_many(
+        list(prefixes),
+        lambda p: photo_chain.cdx_rows(p, fetch, limit=1000, prefix=True),
+        host="web.archive.org",
+    )
     for prefix in prefixes:
-        if pause:
-            time.sleep(pause)
-        # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
-        rows = photo_chain.cdx_rows(prefix, fetch, limit=1000, prefix=True)
-        for row in rows:
+        for row in rows_by_prefix[prefix]:
             ts, original = row[1], row[2]
             # 只要 HTML：前缀下混着图片/CSS/JS，抓它们纯浪费（CDX 第 4 列是 mimetype）
             if len(row) > 3 and row[3] != "text/html":
@@ -1131,6 +1136,32 @@ def _match_page(html, original, ts, by_name, urls):
         urls[m["file"]] = _snapshot_url(ts, abs_src)
 
 
+def _scan_tasks(best, budget, fetched, limit):
+    """按预算把「(原页, 快照 ts)」展开成任务表（每 URL 试最早 3 个）。"""
+    group_fetched = 0
+    tasks = []
+    for original in sorted(best):
+        if fetched + group_fetched >= limit or group_fetched >= budget:
+            break
+        for ts in sorted(best[original])[:3]:
+            if fetched + group_fetched >= limit or group_fetched >= budget:
+                break
+            group_fetched += 1
+            tasks.append((original, ts))
+    return tasks
+
+
+def _apply_scan_pages(tasks, snap_urls, pages, by_name, urls):
+    """**按任务顺序**应用配对（同一成员多个候选时先到者胜 —— 与串行逐键相同）。"""
+    for (original, ts), url in zip(tasks, snap_urls):
+        html = pages.get(url)
+        if html is None or isinstance(html, Exception):
+            progress.tick(ok=False)
+            continue
+        progress.tick()
+        _match_page(html, original, ts, by_name, urls)
+
+
 def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, limit):
     """按预算抓快照并配对（每 URL 试最早 3 个）；返回更新后的 fetched。
 
@@ -1142,25 +1173,16 @@ def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, lim
     阵容复用 —— 取「最新」会抓到改版后的页（实测：artist/01/NN 在 2024 已变成
     团体导航页、alt 全是团名，一个成员都配不到）。
     """
-    group_fetched = 0
-    for original in sorted(best):
-        if fetched >= limit or group_fetched >= budget:
-            break
-        for ts in sorted(best[original])[:3]:
-            if fetched >= limit or group_fetched >= budget:
-                break
-            fetched += 1
-            group_fetched += 1
-            if pause:
-                time.sleep(pause)
-            try:
-                html = fetch(_snapshot_url(ts, original))
-            except Exception:
-                progress.tick(ok=False)
-                continue
-            progress.tick()
-            _match_page(html, original, ts, by_name, urls)
-    return fetched
+    tasks = _scan_tasks(best, budget, fetched, limit)
+    # 并发抓（Wayback 3 并发 · 0.5s 最小间隔；调用方的 pause 是 Commons 的节流，
+    # 不套在 Wayback 上 —— 它的实测问题是 521 偶发，不是限流），但**按任务顺序**
+    # 应用配对：同一成员多个候选时先到者胜，与串行结果一致（确定性）。
+    snap_urls = [_snapshot_url(ts, original) for original, ts in tasks]
+    pages = fetch_pool.fetch_many(
+        snap_urls, fetch, host="web.archive.org", raise_first=False
+    )
+    _apply_scan_pages(tasks, snap_urls, pages, by_name, urls)
+    return fetched + len(tasks)
 
 
 def _resolve_file_evidence(by_name, urls, fetch, pause):
