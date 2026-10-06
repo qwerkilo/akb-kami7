@@ -1325,3 +1325,21 @@
   单测 19 条（`test/e2e-check.test.js` 8 + `test/e2e-source.test.js` 6 + `test/e2e-wait.test.js` 5）；
   变异 5 个全杀（守卫 3 + 导入守卫 1 + 记录器 1）。
 - 下次基点：`0d998ee`。
+
+## 第六十轮 · 2026-10-06 · 第五轮扫描候选 6（`decode_page` 接线覆盖）
+
+- 基点：`8e97b04`（第五十九轮的「下次基点」）
+- 范围：`8e97b04..HEAD` —— `.scratch/decode-wiring/`（spec + 工单 01）+ 实现 + 两轴审查订正。
+- **问题**：`decode_page` 纯函数有 3 条测试，但生产接线（`_load_series` 注入给 loader 的
+  fetch）零覆盖 —— 改回 `.decode("utf-8","replace")` 全仓不会红。这条接线的回归本会话
+  实测过一次（旧官网是 Shift_JIS → 姓名乱码 → 照片配对全灭，花一整轮定位）。
+- **做了什么**：新增 `text_fetcher(fetch_url)`（「取页面文本」的唯一出处），`_load_series`
+  （生产）与 `check_roster`（开发工具）共用；新测试 `LoadSeriesWiringTests` 2 条
+  （Shift_JIS 字节到达 loader 时已解码 / loader 抛错 → SystemExit 含系列名与「不写入」）。
+- **两轴审查**（子代理，基点 `8e97b04..8402fcb`）：无高无中；三条低 —— 变异②归属措辞
+  （审查复跑证明：113 条里唯一红的是新接线测试，变异②红的是既有纯函数测试）、docstring
+  时态、`loader=None` 早退分支无测试（生产不可达的防御代码，记为遗留）。前两条已订正。
+- **验证**：`npm run check` exit=0；变异 2 个全杀（归属见上）；产品行为不变
+  （`members.js` 未动）。
+- 遗留：`_load_series` 的 `loader=None` 早退分支无测试（不可达，本仓规矩不删既有死代码）。
+- 下次基点：待推后取 HEAD。
