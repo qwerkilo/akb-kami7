@@ -449,7 +449,13 @@ def download(args, orig_dir=ORIG, fetch=get):
     return mid, path
 
 
-def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6):
+def _record_failure(failures, mid, reason):
+    """把「取不下来」的原因记进汇总（工单 10）；`failures=None` 表示不收集。"""
+    if failures is not None:
+        failures[mid] = reason
+
+
+def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6, failures=None):
     paths = {}
     with ThreadPoolExecutor(workers) as ex:
         mapped = ex.map(partial(download, orig_dir=orig_dir, fetch=fetch), jobs)
@@ -457,6 +463,9 @@ def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6):
             progress.tick(ok=bool(p))
             if p:
                 paths[mid] = p
+            else:
+                # 细节（404/521）在 download 的日志行里
+                _record_failure(failures, mid, "下载失败")
     return paths
 
 
@@ -735,10 +744,23 @@ def report_missing_info(missing):
         print("no image info:", missing)
 
 
-def warn_missing_images(members):
+def warn_missing_images(members, failures=None):
+    """缺图名单 + 「取不下来」的原因（工单 10）：解析不到的原因由各 loader 的
+    `_report_photo_reasons` 逐人打（工单 09）；这里补的是**解析到了但下载/压缩失败**
+    的那批 —— 否则读汇总的人会以为缺图全是「源里没有」。"""
     no_img = [m["name"] for m in members if not m["img"]]
     if no_img:
         print(f"warning: {len(no_img)} 位成员没有照片（界面显示占位）：{'、'.join(no_img[:10])}")
+    if failures:
+        lines = [
+            "  {}：{}".format(m["name"], failures[m["id"]])
+            for m in members
+            if not m["img"] and m["id"] in failures
+        ]
+        if lines:
+            print("照片解析到了但取不下来 {} 人（原因）：".format(len(lines)))
+            for line in lines:
+                print(line)
 
 
 def report_removed(removed):
@@ -755,7 +777,9 @@ def report_generation(sections, members, sizes):
         print(f"original size median {ws[len(ws)//2]}x{hs[len(hs)//2]}  min {ws[0]}x{hs[0]}  max {ws[-1]}x{hs[-1]}")
 
 
-def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
+def compress_members(
+    members, paths, force, full_dir=FULL, thumb_dir=THUMB, failures=None
+):
     """压缩原图并标记 img。
 
     img 的真值来源是**站内图片文件**而不是远端 URL 是否解析成功：等爱毕业成员的
@@ -781,6 +805,7 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
                         f"  源图过小（{size[0]}×{size[1]}），按缺图处理：{m['name']}",
                         file=sys.stderr,
                     )
+                    _record_failure(failures, m["id"], "源图过小（占位图）")
                     for out in (
                         os.path.join(full_dir, m["id"] + ".webp"),
                         os.path.join(thumb_dir, m["id"] + ".webp"),
@@ -790,6 +815,9 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
                 else:
                     sizes.append(size)
             except Exception as e:
+                _record_failure(
+                    failures, m["id"], "文件不是图（{}）".format(type(e).__name__)
+                )
                 print("compress failed", m["name"], e)
         m["img"] = all(
             usable(out)
@@ -809,11 +837,11 @@ def resolve_missing(members, urls):
     return [m["name"] for m in members if m["file"] and m["file"] not in urls]
 
 
-def collect_paths(members, urls, no_dl, fetch_url, orig_dir=ORIG):
+def collect_paths(members, urls, no_dl, fetch_url, orig_dir=ORIG, failures=None):
     jobs = [(m["id"], urls[m["file"]]) for m in members if m["file"] in urls]
     if no_dl:
         return cached_image_paths(jobs, orig_dir)
-    return download_all(jobs, fetch_url, orig_dir)
+    return download_all(jobs, fetch_url, orig_dir, failures=failures)
 
 
 def default_dirs():
@@ -955,10 +983,15 @@ def main(
 
     n_jobs = sum(1 for m in all_members if m["file"] in urls)
     with progress.stage("下载原图", total=n_jobs):
-        paths = collect_paths(all_members, urls, no_dl, fetch_url, dirs["orig"])
+        failures = {}  # id → 「取不下来」的原因（工单 10：下载/压缩失败）
+        paths = collect_paths(
+            all_members, urls, no_dl, fetch_url, dirs["orig"], failures=failures
+        )
     with progress.stage("压缩", total=len(all_members)):
-        sizes = compress_members(all_members, paths, force, dirs["full"], dirs["thumb"])
-    warn_missing_images(all_members)
+        sizes = compress_members(
+            all_members, paths, force, dirs["full"], dirs["thumb"], failures
+        )
+    warn_missing_images(all_members, failures)
     report_removed(
         prune_unused(
             {m["id"] for m in all_members},

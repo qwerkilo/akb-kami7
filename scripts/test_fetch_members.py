@@ -4,6 +4,7 @@ import os
 import tempfile
 import unittest
 from unittest import mock
+import contextlib
 from contextlib import redirect_stderr, redirect_stdout
 
 from PIL import Image
@@ -1671,3 +1672,49 @@ class NewSeriesBaselineTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PhotoFailureReasonTests(unittest.TestCase):
+    """工单 10：下载/压缩失败也要进「为什么没有照片」的汇总 —— 否则读汇总的人会以为
+    缺图全是「源里没有」（实测：7 人里 2 人是解析到了但取不下来，只在日志里逐人可见）。"""
+
+    def test_download_failure_is_recorded(self):
+        failures = {}
+
+        def boom(url):
+            raise RuntimeError("404")
+
+        with mock.patch.object(fetch_members.time, "sleep"):
+            paths = fetch_members.download_all(
+                [("m1", "http://x/a.jpg")], fetch=boom, workers=1, failures=failures
+            )
+        self.assertEqual(paths, {})
+        self.assertEqual(failures.get("m1"), "下载失败")
+
+    def test_compress_failure_is_recorded(self):
+        with tempfile.TemporaryDirectory() as d:
+            orig, full, thumb = (os.path.join(d, x) for x in ("orig", "full", "thumb"))
+            for x in (orig, full, thumb):
+                os.makedirs(x)
+            bad = os.path.join(orig, "m1.jpg")
+            io.open(bad, "wb").write(b"<html>not an image</html>")
+            members = [{"id": "m1", "name": "梅田えりか", "img": False}]
+            failures = {}
+            fetch_members.compress_members(
+                members, {"m1": bad}, False, full, thumb, failures
+            )
+            # 带异常类型（UnidentifiedImageError）—— 实现给了更多信息，断言前缀即可
+            self.assertTrue(failures.get("m1", "").startswith("文件不是图"))
+            self.assertFalse(members[0]["img"])
+
+    def test_missing_summary_names_the_failures(self):
+        members = [
+            {"id": "m1", "name": "有原栞菜", "img": False},
+            {"id": "m2", "name": "福田明日香", "img": False},
+        ]
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            fetch_members.warn_missing_images(members, {"m1": "下载失败"})
+        out = buf.getvalue()
+        self.assertIn("有原栞菜", out)
+        self.assertIn("下载失败", out)
