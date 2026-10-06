@@ -1246,3 +1246,31 @@
 - 遗留：桌面宽度 E2E 未覆盖（长期）；7 人缺图（5 人源里没有 + 2 人快照未收录图片 ——
   CDX 0 行，是源的真实上限）；`cdx_rows` 的失败仍会变成「没有候选」（同族，未分类）。
 - 下次基点：`8137820`（本轮修复提交；CI 双 job 绿）。
+
+## 第五十七轮 · 2026-10-06 · 第五轮架构扫描（10 候选）+ photo-outcome 批次（ADR-0024）
+
+- 基点：`ab21894`（第五十六轮的「下次基点」）
+- 范围：`ab21894..HEAD`，含两部分：
+  1. **第五轮架构扫描**（报告 `/tmp/opencode/architecture-review-20261006-104242.html`）：
+     范围 = hp-photos + perf 批次 + E2E 套件；两路子代理候选 **10 条**，逐条自复核后
+     Strong 2 / Worth exploring 5 / Speculative 3。Top recommendation（卡 1+2）已修：
+     E2E 失败日志写死 `/tmp/opencode`（CI 首红即崩）+ `e2e-v5` 的 `errs` 未定义
+     （首个 console 错误即崩）→ 新增 `npm run lint:undef` 接进闸门与 CI。
+  2. **候选 7 → photo-outcome 批次**：ADR-0024（照片结果表）+ spec + 工单 01/02/03
+     全部收口 —— 三条通道合一、一份报告、原因在产生处写一次（常量 `QUERY_FAILED` /
+     `SOURCE_EMPTY`）；`errors` 参数消失；等爱的缺图者从「未记录」变成有原因。
+- **两轴审查**（子代理，基点 `42d154f..HEAD`）：抓到一个**中**的真缺陷（`_commons_for`
+  把「查询失败」降级成「源里没有」）与两条中/低规格偏离，全部处置：
+  - 降级缺陷修 + 组合测试（红→绿）；
+  - 验收 3 的「原因单一产生点」补常量 + 缝③ 守卫（链不许写死 / loader 不许写原因字面量）；
+  - 死代码（`_imageinfo` 不可达 return）、死参数（两个 `warn`）、守卫剥 docstring、
+    love docstring 事实错误、`data-pipeline` 过期句、测试名/记录数字订正；
+  - spec 的「异常细节留日志行」**未实现**，已按偏离显式记录（不假装已做）。
+- **验证**：`npm run check` exit=0（**321 Python** + 复杂度棘轮归位）；变异 **11 个全杀**
+  （本批：notes 通道 / 两处 loader 接线 / 报告漏人 / 链失败降级 / love 原因写死 /
+  两处原因字面量 / 守卫探针 …）；CI 双 job 绿（含新 `lint:undef`）。
+- **遗留（阻塞项）**：真实管线跑三次都被**外部源故障**挡住 —— `≠ME` 的
+  `profile_honda_miyuki` 一页交替 500 与 21–31s（直连与代理都测过）；两道规模门都
+  正确中止、未写入。**「members.js 逐字节不变」尚未用完整跑验证**（单元测试 +
+  Commons/Wikipedia 真实源抽查已过）。已记 smart note（surface condition = 该页恢复）。
+- 下次基点：`c2645f6`。
