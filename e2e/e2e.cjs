@@ -751,10 +751,11 @@ function isExpectedResourceNoise(m) {
 
     // -- v2 选人：系列切换 / 简体搜索 / 40 档 / 持久化
     block("v2 选人");
+    // 先清再导航（同源）：此前是 goto+ready 拿 origin → clear → reload，第一次完整
+    // 加载（含 ready）整个被丢掉。其余块早就是「先清再 goto」的写法。
+    await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
-    await page.evaluate(() => localStorage.clear());
-    await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
     await page.waitForTimeout(400);
     await page.click('.seg-series [data-series="sakamichi"]');
     await page.waitForTimeout(300);

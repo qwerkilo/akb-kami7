@@ -23,6 +23,32 @@ const BASE = `http://127.0.0.1:${PORT}/`;
   try {
     await new Promise((r) => setTimeout(r, 1200));
     browser = await chromium.launch();
+    // 一次性取「档位 × 系列 → 成员 id」表：每个状态自己 goto+reload 两次只为拿它，
+    // 而它只随 size 变（与语言/离线无关）—— 实测 72 次页面加载里有一半是白跑。
+    const idsBySize = await (async () => {
+      const ctx = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+      });
+      const page = await ctx.newPage();
+      await page.goto(BASE + "?cb=" + Date.now(), {
+        waitUntil: "domcontentloaded",
+        timeout: 120000,
+      });
+      const table = await page.evaluate(() => {
+        const out = {};
+        const bySeries = { "48g": [], sakamichi: [], love: [], morning: [] };
+        for (const g of window.AKB_GROUPS)
+          bySeries[g.series].push(...g.members);
+        for (const sz of [7, 16, 40]) {
+          out[sz] = {};
+          for (const k of ["48g", "sakamichi", "love", "morning"])
+            out[sz][k] = bySeries[k].slice(0, sz).map((m) => m.id);
+        }
+        return out;
+      });
+      await ctx.close();
+      return table;
+    })();
     for (const lang of ["zh", "en", "ja"]) {
       for (const size of [7, 16, 40]) {
         for (const series of ["48g", "sakamichi", "love", "morning"]) {
@@ -31,41 +57,32 @@ const BASE = `http://127.0.0.1:${PORT}/`;
             locale: "zh-CN",
           });
           const page = await ctx.newPage();
-          await page.goto(BASE + "?cb=" + Date.now(), {
-            waitUntil: "domcontentloaded",
-            timeout: 120000,
-          });
-          await page.waitForTimeout(1500);
-          await page.evaluate(
-            ([l, sz]) => {
+          // 种档：addInitScript 在**每次导航前**跑，所以一次 goto 就够（此前是
+          // goto 拿 origin + evaluate 种 + reload，第一次加载整个被丢掉）。
+          // 四个系列都要种：switchSeries 对没有存档的系列回落 {size:7}，
+          // 只写 48g 的话「档位 × 系列」是假交叉（当年三系列 54 个状态里 18 个量的是 7 档）。
+          await ctx.addInitScript(
+            ([l, sz, ids]) => {
               localStorage.setItem("akb-lang", l);
-              const bySeries = {
-                "48g": [],
-                sakamichi: [],
-                love: [],
-                morning: [],
-              };
-              for (const g of window.AKB_GROUPS)
-                bySeries[g.series].push(...g.members);
-              const idsOf = (k) => bySeries[k].slice(0, sz).map((m) => m.id);
-              // 三个系列都要种：switchSeries 对没有存档的系列回落 {size:7}，
-              // 只写 48g 的话「档位 × 系列」是假交叉（当年三系列 54 个状态里 18 个量的是 7 档）。
               for (const k of ["48g", "sakamichi", "love", "morning"]) {
                 localStorage.setItem(
                   "akb:state:v2:" + k,
                   JSON.stringify({
                     v: 1,
                     size: sz,
-                    selected: idsOf(k),
+                    selected: ids[k],
                     duel: null,
                   })
                 );
               }
             },
-            [lang, size]
+            [lang, size, idsBySize[size]]
           );
-          await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
-          await page.waitForTimeout(700);
+          await page.goto(BASE + "?cb=" + Date.now(), {
+            waitUntil: "domcontentloaded",
+            timeout: 120000,
+          });
+          await page.waitForTimeout(1200);
           await page
             .click(`.seg-series [data-series="${series}"]`, { force: true })
             .catch(() => {});

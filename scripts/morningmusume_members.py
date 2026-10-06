@@ -1132,19 +1132,23 @@ def _match_page(html, original, ts, by_name, urls):
 def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, limit):
     """按预算抓快照并配对（每 URL 试最早 3 个）；返回更新后的 fetched。
 
+    预算按**抓取次数**算（不是 URL 数）：每次抓取才是真实成本（网络 + 节流），
+    一个 URL 最多试 3 个快照 —— 按 URL 记账会让实际抓取数三倍于预算（实测：12 个
+    缺图者散在 5 个团时，扫描照旧跑到全局上限 900 次、增量跑 37 分钟没跑完）。
+
     每个 URL 试**最早**的 3 个在籍内快照（升序）：旧站的扁平/序号页会被后来的
     阵容复用 —— 取「最新」会抓到改版后的页（实测：artist/01/NN 在 2024 已变成
     团体导航页、alt 全是团名，一个成员都配不到）。
     """
-    picked = 0
+    group_fetched = 0
     for original in sorted(best):
-        if fetched >= limit or picked >= budget:
+        if fetched >= limit or group_fetched >= budget:
             break
-        picked += 1
         for ts in sorted(best[original])[:3]:
-            fetched += 1
-            if fetched > limit:
+            if fetched >= limit or group_fetched >= budget:
                 break
+            fetched += 1
+            group_fetched += 1
             if pause:
                 time.sleep(pause)
             try:
@@ -1181,11 +1185,13 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
             break
         if not any(m.get("group") == group for m in missing):
             continue
-        # 每团一份预算：全局 cap 会被第一个团的几个前缀吃光（实测：57 人只中 17，
-        # 后半个团一个都配不到）。下限 70：早年「一人一页」在 artist/01/01…20 与
-        # morningmusume/profile 下还有 `/` 与 `/index.html` 两种形态，预算 16 只够
-        # 走到第 8 人、40 到第 20 人（实测 40 只配到 29 人）。
-        budget = max(70, (limit - fetched) // max(1, groups_left))
+        # 每团一份预算，按**该团缺图人数**缩放（单位 = 抓取次数）：扫描存在的意义
+        # 就是找这几个人，为 3 个人试 180 个 URL 是 60 倍超支（实测：增量跑 37 分钟
+        # 没跑完，全耗在「只有 1–3 个缺图成员」的团上）。下限 30 次抓取 ≈ 10 个 URL，
+        # 够覆盖「新成员的在籍期窗口窄 → 候选本来就少」的正常情形；在籍期无下界
+        # （源里 join 缺失）的病态情形由这个预算兜住 —— 那几位本来就是不可达的。
+        in_group = len([m for m in missing if m.get("group") == group])
+        budget = max(30, 15 * in_group)
         groups_left -= 1
         best = _old_site_candidates(prefixes, fetch, missing, pause)
         fetched = _pick_old_site_group(

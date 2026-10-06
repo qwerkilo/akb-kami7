@@ -545,6 +545,61 @@ class IncrementalSkipTests(unittest.TestCase):
         self.assertGreater(len(calls), 1, "没有 skip 时应当继续解析（会发成员级请求）")
 
 
+class ScanBudgetTests(unittest.TestCase):
+    """旧站扫描的预算按**抓取次数**算（不是 URL 数）—— 每次抓取才是真实成本
+    （网络 + 节流），一个 URL 最多试 3 个快照。按 URL 记账会让实际抓取数三倍于预算：
+    实测 12 个缺图者散在 5 个团时，扫描照旧跑到全局上限 900 次、增量跑 37 分钟没完。"""
+
+    def _pick(self, best, budget, limit=900, pause=0):
+        calls = []
+
+        def fetch(url):
+            calls.append(url)
+            return "<html></html>"
+
+        fetched = mm._pick_old_site_group(best, {}, {}, fetch, pause, budget, 0, limit)
+        return fetched, calls
+
+    def test_budget_counts_fetches_not_urls(self):
+        # 10 个 URL × 3 个快照 = 30 次抓取；预算 6 次 → 只抓 6 次（2 个 URL）
+        best = {"http://x/%02d" % i: [f"2020{i:04d}"] * 3 for i in range(10)}
+        fetched, calls = self._pick(best, budget=6)
+        self.assertEqual(fetched, 6)
+        self.assertEqual(len(calls), 6)
+
+    def test_global_limit_still_caps(self):
+        best = {"http://x/%02d" % i: [f"2020{i:04d}"] * 3 for i in range(10)}
+        fetched, calls = self._pick(best, budget=100, limit=4)
+        self.assertEqual(fetched, 4)
+        self.assertEqual(len(calls), 4)
+
+    def test_budget_scales_with_missing_count(self):
+        """每团预算 = max(30, 15 × 该团缺图人数) —— 为 3 个人试 180 个 URL 是 60 倍超支。"""
+        seen = {}
+
+        def fake_candidates(prefixes, fetch, missing, pause):
+            seen[prefixes[0]] = len(missing)
+            return {}  # 没有候选 → 只观察预算
+
+        real = mm._pick_old_site_group
+        budgets = []
+
+        def fake_pick(best, by_name, urls, fetch, pause, budget, fetched, limit):
+            budgets.append(budget)
+            return fetched
+
+        members = (
+            [{"name": f"a{i}", "group": "モーニング娘。", "status": "former", "file": f"f{i}"} for i in range(3)]
+            + [{"name": "b0", "group": "OCHA NORMA", "status": "former", "file": "g0"}]
+        )
+        with mock.patch.object(mm, "_old_site_candidates", fake_candidates), mock.patch.object(
+            mm, "_pick_old_site_group", fake_pick
+        ):
+            mm._resolve_old_site_groups(members, {}, {}, lambda u: "", 0, 900)
+        # モー娘。 3 人 → 45；OCHA 1 人 → 30
+        self.assertEqual(budgets, [45, 30])
+
+
 class OldSitePhotoTests(unittest.TestCase):
     """工单 02：旧官网 Wayback 源（按团枚举 + alt 配对 + 在籍期校验，ADR-0022）。"""
 

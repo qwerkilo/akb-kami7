@@ -127,9 +127,9 @@ function isExpectedResourceNoise(m) {
   });
 
   try {
+    // 这个 context 是新建的、localStorage 本来就是空的 —— 原来的 goto→clear→reload
+    // 白跑一次完整加载（实测 v5 30s 里有它一份）。
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
-    await page.evaluate(() => localStorage.clear());
-    await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
     await page.waitForTimeout(600);
 
     // 01 步骤条

@@ -21251,7 +21251,7 @@ window.AKB_GROUPS = [
     "nick": "ﾔｷﾞｼｵﾘ",
     "status": "former",
     "end": "2025.04.30",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "2003.09.19",
      "from": "愛知県"
@@ -21633,7 +21633,7 @@ window.AKB_GROUPS = [
     "nick": "みんちゃん",
     "status": "former",
     "end": "2025.03.21",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "2004.04.20",
      "from": "北海道",
@@ -21651,7 +21651,7 @@ window.AKB_GROUPS = [
     "nick": "すーちゃん",
     "status": "former",
     "end": "2025.03.11",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "2005.06.16",
      "from": "神奈川県",
