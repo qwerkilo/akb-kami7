@@ -312,7 +312,7 @@ class CommonsSearchPhotoTests(unittest.TestCase):
             ("https://upload/goto.jpg", None),
         )
 
-    def test_malformed_payload_yields_none(self):
+    def test_malformed_payload_yields_query_failed(self):
         for payload in ("not json", "[]", "null"):
             self.assertEqual(
                 photo_chain.commons_search_photo("x", lambda url, p=payload: p),

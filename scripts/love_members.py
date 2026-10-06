@@ -294,7 +294,7 @@ def _needs_photo(m, urls, skip):
     return not (skip and skip(m))
 
 
-def resolve_former_photos(members, urls, fetch, warn=print, skip=None, notes=None):
+def resolve_former_photos(members, urls, fetch, skip=None, notes=None):
     """官网列表缺照片的成员（通常是已毕业）：Web Archive 列表快照 → 快照图片 → Commons。
 
     `skip(member)` 为真的人不解析（增量跑：已有站内照片，ADR-0023）。
@@ -328,14 +328,15 @@ def _resolve_member_photo(m, photos, fetch, urls, notes):
     if resolved:
         urls[m["file"]] = resolved
     else:
-        notes.setdefault(m["file"], reason or "源里没有")
+        # 链保证落空必有原因（photo_chain 的两个常量），这里不写第二份
+        notes.setdefault(m["file"], reason)
 
 
 def load(fetch, warn=print, skip_photo=None, notes=None):
     """抓取三个官网 + Wikipedia 并装配；返回 (members, urls)。
 
-    `notes`（工单 01 / ADR-0024）：照片解析没找到的原因（复用 morning 的
-    `resolve_former_photos`，它把原因写进这里）—— 报告由管线打一份。
+    `notes`（工单 01 / ADR-0024）：照片解析没找到的原因（本模块的
+    `resolve_former_photos` 写进这里）—— 报告由管线打一份。
     """
 
     official = {}
@@ -367,7 +368,7 @@ def load(fetch, warn=print, skip_photo=None, notes=None):
             st.tick()
             print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
     members, urls = build_members(official, wiki)
-    resolve_former_photos(members, urls, fetch, warn, skip=skip_photo, notes=notes)
+    resolve_former_photos(members, urls, fetch, skip=skip_photo, notes=notes)
     return members, urls
 
 

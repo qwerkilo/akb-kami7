@@ -585,13 +585,18 @@ test("现役成员不得跨系列重复；已知的同名不同人按名单放�
   }
 });
 
+/** 剥掉注释与 docstring 再扫（本仓记录过「守卫扫到注释里的字面量」的坑）。 */
+function stripCommentsAndDocs(src) {
+  return src.replace(/"""[\s\S]*?"""/g, "").replace(/#[^\n]*/g, "");
+}
+
 test("照片回退链：原因在链里产生，不再有 errors 中转（工单 02 / ADR-0024）", () => {
-  const raw = fs.readFileSync(
-    path.join(__dirname, "..", "scripts", "photo_chain.py"),
-    "utf8"
+  const chain = stripCommentsAndDocs(
+    fs.readFileSync(
+      path.join(__dirname, "..", "scripts", "photo_chain.py"),
+      "utf8"
+    )
   );
-  // 剥注释再扫（本仓记录过「守卫扫到注释里的字面量」的坑）
-  const chain = raw.replace(/#[^\n]*/g, "");
   assert.ok(
     !/\berrors\b/.test(chain),
     "photo_chain 不许再有 errors 参数/列表 —— 原因由 (url, reason) 返回（ADR-0024）"
@@ -606,10 +611,25 @@ test("照片回退链：原因在链里产生，不再有 errors 中转（工单
     /def commons_search_photo\(name, fetch\):/,
     "commons_search_photo 的签名"
   );
-  for (const reason of ["查询失败", "源里没有"]) {
-    assert.ok(
-      chain.includes(`"${reason}"`),
-      `链必须自己产生「${reason}」（原因在产生处写一次）`
+  // 原因的唯一定义点：常量在这里定义，链只用常量
+  assert.match(chain, /^QUERY_FAILED = "查询失败"$/m, "QUERY_FAILED 常量");
+  assert.match(chain, /^SOURCE_EMPTY = "源里没有"$/m, "SOURCE_EMPTY 常量");
+  assert.ok(
+    !/return None, "/.test(chain),
+    "链的落空必须返回常量（不许写死原因串）"
+  );
+});
+
+test("照片原因串只有一个产生点：loader 不许写原因字面量（工单 03 / ADR-0024）", () => {
+  for (const f of ["morningmusume_members.py", "love_members.py"]) {
+    const src = stripCommentsAndDocs(
+      fs.readFileSync(path.join(__dirname, "..", "scripts", f), "utf8")
     );
+    for (const reason of ["查询失败", "源里没有"]) {
+      assert.ok(
+        !src.includes(`"${reason}"`),
+        `${f} 不许写「${reason}」字面量 —— 用 photo_chain 的常量（原因只有一个产生点）`
+      );
+    }
   }
 });

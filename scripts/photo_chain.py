@@ -15,6 +15,10 @@ from ja_wiki import WIKI_API
 
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
 
+# 原因的**唯一定义点**（ADR-0024：原因在产生处写一次）：链返回它们，loader 只读不写。
+QUERY_FAILED = "查询失败"
+SOURCE_EMPTY = "源里没有"
+
 # 搜索命中里图标/模板/旗帜占多数，按文件名关键词先滤掉。**只收明确是图标的词**：
 # 真正的把关是身份校验（`_mentions_name`），这里的误杀才是风险（「tone」「map」「move」
 # 这类短词会命中人名的子串），所以宁少勿滥。
@@ -70,14 +74,14 @@ def commons_photo(name, fetch):
     try:
         data = json.loads(fetch(query))
     except Exception:
-        return None, "查询失败"
+        return None, QUERY_FAILED
     if not isinstance(data, dict):
-        return None, "查询失败"
+        return None, QUERY_FAILED
     for page in (data.get("query") or {}).get("pages", {}).values():
         src = (page.get("thumbnail") or {}).get("source")
         if src:
             return src, None
-    return None, "源里没有"
+    return None, SOURCE_EMPTY
 
 
 def norm_name(s):
@@ -129,7 +133,6 @@ def _imageinfo(titles, fetch):
     data = json.loads(fetch(query))
     if not isinstance(data, dict):
         raise ValueError("unexpected payload shape")
-        return {}
     return (data.get("query") or {}).get("pages", {})
 
 
@@ -189,12 +192,12 @@ def commons_search_photo(name, fetch):
             t for t in hits if not any(j in t.lower() for j in _SEARCH_JUNK)
         ]
         if not cands:
-            return None, "源里没有"
+            return None, SOURCE_EMPTY
         pages = _imageinfo(cands[:6], fetch)
     except Exception:
-        return None, "查询失败"
+        return None, QUERY_FAILED
     url = _best_candidate(pages, norm_name(name))
-    return (url, None) if url else (None, "源里没有")
+    return (url, None) if url else (None, SOURCE_EMPTY)
 
 
 def _best_candidate(pages, want):

@@ -1319,8 +1319,8 @@ def _commons_for(m, fetch, pause):
     Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
     不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
 
-    返回 `(url, reason)`（ADR-0024）：链自己给出原因（「查询失败」/「源里没有」），
-    调用方不再需要 `errors` 中转。
+    返回 `(url, reason)`（ADR-0024）：链自己给出原因（`photo_chain.QUERY_FAILED` /
+    `SOURCE_EMPTY`），调用方不再需要中转；**任一阶段失败**都算「查询失败」。
     """
     if pause:
         time.sleep(pause)
@@ -1330,7 +1330,12 @@ def _commons_for(m, fetch, pause):
         # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
         if pause:
             time.sleep(pause)
-        resolved, reason = photo_chain.commons_search_photo(m["name"], fetch)
+        resolved, search_reason = photo_chain.commons_search_photo(m["name"], fetch)
+        # **任一阶段失败 → 「查询失败」**：后一阶段的空结果不许把前一阶段的失败
+        # 降级成「源里没有」（429 被记成「源里没有」是本仓记录过的坑；两轴审查
+        # 抓到这条组合路径）。
+        if search_reason == photo_chain.QUERY_FAILED:
+            reason = search_reason
     if not resolved and m.get("photo_url"):
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
@@ -1340,7 +1345,7 @@ def _commons_for(m, fetch, pause):
     return resolved, reason
 
 
-def _resolve_commons(members, urls, fetch, warn, pause, notes):
+def _resolve_commons(members, urls, fetch, pause, notes):
     """链尾：Wikipedia Commons（现役与兜底；失败被 `commons_photo` 吞成 None）。"""
     todo = [m for m in members if m["status"] == "former" and m["file"] not in urls]
     with progress.stage("Commons", total=len(todo)):
@@ -1351,7 +1356,8 @@ def _resolve_commons(members, urls, fetch, warn, pause, notes):
             else:
                 # 旧站的原因（预算/上限截断）优先：Commons 是链尾，覆盖会让
                 # 工单 09 的整条目的落空（两轴审查：全链路报告永远看不到截断）。
-                notes.setdefault(m["file"], reason or "源里没有")
+                # 链保证落空必有原因（photo_chain 的两个常量），这里不再写第二份。
+                notes.setdefault(m["file"], reason)
                 # 不再逐人 warn（工单 01 / Q6-B）：同一条信息由管线的一份报告给出 ——
                 # 上游解析不到时，仓库里已有照片的成员会沿用本地文件（img 仍为 true），
                 # 只有连站内文件都没有的才真的显示占位。
@@ -1366,7 +1372,7 @@ def resolve_former_photos(
     1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
        一次抓取解析成「姓名 → 照片」映射；命中即止（官方肖像优先）。
     2. **旧官网 Wayback 快照**（工单 02：毕业者与已停止活动的团；按团枚举 + 在籍期校验）。
-    3. **Wikipedia Commons**（现役与兜底；失败被 `commons_photo` 吞成 None）。
+    3. **Wikipedia Commons**（现役与兜底；`(url, reason)` —— 失败与空结果分开记）。
 
     取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
     不是静默降级。
@@ -1386,7 +1392,7 @@ def resolve_former_photos(
         resolve_old_site_photos(target, urls, fetch, warn=warn, pause=pause, notes=notes)
     except Exception as e:
         warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
-    _resolve_commons(target, urls, fetch, warn, pause, notes)
+    _resolve_commons(target, urls, fetch, pause, notes)
     return members, urls
 
 def build_sections(members):

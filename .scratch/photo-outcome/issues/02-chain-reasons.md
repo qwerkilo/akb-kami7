@@ -42,9 +42,10 @@
   原因仍优先）。love 的 `_resolve_member_photo` 同改（**等爱的缺图者从「未记录」变成有原因**）。
 - 守卫（缝③）：`photo_chain.py` 里不许出现 `errors`（剥注释再扫）+ 两个签名 + 链必须自己
   产生两个原因串。
-- 测试：`test_photo_chain` 的 22 处调用点按新契约更新（命中 → `(url, None)`；坏载荷/形状
-  异常 → 「查询失败」；空 → 「源里没有」），三组以 `errors` 写的测试重写成 `ReasonTests` /
-  `ShapeAnomalyTests` / `SameWritingLimitationTests`；love 新增「429 不许压成源里没有」。
+- 测试：`test_photo_chain` 的 **21 处调用点**按新契约更新（命中 → `(url, None)`；坏载荷/
+  形状异常 → 「查询失败」；空 → 「源里没有」）；两组以 `errors` 写的测试重写成
+  `ReasonTests` / `ShapeAnomalyTests`，`SameWritingLimitationTests` 的断言改为元组；
+  love 新增「429 不许压成源里没有」。
 - 变异 **2 个全杀**（失败并进「源里没有」/ love 的原因写死）；守卫承重（去掉签名里的
   二元组或恢复 errors 会红）。
 - 真实源抽查（3s 节流）：後藤真希命中（与缓存一致）、福田明日香「源里没有」（与缓存
@@ -54,3 +55,8 @@
 
 **真实跑**：同工单 01（三次尝试都被 ≠ME 站那一页的 500/超时挡住，门正确中止未写入）；
 真实源抽查见上（Commons/Wikipedia 通，命中与缓存一致）。
+
+## 两轴审查后的修复（2026-10-06）
+
+- 链的原因串收成常量 `QUERY_FAILED` / `SOURCE_EMPTY`（唯一定义点）；`_commons_for` 的
+  「任一阶段失败 → 查询失败」；loader 不再写原因字面量（缝③ 守卫钉住，变异被杀）。

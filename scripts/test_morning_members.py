@@ -1439,7 +1439,7 @@ class PhotoReasonTests(unittest.TestCase):
         def boom(url):
             raise RuntimeError("429")
 
-        mm._resolve_commons([self.MEMBER], urls, boom, lambda *a: None, 0, notes)
+        mm._resolve_commons([self.MEMBER], urls, boom, 0, notes)
         self.assertEqual(notes.get("m1"), "查询失败")
         self.assertNotIn("m1", urls)
 
@@ -1453,7 +1453,7 @@ class PhotoReasonTests(unittest.TestCase):
                 return json.dumps({"query": {"search": []}})
             return json.dumps({"query": {"pages": {}}})
 
-        mm._resolve_commons([self.MEMBER], urls, empty, lambda *a: None, 0, notes)
+        mm._resolve_commons([self.MEMBER], urls, empty, 0, notes)
         self.assertEqual(notes.get("m1"), "源里没有")
 
     def test_exhausted_group_is_noted_as_budget_not_missing_page(self):
@@ -1504,7 +1504,7 @@ class PhotoReasonTests(unittest.TestCase):
                 return json.dumps({"query": {"search": []}})
             return json.dumps({"query": {"pages": {}}})
 
-        mm._resolve_commons(members, urls, empty, lambda *a: None, 0, notes)
+        mm._resolve_commons(members, urls, empty, 0, notes)
         self.assertEqual(notes[members[0]["file"]], "旧站预算内未扫完")
 
     def test_group_cut_by_global_limit_is_noted(self):
@@ -1525,3 +1525,37 @@ class PhotoReasonTests(unittest.TestCase):
                 members, {}, urls, lambda u: "<html>x</html>", 0, 1, notes
             )
         self.assertEqual(notes.get(members[0]["file"]), "旧站被全局上限截断")
+
+    def test_query_failure_is_not_downgraded_by_a_later_empty_result(self):
+        """两轴审查抓到的真缺陷：pageimages 请求失败 + 搜索查询成功但空 ——
+        原因必须是「查询失败」，不许被后一阶段的空结果降级成「源里没有」
+        （429 被记成「源里没有」是本仓记录过的坑）。"""
+        members = [dict(self.MEMBER)]
+        urls, notes = {}, {}
+
+        def fetch(url):
+            import json
+
+            if "pageimages" in url:
+                raise RuntimeError("429")
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
+            return json.dumps({"query": {"pages": {}}})
+
+        mm._resolve_commons(members, urls, fetch, 0, notes)
+        self.assertEqual(notes.get(members[0]["file"]), "查询失败")
+
+    def test_all_stages_empty_is_source_empty(self):
+        """三阶段都「查了但没有」→ 「源里没有」（不是「查询失败」）。"""
+        members = [dict(self.MEMBER)]
+        urls, notes = {}, {}
+
+        def fetch(url):
+            import json
+
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
+            return json.dumps({"query": {"pages": {}}})
+
+        mm._resolve_commons(members, urls, fetch, 0, notes)
+        self.assertEqual(notes.get(members[0]["file"]), "源里没有")

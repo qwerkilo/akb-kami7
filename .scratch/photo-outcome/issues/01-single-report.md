@@ -46,7 +46,9 @@ Q2/Q6：结果表由管线拥有、只打一份报告。
   `test_notes_reach_the_morning_loader_and_the_report` + 加强既有
   `test_skip_photo_and_cache_reach_the_right_loaders`（notes 进两个 loader）；四处钉旧
   格式的测试按新契约更新（两段 → 一份）。
-- 变异 **4 个全杀**（去掉 notes 通道 / 两个 loader 的 notes 接线 / 报告漏一人）。
+- 变异 **全杀**（去掉 notes 通道 / morning 的 notes 接线 / love 的 notes 接线 / 报告漏一人 /
+  恢复链的失败→空降级 / love 的原因写死 / loader 写原因字面量 / 链返回字面量 —— 共 8 个，
+  其中 2 个在两轴审查后补验）。
 - 复杂度：`warn_missing_images` 12 → 拆 `_photo_reason`；love 的 `resolve_former_photos`
   11 → 拆 `_resolve_member_photo`。
 
@@ -62,5 +64,23 @@ Q2/Q6：结果表由管线拥有、只打一份报告。
 （失败发生在官网详情抓取阶段，早于照片解析）。
 
 因此「产物逐字节不变」这条**尚未用完整跑验证**（三次都没写盘）；已有的证据是：
-318 条 Python 测试 + 有针对性的真实源抽查（工单 02 记录）+ 两道门如实中止。
+319 条 Python 测试（当时） + 有针对性的真实源抽查（工单 02 记录）+ 两道门如实中止。
 待 ≠ME 站恢复后补跑（已记 smart note）。
+
+## 两轴审查后的修复（2026-10-06）
+
+- **中：`_commons_for` 把「查询失败」降级成「源里没有」**（pageimages 请求失败 + 搜索
+  查询成功但空 —— 旧实现靠 errors 累积记「查询失败」，新实现被后一阶段覆盖）。
+  修：任一阶段失败 → 「查询失败」；补组合测试
+  （`test_query_failure_is_not_downgraded_by_a_later_empty_result` +
+  `test_all_stages_empty_is_source_empty`）。
+- **中：验收 3「原因只有一个产生点」没有守卫** → `photo_chain` 定义 `QUERY_FAILED` /
+  `SOURCE_EMPTY` 常量（唯一定义点），loader 只读常量；缝③ 守卫两条（链不许写死、
+  loader 不许写原因字面量），变异各一个被杀。
+- 低：删 `_imageinfo` 的不可达 `return {}`；删死参数（morning `_resolve_commons` 的
+  `warn`、love `resolve_former_photos` 的 `warn`）；守卫改剥 docstring（不只 `#` 注释）；
+  love 的 `load` docstring 事实订正（它用自己的实现，不是复用 morning 的）；
+  `data-pipeline.md` 的两句过期机制描述（429 被吞）更新；测试名/类文档订正
+  （`test_report_covers_exactly_the_missing_list`、
+  `test_malformed_payload_yields_query_failed`）；记录数字订正（21 处调用点、
+  变异清单）。

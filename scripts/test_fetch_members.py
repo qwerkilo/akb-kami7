@@ -1764,11 +1764,10 @@ class PhotoFailureReasonTests(unittest.TestCase):
 
 
 class MissingUnionTests(unittest.TestCase):
-    """工单 10 判据 3 的端到端面：两段的并集 = 缺图名单 ——
-    「取不下来」的那段只列**真的没有图**的人（失败过但最终有图的不列），
-    且原因段与缺图名单不重不漏。"""
+    """工单 10 判据 3 的端到端面（工单 01 后：一份报告）：
+    报告覆盖 == 缺图名单 —— 失败过但最终有图的人不列，且不重不漏。"""
 
-    def test_union_of_sections_equals_missing_list(self):
+    def test_report_covers_exactly_the_missing_list(self):
         """工单 01 后：一份报告 —— 覆盖集合 == 缺图名单（失败过但最终有图的不列）。"""
         members = [
             {"id": "m1", "name": "有原栞菜", "file": "f1", "img": False},  # 取不下来
