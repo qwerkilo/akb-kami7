@@ -20,6 +20,9 @@ jobs:
       # lizard：复杂度棘轮（npm run complexity）的 Python 侧扫描器 —— 缺了它
       # `npm run check` 会以「lizard 跑不起来」exit 2（CI 第一次真跑就是这么红的）
       - run: python3 -m pip install --user Pillow lizard
+      # eslint：no-undef 闸门（lint:undef）。版本与本地一致，结果确定性 ——
+      # 它抓到过真缺陷（e2e-v5 的 errs 未定义，首个 console 错误即崩套件）
+      - run: npm i --no-save eslint@6.4.0
       - run: npm run check
 
   e2e:

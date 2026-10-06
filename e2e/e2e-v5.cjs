@@ -127,7 +127,7 @@ function isExpectedResourceNoise(m) {
   page.on("pageerror", (e) => errors.push(String(e)));
   page.on("console", (m) => {
     if (m.type() === "error" && !isExpectedResourceNoise(m))
-      errs.push(m.text());
+      errors.push(m.text());
   });
 
   try {

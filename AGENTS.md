@@ -70,10 +70,10 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 ## 常用命令
 
 - 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
-- **提交闸门 = `npm run check`**（`prettier --check .` + `npm test` + `npm run complexity`）。格式化与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。
+- **提交闸门 = `npm run check`**（`prettier --check .` + `npm run lint:undef` + `npm test` + `npm run complexity`）。格式化、未定义标识符（`no-undef`，抓过 e2e-v5 的 `errs`）与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。
 - 格式化写回用（`check` 红了之后）：`PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。**顺序有陷阱**：lint-staged 只处理**已暂存**的文件，先跑 `graph:sync` 再 `git add` 会让它变成 no-op（本项目踩过两次）。
-- 仓库没有 lint / typecheck 脚本。
+- 仓库没有 typecheck 脚本；lint 只有 `npm run lint:undef`（eslint 的 no-undef，接在闸门里）。
 - 查看原型：原型在 `prototype/*` 分支上，main 工作区里没有属预期。`git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再静态服务器托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
 
 ## UI 版面：横账要按维度算，不能只按默认状态量
