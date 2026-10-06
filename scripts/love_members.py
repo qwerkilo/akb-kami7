@@ -4,6 +4,7 @@
 """
 import re
 
+import fetch_pool
 import ja_wiki
 import photo_chain
 import progress
@@ -334,17 +335,25 @@ def load(fetch, warn=print, skip_photo=None):
         for group, site in SITES.items():
             html = fetch(site["base"] + LIST_PATH)
             items = parse_list(html, site["kind"])
+            urls = [site["base"] + item["path"] for item in items]
+            # 详情页彼此独立：并发取（按主机限流），解析仍按列表顺序
+            details = fetch_pool.fetch_many(
+                urls, fetch, host="www.helloproject.com"
+            )
             for item in items:
-                detail = fetch(site["base"] + item["path"])
-                item["detail"] = parse_detail(detail)
+                item["detail"] = parse_detail(details[site["base"] + item["path"]])
                 st.tick()
             official[group] = items
             print("{}: {} 人（官网）".format(group, len(items)))
     wiki = {}
     with progress.stage("等爱：Wikipedia", total=len(GROUP_ORDER)) as st:
+        texts = fetch_pool.fetch_many(
+            list(GROUP_ORDER),
+            lambda g: ja_wiki.wiki_wikitext(g, fetch),
+            host="ja.wikipedia.org",
+        )
         for group in GROUP_ORDER:
-            text = ja_wiki.wiki_wikitext(group, fetch)
-            wiki[group] = parse_wiki_members(text)
+            wiki[group] = parse_wiki_members(texts[group])
             st.tick()
             print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
     members, urls = build_members(official, wiki)

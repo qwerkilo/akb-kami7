@@ -17,6 +17,7 @@ from functools import partial
 
 from PIL import Image, ImageOps
 
+import fetch_pool
 import love_members
 import morningmusume_members
 import progress
@@ -399,11 +400,18 @@ def prune_unused(keep, dirs):
 
 def image_urls(files, api_fn=api):
     out = {}
-    for i in range(0, len(files), 50):
-        progress.tick()
-        batch = files[i:i + 50]
-        data = api_fn(action="query", prop="imageinfo", iiprop="url|size",
+    batches = [files[i:i + 50] for i in range(0, len(files), 50)]
+
+    def one(i):
+        batch = batches[i]
+        return api_fn(action="query", prop="imageinfo", iiprop="url|size",
                       titles="|".join("ファイル:" + f for f in batch))
+
+    answers = fetch_pool.fetch_many(range(len(batches)), one, host="48pedia.org")
+    for i in range(len(batches)):
+        progress.tick()
+        batch = batches[i]
+        data = answers[i]
         norm = {n["to"]: n["from"] for n in data["query"].get("normalized", [])}
         for p in data["query"]["pages"].values():
             ii = p.get("imageinfo")
@@ -494,8 +502,12 @@ def compress(mid, path, force=False, full_dir=FULL, thumb_dir=THUMB):
 
 def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
     rows = []
+    # 11 个来源页彼此独立：并发取（按主机限流），解析仍按原顺序（确定性）
+    texts = fetch_pool.fetch_many(
+        [page for _, page, _ in sources], fetch_page, host="48pedia.org"
+    )
     for group, page, default in sources:
-        page_rows = parse_page(fetch_page(page), group, default)
+        page_rows = parse_page(texts[page], group, default)
         progress.tick()
         print(f"{group:5s} {page}: {len(page_rows)}")
         rows.extend(page_rows)

@@ -1,0 +1,97 @@
+"""按主机限流的小线程池（perf 工单 08）。
+
+数据阶段的请求彼此独立 —— 官网 70 个详情页、11 个维基条目、48pedia 11 个来源页、
+~27 次 imageinfo 批量 —— 串行纯粹是历史写法（实测数据阶段 ~10–12 分钟是增量跑的地板）。
+
+`fetch_many(urls, fn)`：小线程池 + **按主机**限流（并发上限 + 最小间隔），
+结果按 URL 键返回；**错误按输入顺序重抛第一个**（调用方现有的失败语义不变：
+`fn` 自己决定 raise 还是返回空串）。单请求语义不变 —— 池只决定「什么时候发」。
+
+按主机分开限流的意义：48pedia 有 WAF/521 前科（1–2 并发），官网与维基可以 2–3 并发；
+不同主机之间互不阻塞。
+"""
+
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse
+
+# 每主机 (并发上限, 最小间隔秒)。未列出的主机用 DEFAULT。
+HOST_LIMITS = {
+    "www.helloproject.com": (3, 0.2),
+    "ja.wikipedia.org": (3, 0.2),
+    "48pedia.org": (2, 0.5),
+    "www.48pedia.org": (2, 0.5),
+}
+DEFAULT = (2, 0.2)
+
+_now = time.monotonic  # 测试注入假时钟
+
+# 间隔缩放：生产恒为 1.0；**测试**把它设成 0（那里的 fetch 是瞬时的假对象，
+# 间隔只用来保护真实源站，对假对象只会把测试拖慢几十秒）。
+INTERVAL_SCALE = 1.0
+
+
+class _Gate:
+    """一个主机的闸门：信号量（并发）+ 锁与时间戳（最小间隔）。"""
+
+    def __init__(self, limit, interval):
+        self.sem = threading.Semaphore(limit)
+        self.lock = threading.Lock()
+        self.interval = interval
+        self.last = None
+
+    def __enter__(self):
+        self.sem.acquire()
+        self.lock.acquire()
+        try:
+            if self.last is not None:
+                wait = self.interval * INTERVAL_SCALE - (_now() - self.last)
+                if wait > 0:
+                    time.sleep(wait)
+            self.last = _now()
+        finally:
+            self.lock.release()
+        return self
+
+    def __exit__(self, *exc):
+        self.sem.release()
+        return False
+
+
+def fetch_many(urls, fn, workers=8, limits=None, host=None):
+    """并发取 `urls`（`fn(url)`），返回 `{url: 值}`；错误按输入顺序重抛第一个。
+
+    `limits` 覆盖 `HOST_LIMITS`（测试用）。`workers` 是全局线程数上限。
+    `host` 给「键不是 URL」的调用方（维基条目名、48pedia 批量查询）：整批都算这个主机。
+    """
+    limits = limits or HOST_LIMITS
+    gates = {}
+    gate_lock = threading.Lock()
+
+    def gate_for(host):
+        with gate_lock:
+            if host not in gates:
+                limit, interval = limits.get(host, DEFAULT)
+                gates[host] = _Gate(limit, interval)
+            return gates[host]
+
+    def one(url):
+        h = host or urlparse(url).netloc
+        with gate_for(h):
+            return url, fn(url)
+
+    out = {}
+    errors = []
+    with ThreadPoolExecutor(workers) as ex:
+        futures = [ex.submit(one, u) for u in urls]
+        for i, fut in enumerate(futures):
+            try:
+                url, value = fut.result()
+                out[url] = value
+            except Exception as e:  # noqa: BLE001 —— 按输入顺序收集，最后重抛第一个
+                errors.append((i, e))
+    if errors:
+        errors.sort(key=lambda x: x[0])
+        raise errors[0][1]
+    return out

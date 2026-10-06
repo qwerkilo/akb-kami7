@@ -20450,7 +20450,7 @@ window.AKB_GROUPS = [
     "nick": "サキチィー",
     "status": "former",
     "end": "2011.08.27",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1996.11.18",
      "from": "埼玉県"
@@ -20620,7 +20620,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうかりん",
     "status": "former",
     "end": "2011.12.31",
-    "img": false,
+    "img": true,
     "bio": {
      "birth": "1994.12.28",
      "from": "千葉県"

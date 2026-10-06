@@ -2,6 +2,10 @@ import json
 import urllib.parse
 import unittest
 
+import fetch_pool
+
+# 测试的 fetch 是瞬时假对象：关掉真实源站的请求间隔（否则每个用例白等几十秒）
+fetch_pool.INTERVAL_SCALE = 0.0
 import love_members
 
 

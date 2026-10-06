@@ -18,6 +18,7 @@ import re
 import time
 from urllib.parse import urljoin
 
+import fetch_pool
 import ja_wiki
 import photo_chain
 import progress
@@ -1378,21 +1379,28 @@ def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None):
     with progress.stage("早安：官网列表+详情") as st:
         for group in OFFICIAL_GROUPS:
             listing = parse_list(fetch(SITE + OFFICIAL_PATHS[group]))
+            details = fetch_pool.fetch_many(
+                [SITE + item["path"] for item in listing],
+                fetch,
+                host="www.helloproject.com",
+            )
             by_name = {}
             for item in listing:
-                detail = parse_detail(fetch(SITE + item["path"]))
                 merged = dict(item)
-                merged["detail"] = detail
+                merged["detail"] = parse_detail(details[SITE + item["path"]])
                 merged["group"] = group
                 by_name[item["name"]] = merged
                 st.tick()
             official[group] = by_name
             print("{}: {} 人（官网）".format(group, len(by_name)))
 
-    pages = {}
     with progress.stage("早安：Wikipedia", total=len(GROUPS)) as st:
-        for g, cfg in GROUPS.items():
-            pages[g] = ja_wiki.wiki_wikitext(cfg["page"], fetch, on_error="empty")
+        pages = fetch_pool.fetch_many(
+            list(GROUPS),
+            lambda g: ja_wiki.wiki_wikitext(GROUPS[g]["page"], fetch, on_error="empty"),
+            host="ja.wikipedia.org",
+        )
+        for _ in GROUPS:
             st.tick()
     parsed = parse_all(pages)
     for group in GROUPS:

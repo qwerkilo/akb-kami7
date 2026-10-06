@@ -16,6 +16,10 @@ import os
 import unittest
 from unittest import mock
 
+import fetch_pool
+
+# 测试的 fetch 是瞬时假对象：关掉真实源站的请求间隔（否则每个用例白等几十秒）
+fetch_pool.INTERVAL_SCALE = 0.0
 import morningmusume_members as mm
 
 FIX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "morningmusume")
