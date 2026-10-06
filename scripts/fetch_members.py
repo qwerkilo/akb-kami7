@@ -887,6 +887,16 @@ def decode_page(raw):
     return raw.decode("utf-8", "replace")
 
 
+def text_fetcher(fetch_url):
+    """「取页面文本」的唯一出处：**按页面声明的编码解码**（旧官网是 Shift_JIS）。
+
+    `_load_series`（生产）与 `check_roster`（开发工具）都用它 —— 回归（改回
+    UTF-8 replace）会让旧官网姓名变乱码、照片配对全灭（实测：早期モー娘。 25 人
+    一个都配不到）。接线测试在 `LoadSeriesWiringTests`。
+    """
+    return lambda url: decode_page(fetch_url(url))
+
+
 def _load_series(label, loader, fetch_url):
     """装一个非 48G/坂道 的系列。返回 (members, urls)。
 
@@ -897,7 +907,7 @@ def _load_series(label, loader, fetch_url):
     if not loader:
         return [], {}
     try:
-        return loader(lambda url: decode_page(fetch_url(url)))
+        return loader(text_fetcher(fetch_url))
     except Exception as e:
         raise SystemExit(
             f"{label}系列抓取失败（{e}）；为避免误删已有数据与图片，本次不写入。"

@@ -115,6 +115,39 @@ class WiringTests(unittest.TestCase):
         self.assertEqual(captured["notes"].get("f1"), "源里没有")
 
 
+class LoadSeriesWiringTests(unittest.TestCase):
+    """`_load_series` 的接线（第五轮扫描候选 6）。
+
+    `decode_page` 纯函数有测试，但接线回归（改回 `.decode("utf-8","replace")`）时
+    全仓不会红 —— 而这条接线的回归实测过一次：旧官网 2005 前后的页是 Shift_JIS，
+    姓名变乱码 → 照片配对全灭（早期モー娘。25 人一个都配不到）。
+    """
+
+    def test_pages_reach_the_loader_decoded(self):
+        raw = (
+            '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=Shift_JIS">'
+            '<img SRC="x.jpg" ALT="吉澤ひとみ">'
+        ).encode("cp932")
+        seen = {}
+
+        def loader(fetch):
+            seen["text"] = fetch("http://example.invalid/artist/01/04/index.html")
+            return [], {}
+
+        members, urls = fetch_members._load_series("旧站", loader, lambda u: raw)
+        self.assertIn("吉澤ひとみ", seen["text"], "loader 拿到的必须是解码后的文本")
+        self.assertEqual((members, urls), ([], {}))
+
+    def test_failure_aborts_without_writing(self):
+        def loader(fetch):
+            raise RuntimeError("boom")
+
+        with self.assertRaises(SystemExit) as cm:
+            fetch_members._load_series("等爱", loader, lambda u: b"")
+        self.assertIn("等爱", str(cm.exception))
+        self.assertIn("不写入", str(cm.exception))
+
+
 class ParseArgsTests(unittest.TestCase):
     """`--refresh-photos` 是全量刷新开关（ADR-0023）：忽略「已有照片」的跳过与解析缓存。
     它与 `--force` 职责分明 —— `--force` 只管重下载与重压缩。"""

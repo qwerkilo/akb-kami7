@@ -87,7 +87,7 @@ def check_group(group, cfg, site, fetch):
 
 def main():
     site = site_view()
-    fetch = lambda u: fetch_members.decode_page(get(u))  # noqa: E731
+    fetch = fetch_members.text_fetcher(get)
     results = [check_group(g, cfg, site, fetch) for g, cfg in mm.GROUPS.items()]
     bad = results.count(False)
     print("\n结论:", "仍有缺口" if bad else "无缺口（视图与上游一致）")
