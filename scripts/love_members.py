@@ -6,6 +6,7 @@ import re
 
 import ja_wiki
 import photo_chain
+import progress
 import roster
 
 # re-export：既有测试按 love_members.WIKI_API 找它（常量现在住在 ja_wiki）
@@ -327,19 +328,25 @@ def load(fetch, warn=print, skip_photo=None):
     """抓取三个官网 + Wikipedia 并装配；返回 (members, urls)。"""
 
     official = {}
-    for group, site in SITES.items():
-        html = fetch(site["base"] + LIST_PATH)
-        items = parse_list(html, site["kind"])
-        for item in items:
-            detail = fetch(site["base"] + item["path"])
-            item["detail"] = parse_detail(detail)
-        official[group] = items
-        print("{}: {} 人（官网）".format(group, len(items)))
+    # 官网详情页是这里最慢的一段（每团 1 列表 + 每人 1 详情）：给心跳，别让日志静默
+    # 总数在列表抓完前不知道（每团的详情数不同）→ 不写 total，心跳只报累计数
+    with progress.stage("等爱：官网列表+详情") as st:
+        for group, site in SITES.items():
+            html = fetch(site["base"] + LIST_PATH)
+            items = parse_list(html, site["kind"])
+            for item in items:
+                detail = fetch(site["base"] + item["path"])
+                item["detail"] = parse_detail(detail)
+                st.tick()
+            official[group] = items
+            print("{}: {} 人（官网）".format(group, len(items)))
     wiki = {}
-    for group in GROUP_ORDER:
-        text = ja_wiki.wiki_wikitext(group, fetch)
-        wiki[group] = parse_wiki_members(text)
-        print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
+    with progress.stage("等爱：Wikipedia", total=len(GROUP_ORDER)) as st:
+        for group in GROUP_ORDER:
+            text = ja_wiki.wiki_wikitext(group, fetch)
+            wiki[group] = parse_wiki_members(text)
+            st.tick()
+            print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
     members, urls = build_members(official, wiki)
     resolve_former_photos(members, urls, fetch, warn, skip=skip_photo)
     return members, urls

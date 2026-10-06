@@ -19,6 +19,7 @@ from PIL import Image, ImageOps
 
 import love_members
 import morningmusume_members
+import progress
 import roster
 from wiki import api, get, wikitext
 
@@ -399,6 +400,7 @@ def prune_unused(keep, dirs):
 def image_urls(files, api_fn=api):
     out = {}
     for i in range(0, len(files), 50):
+        progress.tick()
         batch = files[i:i + 50]
         data = api_fn(action="query", prop="imageinfo", iiprop="url|size",
                       titles="|".join("ファイル:" + f for f in batch))
@@ -443,11 +445,10 @@ def download_all(jobs, fetch=get, orig_dir=ORIG, workers=6):
     paths = {}
     with ThreadPoolExecutor(workers) as ex:
         mapped = ex.map(partial(download, orig_dir=orig_dir, fetch=fetch), jobs)
-        for n, (mid, p) in enumerate(mapped, 1):
+        for mid, p in mapped:
+            progress.tick(ok=bool(p))
             if p:
                 paths[mid] = p
-            if n % 50 == 0:
-                print(f"downloaded {n}/{len(jobs)}")
     return paths
 
 
@@ -495,6 +496,7 @@ def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
     rows = []
     for group, page, default in sources:
         page_rows = parse_page(fetch_page(page), group, default)
+        progress.tick()
         print(f"{group:5s} {page}: {len(page_rows)}")
         rows.extend(page_rows)
     return [r for r in rows if not r["join"].startswith(exclude)]
@@ -722,6 +724,7 @@ def compress_members(members, paths, force, full_dir=FULL, thumb_dir=THUMB):
     """
     sizes = []
     for m in members:
+        progress.tick()
         p = paths.get(m["id"])
         if p:
             try:
@@ -880,7 +883,9 @@ def main(
         morning_loader = default_morning
     _prepare_dirs(dirs)
 
-    members = merge_members(load_rows(fetch_page))
+    progress.enable()  # 阶段行 + 心跳（默认静默，测试不刷屏）
+    with progress.stage("48pedia 来源页", total=len(SOURCES)):
+        members = merge_members(load_rows(fetch_page))
     print(f"members after dedupe: {len(members)}")
 
     love, love_urls = _load_series("等爱", love_loader, fetch_url)
@@ -895,13 +900,16 @@ def main(
 
     assign_ids(all_members)
 
-    urls = image_urls(member_files(members), api_fn)
+    with progress.stage("48pedia 图片 URL", total=len(member_files(members))):
+        urls = image_urls(member_files(members), api_fn)
     urls.update(love_urls)
     urls.update(morning_urls)
     report_missing_info(resolve_missing(members, urls))
 
-    paths = collect_paths(all_members, urls, no_dl, fetch_url, dirs["orig"])
-    sizes = compress_members(all_members, paths, force, dirs["full"], dirs["thumb"])
+    with progress.stage("下载原图", total=len(all_members)):
+        paths = collect_paths(all_members, urls, no_dl, fetch_url, dirs["orig"])
+    with progress.stage("压缩", total=len(all_members)):
+        sizes = compress_members(all_members, paths, force, dirs["full"], dirs["thumb"])
     warn_missing_images(all_members)
     report_removed(
         prune_unused(

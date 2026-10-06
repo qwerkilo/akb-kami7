@@ -20,6 +20,7 @@ from urllib.parse import urljoin
 
 import ja_wiki
 import photo_chain
+import progress
 import roster
 
 # 解析结果缓存（file 键 → 照片 URL）：重跑时预填 urls，**只解析缺的那些** ——
@@ -1154,7 +1155,9 @@ def _pick_old_site_group(best, by_name, urls, fetch, pause, budget, fetched, lim
             try:
                 html = fetch(_snapshot_url(ts, original))
             except Exception:
+                progress.tick(ok=False)
                 continue
+            progress.tick()
             _match_page(html, original, ts, by_name, urls)
     return fetched
 
@@ -1174,29 +1177,36 @@ def _resolve_file_evidence(by_name, urls, fetch, pause):
             break
 
 
+def _groups_with_missing(missing):
+    return [g for g in OLD_PAGE_PREFIXES if any(m.get("group") == g for m in missing)]
+
+
+def _group_budget(missing, group):
+    """该团的抓取预算：max(30, 15 × 缺图人数) —— 为 3 个人试 180 个 URL 是 60 倍超支。"""
+    in_group = len([m for m in missing if m.get("group") == group])
+    return max(30, 15 * in_group)
+
+
 def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
     """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。"""
     fetched = 0
-    groups_left = len(
-        [g for g in OLD_PAGE_PREFIXES if any(m.get("group") == g for m in missing)]
-    )
-    for group, prefixes in OLD_PAGE_PREFIXES.items():
-        if fetched >= limit:
-            break
-        if not any(m.get("group") == group for m in missing):
-            continue
-        # 每团一份预算，按**该团缺图人数**缩放（单位 = 抓取次数）：扫描存在的意义
-        # 就是找这几个人，为 3 个人试 180 个 URL 是 60 倍超支（实测：增量跑 37 分钟
-        # 没跑完，全耗在「只有 1–3 个缺图成员」的团上）。下限 30 次抓取 ≈ 10 个 URL，
-        # 够覆盖「新成员的在籍期窗口窄 → 候选本来就少」的正常情形；在籍期无下界
-        # （源里 join 缺失）的病态情形由这个预算兜住 —— 那几位本来就是不可达的。
-        in_group = len([m for m in missing if m.get("group") == group])
-        budget = max(30, 15 * in_group)
-        groups_left -= 1
-        best = _old_site_candidates(prefixes, fetch, missing, pause)
-        fetched = _pick_old_site_group(
-            best, by_name, urls, fetch, pause, budget, fetched, limit
-        )
+    groups = _groups_with_missing(missing)
+    groups_left = len(groups)
+    # 心跳的「总数」= 各团预算之和（全局上限再夹一次）：比写 limit 更接近真实工作量
+    with progress.stage(
+        "旧站扫描", total=min(limit, sum(_group_budget(missing, g) for g in groups))
+    ):
+        for group, prefixes in OLD_PAGE_PREFIXES.items():
+            if fetched >= limit:
+                break
+            if not any(m.get("group") == group for m in missing):
+                continue
+            budget = _group_budget(missing, group)
+            groups_left -= 1
+            best = _old_site_candidates(prefixes, fetch, missing, pause)
+            fetched = _pick_old_site_group(
+                best, by_name, urls, fetch, pause, budget, fetched, limit
+            )
     return fetched
 
 
@@ -1230,32 +1240,41 @@ def _resolve_og(members, urls, fetch):
         urls[m["file"]] = resolved
 
 
-def _resolve_commons(members, urls, fetch, warn, pause):
-    """链尾：Wikipedia Commons（现役与兜底；失败被 `commons_photo` 吞成 None）。"""
-    for m in members:
-        if m["status"] != "former" or m["file"] in urls:
-            continue
-        # Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
-        # 不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
+def _commons_for(m, fetch, pause):
+    """一个成员的 Commons 查询：条目首图 → 文件命名空间搜索 → 注入的 photo_url 兜底。
+
+    Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
+    不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
+    """
+    if pause:
+        time.sleep(pause)
+    resolved = photo_chain.commons_photo(m["name"], fetch)
+    if not resolved:
+        # 条目首图没有时再搜 Commons 文件命名空间：不少毕业者的照片在 Commons
+        # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
         if pause:
             time.sleep(pause)
-        resolved = photo_chain.commons_photo(m["name"], fetch)
-        if not resolved:
-            # 条目首图没有时再搜 Commons 文件命名空间：不少毕业者的照片在 Commons
-            # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
-            if pause:
-                time.sleep(pause)
-            resolved = photo_chain.commons_search_photo(m["name"], fetch)
+        resolved = photo_chain.commons_search_photo(m["name"], fetch)
+    if not resolved and m.get("photo_url"):
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
-        if not resolved and m.get("photo_url"):
-            resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
-        if resolved:
-            urls[m["file"]] = resolved
-        else:
-            # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
-            # 只有连站内文件都没有的才真的显示占位。
-            warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
+        resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
+    return resolved
+
+
+def _resolve_commons(members, urls, fetch, warn, pause):
+    """链尾：Wikipedia Commons（现役与兜底；失败被 `commons_photo` 吞成 None）。"""
+    todo = [m for m in members if m["status"] == "former" and m["file"] not in urls]
+    with progress.stage("Commons", total=len(todo)):
+        for m in todo:
+            resolved = _commons_for(m, fetch, pause)
+            if resolved:
+                urls[m["file"]] = resolved
+            else:
+                # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
+                # 只有连站内文件都没有的才真的显示占位。
+                warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
+            progress.tick(ok=bool(resolved))
 
 
 def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0, skip=None):
@@ -1355,22 +1374,26 @@ def _save_resolved(urls, path=None):
 def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None):
     """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。"""
     official = {}
-    for group in OFFICIAL_GROUPS:
-        listing = parse_list(fetch(SITE + OFFICIAL_PATHS[group]))
-        by_name = {}
-        for item in listing:
-            detail = parse_detail(fetch(SITE + item["path"]))
-            merged = dict(item)
-            merged["detail"] = detail
-            merged["group"] = group
-            by_name[item["name"]] = merged
-        official[group] = by_name
-        print("{}: {} 人（官网）".format(group, len(by_name)))
+    # 详情页是数据阶段的大头（7 列表 + 70 详情）：给心跳，别让日志静默几分钟
+    with progress.stage("早安：官网列表+详情") as st:
+        for group in OFFICIAL_GROUPS:
+            listing = parse_list(fetch(SITE + OFFICIAL_PATHS[group]))
+            by_name = {}
+            for item in listing:
+                detail = parse_detail(fetch(SITE + item["path"]))
+                merged = dict(item)
+                merged["detail"] = detail
+                merged["group"] = group
+                by_name[item["name"]] = merged
+                st.tick()
+            official[group] = by_name
+            print("{}: {} 人（官网）".format(group, len(by_name)))
 
-    pages = {
-        g: ja_wiki.wiki_wikitext(cfg["page"], fetch, on_error="empty")
-        for g, cfg in GROUPS.items()
-    }
+    pages = {}
+    with progress.stage("早安：Wikipedia", total=len(GROUPS)) as st:
+        for g, cfg in GROUPS.items():
+            pages[g] = ja_wiki.wiki_wikitext(cfg["page"], fetch, on_error="empty")
+            st.tick()
     parsed = parse_all(pages)
     for group in GROUPS:
         print("{}: {} 人（Wikipedia）".format(group, len(parsed.get(group, []))))
