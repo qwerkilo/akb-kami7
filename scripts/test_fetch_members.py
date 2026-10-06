@@ -118,9 +118,8 @@ class WiringTests(unittest.TestCase):
 class LoadSeriesWiringTests(unittest.TestCase):
     """`_load_series` 的接线（第五轮扫描候选 6）。
 
-    `decode_page` 纯函数有测试，但接线回归（改回 `.decode("utf-8","replace")`）时
-    全仓不会红 —— 而这条接线的回归实测过一次：旧官网 2005 前后的页是 Shift_JIS，
-    姓名变乱码 → 照片配对全灭（早期モー娘。25 人一个都配不到）。
+    修复前 `decode_page` 只有纯函数测试、接线（本类）零覆盖 —— 回归（改回
+    `.decode("utf-8","replace")`）全仓不会红。事故依据见 `decode_page` 的 docstring。
     """
 
     def test_pages_reach_the_loader_decoded(self):
