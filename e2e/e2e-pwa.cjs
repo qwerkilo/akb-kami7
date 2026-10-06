@@ -408,7 +408,7 @@ async function pickMembers(page, n) {
         if (d[i] || d[i + 1] || d[i + 2]) return true;
       return false;
     },
-    { timeout: 20000 }
+    { timeout: 15000 }
   );
   await waitFor(
     page,

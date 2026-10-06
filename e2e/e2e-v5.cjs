@@ -1,7 +1,7 @@
 /* 向导模式（v5 A）E2E：先红后绿。用法：node e2e-v5.cjs */
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
-const { waitForSelector, ready } = require("./_wait.cjs");
+const { waitForSelector } = require("./_wait.cjs");
 const { createChecker } = require("./_check.cjs");
 const { chromium } = loadPlaywright();
 const ROOT = require("node:path").join(__dirname, "..");

@@ -1300,3 +1300,28 @@
   `npm run e2e:all` **4/4 通过 · 5m36s**（四个收尾行 245/54/43/72），跑完四个端口
   都空闲（无孤儿）、四份失败日志各 0 行。
 - 下次基点：`545f48f`。
+
+## 第五十九轮 · 2026-10-06 · 第五轮扫描候选 4（等待与就绪收进 `_wait.cjs`）
+
+- 基点：`545f48f`（第五十八轮的「下次基点」）
+- 范围：`545f48f..HEAD` —— `.scratch/e2e-wait/`（spec + 工单 01）+ 实现 + 两轴审查修复。
+- **做了什么**：`_wait.cjs` 此前只覆盖软等待的一半（~24 处裸条件等待、~5 处重写
+  `.catch(noteTimeout)`、3 处 `.then(true).catch(false)`、两份**语义相同**的 `ready()`，
+  其中 v5 的那份还是**死代码**）。现在：
+  - `waitFor` / `waitForSelector` 加 `hard`（软：⚠ + false；硬：抛 `等待超时：<标签>（Nms）`）；
+  - `ready(pg, {settle})` 收进 `_wait.cjs`（视口内图 + 字体 + settle）；
+  - 迁移 27 处（e2e 12 / v5 1 / pwa 14），逐处带用途标签；
+  - 守卫：四套件 0 次裸 `waitForFunction` / `.waitForSelector(`、0 处自定义 `ready`，
+    `HELPERS` 含 `ready`（漏 import 会红），守卫剥注释再扫。
+- **两轴审查**（子代理，基点 `545f48f..6f1bc14`）：无高；一条低**真隐患**（`clickFighter`
+  被我改成软 → 超时后继续 force click，对不存在元素会等满 120s；已改回硬）+ 一处超时漂移
+  （pwa 海报像素 15s→20s 复制事故，已改回）+ 守卫漏面（`HELPERS` 补 `ready`）+ 记录两处
+  数字订正 + 建议补 `_wait.cjs` 行为单测（已补 5 条）。
+- **一次 flake（如实记账）**：迁移后的第一次 `e2e:all` 在「对决相位」门（8s）超时，
+  同一份代码紧接着单跑 **245/245** —— 逐处对照语义与迁移前相同，判为门太紧；
+  该门 8s→15s（与套件其余「点击 → 相位变化」的门同档），flakes 写进注释。
+- **验证**：`npm run check` exit=0；`npm run e2e:all` **4/4 · 5m01s**（迁移前 5m36s；
+  check 数 245/54/43/72 **不变** —— 硬等待保持「门」语义、不灌进断言计数）；
+  单测 19 条（`test/e2e-check.test.js` 8 + `test/e2e-source.test.js` 6 + `test/e2e-wait.test.js` 5）；
+  变异 5 个全杀（守卫 3 + 导入守卫 1 + 记录器 1）。
+- 下次基点：待推后取 HEAD。

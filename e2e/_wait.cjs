@@ -25,7 +25,7 @@ async function _run(label, timeout, call, hard) {
     return true;
   } catch {
     const msg = `等待超时：${label}（${timeout}ms）`;
-    if (hard) throw new Error(`${msg} —— 后面的断言会读到未就绪状态`);
+    if (hard) throw new Error(`${msg} —— 这是流程门，后面的检查不再执行`);
     console.log(`  ⚠ ${msg} —— 后面的断言可能读到未就绪状态`);
     return false;
   } finally {
@@ -94,10 +94,4 @@ async function ready(pg, { settle = 600 } = {}) {
   await pg.waitForTimeout(settle);
 }
 
-module.exports = {
-  waitFor,
-  waitForSelector,
-  noteTimeout,
-  ready,
-  SLOW_WAIT_MS,
-};
+module.exports = { waitFor, waitForSelector, noteTimeout, ready };

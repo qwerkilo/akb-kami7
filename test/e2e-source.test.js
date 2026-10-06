@@ -102,6 +102,7 @@ const HELPERS = [
   "waitFor",
   "waitForSelector",
   "noteTimeout",
+  "ready",
   "blockStarter",
   "elapsed",
   "waitTicker",
@@ -132,7 +133,11 @@ test("e2e 脚本用到的共享助手必须真的 import 了（本批踩过：wa
   for (const f of fs.readdirSync(DIR).sort()) {
     if (!f.endsWith(".cjs") || f === "_wait.cjs" || f === "_progress.cjs")
       continue;
-    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    // 剥注释再扫：注释里提到 `ready(` 不是「用了它」（本仓记录过守卫扫到注释的坑）
+    const src = fs
+      .readFileSync(path.join(DIR, f), "utf8")
+      .replace(/\/\/[^\n]*/g, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "");
     const imported = importedHelpers(src);
     for (const h of HELPERS) {
       if (bareUses(src, h) && !imported.has(h)) offenders.push(`${f}: ${h}`);

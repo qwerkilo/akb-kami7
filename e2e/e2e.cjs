@@ -17,9 +17,12 @@ async function clickFighter(page, sel = "#fighter-a") {
   for (let k = 0; k < 3; k++) {
     if (await page.isHidden("#phase-duel")) return false;
     try {
+      // 硬：它在 try/catch 里（超时抛 → 同一 catch 接住 → 与迁移前的裸调用一致）。
+      // 软的话超时后会继续 force click —— 对不存在的元素会等满默认 120s（旧写法 4s 封顶）。
       await waitForSelector(page, `浮层 ${sel}`, sel, {
         state: "visible",
         timeout: 4000,
+        hard: true,
       });
       await page.waitForTimeout(260);
       await page.click(sel, { force: true });
@@ -575,8 +578,11 @@ function isExpectedResourceNoise(m) {
           hard: true,
         });
         await page.click("#resort-btn", { force: true });
+        // 8s → 15s：2026-10-06 迁移后的 e2e:all 里在这里超时过一次（同一份代码紧接着
+        // 单跑 245/245，语义与迁移前逐处相同 → 是门太紧、不是回归）；套件里其余
+        // 「点击 → 相位变化」的门都在 15s 档。
         await waitForSelector(page, "对决相位", "#phase-duel:not([hidden])", {
-          timeout: 8000,
+          timeout: 15000,
           hard: true,
         });
         // resort 会重开对决 → maybeIntro() 又弹说明卡，遮罩会挡住答题
