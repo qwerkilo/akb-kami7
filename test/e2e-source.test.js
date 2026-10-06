@@ -180,3 +180,36 @@ test("检查记录只有一处：runner 不解析收尾行、套件不自报收�
     }
   }
 });
+
+test("等待只有一个入口：套件不许裸 waitForFunction/waitForSelector、不许自己实现 ready（候选 4）", () => {
+  for (const f of [
+    "e2e.cjs",
+    "e2e-v5.cjs",
+    "e2e-pwa.cjs",
+    "verify-header.cjs",
+  ]) {
+    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    assert.ok(
+      !src.includes("waitForFunction"),
+      `${f} 不许裸 waitForFunction —— 走 e2e/_wait.cjs 的 waitFor（软/hard）`
+    );
+    assert.ok(
+      !/\.waitForSelector\(/.test(src),
+      `${f} 不许裸 waitForSelector —— 走 e2e/_wait.cjs 的 waitForSelector`
+    );
+    assert.ok(
+      !/function ready\(|const ready\s*=/.test(src),
+      `${f} 不许自己实现 ready —— 它收在 e2e/_wait.cjs`
+    );
+  }
+  // 软/硬两种形态都在 _wait.cjs 里
+  const wait = fs.readFileSync(path.join(DIR, "_wait.cjs"), "utf8");
+  assert.match(wait, /function waitFor\(/, "waitFor 在 _wait.cjs");
+  assert.match(
+    wait,
+    /function waitForSelector\(/,
+    "waitForSelector 在 _wait.cjs"
+  );
+  assert.match(wait, /function ready\(/, "ready 在 _wait.cjs");
+  assert.match(wait, /hard/, "硬等待（hard: true）在 _wait.cjs");
+});

@@ -1,6 +1,6 @@
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
-const { waitFor, noteTimeout } = require("./_wait.cjs");
+const { waitFor, waitForSelector, ready } = require("./_wait.cjs");
 const { blockStarter } = require("./_progress.cjs");
 const { createChecker } = require("./_check.cjs");
 const { chromium } = loadPlaywright();
@@ -17,7 +17,10 @@ async function clickFighter(page, sel = "#fighter-a") {
   for (let k = 0; k < 3; k++) {
     if (await page.isHidden("#phase-duel")) return false;
     try {
-      await page.waitForSelector(sel, { state: "visible", timeout: 4000 });
+      await waitForSelector(page, `浮层 ${sel}`, sel, {
+        state: "visible",
+        timeout: 4000,
+      });
       await page.waitForTimeout(260);
       await page.click(sel, { force: true });
       return true;
@@ -71,41 +74,7 @@ const block = blockStarter(); // 功能块头（进度 + 分块耗时）
 // 检查记录、失败日志、收尾行与 exit code 都收在共享记录器里（第五轮扫描候选 3）：
 // 此前四套件各写一份、runner 四条正则反解。`EXPECT` 是数守恒的**唯一**声明点。
 const checker = createChecker({ name: "e2e", expect: 245 });
-// 就绪屏障：页面「能交互」不等于「图与字体到位」。海报断言量的是画布像素，字体回落
-// 或图片没解码都会让底色断言假红（实测 0,0,0 / 255,255,255）。以前靠 page.goto 的
-// waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
-// 不触发 → 改成 domcontentloaded 后必须显式等，否则是我把工具改弱了。
-async function _waitFonts(pg) {
-  try {
-    await pg.evaluate(() => document.fonts.ready);
-  } catch {
-    noteTimeout("字体");
-  }
-}
-
-async function ready(pg) {
-  // 等「渲染就绪」，**不是**「所有图片就绪」：名册卡片的 `<img loading="lazy">`
-  // 在视口外永远不会加载，`imgs.every(complete && naturalWidth>0)` 恒假 —— 实测
-  // 每次 ready() 都烧满 120s 超时（9 次 = 18 分钟，占整套 21 分钟的 85%）。
-  // 现在只等视口内的图（有界 15s）+ 字体；海报的像素断言另有 `#poster-img` 的
-  // data-URL 就绪信号（那才是「画出来了」）。
-  await waitFor(
-    pg,
-    "视口内图片",
-    () => {
-      const imgs = [...document.images].filter((i) => {
-        const r = i.getBoundingClientRect();
-        return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
-      });
-      return (
-        imgs.length > 0 && imgs.every((i) => i.complete && i.naturalWidth > 0)
-      );
-    },
-    { timeout: 15000 }
-  );
-  await _waitFonts(pg);
-  await pg.waitForTimeout(600);
-}
+// 就绪屏障 `ready()` 收在 `e2e/_wait.cjs`（原先这里与 e2e-v5.cjs 各一份、语义相同）。
 
 const check = checker.check;
 
@@ -117,7 +86,10 @@ async function dismissIntro(page) {
 
 // 筛选是定值门槛：划够一半才给提交（ADR-0019 改写版）
 async function fillScreening(page) {
-  await page.waitForSelector("#phase-screen:not([hidden])", { timeout: 5000 });
+  await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
+    timeout: 5000,
+    hard: true,
+  });
   const sub = page.locator("#screen-submit");
   let guard = 0;
   while ((await sub.isDisabled()) && guard++ < 60) {
@@ -597,13 +569,15 @@ function isExpectedResourceNoise(m) {
       // ~0.5%，实测在 2026-10-05 的第 2 次连跑里撞到过一次（244/245 假红）。
       // 6 次把它降到 ~0.01%；「resort 没洗牌」的真缺陷仍然会全同 → 照样红。
       for (let k = 0; k < 6; k++) {
-        await page.waitForSelector("#resort-btn", {
+        await waitForSelector(page, "重排按钮", "#resort-btn", {
           state: "visible",
           timeout: 10000,
+          hard: true,
         });
         await page.click("#resort-btn", { force: true });
-        await page.waitForSelector("#phase-duel:not([hidden])", {
+        await waitForSelector(page, "对决相位", "#phase-duel:not([hidden])", {
           timeout: 8000,
+          hard: true,
         });
         // resort 会重开对决 → maybeIntro() 又弹说明卡，遮罩会挡住答题
         await dismissIntro(page);
@@ -640,7 +614,9 @@ function isExpectedResourceNoise(m) {
       "结果 meta 含团体",
       /AKB48|SKE48|NMB48|HKT48|NGT48|STU48|SDN48/.test(rankMeta)
     );
-    await page.waitForFunction(
+    await waitFor(
+      page,
+      "海报 data-URL",
       () => {
         const im = document.querySelector("#poster-img");
         return (
@@ -650,8 +626,7 @@ function isExpectedResourceNoise(m) {
           im.naturalWidth > 100
         );
       },
-      null,
-      { timeout: 15000 }
+      { timeout: 15000, hard: true }
     );
     check("海报生成成功", true);
 
@@ -881,8 +856,9 @@ function isExpectedResourceNoise(m) {
     await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
     await page.waitForTimeout(500);
     await page.click("#start-btn");
-    await page.waitForSelector("#phase-screen:not([hidden])", {
+    await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
       timeout: 5000,
+      hard: true,
     });
     for (const [name, ok] of await checkSecondRound(page)) check(name, ok);
 
@@ -906,8 +882,9 @@ function isExpectedResourceNoise(m) {
     await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
     await page.waitForTimeout(500);
     await page.click("#start-btn");
-    await page.waitForSelector("#phase-screen:not([hidden])", {
+    await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
       timeout: 15000,
+      hard: true,
     });
     // 40 档逐轮细分：每划完一轮题数递减，「继续细分」在最后一轮消失
     // （边界二选一：138 → 119 → 110 → 106，层级 [3,2,5,10,20]）
@@ -1182,15 +1159,14 @@ function isExpectedResourceNoise(m) {
     await page.click('.seg-series [data-series="love"]');
     // 设备实测：本机可用常驻 <3GB 时模块加载后 handler 才绑上，固定 500ms 会读到
     // 切换前的品牌 —— 症状是「点了没反应」，实际是断言比 JS 快。
-    await page
-      .waitForFunction(
-        () =>
-          document.querySelector('.seg-series button[aria-checked="true"]')
-            ?.dataset.series === "love",
-        null,
-        { timeout: 60000 }
-      )
-      .catch(() => noteTimeout("等爱 tab 生效"));
+    await waitFor(
+      page,
+      "等爱 tab 生效",
+      () =>
+        document.querySelector('.seg-series button[aria-checked="true"]')
+          ?.dataset.series === "love",
+      { timeout: 60000 }
+    );
     await page.waitForTimeout(500);
     const loveBrand = await page.textContent("#brand");
     const loveGroups = await page.locator(".grp-name").allTextContents();
@@ -1330,15 +1306,16 @@ function isExpectedResourceNoise(m) {
     // （不要等 `document.images` 全 complete —— 海报的图是 `new Image()` 加载的、
     // 根本不在 document.images 里，而名册的 lazy 图在视口外永不加载，实测恒假、
     // 白烧 20s 超时。）
-    await page.waitForFunction(
+    await waitFor(
+      page,
+      "海报 data-URL",
       () => {
         const im = document.getElementById("poster-img");
         return (
           im && (im.getAttribute("src") || "").startsWith("data:image/png")
         );
       },
-      null,
-      { timeout: 20000 }
+      { timeout: 20000, hard: true }
     );
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(1200);
@@ -1405,7 +1382,10 @@ function isExpectedResourceNoise(m) {
     // 启动的 show() 末尾会把页面滚回顶部。等挑人相位真的显示（= show() 已跑完）再继续，
     // 否则下面的滚动断言与启动的 scrollTo 竞态 —— 负载高时启动变慢，实测出现过一次
     // 400 -> 0（2026-10-05 两轴审查的重跑）；中等负载下 50 轮复现不出，按竞态修。
-    await page.waitForSelector("#phase-pick:not([hidden])", { timeout: 60000 });
+    await waitForSelector(page, "挑人相位", "#phase-pick:not([hidden])", {
+      timeout: 60000,
+      hard: true,
+    });
     await page.waitForTimeout(400);
     check(
       "皮肤：刷新后保持贴纸",
@@ -1593,9 +1573,9 @@ function isExpectedResourceNoise(m) {
         waitUntil: "domcontentloaded",
         timeout: 120000,
       });
-      await settledPage
-        .waitForSelector(".card", { timeout: 20000 })
-        .catch(() => noteTimeout("切换皮肤后名册卡片"));
+      await waitForSelector(settledPage, "切换皮肤后名册卡片", ".card", {
+        timeout: 20000,
+      });
       const settled = await readSkin(settledPage);
       const settledAttr = await settledPage.evaluate(
         () => document.documentElement.dataset.skin || "(无)"
@@ -1657,13 +1637,12 @@ function isExpectedResourceNoise(m) {
       await fp.evaluate(() => document.fonts.ready);
       // 名册是 app.js 渲染的，模块加载慢时固定 600ms 之后它还不存在 ——
       // 断言会读到 card=undefined、cols=0，看着像「首屏一张脸都看不到」。
-      await fp
-        .waitForFunction(
-          () => document.querySelectorAll(".card").length > 0,
-          null,
-          { timeout: 90000 }
-        )
-        .catch(() => noteTimeout("390px 首屏卡片"));
+      await waitFor(
+        fp,
+        "390px 首屏卡片",
+        () => document.querySelectorAll(".card").length > 0,
+        { timeout: 90000 }
+      );
       await fp.waitForTimeout(600);
       // 别点 html：视口中心落在第一组的段头上 → 折叠掉全部卡片（实测 16→0），
       // 断言读到 card=undefined。语言键走 document 级监听，不需要焦点。

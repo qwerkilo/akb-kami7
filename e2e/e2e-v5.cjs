@@ -1,7 +1,7 @@
 /* 向导模式（v5 A）E2E：先红后绿。用法：node e2e-v5.cjs */
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
-const { noteTimeout } = require("./_wait.cjs");
+const { waitForSelector, ready } = require("./_wait.cjs");
 const { createChecker } = require("./_check.cjs");
 const { chromium } = loadPlaywright();
 const ROOT = require("node:path").join(__dirname, "..");
@@ -31,7 +31,10 @@ async function openMore(page) {
 
 // 筛选是定值门槛：划够一半才给提交（ADR-0019 改写版）
 async function fillScreening(page) {
-  await page.waitForSelector("#phase-screen:not([hidden])", { timeout: 5000 });
+  await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
+    timeout: 5000,
+    hard: true,
+  });
   const sub = page.locator("#screen-submit");
   let guard = 0;
   while ((await sub.isDisabled()) && guard++ < 60) {
@@ -59,33 +62,7 @@ async function goToPick(page) {
   await page.waitForTimeout(250);
 }
 
-// 就绪屏障：页面「能交互」不等于「图与字体到位」。海报断言量的是画布像素，字体回落
-// 或图片没解码都会让底色断言假红（实测 0,0,0 / 255,255,255）。以前靠 page.goto 的
-// waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
-// 不触发 → 改成 domcontentloaded 后必须显式等，否则是我把工具改弱了。
-async function ready(pg) {
-  await pg
-    .waitForFunction(
-      () => {
-        // 只等**视口内**的图：名册的 `<img loading="lazy">` 在视口外永不加载，
-        // 全量 `every(complete)` 恒假（e2e.cjs 实测每次白烧 120s 超时）。
-        const imgs = [...document.images].filter((i) => {
-          const r = i.getBoundingClientRect();
-          return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
-        });
-        return (
-          imgs.length > 0 && imgs.every((i) => i.complete && i.naturalWidth > 0)
-        );
-      },
-      null,
-      { timeout: 15000 }
-    )
-    .catch(() => noteTimeout("v5 视口内图片"));
-  await pg
-    .evaluate(() => document.fonts.ready)
-    .catch(() => noteTimeout("v5 字体"));
-  await pg.waitForTimeout(600);
-}
+// 就绪屏障 `ready()` 收在 `e2e/_wait.cjs`（原先这里与 e2e.cjs 各一份、语义相同）。
 
 const checker = createChecker({ name: "v5", expect: 54 });
 const check = checker.check;

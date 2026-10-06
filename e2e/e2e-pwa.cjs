@@ -6,7 +6,7 @@
 const { loadPlaywright } = require("./_playwright.cjs");
 const { waitTicker } = require("./_progress.cjs");
 const { createChecker } = require("./_check.cjs");
-const { noteTimeout } = require("./_wait.cjs");
+const { waitFor, waitForSelector } = require("./_wait.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
@@ -150,12 +150,12 @@ async function pickMembers(page, n) {
   console.log("\n[1] SW 注册与接管");
   ok(await waitServer(), "静态服务器就绪");
   await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
-  const controlled = await page
-    .waitForFunction(() => navigator.serviceWorker.controller !== null, null, {
-      timeout: 20000,
-    })
-    .then(() => true)
-    .catch(() => false);
+  const controlled = await waitFor(
+    page,
+    "SW 接管",
+    () => navigator.serviceWorker.controller !== null,
+    { timeout: 20000 }
+  );
   ok(controlled, "页面已被 SW 接管（controller 非空）");
   const cached = await page.evaluate(async () => {
     const keys = await caches.keys();
@@ -276,7 +276,10 @@ async function pickMembers(page, n) {
     "断网瞬间离线胶囊出现（活文档路径）"
   );
   await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
-  await page.waitForSelector(".card", { timeout: 15000 });
+  await waitForSelector(page, "断网重载后名册", ".card", {
+    timeout: 15000,
+    hard: true,
+  });
   const boot = await page.evaluate(() => ({
     cards: document.querySelectorAll(".card").length,
   }));
@@ -332,7 +335,10 @@ async function pickMembers(page, n) {
   await pickMembers(page, 7);
   await page.locator("#start-btn").click();
   // ADR-0019：开始后先过「筛选」这一步，提交才进对决
-  await page.waitForSelector("#phase-screen:not([hidden])", { timeout: 15000 });
+  await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
+    timeout: 15000,
+    hard: true,
+  });
   ok(
     (await page.locator(".screen-row").count()) === 7,
     "断网状态下筛选页一屏列出 7 人"
@@ -351,7 +357,10 @@ async function pickMembers(page, n) {
     await page.waitForTimeout(80);
   }
   await page.locator("#screen-submit").click();
-  await page.waitForSelector("#fighter-a, .fighter", { timeout: 15000 });
+  await waitForSelector(page, "对决开始", "#fighter-a, .fighter", {
+    timeout: 15000,
+    hard: true,
+  });
   // 对决说明卡（v5：只弹一次）先关掉，否则遮罩挡住答题
   if (await page.locator("#duel-intro:not([hidden])").count()) {
     await page.locator('[data-act="intro-go"]').click();
@@ -387,28 +396,26 @@ async function pickMembers(page, n) {
     if (!clicked) break;
     await page.waitForTimeout(420);
   }
-  await page
-    .waitForFunction(
-      () => {
-        const c = document.querySelector("canvas");
-        if (!c || !c.width) return false;
-        const g = c.getContext("2d");
-        const d = g.getImageData(0, 0, c.width, Math.min(40, c.height)).data;
-        for (let i = 0; i < d.length; i += 4)
-          if (d[i] || d[i + 1] || d[i + 2]) return true;
-        return false;
-      },
-      null,
-      { timeout: 15000 }
-    )
-    .catch(() => noteTimeout("海报像素出现（断网前）"));
-  await page
-    .waitForFunction(
-      () => (document.getElementById("poster-img")?.src || "").length > 100,
-      null,
-      { timeout: 20000 }
-    )
-    .catch(() => noteTimeout("海报图生成"));
+  await waitFor(
+    page,
+    "海报像素出现（断网前）",
+    () => {
+      const c = document.querySelector("canvas");
+      if (!c || !c.width) return false;
+      const g = c.getContext("2d");
+      const d = g.getImageData(0, 0, c.width, Math.min(40, c.height)).data;
+      for (let i = 0; i < d.length; i += 4)
+        if (d[i] || d[i + 1] || d[i + 2]) return true;
+      return false;
+    },
+    { timeout: 20000 }
+  );
+  await waitFor(
+    page,
+    "海报图生成",
+    () => (document.getElementById("poster-img")?.src || "").length > 100,
+    { timeout: 20000 }
+  );
   const onResult = await page.evaluate(() => ({
     steps: document
       .querySelector('[data-step="result"]')
@@ -487,10 +494,16 @@ async function pickMembers(page, n) {
   console.log("\n[3] 离线胶囊随网络切换");
   await ctx.setOffline(false);
   await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
-  await page.waitForSelector(".masthead", { timeout: 15000 });
-  await page.waitForSelector('.card, #result, [data-step="result"]', {
+  await waitForSelector(page, "恢复在线后页头", ".masthead", {
     timeout: 15000,
+    hard: true,
   });
+  await waitForSelector(
+    page,
+    "恢复在线后名册/结果",
+    '.card, #result, [data-step="result"]',
+    { timeout: 15000, hard: true }
+  );
   const chipAfter = await page.evaluate(() => ({
     onLine: navigator.onLine,
     shown: !document.getElementById("pwa-chip").hidden,
@@ -573,9 +586,15 @@ async function pickMembers(page, n) {
   const iosErrs = [];
   iosPage.on("pageerror", (e) => iosErrs.push(e.message));
   await iosPage.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
-  await iosPage.waitForSelector("#pwa-install:not([hidden])", {
-    timeout: 15000,
-  });
+  await waitForSelector(
+    iosPage,
+    "iPhone 安装入口",
+    "#pwa-install:not([hidden])",
+    {
+      timeout: 15000,
+      hard: true,
+    }
+  );
   ok(true, "iPhone UA 下页脚安装行直接出现（无安装事件也有指引入口）");
   await clickCentered(iosPage, '[data-act="pwa-install"]');
   await iosPage.waitForTimeout(300);
@@ -651,7 +670,10 @@ async function pickMembers(page, n) {
     if (m) fullHits.add(m[1]);
   });
   await warmPage.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
-  await warmPage.waitForSelector(".card", { timeout: 20000 });
+  await waitForSelector(warmPage, "预热前名册", ".card", {
+    timeout: 20000,
+    hard: true,
+  });
   await warmPage.click(".card");
   await warmPage.waitForTimeout(600);
   ok(fullHits.size > 0, `选中成员预热了 img/full（${fullHits.size} 张）`);
@@ -732,24 +754,23 @@ async function pickMembers(page, n) {
       .replace('const VERSION = "v1"', 'const VERSION = "v2"')
   );
   await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
-  await page.waitForFunction(
+  await waitFor(
+    page,
+    "SW 接管",
     () => navigator.serviceWorker.controller !== null,
-    null,
-    { timeout: 20000 }
+    { timeout: 20000, hard: true }
   );
   // 手动触发一次更新检查
   await page.evaluate(async () => {
     const r = await navigator.serviceWorker.getRegistration();
     await r.update();
   });
-  const bannerShown = await page
-    .waitForFunction(
-      () => !document.getElementById("pwa-update").hidden,
-      null,
-      { timeout: 20000 }
-    )
-    .then(() => true)
-    .catch(() => false);
+  const bannerShown = await waitFor(
+    page,
+    "更新横幅出现",
+    () => !document.getElementById("pwa-update").hidden,
+    { timeout: 20000 }
+  );
   ok(bannerShown, "检测到新版本后顶部出现更新横幅（不自动 reload）");
   const stillHere = await page.evaluate(() => ({
     cards: document.querySelectorAll(".card").length,
@@ -780,16 +801,16 @@ async function pickMembers(page, n) {
   );
   // 断言「文档真的换了」而不是靠选择器等页面就绪：后者在 SW 刚接管的时序下不稳，
   // 而且一旦超时会连带跳过后面两条断言（复核时 5 次里有 2 次这样）。
-  const reloaded = await page
-    .waitForFunction(() => window.__docStamp === undefined, null, {
-      timeout: 30000,
-    })
-    .then(() => true)
-    .catch(() => false);
+  const reloaded = await waitFor(
+    page,
+    "点刷新后新文档",
+    () => window.__docStamp === undefined,
+    { timeout: 30000 }
+  );
   ok(reloaded, "点「刷新」后页面真的重载（新文档）");
-  await page
-    .waitForSelector(".masthead", { timeout: 20000 })
-    .catch(() => noteTimeout("重载后 masthead"));
+  await waitForSelector(page, "重载后 masthead", ".masthead", {
+    timeout: 20000,
+  });
   const v2 = await page.evaluate(async () => {
     const keys = await caches.keys();
     return keys.filter((k) => k.includes("v2")).length;
