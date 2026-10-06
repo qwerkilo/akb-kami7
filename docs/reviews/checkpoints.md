@@ -1274,3 +1274,29 @@
   正确中止、未写入。**「members.js 逐字节不变」尚未用完整跑验证**（单元测试 +
   Commons/Wikipedia 真实源抽查已过）。已记 smart note（surface condition = 该页恢复）。
 - 下次基点：`c2645f6`。
+
+## 第五十八轮 · 2026-10-06 · 第五轮扫描候选 3（E2E 检查记录器）+ photo-outcome 真实跑补验
+
+- 基点：`c2645f6`（第五十七轮的「下次基点」）
+- 范围：`c2645f6..HEAD`，两部分：
+  1. **photo-outcome 的遗留闭合**：≠ME 站恢复后补跑真实管线 —— `exit 0`、
+     **`members.js` 逐字节相同**、报告是**一份**「没有照片 7 人（原因）：」+ 每人一行，
+     集合与缺图名单完全一致（spec 验收 1/2 至此闭合）。三人从「源里没有」订正为
+     「旧站预算内未扫完」（更诚实；产物不受影响）。
+  2. **候选 3（E2E 检查记录器）**：ADR 无（属重构，spec 在 `.scratch/e2e-check/`）——
+     `e2e/_check.cjs` 统一计数/失败列表/失败日志/收尾行（`[名字] N/M 通过`）/exit code，
+     套件自报 `EXPECT` 并自检；`run-all.cjs` 删掉 `parseCounts`（四条正则）、
+     `compareCounts`、`SUITES[].expect` —— 同一事实的三份表示合一。
+- **两轴审查**（子代理，基点 `55e311f..HEAD`）：一条高、两条中，逐条自复核后全部坐实：
+  - **高**：`e2e-pwa.cjs` 的 `browser.close()`/`server.kill()` 在 `process.exit()` 之后
+    —— 死代码，且现场已有 8781 孤儿进程（已 kill）。修：先收尾、再清理、最后退出。
+  - **中**：失败日志三处回退（只在 `done()` 写、四套件共写一份、丢了「按轮清空」）→
+    每套件一份 + 构造时清空 + 失败即时写。
+  - **中**：守卫不钉承重点（删 `process.exit(checker.done())` / `expect:` 无一层会红）→
+    补三条断言 + 堵双引号洞 + 剥注释。
+  - 低：`done()` 幂等、去 `results` 暴露、截断统一、run-all 注释、perf 工单文档。
+- **验证**：`npm run check` exit=0；单测 `test/e2e-check.test.js` 8 条 + 守卫 5 条；
+  变异 **5 个全杀**（守卫 3 + 记录器 2 + v5 删一条 check 由 EXPECT 自检红）；
+  `npm run e2e:all` **4/4 通过 · 5m36s**（四个收尾行 245/54/43/72），跑完四个端口
+  都空闲（无孤儿）、四份失败日志各 0 行。
+- 下次基点：`545f48f`。
