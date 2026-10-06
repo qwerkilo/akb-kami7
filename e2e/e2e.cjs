@@ -1,7 +1,8 @@
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
 const { waitFor, noteTimeout } = require("./_wait.cjs");
-const { elapsed, blockStarter } = require("./_progress.cjs");
+const { blockStarter } = require("./_progress.cjs");
+const { createChecker } = require("./_check.cjs");
 const { chromium } = loadPlaywright();
 
 const ROOT = require("node:path").join(__dirname, "..");
@@ -66,33 +67,10 @@ async function goToPick(page) {
   await page.waitForTimeout(300);
 }
 
-const results = [];
 const block = blockStarter(); // 功能块头（进度 + 分块耗时）
-// 失败日志：路径由 tmpdir 派生并确保目录存在（此前写死 /tmp/opencode —— CI 上没有
-// 这个目录，第一条 FAIL 的 check 会在 appendFileSync 抛 ENOENT，死在失败路径上）。
-// 清空与追加都吞异常：日志是诊断，不能反过来杀死失败路径。
-const FAIL_LOG = (() => {
-  const dir = require("node:path").join(
-    require("node:os").tmpdir(),
-    "akb-e2e-logs"
-  );
-  try {
-    require("node:fs").mkdirSync(dir, { recursive: true });
-  } catch {}
-  return require("node:path").join(dir, "e2e-fails.log");
-})();
-try {
-  require("node:fs").writeFileSync(FAIL_LOG, "");
-} catch {}
-
-function logFail(name, detail) {
-  try {
-    require("node:fs").appendFileSync(
-      FAIL_LOG,
-      `${name}  — ${String(detail ?? "").slice(0, 200)}\n`
-    );
-  } catch {}
-}
+// 检查记录、失败日志、收尾行与 exit code 都收在共享记录器里（第五轮扫描候选 3）：
+// 此前四套件各写一份、runner 四条正则反解。`EXPECT` 是数守恒的**唯一**声明点。
+const checker = createChecker({ name: "e2e", expect: 245 });
 // 就绪屏障：页面「能交互」不等于「图与字体到位」。海报断言量的是画布像素，字体回落
 // 或图片没解码都会让底色断言假红（实测 0,0,0 / 255,255,255）。以前靠 page.goto 的
 // waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
@@ -129,18 +107,7 @@ async function ready(pg) {
   await pg.waitForTimeout(600);
 }
 
-function check(name, cond, detail) {
-  const ok = !!cond;
-  results.push({
-    name,
-    ok,
-    detail: ok ? "" : String(detail ?? "").slice(0, 120),
-  });
-  if (!ok) logFail(name, detail);
-  console.log(
-    `[${elapsed()}] ${ok ? "PASS" : "FAIL"}  ${name}${ok ? "" : "  — " + String(detail ?? "").slice(0, 120)}`
-  );
-}
+const check = checker.check;
 
 // 说明卡（v5：只弹一次）先关掉，否则遮罩挡住答题
 async function dismissIntro(page) {
@@ -1962,9 +1929,5 @@ function isExpectedResourceNoise(m) {
     server.kill();
   }
 
-  const failed = results.filter((r) => !r.ok);
-  console.log(
-    `\n${results.length - failed.length}/${results.length} checks passed`
-  );
-  process.exit(failed.length ? 1 : 0);
+  process.exit(checker.done());
 })();

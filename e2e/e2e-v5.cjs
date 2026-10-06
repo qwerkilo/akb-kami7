@@ -2,6 +2,7 @@
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
 const { noteTimeout } = require("./_wait.cjs");
+const { createChecker } = require("./_check.cjs");
 const { chromium } = loadPlaywright();
 const ROOT = require("node:path").join(__dirname, "..");
 const PORT = 8777;
@@ -86,10 +87,8 @@ async function ready(pg) {
   await pg.waitForTimeout(600);
 }
 
-function check(name, ok, extra = "") {
-  results.push({ name, ok });
-  console.log(`${ok ? "PASS" : "FAIL"}  ${name}${extra ? "  — " + extra : ""}`);
-}
+const checker = createChecker({ name: "v5", expect: 54 });
+const check = checker.check;
 
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 function isExpectedResourceNoise(m) {
@@ -445,7 +444,5 @@ function isExpectedResourceNoise(m) {
   }
   await browser.close();
   server.kill();
-  const fails = results.filter((r) => !r.ok).length;
-  console.log(`\n${results.length - fails}/${results.length} 通过`);
-  process.exit(fails ? 1 : 0);
+  process.exit(checker.done());
 })();

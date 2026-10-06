@@ -1,6 +1,7 @@
 // 复核 P0 修复：档位 × 语言 × 在线/离线，每个 tab 都必须点得到
 const { loadPlaywright } = require("./_playwright.cjs");
 const { noteTimeout } = require("./_wait.cjs");
+const { createChecker } = require("./_check.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const path = require("node:path");
@@ -19,8 +20,8 @@ const BASE = `http://127.0.0.1:${PORT}/`;
   // try/finally：任何页面操作抛错都要关浏览器、杀服务器（否则留一个 8861 的僵尸进程 ——
   // 历轮 preflight 真的报过这种残留）
   let browser = null;
-  let bad = 0,
-    n = 0;
+  const checker = createChecker({ name: "header", expect: 72 });
+  const check = checker.check;
   try {
     await new Promise((r) => setTimeout(r, 1200));
     browser = await chromium.launch();
@@ -125,13 +126,11 @@ const BASE = `http://127.0.0.1:${PORT}/`;
                 bad: tabs.filter((t) => !t.inBox || !t.own).map((t) => t.s),
               };
             });
-            n++;
-            if (r.bad.length) {
-              bad++;
-              console.log(
-                `FAIL ${lang}/${size}档/${series}/${off ? "离线" : "在线"} seg=${r.segW} chip=${r.chip} 不可达=${JSON.stringify(r.bad)}`
-              );
-            }
+            check(
+              `${lang}/${size}档/${series}/${off ? "离线" : "在线"}`,
+              r.bad.length === 0,
+              `seg=${r.segW} chip=${r.chip} 不可达=${JSON.stringify(r.bad)}`
+            );
           }
           await ctx.close();
         }
@@ -141,10 +140,5 @@ const BASE = `http://127.0.0.1:${PORT}/`;
     if (browser) await browser.close();
     server.kill();
   }
-  console.log(
-    bad
-      ? `\n${bad}/${n} 个状态仍有问题`
-      : `\n全部 ${n} 个状态正常（3 语言 × 3 档位 × 4 系列 × 在线/离线）`
-  );
-  process.exit(bad ? 1 : 0);
+  process.exit(checker.done());
 })();

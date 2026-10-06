@@ -4,7 +4,8 @@
  * 5. 安装入口（合成 beforeinstallprompt）与 iOS 指引浮层；6. 更新横幅（临时副本跑第二版 sw.js）。
  */
 const { loadPlaywright } = require("./_playwright.cjs");
-const { elapsed, waitTicker } = require("./_progress.cjs");
+const { waitTicker } = require("./_progress.cjs");
+const { createChecker } = require("./_check.cjs");
 const { noteTimeout } = require("./_wait.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
@@ -37,19 +38,10 @@ async function clickCentered(page, selector) {
   await page.click(selector, { force: true });
 }
 
-let pass = 0;
-const fails = [];
-function ok(cond, label, extra) {
-  if (cond) {
-    pass++;
-    console.log(`[${elapsed()}] ok - ` + label);
-  } else {
-    fails.push(label + (extra ? `（${extra}）` : ""));
-    console.log(
-      `[${elapsed()}] FAIL - ` + label + (extra ? `（${extra}）` : "")
-    );
-  }
-}
+// 参数顺序是 (cond, label, extra)（本套件的历史写法）—— 记录器是 (label, ok, detail)，
+// 这里只做一次适配，不再自己记账（第五轮扫描候选 3）。
+const checker = createChecker({ name: "pwa", expect: 43 });
+const ok = (cond, label, extra) => checker.check(label, cond, extra);
 
 function serve(dir) {
   // serve.py **只吃端口**，docroot 来自进程 cwd —— 所以必须用 cwd 指定目录。
@@ -812,9 +804,7 @@ async function pickMembers(page, n) {
     [...errs, ...rej].slice(0, 3).join(" | ")
   );
 
-  console.log(`\n${pass} 项通过，${fails.length} 项失败`);
-  if (fails.length) console.log("失败：" + fails.join(" / "));
+  process.exit(checker.done());
   await browser.close();
   server.kill();
-  process.exit(fails.length ? 1 : 0);
 })();

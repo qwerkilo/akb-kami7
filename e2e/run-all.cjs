@@ -17,12 +17,14 @@ const { join } = require("node:path");
 
 const ROOT = join(__dirname, "..");
 
-// 与 package.json 的四条命令一一对应；expect 是基线 check 数（数守恒要能一眼看出）
+// 与 package.json 的四条命令一一对应。**check 数守恒不在这里**（第五轮扫描候选 3）：
+// 每个套件在 `createChecker({expect})` 里自报并自检 —— 数守恒由最知道自己的那一方守，
+// 这里不再解析收尾行、也不存第二份基线。
 const SUITES = [
-  { name: "e2e", script: "e2e/e2e.cjs", expect: 245 },
-  { name: "v5", script: "e2e/e2e-v5.cjs", expect: 54 },
-  { name: "pwa", script: "e2e/e2e-pwa.cjs", expect: 43 },
-  { name: "header", script: "e2e/verify-header.cjs", expect: 72 },
+  { name: "e2e", script: "e2e/e2e.cjs" },
+  { name: "v5", script: "e2e/e2e-v5.cjs" },
+  { name: "pwa", script: "e2e/e2e-pwa.cjs" },
+  { name: "header", script: "e2e/verify-header.cjs" },
 ];
 
 /** 可用内存（MB）→ 并发数：≥6000 → 4；≥3000 → 2；否则串行。 */
@@ -39,20 +41,6 @@ function tailLines(text, n = 25) {
     .split("\n")
     .slice(-n)
     .join("\n");
-}
-
-/** 从套件输出里抓 check 数。四种套件的收尾行格式各不相同，逐个认。 */
-function parseCounts(text) {
-  const t = String(text || "");
-  let m = t.match(/(\d+)\s*\/\s*(\d+)\s*checks?\s*passed/i);
-  if (m) return { passed: +m[1], total: +m[2] };
-  m = t.match(/(\d+)\s*\/\s*(\d+)\s*通过/);
-  if (m) return { passed: +m[1], total: +m[2] };
-  m = t.match(/(\d+)\s*项通过/);
-  if (m) return { passed: +m[1], total: +m[1] };
-  m = t.match(/全部\s*(\d+)\s*个状态正常/);
-  if (m) return { passed: +m[1], total: +m[1] };
-  return null;
 }
 
 /** 可用内存（MB）—— 与 scripts/preflight.mjs 同一口径（/proc/meminfo 的 MemAvailable）。 */
@@ -74,47 +62,6 @@ function selfTest() {
   eq(pickParallel(2500), 1, "pickParallel(2500)");
   eq(tailLines("a\nb\nc", 2), "b\nc", "tailLines");
   eq(tailLines("", 3), "", "tailLines 空输入");
-  eq(
-    parseCounts("245/245 checks passed"),
-    { passed: 245, total: 245 },
-    "parseCounts e2e"
-  );
-  eq(parseCounts("54/54 通过"), { passed: 54, total: 54 }, "parseCounts v5");
-  eq(
-    parseCounts("43 项通过，0 项失败"),
-    { passed: 43, total: 43 },
-    "parseCounts pwa"
-  );
-  eq(
-    parseCounts("全部 72 个状态正常（3 语言 × 3 档位 × 4 系列 × 在线/离线）"),
-    { passed: 72, total: 72 },
-    "parseCounts header"
-  );
-  eq(parseCounts("没有任何收尾行"), null, "parseCounts 认不出时返回 null");
-  // 这一条是被真跑抓出来的 bug：runOne 不 spread suite 时 expect 会丢，于是每个套件
-  // 都被误报「与基线不符」（实测 4/4 全过却打了 4 条 ⚠）。
-  eq(
-    compareCounts([{ name: "a", code: 0, counts: { passed: 54 }, expect: 54 }]),
-    [],
-    "compareCounts：相符不报"
-  );
-  eq(
-    compareCounts([{ name: "b", code: 0, counts: { passed: 50 }, expect: 54 }])
-      .length,
-    1,
-    "compareCounts：数目不符要报"
-  );
-  eq(
-    compareCounts([{ name: "c", code: 0, counts: null, expect: 54 }]).length,
-    1,
-    "compareCounts：认不出 check 数要报"
-  );
-  eq(
-    compareCounts([{ name: "d", code: 1, counts: { passed: 54 }, expect: 54 }])
-      .length,
-    0,
-    "compareCounts：失败的套件由失败路径管，不重复报"
-  );
   // parseArgs 的退化路径（retro 规则 1：坏参数最容易假绿）——此前 main 内联重写
   // 同一逻辑、parseArgs 没人调用，两轴审查抓到；现在 main 调它、自检覆盖它。
   eq(
@@ -163,13 +110,6 @@ function parseArgs(argv) {
   return { maxParallel, only };
 }
 
-/** 通过但 check 数与基线不符的套件（数守恒要能一眼看出）。 */
-function compareCounts(results) {
-  return results.filter(
-    (r) => r.code === 0 && (!r.counts || r.counts.passed !== r.expect)
-  );
-}
-
 function runOne(name, args, logPath) {
   return new Promise((resolve) => {
     const t0 = Date.now();
@@ -194,7 +134,6 @@ function runOne(name, args, logPath) {
         name,
         code,
         output: out,
-        counts: parseCounts(out),
         ms: Date.now() - t0,
       });
     });
@@ -209,8 +148,6 @@ async function selfTestRun() {
     "console.log('L1'); console.log('L2'); console.log('245/245 checks passed'); process.exit(1)",
   ]);
   if (r.code !== 1) failures.push(`失败进程的退出码应捕获为 1，实得 ${r.code}`);
-  if (!r.counts || r.counts.passed !== 245)
-    failures.push("失败进程的输出仍应能解析出 check 数");
   if (tailLines(r.output, 2) !== "L2\n245/245 checks passed")
     failures.push(
       "尾部输出聚合不对：" + JSON.stringify(tailLines(r.output, 2))
@@ -264,8 +201,7 @@ async function main() {
   const avail = availMemMb();
   const parallel = maxParallel ?? pickParallel(avail);
   console.log(
-    `并行跑 ${suites.length} 个套件（可用内存 ${avail.toFixed(0)}MB → 并发 ${parallel}；` +
-      `基线 check 数 ${suites.map((s) => `${s.name}=${s.expect}`).join(" ")}）`
+    `并行跑 ${suites.length} 个套件（可用内存 ${avail.toFixed(0)}MB → 并发 ${parallel}）`
   );
 
   if (!suites.length) {
@@ -282,13 +218,10 @@ async function main() {
         `▶ [${suite.name}] 开始（${fmtMs(Date.now() - T0)}）日志 ${logPath}`
       );
       const r = await runOne(suite.name, [suite.script], logPath);
-      r.expect = suite.expect; // runOne 只回通用字段，基线要在这里带上
       results.push(r);
-      const counts = r.counts ? `${r.counts.passed}/${r.counts.total}` : "?/?";
       const mark = r.code === 0 ? "✓" : "✗";
-      console.log(
-        `${mark} [${r.name}] ${counts} · ${fmtMs(r.ms)} · 退出码 ${r.code}`
-      );
+      // check 数在套件自己的收尾行里（日志文件）；这里只报退出码与耗时
+      console.log(`${mark} [${r.name}] · ${fmtMs(r.ms)} · 退出码 ${r.code}`);
     }
   };
   const T0 = Date.now();
@@ -297,20 +230,14 @@ async function main() {
   );
 
   const failed = results.filter((r) => r.code !== 0);
-  const mismatched = compareCounts(results);
   console.log(
     `\n汇总：${results.length - failed.length}/${results.length} 通过 · 总耗时 ${fmtMs(Date.now() - T0)}`
   );
-  for (const r of mismatched) {
-    console.log(
-      `⚠ [${r.name}] check 数与基线不符（期望 ${r.expect}，实得 ${r.counts ? r.counts.passed : "认不出"}）`
-    );
-  }
   for (const r of failed) {
     console.log(`\n===== [${r.name}] 失败，尾部输出 =====`);
     console.log(tailLines(r.output, 25));
   }
-  process.exit(failed.length || mismatched.length ? 1 : 0);
+  process.exit(failed.length ? 1 : 0);
 }
 
 // 被 require 时（自检/复用）不执行 main
@@ -323,8 +250,6 @@ module.exports = {
   parseArgs,
   pickParallel,
   tailLines,
-  parseCounts,
-  compareCounts,
   availMemMb,
   selfTest,
   selfTestRun,

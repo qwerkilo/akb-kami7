@@ -144,3 +144,43 @@ test("e2e 脚本用到的共享助手必须真的 import 了（本批踩过：wa
     "用了共享助手却没 import → 跑起来才 ReferenceError"
   );
 });
+
+test("检查记录只有一处：runner 不解析收尾行、套件不自报收尾（第五轮扫描候选 3）", () => {
+  const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
+  for (const dead of ["parseCounts", "compareCounts", "expect:"]) {
+    assert.ok(
+      !runner.includes(dead),
+      `run-all.cjs 不许再有 ${dead} —— 数守恒由套件自报（createChecker({expect})）`
+    );
+  }
+  // 收尾行的格式只许在 _check.cjs 里出现
+  const summaryBits = ["checks passed", "项通过", "个状态正常", "通过`"];
+  for (const f of [
+    "e2e.cjs",
+    "e2e-v5.cjs",
+    "e2e-pwa.cjs",
+    "verify-header.cjs",
+  ]) {
+    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    for (const bit of summaryBits) {
+      assert.ok(
+        !src.includes(bit),
+        `${f} 不许自己拼收尾行（含「${bit}」）—— 走 e2e/_check.cjs`
+      );
+    }
+  }
+  // 四个套件都必须用共享记录器
+  for (const f of [
+    "e2e.cjs",
+    "e2e-v5.cjs",
+    "e2e-pwa.cjs",
+    "verify-header.cjs",
+  ]) {
+    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    assert.match(
+      src,
+      /createChecker\(/,
+      `${f} 必须用 createChecker（不许自己记账）`
+    );
+  }
+});
