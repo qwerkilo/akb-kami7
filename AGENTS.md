@@ -30,18 +30,18 @@
 
 跨缝前先跟用户确认。`npm test` 一次跑全部（`node --test` + Python unittest），均离线不联网。
 
-| 缝                  | 落点                                       | 文件                                                                                                                                       |
-| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| ① Python 解析纯函数 | fixture 驱动                               | `scripts/test_*.py`                                                                                                                        |
-| ② `core.js` 纯逻辑  | 纯函数直接调                               | `test/core.test.js`                                                                                                                        |
-| ③ 产物不变量        | 清单 vs 盘上 reality **双向**比对          | `test/members-artifact.test.js`、`test/pwa-artifact.test.js`、`test/style-artifact.test.js`、`test/sw-cache-rules.test.js`                 |
-| ④ `session.js`      | 注入内存 storage + 假成员表                | `test/session.test.js`                                                                                                                     |
-| ⑤ `poster.js`       | 注入假 ctx 与 tokens                       | `test/poster.test.js`                                                                                                                      |
-| ⑥ `i18n` 键完整性   | 含**拼出来的键家族**（死键守卫查不到它们） | `test/i18n.test.js`                                                                                                                        |
-| ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（`npm run e2e` / `:v5` / `:pwa` / `:header`；全量并行 `e2e:all`；收尾行与 check 数守恒由 `e2e/_check.cjs` 统一，套件自报 `EXPECT`） |
+| 缝                  | 落点                                       | 文件                                                                                                                                                  |
+| ------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ① Python 解析纯函数 | fixture 驱动                               | `scripts/test_*.py`                                                                                                                                   |
+| ② `core.js` 纯逻辑  | 纯函数直接调                               | `test/core.test.js`                                                                                                                                   |
+| ③ 产物不变量        | 清单 vs 盘上 reality **双向**比对          | `test/members-artifact.test.js`、`test/pwa-artifact.test.js`、`test/style-artifact.test.js`、`test/sw-cache-rules.test.js`                            |
+| ④ `session.js`      | 注入内存 storage + 假成员表                | `test/session.test.js`                                                                                                                                |
+| ⑤ `poster.js`       | 注入假 ctx 与 tokens                       | `test/poster.test.js`                                                                                                                                 |
+| ⑥ `i18n` 键完整性   | 含**拼出来的键家族**（死键守卫查不到它们） | `test/i18n.test.js`                                                                                                                                   |
+| ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（`npm run e2e` / `:v5` / `:pwa` / `:header` / `:first`；全量并行 `e2e:all`；收尾行与 check 数守恒由 `e2e/_check.cjs` 统一，套件自报 `EXPECT`） |
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
-- **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（窄屏矩阵，含在线/离线）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
+- **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（页头矩阵：语言 × 档位 × 系列 × 在线/离线）/ `:first`（首屏矩阵：皮肤 × 语言 × 320–560px）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
 - 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
 - 缝④ 的夹具 id 前缀：`a1–a40` = 48g、`s1–s40` = 坂道、`l1–l40` = 等爱。写错前缀时 `toggleSelect` 静默返回 false，测试会以「筛不出东西」的方式假绿。
 - 断言要挑**有分辨力**的那一个：同一条测试里有的断言在错误路径上也会通过（曾有一条「complete」假绿、只有「已划人数」抓住）。

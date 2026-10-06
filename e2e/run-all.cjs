@@ -26,6 +26,7 @@ const SUITES = [
   { name: "v5", script: "e2e/e2e-v5.cjs" },
   { name: "pwa", script: "e2e/e2e-pwa.cjs" },
   { name: "header", script: "e2e/verify-header.cjs" },
+  { name: "first", script: "e2e/verify-first-screen.cjs" },
 ];
 
 /** 可用内存（MB）→ 并发数：≥6000 → 4；≥3000 → 2；否则串行。 */

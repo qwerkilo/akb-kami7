@@ -218,3 +218,24 @@ test("等待只有一个入口：套件不许裸 waitForFunction/waitForSelector
   assert.match(wait, /function ready\(/, "ready 在 _wait.cjs");
   assert.match(wait, /hard/, "硬等待（hard: true）在 _wait.cjs");
 });
+
+test("每个 E2E 套件都进了 run-all（漏一个 = 全量跑不到它）", () => {
+  const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
+  const suites = fs
+    .readdirSync(DIR)
+    .filter((f) => f.endsWith(".cjs") && !f.startsWith("_"))
+    .filter((f) => f !== "run-all.cjs")
+    .filter((f) =>
+      fs.readFileSync(path.join(DIR, f), "utf8").includes("createChecker(")
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
+  for (const f of suites) {
+    assert.ok(
+      runner.includes(`e2e/${f}`),
+      `${f} 有 createChecker 却没进 run-all —— 全量并行跑不到它`
+    );
+  }
+});

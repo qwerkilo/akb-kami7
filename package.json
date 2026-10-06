@@ -14,6 +14,7 @@
     "e2e:v5": "node e2e/e2e-v5.cjs",
     "e2e:pwa": "node e2e/e2e-pwa.cjs",
     "e2e:header": "node e2e/verify-header.cjs",
+    "e2e:first": "node e2e/verify-first-screen.cjs",
     "e2e:all": "node e2e/run-all.cjs",
     "lint:undef": "eslint --no-eslintrc --env node,browser,es6 --parser-options ecmaVersion:2020,sourceType:module --global AKB_POSTER,globalThis --rule '{\"no-undef\":\"error\"}' e2e/*.cjs test/*.js core.js app.js session.js poster.js i18n.js scripts/*.mjs"
   },
