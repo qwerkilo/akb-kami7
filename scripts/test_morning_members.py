@@ -390,7 +390,7 @@ class ResolvedCacheTests(unittest.TestCase):
             seen = {}
             former = [{"name": "既存", "file": "morningmusume:既存", "status": "former"}]
 
-            def fake_resolve(members, urls, fetch, warn=None, pause=0.0):
+            def fake_resolve(members, urls, fetch, warn=None, pause=0.0, skip=None):
                 seen.update(urls)
 
             with mock.patch.object(mm, "RESOLVED_CACHE", p), mock.patch.object(
@@ -416,7 +416,7 @@ class ResolvedCacheTests(unittest.TestCase):
             p = os.path.join(td, "_resolved.json")
             former = [{"name": "新", "file": "morningmusume:新", "status": "former"}]
 
-            def fake_resolve(members, urls, fetch, warn=None, pause=0.0):
+            def fake_resolve(members, urls, fetch, warn=None, pause=0.0, skip=None):
                 urls["morningmusume:新"] = "https://x/new.jpg"
 
             with mock.patch.object(mm, "RESOLVED_CACHE", p), mock.patch.object(
@@ -506,6 +506,43 @@ OG_HTML = """<div class="commonGrid--base">
 <div class="MemberPanel"><a href="https://up-front-create.com/y" class="MemberPanel__link group " target="_blank"><div class="Thumbnail MemberPanel__image "><div><img src="/upload/images/yuko.webp" alt="" width="298" height="298"/></div></div><div class="MemberPanel__nameJa paragraph">中澤裕子</div><div class="MemberPanel__nameEn paragraph">Yuko Nakazawa</div></a><div class="MemberPanel__socials"><ul></ul></div></div>
 <div class="MemberPanel"><a href="#" class="MemberPanel__link"><div class="MemberPanel__nameJa paragraph">没有照片的人</div></a></div>
 </div>"""
+
+
+class IncrementalSkipTests(unittest.TestCase):
+    """增量跑（ADR-0023）：`skip_photo(m)` 为真的成员**不解析照片** —— 一个成员级请求
+    都不发（og 那一页服务全体，仍会抓）。判据由 fetch_members 注入（id 规则在那里）。"""
+
+    def test_resolve_former_photos_skips_flagged_member(self):
+        members = [
+            {"name": "A", "file": "f1", "status": "former", "group": "G", "join": "", "end": ""}
+        ]
+        urls = {}
+        calls = []
+
+        def fetch(url):
+            calls.append(url)
+            return "[]"
+
+        mm.resolve_former_photos(
+            members, urls, fetch, warn=lambda *a: None, skip=lambda m: m["file"] == "f1"
+        )
+        self.assertEqual(urls, {})
+        self.assertEqual(calls, [mm.OG_URL], "除 og 页外不该有任何请求")
+
+    def test_skip_none_keeps_resolving(self):
+        """不传 skip（= --refresh-photos 或首次跑）时行为不变：会去解析。"""
+        members = [
+            {"name": "A", "file": "f1", "status": "former", "group": "G", "join": "", "end": ""}
+        ]
+        urls = {}
+        calls = []
+
+        def fetch(url):
+            calls.append(url)
+            return "[]"
+
+        mm.resolve_former_photos(members, urls, fetch, warn=lambda *a: None)
+        self.assertGreater(len(calls), 1, "没有 skip 时应当继续解析（会发成员级请求）")
 
 
 class OldSitePhotoTests(unittest.TestCase):

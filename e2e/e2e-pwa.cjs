@@ -4,6 +4,7 @@
  * 5. 安装入口（合成 beforeinstallprompt）与 iOS 指引浮层；6. 更新横幅（临时副本跑第二版 sw.js）。
  */
 const { loadPlaywright } = require("./_playwright.cjs");
+const { elapsed, waitTicker } = require("./_progress.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
@@ -40,10 +41,12 @@ const fails = [];
 function ok(cond, label, extra) {
   if (cond) {
     pass++;
-    console.log("  ok - " + label);
+    console.log(`[${elapsed()}] ok - ` + label);
   } else {
     fails.push(label + (extra ? `（${extra}）` : ""));
-    console.log("  FAIL - " + label + (extra ? `（${extra}）` : ""));
+    console.log(
+      `[${elapsed()}] FAIL - ` + label + (extra ? `（${extra}）` : "")
+    );
   }
 }
 
@@ -226,11 +229,14 @@ async function pickMembers(page, n) {
       return n;
     });
   let gotFull = 0;
+  const fullTick = waitTicker("等待 img/full 预热");
   for (let i = 0; i < 60; i++) {
     gotFull = await cachedFull();
     if (gotFull >= wantFull) break;
+    fullTick.tick(`${gotFull}/${wantFull}`);
     await page.waitForTimeout(500);
   }
+  fullTick.done(`${gotFull}/${wantFull}`);
   console.log(`  · 断网前 img/full 预热：${gotFull}/${wantFull}`);
   // 同理等字体预热（warmFonts）：它先取 Google Fonts 的 CSS、再分批取 woff2。断网前若
   // CSS 还没进缓存，离线重载会一个 face 都注册不出来（实测 flake：离线 face 0 vs 在线 496，
@@ -249,11 +255,14 @@ async function pickMembers(page, n) {
       return { n: 0, css: 0 };
     });
   let gotFonts = { n: 0, css: 0 };
+  const fontTick = waitTicker("等待字体预热");
   for (let i = 0; i < 60; i++) {
     gotFonts = await fontCacheInfo();
     if (gotFonts.css > 0 && gotFonts.n >= 17) break;
+    fontTick.tick(`${gotFonts.n} 条`);
     await page.waitForTimeout(500);
   }
+  fontTick.done(`${gotFonts.n} 条`);
   console.log(
     `  · 断网前字体缓存：${gotFonts.n} 条（其中 CSS ${gotFonts.css} 条）`
   );
@@ -455,11 +464,14 @@ async function pickMembers(page, n) {
       return kinds.size;
     });
   let faceOffline = 0;
+  const faceTick = waitTicker("等待海报脸部取样");
   for (let i = 0; i < 30; i++) {
     faceOffline = await sampleFace();
     if (faceOffline > 200) break;
+    faceTick.tick(`取样 ${faceOffline}`);
     await page.waitForTimeout(500);
   }
+  faceTick.done(`取样 ${faceOffline}`);
   ok(
     (faceOffline || 0) > 200,
     `断网下海报脸部区域有照片层次（取样色彩种类 ${faceOffline}）`

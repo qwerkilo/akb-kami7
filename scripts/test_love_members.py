@@ -294,6 +294,26 @@ ARCHIVED_ME_FIXTURE = '''<li class="inview">
 '''
 
 
+class IncrementalSkipTests(unittest.TestCase):
+    """增量跑（ADR-0023）：`skip_photo(m)` 为真的成员不解析照片 —— 连该团的归档页
+    都不抓（没有需要解析的人时不该发任何请求）。"""
+
+    def test_resolve_former_photos_skips_flagged_member(self):
+        members = [{"name": "A", "file": "f1", "group": "=LOVE"}]
+        urls = {}
+        calls = []
+
+        def fetch(url):
+            calls.append(url)
+            return "[]"
+
+        love_members.resolve_former_photos(
+            members, urls, fetch, warn=lambda *a: None, skip=lambda m: m["file"] == "f1"
+        )
+        self.assertEqual(urls, {})
+        self.assertEqual(calls, [], "全被跳过时不该抓归档页")
+
+
 class ArchivedPageTests(unittest.TestCase):
     def test_wayback_rewritten_markup_is_parsed_to_original_urls(self):
         items = love_members.parse_list(ARCHIVED_ME_FIXTURE, "me")

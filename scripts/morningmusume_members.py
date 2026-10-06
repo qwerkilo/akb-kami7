@@ -1252,7 +1252,7 @@ def _resolve_commons(members, urls, fetch, warn, pause):
             warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
 
 
-def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
+def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0, skip=None):
     """毕业成员的头像。**照片回退链**（CONTEXT）三节，按序：
 
     1. **现官网 `/og/`**（仍在事务所的卒业生，官方肖像、500×500）—— 一页 37 人，
@@ -1262,14 +1262,18 @@ def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0):
 
     取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
     不是静默降级。
+
+    `skip(member)` 为真的人**整条链都不走**（增量跑：已有站内照片，ADR-0023）——
+    在这里过滤一次，三个源共享同一份目标名单。
     """
+    target = [m for m in members if not (skip and skip(m))]
     # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的
-    _resolve_og(members, urls, fetch)
+    _resolve_og(target, urls, fetch)
     try:
-        resolve_old_site_photos(members, urls, fetch, warn=warn, pause=pause)
+        resolve_old_site_photos(target, urls, fetch, warn=warn, pause=pause)
     except Exception as e:
         warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
-    _resolve_commons(members, urls, fetch, warn, pause)
+    _resolve_commons(target, urls, fetch, warn, pause)
     return members, urls
 
 def build_sections(members):
@@ -1342,7 +1346,7 @@ def _save_resolved(urls, path=None):
         pass
 
 
-def load(fetch, warn=print, photo=True, use_cache=False):
+def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None):
     """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。"""
     official = {}
     for group in OFFICIAL_GROUPS:
@@ -1369,7 +1373,7 @@ def load(fetch, warn=print, photo=True, use_cache=False):
         if use_cache:
             # 预填已解析过的（各解析段只处理不在 urls 里的人 → 天然增量）
             _prefill(urls, _load_resolved())
-        resolve_former_photos(members, urls, fetch, warn, pause=1.5)
+        resolve_former_photos(members, urls, fetch, warn, pause=1.5, skip=skip_photo)
         if use_cache:
             _save_resolved(urls)
     return members, urls

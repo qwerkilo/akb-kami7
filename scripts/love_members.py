@@ -285,9 +285,19 @@ def build_members(official, wiki):
     return members, urls
 
 
-def resolve_former_photos(members, urls, fetch, warn=print):
-    """官网列表缺照片的成员（通常是已毕业）：Web Archive 列表快照 → 快照图片 → Commons。"""
-    need = [m for m in members if m["file"] not in urls]
+def _needs_photo(m, urls, skip):
+    """这个人要不要解析照片：还没有 URL，且不在增量跑的跳过名单里（ADR-0023）。"""
+    if m["file"] in urls:
+        return False
+    return not (skip and skip(m))
+
+
+def resolve_former_photos(members, urls, fetch, warn=print, skip=None):
+    """官网列表缺照片的成员（通常是已毕业）：Web Archive 列表快照 → 快照图片 → Commons。
+
+    `skip(member)` 为真的人不解析（增量跑：已有站内照片，ADR-0023）。
+    """
+    need = [m for m in members if _needs_photo(m, urls, skip)]
     by_group = {}
     for m in need:
         by_group.setdefault(m["group"], []).append(m)
@@ -313,8 +323,9 @@ def resolve_former_photos(members, urls, fetch, warn=print):
     return members, urls
 
 
-def load(fetch, warn=print):
+def load(fetch, warn=print, skip_photo=None):
     """抓取三个官网 + Wikipedia 并装配；返回 (members, urls)。"""
+
     official = {}
     for group, site in SITES.items():
         html = fetch(site["base"] + LIST_PATH)
@@ -330,7 +341,7 @@ def load(fetch, warn=print):
         wiki[group] = parse_wiki_members(text)
         print("{}: {} 人（Wikipedia）".format(group, len(wiki[group])))
     members, urls = build_members(official, wiki)
-    resolve_former_photos(members, urls, fetch, warn)
+    resolve_former_photos(members, urls, fetch, warn, skip=skip_photo)
     return members, urls
 
 

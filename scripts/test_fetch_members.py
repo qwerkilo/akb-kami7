@@ -10,6 +10,145 @@ from PIL import Image
 
 import check_roster
 import fetch_members
+import love_members
+import morningmusume_members
+
+
+class WiringTests(unittest.TestCase):
+    """接线的 bug 只表现为「跑了但没跳过」—— 所以「跳过接进了哪个 loader」
+    与「--refresh-photos 关掉什么」都要能单独测。"""
+
+    def test_photo_skip_for_refresh_is_none(self):
+        with tempfile.TemporaryDirectory() as td:
+            self.assertIsNone(
+                fetch_members.photo_skip_for(True, td, os.path.join(td, "full"), os.path.join(td, "thumb"))
+            )
+
+    def test_photo_skip_for_default_reads_prev_members(self):
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = os.path.join(td, "full"), os.path.join(td, "thumb")
+            os.makedirs(full)
+            os.makedirs(thumb)
+            for d in (full, thumb):
+                with open(os.path.join(d, "m1.webp"), "wb") as fh:
+                    fh.write(b"x")
+            with open(os.path.join(td, "members.js"), "w", encoding="utf-8") as fh:
+                fh.write(
+                    "window.AKB_GROUPS = "
+                    + json.dumps(
+                        [{"group": "AKB48", "members": [{"id": "m1", "name": "A", "img": True}]}]
+                    )
+                    + ";\n"
+                )
+            skip = fetch_members.photo_skip_for(False, td, full, thumb)
+            self.assertTrue(skip({"group": "AKB48", "name": "A"}))
+            self.assertFalse(skip({"group": "AKB48", "name": "B"}))
+
+    def test_skip_photo_and_cache_reach_the_right_loaders(self):
+        sentinel = lambda m: True
+        seen = {}
+
+        def fake_love(fetch, **kw):
+            seen["love"] = kw
+            return [], {}
+
+        def fake_morning(fetch, **kw):
+            seen["morning"] = kw
+            return [], {}
+
+        with mock.patch.object(love_members, "load", fake_love), mock.patch.object(
+            morningmusume_members, "load", fake_morning
+        ):
+            love_loader, morning_loader = fetch_members.default_loaders(sentinel, use_cache=False)
+            love_loader(lambda url: "")
+            morning_loader(lambda url: "")
+        self.assertIs(seen["love"]["skip_photo"], sentinel)
+        self.assertIs(seen["morning"]["skip_photo"], sentinel)
+        self.assertFalse(seen["morning"]["use_cache"])
+
+
+class ParseArgsTests(unittest.TestCase):
+    """`--refresh-photos` 是全量刷新开关（ADR-0023）：忽略「已有照片」的跳过与解析缓存。
+    它与 `--force` 职责分明 —— `--force` 只管重下载与重压缩。"""
+
+    def test_defaults_are_all_off(self):
+        no_dl, force, accept_drop, refresh = fetch_members.parse_args([])
+        self.assertEqual([no_dl, force, accept_drop, refresh], [False] * 4)
+
+    def test_refresh_photos_flag(self):
+        self.assertTrue(fetch_members.parse_args(["--refresh-photos"])[3])
+
+    def test_flags_compose(self):
+        no_dl, force, accept_drop, refresh = fetch_members.parse_args(
+            ["--no-dl", "--force", "--refresh-photos"]
+        )
+        self.assertEqual([no_dl, force, accept_drop, refresh], [True, True, False, True])
+
+
+class PhotoSkipPredicateTests(unittest.TestCase):
+    """增量跑：已有站内照片的成员跳过照片解析（ADR-0023）。判据是**站内文件**
+    （full + thumb 都在且非空），不是解析缓存 —— 缓存只覆盖早安，且会与文件脱节
+    （有 URL 但下载失败的人会被缓存挡住、永远卡在没图）。"""
+
+    @staticmethod
+    def _touch(d, name, size=10):
+        p = os.path.join(d, name)
+        with open(p, "wb") as fh:
+            fh.write(b"x" * size)
+        return p
+
+    def _dirs(self, td):
+        full, thumb = os.path.join(td, "full"), os.path.join(td, "thumb")
+        os.makedirs(full, exist_ok=True)
+        os.makedirs(thumb, exist_ok=True)
+        return full, thumb
+
+    def test_skips_only_the_member_with_both_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            self._touch(full, "m1.webp")
+            self._touch(thumb, "m1.webp")
+            prev = [{"group": "AKB48", "name": "A", "id": "m1", "img": True}]
+            skip = fetch_members.photo_skip_predicate(prev, full, thumb)
+            self.assertTrue(skip({"group": "AKB48", "name": "A"}))
+            self.assertFalse(skip({"group": "AKB48", "name": "B"}))
+            self.assertFalse(skip({"group": "NMB48", "name": "A"}))
+
+    def test_thumb_missing_or_empty_does_not_skip(self):
+        """名册卡片读 thumb、海报读 full：只写出一半或 0 字节时宁可重解析。"""
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            self._touch(full, "m1.webp")
+            skip = fetch_members.photo_skip_predicate(
+                [{"group": "AKB48", "name": "A", "id": "m1", "img": True}], full, thumb
+            )
+            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+            self._touch(thumb, "m1.webp", size=0)  # 0 字节 = 损坏
+            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+
+    def test_img_false_does_not_skip(self):
+        """img 是站内文件的派生值；img=false 说明文件不齐 —— 不该跳过。"""
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            self._touch(full, "m1.webp")
+            self._touch(thumb, "m1.webp")
+            skip = fetch_members.photo_skip_predicate(
+                [{"group": "AKB48", "name": "A", "id": "m1", "img": False}], full, thumb
+            )
+            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+
+    def test_duplicate_name_in_same_group_is_not_skipped(self):
+        """同名不同人（id 带 #join 后缀）→ 从名字判不出 id，保守不跳过。"""
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            self._touch(full, "m1.webp")
+            self._touch(thumb, "m1.webp")
+            prev = [
+                {"group": "AKB48", "name": "A", "id": "m1", "img": True},
+                {"group": "AKB48", "name": "A", "id": "m2", "img": True},
+            ]
+            skip = fetch_members.photo_skip_predicate(prev, full, thumb)
+            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
 
 
 class DecodePageTests(unittest.TestCase):

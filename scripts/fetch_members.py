@@ -500,9 +500,112 @@ def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
     return [r for r in rows if not r["join"].startswith(exclude)]
 
 
+def photo_skip_for(refresh_photos, root, full_dir, thumb_dir):
+    """本次跑要跳过谁的照片解析（ADR-0023）。
+
+    `--refresh-photos` → None（不跳过任何人）；否则按**站内照片**决定（读上一轮
+    members.js 拿 name+group → id 的映射）。读不到 members.js（首次跑）→ 空表 →
+    不跳过任何人（全解析）。
+    """
+    if refresh_photos:
+        return None
+    return photo_skip_predicate(read_prev_members(root), full_dir, thumb_dir)
+
+
+def default_loaders(skip_photo, use_cache):
+    """默认的两个 loader（等爱 / 早安）。
+
+    抽出来是为了让「跳过接进了哪个 loader」「缓存开不开」可测 —— 接线的 bug 只表现为
+    「跑了但没跳过」或「refresh 了却仍读缓存」。
+    """
+    return (
+        lambda fetch: love_members.load(fetch, skip_photo=skip_photo),
+        lambda fetch: morningmusume_members.load(
+            fetch, use_cache=use_cache, skip_photo=skip_photo
+        ),
+    )
+
+
 def parse_args(argv):
+    """(no_dl, force, accept_drop, refresh_photos)。
+
+    `--refresh-photos` 与 `--force` 职责分明：前者是**重解析**（忽略「已有照片」的跳过
+    与解析缓存），后者是**重下载 + 重压缩**。改 `--force` 去顺手重解析会让「只想重压」
+    的人意外触发一次全量照片扫描（小时级）。"""
     argv = sys.argv[1:] if argv is None else argv
-    return "--no-dl" in argv, "--force" in argv, "--accept-drop" in argv
+    return (
+        "--no-dl" in argv,
+        "--force" in argv,
+        "--accept-drop" in argv,
+        "--refresh-photos" in argv,
+    )
+
+
+def _parse_prev_sections(root):
+    """盘上 members.js → 解析出的 sections；读不到/形状不对返回 None（静默，调用方决定提示）。"""
+    try:
+        with open(os.path.join(root, "members.js"), encoding="utf-8") as fh:
+            raw = fh.read()
+        sections = json.loads(raw.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n"))
+        if not isinstance(sections, list):
+            raise ValueError("segments is not a list")
+        for sec in sections:
+            if not isinstance(sec, dict) or not isinstance(sec.get("members"), list):
+                raise ValueError("section is not a dict with a members list")
+        return sections
+    except (OSError, ValueError, KeyError, TypeError, IndexError):
+        return None
+
+
+def read_prev_members(root):
+    """盘上 members.js 的成员（group/name/id/img）—— 增量跑的跳过判据用。
+
+    以「上一轮的 name+group → id」为桥：id 规则（`assign_ids` 的 slug + 重名后缀）
+    依赖全局重名顺序，**不能**从单个成员重算。读不到返回空表（不跳过任何人 = 全解析）。
+    """
+    sections = _parse_prev_sections(root)
+    if sections is None:
+        return []
+    return [
+        {
+            "group": sec["group"],
+            "name": m.get("name"),
+            "id": m.get("id"),
+            "img": bool(m.get("img")),
+        }
+        for sec in sections
+        for m in sec["members"]
+    ]
+
+
+def photo_skip_predicate(prev_members, full_dir, thumb_dir):
+    """增量跑：谁的照片解析可以跳过（ADR-0023）。
+
+    判据是**站内文件**（`img/full` 与 `img/thumb` 都在且非空 —— 与 `img` 标志同一真值源），
+    不是解析缓存：缓存只覆盖早安 loader，且会与文件脱节（有 URL 但下载失败的人会被缓存
+    挡住、永远卡在没图）。
+
+    同 (group, name) 在上一轮出现两次（同名不同人）时 id 不可判定 —— 保守不跳过。
+    """
+    counts = {}
+    for m in prev_members:
+        key = (m.get("group"), m.get("name"))
+        counts[key] = counts.get(key, 0) + 1
+    have = set()
+    for m in prev_members:
+        key = (m.get("group"), m.get("name"))
+        if counts[key] != 1 or not m.get("img"):
+            continue
+        mid = m.get("id") or ""
+        if usable(os.path.join(full_dir, mid + ".webp")) and usable(
+            os.path.join(thumb_dir, mid + ".webp")
+        ):
+            have.add(key)
+
+    def skip(member):
+        return (member.get("group"), member.get("name")) in have
+
+    return skip
 
 
 def read_baseline(root):
@@ -514,16 +617,12 @@ def read_baseline(root):
     """
     path = os.path.join(root, "members.js")
     try:
-        with open(path, encoding="utf-8") as fh:
-            raw = fh.read()
-        sections = json.loads(raw.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n"))
-        if not isinstance(sections, list):
-            raise ValueError("segments is not a list")
+        sections = _parse_prev_sections(root)
+        if sections is None:
+            raise ValueError("members.js unreadable")
         counts = {}
         love_counts = {}
         for sec in sections:
-            if not isinstance(sec, dict) or not isinstance(sec.get("members"), list):
-                raise ValueError("section is not a dict with a members list")
             group = sec["group"]
             # 等爱三团**不在** GROUP_ORDER 里（那是 48G/坂道的抓取清单），但基线必须
             # 读它们 —— 否则「团消失」「腰斩」两条判据对等爱恒假，而等爱抓到 0 人时
@@ -760,19 +859,25 @@ def main(
     love_loader=None,
     morning_loader=None,
 ):
-    no_dl, force, accept_drop = parse_args(argv)
+    no_dl, force, accept_drop, refresh_photos = parse_args(argv)
     dirs = dirs or default_dirs()
     # 管线边缘多给几次重试：48pedia 的 521 会连穿 get() 默认的 4 次重试，
     # 单团抓取失败就被 loader 的 empty 策略变成「该团 0 人」→ 规模门中止整轮，
     # 而照片解析（几十分钟）已经白跑完。测试注入 fetch_url 时不受影响。
     if fetch_url is get:
         fetch_url = partial(get, retries=8)
+    # 增量跑（ADR-0023）：已有站内照片的成员跳过照片解析；--refresh-photos 全解析。
+    # 缓存只在非 refresh 时开（refresh 的语义就是「忽略跳过与缓存」）。
+    skip_photo = photo_skip_for(
+        refresh_photos, dirs["root"], dirs["full"], dirs["thumb"]
+    )
+    default_love, default_morning = default_loaders(
+        skip_photo, use_cache=not refresh_photos
+    )
     if love_loader is None:
-        love_loader = love_members.load
+        love_loader = default_love
     if morning_loader is None:
-        # 默认带解析缓存：重跑只解析缺的人（旧站那 900 次快照扫描一次跑崩就白烧 1.5 小时）。
-        # 注入自定义 loader 的测试不受影响（缓存是显式 opt-in）。
-        morning_loader = lambda fetch: morningmusume_members.load(fetch, use_cache=True)
+        morning_loader = default_morning
     _prepare_dirs(dirs)
 
     members = merge_members(load_rows(fetch_page))

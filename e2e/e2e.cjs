@@ -1,5 +1,6 @@
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
+const { elapsed, blockStarter, waitTicker } = require("./_progress.cjs");
 const { chromium } = loadPlaywright();
 
 const ROOT = require("node:path").join(__dirname, "..");
@@ -65,6 +66,7 @@ async function goToPick(page) {
 }
 
 const results = [];
+const block = blockStarter(); // 功能块头（进度 + 分块耗时）
 // 失败日志按轮清空：此前只追加，跨轮历史混在一起（两轴审查的观察项）
 try {
   require("node:fs").writeFileSync("/tmp/opencode/e2e-fails.log", "");
@@ -74,18 +76,26 @@ try {
 // waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
 // 不触发 → 改成 domcontentloaded 后必须显式等，否则是我把工具改弱了。
 async function ready(pg) {
-  await pg
-    .waitForFunction(
-      () => {
-        const imgs = [...document.images];
-        return (
-          imgs.length > 0 && imgs.every((i) => i.complete && i.naturalWidth > 0)
-        );
-      },
-      { timeout: 120000 }
-    )
-    .catch(() => {});
-  await pg.evaluate(() => document.fonts.ready).catch(() => {});
+  const ticker = waitTicker("等待图片/字体就绪");
+  const poll = setInterval(() => ticker.tick(), 1000);
+  try {
+    await pg
+      .waitForFunction(
+        () => {
+          const imgs = [...document.images];
+          return (
+            imgs.length > 0 &&
+            imgs.every((i) => i.complete && i.naturalWidth > 0)
+          );
+        },
+        { timeout: 120000 }
+      )
+      .catch(() => {});
+    await pg.evaluate(() => document.fonts.ready).catch(() => {});
+  } finally {
+    clearInterval(poll);
+    ticker.done();
+  }
   await pg.waitForTimeout(600);
 }
 
@@ -102,7 +112,7 @@ function check(name, cond, detail) {
       `${name}  — ${String(detail ?? "").slice(0, 200)}\n`
     );
   console.log(
-    `${ok ? "PASS" : "FAIL"}  ${name}${ok ? "" : "  — " + String(detail ?? "").slice(0, 120)}`
+    `[${elapsed()}] ${ok ? "PASS" : "FAIL"}  ${name}${ok ? "" : "  — " + String(detail ?? "").slice(0, 120)}`
   );
 }
 
@@ -292,6 +302,7 @@ function isExpectedResourceNoise(m) {
     await ready(page);
 
     // -- 首屏：自动展开第一团体 + 第一期生，立即见脸（v5 A）
+    block("首屏");
     const firstCards = await page.locator(".card").count();
     check("首屏自动展开见脸", firstCards > 0, `实际 ${firstCards}`);
     const grpCount = await page.locator(".grp").count();
@@ -320,6 +331,7 @@ function isExpectedResourceNoise(m) {
     check("eyebrow 中性化", eyebrow.includes("48 Group"), eyebrow);
 
     // -- 两级浏览：全部 → AKB48（boot 已自动展开）
+    block("两级浏览");
     const akbSections = await page
       .locator(`.grp[data-group="AKB48"] .gen.sub`)
       .count();
@@ -331,6 +343,7 @@ function isExpectedResourceNoise(m) {
     check("AKB48 组自动展开", akbOpen === "true");
 
     // -- 全折叠（先段后组，open 清空）→ 切「现役」：ensureOpen 打开首个可见段
+    block("全折叠（先段后组，open 清空）→ 切「现役」");
     await page.click('.grp[data-group="AKB48"] .gen-head');
     await page.waitForTimeout(200);
     await page.click('.grp[data-group="AKB48"] .grp-head');
@@ -350,6 +363,7 @@ function isExpectedResourceNoise(m) {
     await page.waitForTimeout(300);
 
     // -- 期生筛选：48G 选 1期生（只留该期），汉字/阿拉伯归一在坂道用例验证
+    block("期生筛选");
     const genOpts = await page.$$eval("#gen-filter option", (os) =>
       os.map((o) => o.value)
     );
@@ -385,6 +399,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- 单团视图：选 SKE48
+    block("单团视图");
     await openFilterPanel(page);
     await page.selectOption("#group-filter", "SKE48");
     await page.waitForTimeout(200);
@@ -410,6 +425,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- 跨团混选：切回全部，再选 3 人
+    block("跨团混选");
     await openFilterPanel(page);
     await page.selectOption("#group-filter", "all");
     await page.waitForTimeout(200);
@@ -424,6 +440,7 @@ function isExpectedResourceNoise(m) {
     check("跨团已选 7（托盘）", picked === 7, `实际 ${picked}`);
 
     // -- 对决：开始 + 撤回
+    block("对决");
     await page.click("#start-btn");
     await page.waitForTimeout(400);
     // ADR-0019：开始后先过「筛选」这一步
@@ -567,6 +584,7 @@ function isExpectedResourceNoise(m) {
     await clickFighter(page); // 撤回后卡片有过渡动画，等它稳定再点
 
     // -- 答完
+    block("答完");
     for (let i = 0; i < 20; i++) {
       if (!(await clickFighter(page))) break;
       await page.waitForTimeout(230);
@@ -641,6 +659,7 @@ function isExpectedResourceNoise(m) {
     check("海报生成成功", true);
 
     // -- 语言切换
+    block("语言切换");
     await setLang(page, "en");
     await page.waitForTimeout(300);
     const brandEn = await page.textContent("#brand");
@@ -662,6 +681,7 @@ function isExpectedResourceNoise(m) {
     await page.waitForTimeout(200);
 
     // -- 移籍成员结果 meta 含毕业年份
+    block("移籍成员结果 meta 含毕业年份");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -696,6 +716,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- 单团神7 全流程（SKE48）
+    block("单团神7 全流程（SKE48）");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -718,6 +739,7 @@ function isExpectedResourceNoise(m) {
     check("单团结果 meta 含 SKE48", skeMeta.includes("SKE48"));
 
     // -- v2 选人：系列切换 / 简体搜索 / 40 档 / 持久化
+    block("v2 选人");
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
     await page.evaluate(() => localStorage.clear());
@@ -840,6 +862,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- ADR-0019 改写版：16 档走两轮筛选（[8,4]），验证递归入口与题数随轮次变化
+    block("ADR-0019 改写版");
     await goToPick(page); // 对决页收起页头 → 切档位前先回挑人页
     await page.click('.seg-size [data-pick="16"]');
     await page.waitForTimeout(300);
@@ -866,6 +889,7 @@ function isExpectedResourceNoise(m) {
     for (const [name, ok] of await checkSecondRound(page)) check(name, ok);
 
     // -- v2 对决：40 档（划一轮后 138 题）+ 进度 + 续玩
+    block("v2 对决");
     await goToPick(page);
     const ids40 = await page.evaluate(() =>
       window.AKB_GROUPS.filter((g) => g.series === "48g")
@@ -1037,6 +1061,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- v2 结果：坂道 BEST 7 海报与文件名
+    block("v2 结果");
     const idsSaka = await page.evaluate(() =>
       window.AKB_GROUPS.filter((g) => g.series === "sakamichi")
         .flatMap((g) => g.members)
@@ -1085,6 +1110,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- 成员简介（卡片 i → 资料卡）
+    block("成员简介（卡片 i → 资料卡）");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -1120,6 +1146,7 @@ function isExpectedResourceNoise(m) {
     await page.waitForTimeout(200);
 
     // -- 清空已选（确认）
+    block("清空已选（确认）");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -1147,6 +1174,7 @@ function isExpectedResourceNoise(m) {
     check("清空后按钮禁用", await page.isDisabled("#clear-btn"));
 
     // -- 等爱系列（第三 tab）
+    block("等爱系列（第三 tab）");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -1334,6 +1362,7 @@ function isExpectedResourceNoise(m) {
     );
 
     // -- 皮肤切换（页头 A 版）
+    block("皮肤切换（页头 A 版）");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -1451,6 +1480,7 @@ function isExpectedResourceNoise(m) {
     await page.waitForTimeout(200);
 
     // -- 海报跟随皮肤（结果页像素探针）
+    block("海报跟随皮肤（结果页像素探针）");
     await page.evaluate(() => localStorage.clear());
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     await ready(page);
@@ -1483,6 +1513,7 @@ function isExpectedResourceNoise(m) {
     check("海报：贴纸皮肤底色 #f5f1e6", stickerPx === "245,241,230", stickerPx);
 
     // -- 海报样式：默认 a、可切换、记忆
+    block("海报样式");
     check(
       "样式 chips 四个",
       (await page.locator(".seg-style [data-style]").count()) === 4
@@ -1586,6 +1617,7 @@ function isExpectedResourceNoise(m) {
     check("无 JS 报错", errors.length === 0, errors.join(" | ").slice(0, 300));
 
     // -- 390px：系列 tab 必须点得到（工单 04 的 flex:none 曾把「等爱」压在「更多」底下）
+    block("390px");
     // 主流程是 420px 视口，抓不到这个，所以单独开 390px 的 context。
     // 维度：语言（标签满宽 zh 201 / en 254 / ja 212）、档位（en 16 档品牌 "Senbatsu" 133
     // 比 7 档的 96 宽 37）、系列（品牌随系列变宽）。三个维度缺一个就漏 —— 我第一版只跑
@@ -1595,6 +1627,7 @@ function isExpectedResourceNoise(m) {
     // 跑不动「语言 × 档位 × 系列 × 在线/离线」的完整矩阵。这里只留语言 × 系列，
     // 档位与离线两维交给 /tmp/opencode/verify-header.cjs（54 状态 + 「没有横向滚动」）。
     // -- 390px：首屏必须见脸（工单 02 的判据）。新访客（未关引导卡）第一张成员卡
+    block("390px");
     // 原本在第 738px —— 视口 844 的 87% 之前全是页头/步骤条/引导卡/进度/9 个筛选控件，
     // 而底部托盘 100px 又盖住它。「首屏见脸」此前只在关掉引导卡之后才成立。
     //
