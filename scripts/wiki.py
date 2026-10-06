@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 import time
@@ -20,13 +21,27 @@ def build_opener(proxy=PROXY):
 _opener = build_opener()
 
 
+def maybe_gunzip(raw):
+    """Wayback 的 `id_` 重放偶尔回的是 WARC 里的 **gzip 载荷**（实测：2009 年的
+    cute01_s.jpg 回 15335 字节、头 `1f 8b`）—— 不解的话会被当成「文件不是图」，
+    而 `_orig` 缓存一存就永久卡住（下载只看文件在不在）。JPEG/PNG/WebP/HTML/JSON
+    都不以 `1f 8b` 开头，判据安全；坏 gzip 原样返回，交给调用方按「不是图」处理。
+    """
+    if raw[:2] != b"\x1f\x8b":
+        return raw
+    try:
+        return gzip.decompress(raw)
+    except Exception:
+        return raw
+
+
 def get(url, retries=4, data=None, opener=None):
     opener = opener or _opener
     for i in range(retries):
         try:
             req = urllib.request.Request(url, data=data, headers={"User-Agent": UA, "Referer": "https://48pedia.org/"})
             with opener.open(req, timeout=40) as r:
-                return r.read()
+                return maybe_gunzip(r.read())
         except Exception as e:
             if i == retries - 1:
                 raise

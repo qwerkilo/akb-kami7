@@ -58,3 +58,37 @@ class GetRetryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GzipPayloadTests(unittest.TestCase):
+    """Wayback 的 `id_` 重放偶尔回的是 WARC 里的 **gzip 载荷**（实测：2009 年的
+    cute01_s.jpg 回 15335 字节、头 `1f 8b`）—— 不解的话会被当成「文件不是图」，
+    而 `_orig` 缓存一存就永久卡住（下载只看文件在不在）。"""
+
+    def test_gunzips_payload_with_gzip_magic(self):
+        import gzip as gz
+
+        class Opener:
+            def open(self, req, timeout=None):
+                return FakeResponse(gz.compress(b"\xff\xd8real jpeg bytes"))
+
+        out = wiki.get("https://x", opener=Opener())
+        self.assertEqual(out, b"\xff\xd8real jpeg bytes")
+
+    def test_leaves_normal_payload_alone(self):
+        class Opener:
+            def open(self, req, timeout=None):
+                return FakeResponse(b"\xff\xd8plain jpeg")
+
+        out = wiki.get("https://x", opener=Opener())
+        self.assertEqual(out, b"\xff\xd8plain jpeg")
+
+    def test_broken_gzip_is_returned_raw(self):
+        """头像 gzip 但内容坏了：原样返回（由调用方按「不是图」处理），不抛。"""
+
+        class Opener:
+            def open(self, req, timeout=None):
+                return FakeResponse(b"\x1f\x8bnot really gzip")
+
+        out = wiki.get("https://x", opener=Opener())
+        self.assertEqual(out, b"\x1f\x8bnot really gzip")
