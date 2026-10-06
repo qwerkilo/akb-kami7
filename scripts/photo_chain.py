@@ -57,13 +57,14 @@ def wayback_photo(url, fetch):
     return "https://web.archive.org/web/{}id_/{}".format(rows[0][1], url)
 
 
-def commons_photo(name, fetch):
+def commons_photo(name, fetch, errors=None):
     query = WIKI_API + "?" + urllib.parse.urlencode(
         {"action": "query", "titles": name, "prop": "pageimages", "pithumbsize": "800", "format": "json"}
     )
     try:
         data = json.loads(fetch(query))
-    except Exception:
+    except Exception as e:
+        _note(errors, e)
         return None
     # 返回值未必是预期的形状：实测端点在异常时会回 JSON 数组而不是对象，
     # 而原来只把 json.loads 包在 try 里，后面的 .get 就抛出去了 ——
@@ -82,7 +83,14 @@ def norm_name(s):
     return re.sub(r"\s+", "", s or "")
 
 
-def _search_hits(name, fetch):
+def _note(errors, e):
+    """把「请求失败」记进调用方的 errors 列表（工单 09）：失败与「查了但没有」必须
+    分得开 —— 429 被记成「源里没有照片」是本仓记录过的坑。"""
+    if errors is not None:
+        errors.append(e)
+
+
+def _search_hits(name, fetch, errors=None):
     query = COMMONS_API + "?" + urllib.parse.urlencode(
         {
             "action": "query",
@@ -95,7 +103,8 @@ def _search_hits(name, fetch):
     )
     try:
         data = json.loads(fetch(query))
-    except Exception:
+    except Exception as e:
+        _note(errors, e)
         return []
     if not isinstance(data, dict):
         return []
@@ -106,7 +115,7 @@ def _search_hits(name, fetch):
     ]
 
 
-def _imageinfo(titles, fetch):
+def _imageinfo(titles, fetch, errors=None):
     """一批取回候选文件的 imageinfo（titles=A|B|…，一次请求）。形状不对返回 {}。"""
     query = COMMONS_API + "?" + urllib.parse.urlencode(
         {
@@ -119,7 +128,8 @@ def _imageinfo(titles, fetch):
     )
     try:
         data = json.loads(fetch(query))
-    except Exception:
+    except Exception as e:
+        _note(errors, e)
         return {}
     if not isinstance(data, dict):
         return {}
@@ -168,7 +178,7 @@ def _portrait_candidate(page, want):
     return ((info.get("width") or 0) * (info.get("height") or 0), src)
 
 
-def commons_search_photo(name, fetch):
+def commons_search_photo(name, fetch, errors=None):
     """Commons 文件命名空间搜索（`commons_photo` 的补充）：`commons_photo` 只回
     **条目首图**，而不少毕业成员的照片在 Commons 有文件、却没被用进条目（实测：
     Berryz 四人的 AnimeNEXT 单人照、後藤真希 2025）。
@@ -179,13 +189,13 @@ def commons_search_photo(name, fetch):
     want = norm_name(name)
     cands = [
         t
-        for t in _search_hits(name, fetch)
+        for t in _search_hits(name, fetch, errors)
         if not any(j in t.lower() for j in _SEARCH_JUNK)
     ]
     if not cands:
         return None
     best = None
-    for page in _imageinfo(cands[:6], fetch).values():
+    for page in _imageinfo(cands[:6], fetch, errors).values():
         cand = _portrait_candidate(page, want)
         if cand and (best is None or cand[0] > best[0]):
             best = cand

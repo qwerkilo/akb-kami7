@@ -500,8 +500,11 @@ class ResolveFormerPhotosTests(unittest.TestCase):
         urls = {members[0]["file"]: "/upload/images/a.webp"}
         mm.resolve_former_photos(members, urls, lambda url: "[]", warn=msgs.append)
         self.assertNotIn(members[1]["file"], urls)
-        self.assertEqual(len(msgs), 1)
-        self.assertIn("石黒彩", msgs[0])
+        # 工单 09 起还有一行「照片未解析到 N 人（原因）」汇总 —— 断言 intent 不变：
+        # **有人喊过**、且喊到了具体的人（不钉消息条数，条数会随汇总行漂）。
+        joined = "\n".join(msgs)
+        self.assertIn("石黒彩", joined)
+        self.assertIn("源里没有", joined)
 
 
 OG_HTML = """<div class="commonGrid--base">
@@ -1402,3 +1405,69 @@ class TestCrossGroupMerge(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PhotoReasonTests(unittest.TestCase):
+    """工单 09：没找到照片的原因要说清是哪一种（查询失败 / 源里没有 / 预算内未扫完）——
+    「源里没有」被当成事实是本仓翻过的车（预算截断的产物，见 issues/03 的订正）。"""
+
+    MEMBER = {
+        "name": "後藤真希",
+        "file": "m1",
+        "status": "former",
+        "group": "モーニング娘。",
+    }
+
+    def test_commons_failure_noted_as_failure(self):
+        urls, notes = {}, {}
+
+        def boom(url):
+            raise RuntimeError("429")
+
+        mm._resolve_commons([self.MEMBER], urls, boom, lambda *a: None, 0, notes)
+        self.assertEqual(notes.get("m1"), "查询失败")
+        self.assertNotIn("m1", urls)
+
+    def test_commons_empty_noted_as_source_empty(self):
+        urls, notes = {}, {}
+
+        def empty(url):
+            import json
+
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
+            return json.dumps({"query": {"pages": {}}})
+
+        mm._resolve_commons([self.MEMBER], urls, empty, lambda *a: None, 0, notes)
+        self.assertEqual(notes.get("m1"), "源里没有")
+
+    def test_exhausted_group_is_noted_as_budget_not_missing_page(self):
+        """判据 1：某团预算用尽 → 原因**不出现**「无其页」，而是「预算内未扫完」。"""
+        members = [dict(self.MEMBER)]
+        urls, notes = {}, {}
+        best = {"http://x/a": ["20200101000000", "20200202000000", "20200303000000"]}
+
+        def fake_candidates(prefixes, fetch, missing):
+            return best
+
+        def fake_fetch(url):
+            return "<html>no photos here</html>"
+
+        with mock.patch.object(mm, "_old_site_candidates", fake_candidates), mock.patch.object(
+            mm, "_group_budget", lambda missing, g: 2
+        ):
+            mm._resolve_old_site_groups(members, {}, urls, fake_fetch, 0, 900, notes)
+        self.assertEqual(notes.get("m1"), "旧站预算内未扫完")
+
+    def test_report_lists_reasons_per_person(self):
+        """收口要逐人给原因（判据 1/2 的可读面）：查询失败与源里没有分开列。"""
+        members = [dict(self.MEMBER)]
+        warns = []
+
+        def boom(url):
+            raise RuntimeError("429")
+
+        mm.resolve_former_photos(members, {}, boom, warn=warns.append, pause=0)
+        joined = "\n".join(warns)
+        self.assertIn("照片未解析到 1 人（原因）：", joined)
+        self.assertIn("後藤真希：查询失败", joined)

@@ -1210,10 +1210,16 @@ def _group_budget(missing, group):
     return max(30, 15 * in_group)
 
 
-def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
-    """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。"""
+def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=None):
+    """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。
+
+    `notes`（工单 09）：预算用尽/全局上限时，该团没解析到的人原因写进 `notes[file]` ——
+    「本轮没扫完」不是「源里没有」（实测：残留 12 人被写成「源里确实没有」，其中 5 人
+    在预算修好后的下一轮就找回了）。"""
     fetched = 0
     groups = _groups_with_missing(missing)
+    scanned = set()
+    exhausted = set()
     # 心跳的「总数」= 各团预算之和（全局上限再夹一次）：比写 limit 更接近真实工作量
     with progress.stage(
         "旧站扫描", total=min(limit, sum(_group_budget(missing, g) for g in groups))
@@ -1223,22 +1229,41 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit):
                 break
             if not any(m.get("group") == group for m in missing):
                 continue
+            scanned.add(group)
             budget = _group_budget(missing, group)
+            before = fetched
             best = _old_site_candidates(prefixes, fetch, missing)
             fetched = _pick_old_site_group(
                 best, by_name, urls, fetch, budget, fetched, limit
             )
+            if fetched - before >= budget:
+                exhausted.add(group)
+    if notes is not None:
+        _note_scan_gaps(missing, urls, scanned, exhausted, notes)
     return fetched
 
 
-def resolve_old_site_photos(members, urls, fetch, warn=print, pause=0.0, limit=900):
+def _note_scan_gaps(missing, urls, scanned, exhausted, notes):
+    """「没扫完」的原因写进 notes（工单 09）：全局上限与预算用尽分开记。"""
+    for m in missing:
+        if m["file"] in urls or m.get("group") in scanned:
+            continue  # 扫完了、也没超预算 —— 原因交给后面的源去说
+        notes.setdefault(m["file"], "旧站未扫到（全局上限）")
+    for m in missing:
+        if m["file"] not in urls and m.get("group") in exhausted:
+            notes.setdefault(m["file"], "旧站预算内未扫完")
+
+
+def resolve_old_site_photos(
+    members, urls, fetch, warn=print, pause=0.0, limit=900, notes=None
+):
     """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
     **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
     missing = [m for m in members if m["status"] == "former" and m["file"] not in urls]
     if not missing:
         return members, urls
     by_name = {m["name"]: m for m in missing}
-    _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit)
+    _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes)
     _resolve_file_evidence(by_name, urls, fetch, pause)
     return members, urls
 
@@ -1266,32 +1291,38 @@ def _commons_for(m, fetch, pause):
 
     Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
     不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
+
+    返回 `(url, errors)`（工单 09）：url 为 None 且 errors 非空 = 请求失败；
+    errors 空 = 查了但没有（调用方据此分「查询失败」与「源里没有」）。
     """
+    errors = []
     if pause:
         time.sleep(pause)
-    resolved = photo_chain.commons_photo(m["name"], fetch)
+    resolved = photo_chain.commons_photo(m["name"], fetch, errors)
     if not resolved:
         # 条目首图没有时再搜 Commons 文件命名空间：不少毕业者的照片在 Commons
         # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
         if pause:
             time.sleep(pause)
-        resolved = photo_chain.commons_search_photo(m["name"], fetch)
+        resolved = photo_chain.commons_search_photo(m["name"], fetch, errors)
     if not resolved and m.get("photo_url"):
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
         resolved = photo_chain.wayback_photo(m["photo_url"], fetch)
-    return resolved
+    return resolved, errors
 
 
-def _resolve_commons(members, urls, fetch, warn, pause):
+def _resolve_commons(members, urls, fetch, warn, pause, notes=None):
     """链尾：Wikipedia Commons（现役与兜底；失败被 `commons_photo` 吞成 None）。"""
     todo = [m for m in members if m["status"] == "former" and m["file"] not in urls]
     with progress.stage("Commons", total=len(todo)):
         for m in todo:
-            resolved = _commons_for(m, fetch, pause)
+            resolved, errors = _commons_for(m, fetch, pause)
             if resolved:
                 urls[m["file"]] = resolved
             else:
+                if notes is not None:
+                    notes[m["file"]] = "查询失败" if errors else "源里没有"
                 # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
                 # 只有连站内文件都没有的才真的显示占位。
                 warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))
@@ -1313,14 +1344,30 @@ def resolve_former_photos(members, urls, fetch, warn=print, pause=0.0, skip=None
     在这里过滤一次，三个源共享同一份目标名单。
     """
     target = [m for m in members if not (skip and skip(m))]
+    notes = {}  # file → 没解析到的原因（工单 09：查询失败 / 源里没有 / 预算内未扫完）
     # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的
     _resolve_og(target, urls, fetch)
     try:
-        resolve_old_site_photos(target, urls, fetch, warn=warn, pause=pause)
+        resolve_old_site_photos(target, urls, fetch, warn=warn, pause=pause, notes=notes)
     except Exception as e:
         warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
-    _resolve_commons(target, urls, fetch, warn, pause)
+    _resolve_commons(target, urls, fetch, warn, pause, notes)
+    _report_photo_reasons(target, urls, notes, warn)
     return members, urls
+
+
+def _report_photo_reasons(members, urls, notes, warn):
+    """没解析到照片的人**逐人原因**（工单 09）：把「源里没有」与「查询失败」
+    「预算内未扫完」分开 —— 预算截断被记成源的性质是本仓翻过的车。"""
+    lines = [
+        "  {}：{}".format(m["name"], notes.get(m["file"], "未记录"))
+        for m in members
+        if m["status"] == "former" and m["file"] not in urls
+    ]
+    if lines:
+        warn("照片未解析到 {} 人（原因）：".format(len(lines)))
+        for line in lines:
+            warn(line)
 
 def build_sections(members):
     """早安是**一系列两团**（モーニング娘。+ ℃-ute），且期生有 18 期 —— 所以不分组，段 label 用团名本身；

@@ -1,6 +1,6 @@
 # 工单 09：照片源的「没找到」要说清是哪一种
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## 背景（两轴审查的两条发现）
@@ -36,6 +36,39 @@
 3. 同字同名的两条测试（同写法 + 跨界拼接）钉住当前行为（拒绝不了 → 必须显式记录为已知限制，
    测试名里写明）。
 4. 变异 ≥2 全杀；不改变既有产物的照片集合（本工单只改「怎么描述」，不改「选哪张」）。
+
+## 实现记录（2026-10-06）
+
+**口径**（三个原因，互斥）：`查询失败`（请求抛了）/ `源里没有`（查了但没有）/
+`旧站预算内未扫完`（该团扫描超预算）与 `旧站未扫到（全局上限）`（团没轮到）。
+
+- `photo_chain`：`commons_photo` / `commons_search_photo` 加可选 `errors` 列表 ——
+  请求失败记进 errors（仍返回 None，行为不变）；`_search_hits`/`_imageinfo` 同样透传。
+- `morningmusume_members`：`_commons_for` 返回 `(url, errors)`；`_resolve_commons` 收
+  `notes` 分「查询失败/源里没有」；`_resolve_old_site_groups` 收 `notes` 记「预算用尽/
+  全局上限」（`scanned`/`exhausted` 两个集合）；`resolve_former_photos` 收口
+  `_report_photo_reasons` 逐人打一行。
+- 判据 3（同字同名）：ADR-0022 补充 + CONTEXT 的 _Avoid_ 已在两轴审查修复时落。
+
+**测试**：`test_photo_chain.FailureVisibilityTests` 3 条（搜索失败/空结果/pageimages 失败）+
+`test_morning_members.PhotoReasonTests` 4 条（查询失败/源里没有/预算用尽/收口报告）。
+变异 **2/2 被杀**（去掉「查询失败」分支 / 不记预算用尽）。
+
+**如实记账**：最后一条（收口报告）的测试与实现是同一次编辑落的，没先看红 ——
+前三条是红→绿的正常循环。
+
+**真实跑验证（2026-10-06，exit 0）**：
+
+```
+照片未解析到 5 人（原因）：
+  福田明日香：源里没有   石黒彩：源里没有   市井紗耶香：源里没有
+  村上愛：源里没有       小数賀芙由香：源里没有
+```
+
+- **产物照片集合零变化**：1544 人 / 1537 有图 / 7 缺图，逐人 img 标志与跑前**零差异**（判据 4 ✓）。
+- **发现一个口径缺口（另开工单 10）**：汇总里 7 人缺图，但「未解析到」只列 5 人 ——
+  另 2 人（有原栞菜 / 梅田えりか）是**下载/压缩失败**（日志里逐人可见：`compress failed
+梅田えりか cannot identify image file`），原因没进汇总表。
 
 ## 注意
 

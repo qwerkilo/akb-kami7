@@ -326,3 +326,39 @@ class WaybackPhotoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FailureVisibilityTests(unittest.TestCase):
+    """工单 09：请求失败要能被调用方看见（errors），与「查了但没有」分开 ——
+    429 被记成「源里没有」是本仓记录过的坑（docs/agents/data-pipeline.md）。"""
+
+    def test_search_request_failure_is_reported(self):
+        def boom(url):
+            raise RuntimeError("429 Too Many Requests")
+
+        errors = []
+        self.assertIsNone(
+            photo_chain.commons_search_photo("後藤真希", boom, errors=errors)
+        )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("429", str(errors[0]))
+
+    def test_search_empty_result_is_not_a_failure(self):
+        def empty(url):
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
+            return json.dumps({"query": {"pages": {}}})
+
+        errors = []
+        self.assertIsNone(
+            photo_chain.commons_search_photo("後藤真希", empty, errors=errors)
+        )
+        self.assertEqual(errors, [])
+
+    def test_pageimages_failure_is_reported(self):
+        def boom(url):
+            raise RuntimeError("503")
+
+        errors = []
+        self.assertIsNone(photo_chain.commons_photo("後藤真希", boom, errors=errors))
+        self.assertEqual(len(errors), 1)
