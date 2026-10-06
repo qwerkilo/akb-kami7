@@ -1137,18 +1137,32 @@ def _match_page(html, original, ts, by_name, urls):
 
 
 def _scan_tasks(best, budget, fetched, limit):
-    """按预算把「(原页, 快照 ts)」展开成任务表（每 URL 试最早 3 个）。"""
+    """按预算把「(原页, 快照 ts)」展开成任务表（每 URL 试最早 3 个）。
+
+    返回 `(tasks, cut)`：`cut` 是**截断原因**（None = 全展开完 / "budget" = 团预算用尽 /
+    "limit" = 全局上限）—— 没有它，「被截断」与「扫完了没找到」在下游长得一模一样
+    （工单 09 的整条目的就是这个：预算截断被写成「源里没有」）。
+    """
     group_fetched = 0
     tasks = []
+    cut = None
     for original in sorted(best):
-        if fetched + group_fetched >= limit or group_fetched >= budget:
+        if fetched + group_fetched >= limit:
+            cut = "limit"
+            break
+        if group_fetched >= budget:
+            cut = "budget"
             break
         for ts in sorted(best[original])[:3]:
-            if fetched + group_fetched >= limit or group_fetched >= budget:
+            if fetched + group_fetched >= limit:
+                cut = "limit"
+                break
+            if group_fetched >= budget:
+                cut = "budget"
                 break
             group_fetched += 1
             tasks.append((original, ts))
-    return tasks
+    return tasks, cut
 
 
 def _apply_scan_pages(tasks, snap_urls, pages, by_name, urls):
@@ -1173,7 +1187,7 @@ def _pick_old_site_group(best, by_name, urls, fetch, budget, fetched, limit):
     阵容复用 —— 取「最新」会抓到改版后的页（实测：artist/01/NN 在 2024 已变成
     团体导航页、alt 全是团名，一个成员都配不到）。
     """
-    tasks = _scan_tasks(best, budget, fetched, limit)
+    tasks, cut = _scan_tasks(best, budget, fetched, limit)
     # 并发抓（每主机的并发/间隔见 `fetch_pool.HOST_LIMITS`；调用方的 pause 是
     # Commons 的节流，不套在 Wayback 上），但**按任务顺序**应用配对：同一成员多个
     # 候选时先到者胜，与串行结果一致（确定性）。
@@ -1182,7 +1196,7 @@ def _pick_old_site_group(best, by_name, urls, fetch, budget, fetched, limit):
         snap_urls, fetch, host="web.archive.org", raise_first=False
     )
     _apply_scan_pages(tasks, snap_urls, pages, by_name, urls)
-    return fetched + len(tasks)
+    return fetched + len(tasks), cut
 
 
 def _resolve_file_evidence(by_name, urls, fetch, pause):
@@ -1219,7 +1233,8 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=
     fetched = 0
     groups = _groups_with_missing(missing)
     scanned = set()
-    exhausted = set()
+    exhausted = set()  # 团预算用尽
+    capped = set()  # 团被全局上限截断（预算还没用完）
     # 心跳的「总数」= 各团预算之和（全局上限再夹一次）：比写 limit 更接近真实工作量
     with progress.stage(
         "旧站扫描", total=min(limit, sum(_group_budget(missing, g) for g in groups))
@@ -1231,27 +1246,39 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=
                 continue
             scanned.add(group)
             budget = _group_budget(missing, group)
-            before = fetched
             best = _old_site_candidates(prefixes, fetch, missing)
-            fetched = _pick_old_site_group(
+            fetched, cut = _pick_old_site_group(
                 best, by_name, urls, fetch, budget, fetched, limit
             )
-            if fetched - before >= budget:
+            if cut == "budget":
                 exhausted.add(group)
+            elif cut == "limit":
+                capped.add(group)
     if notes is not None:
-        _note_scan_gaps(missing, urls, scanned, exhausted, notes)
+        _note_scan_gaps(missing, urls, scanned, exhausted, capped, notes)
     return fetched
 
 
-def _note_scan_gaps(missing, urls, scanned, exhausted, notes):
-    """「没扫完」的原因写进 notes（工单 09）：全局上限与预算用尽分开记。"""
+def _note_scan_gaps(missing, urls, scanned, exhausted, capped, notes):
+    """「没扫完」的原因写进 notes（工单 09）：三种截断分开记。
+
+    - 团压根没轮到 → 「旧站未扫到（全局上限）」
+    - 团预算用尽 → 「旧站预算内未扫完」
+    - 团被全局上限中途截断（预算还没用完）→ 「旧站被全局上限截断」
+      （此前这一类既不入 exhausted、也因 group 在 scanned 里而跳过 → 静默落到
+      Commons 写成「源里没有」，两轴审查抓出）
+    """
     for m in missing:
         if m["file"] in urls or m.get("group") in scanned:
             continue  # 扫完了、也没超预算 —— 原因交给后面的源去说
         notes.setdefault(m["file"], "旧站未扫到（全局上限）")
     for m in missing:
-        if m["file"] not in urls and m.get("group") in exhausted:
+        if m["file"] in urls:
+            continue
+        if m.get("group") in exhausted:
             notes.setdefault(m["file"], "旧站预算内未扫完")
+        elif m.get("group") in capped:
+            notes.setdefault(m["file"], "旧站被全局上限截断")
 
 
 def resolve_old_site_photos(
@@ -1322,7 +1349,11 @@ def _resolve_commons(members, urls, fetch, warn, pause, notes=None):
                 urls[m["file"]] = resolved
             else:
                 if notes is not None:
-                    notes[m["file"]] = "查询失败" if errors else "源里没有"
+                    # 旧站的原因（预算/上限截断）优先：Commons 是链尾，覆盖会让
+                    # 工单 09 的整条目的落空（两轴审查：全链路报告永远看不到截断）。
+                    notes.setdefault(
+                        m["file"], "查询失败" if errors else "源里没有"
+                    )
                 # 上游解析不到：仓库里已有照片的成员会沿用本地文件（img 仍为 true），
                 # 只有连站内文件都没有的才真的显示占位。
                 warn("warning: 早安毕业成员照片解析不到（若无站内文件则占位）：{}".format(m["name"]))

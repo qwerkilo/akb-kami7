@@ -28,34 +28,52 @@ test("e2e 里的等待不许裸吞超时（.catch(() => {}) 要带标签）", ()
   );
 });
 
+/** 单个文件里「没界」或「超时被静默忽略」的等待调用（返回违规描述列表）。 */
+function unboundedWaits(src, f) {
+  const offenders = [];
+  const re = /\.(waitForFunction|waitForSelector)\(/g;
+  let m;
+  while ((m = re.exec(src))) {
+    // 按**括号配平**截出整个调用（回调体里也有 ")"，"找到第一个 );" 会截错）
+    let depth = 0;
+    let i = m.index + m[0].length - 1;
+    for (; i < src.length; i++) {
+      if (src[i] === "(") depth++;
+      else if (src[i] === ")" && --depth === 0) break;
+    }
+    const stmt = src.slice(m.index, i + 1);
+    const line = src.slice(0, m.index).split("\n").length;
+    if (!/timeout/.test(stmt)) {
+      offenders.push(`${f}:${line} ${m[1]} 无 timeout`);
+      continue;
+    }
+    // Playwright 的签名是 (fn, arg, options)：options 放**第二参**会被当成 arg、
+    // 超时静默失效（两轴审查：仓内曾有 3 处这种写法）。检查调用尾部两参是
+    // `null, { … timeout … }` —— 比切分全部实参简单，够用。
+    if (
+      m[1] === "waitForFunction" &&
+      !/,\s*null\s*,\s*\{[^}]*timeout[^}]*\}\s*\)$/.test(stmt)
+    ) {
+      offenders.push(
+        `${f}:${line} waitForFunction 第二参必须是 null（options 放第三参）`
+      );
+    }
+  }
+  return offenders;
+}
+
 test("e2e 的等待都有界（不许无 timeout 的 waitForFunction/waitForSelector）", () => {
   const offenders = [];
   for (const f of fs.readdirSync(DIR).sort()) {
     if (!f.endsWith(".cjs") || f === "_wait.cjs") continue;
-    const src = fs.readFileSync(path.join(DIR, f), "utf8");
-    // 逐语句看：waitForFunction( 之后到下一个 ); 之间必须出现 timeout
-    const re = /\.(waitForFunction|waitForSelector)\(/g;
-    let m;
-    while ((m = re.exec(src))) {
-      // 按**括号配平**截出整个调用（回调体里也有 ")"，"找到第一个 );" 会截错 ——
-      // 第一版就是这么误报 5 处的）
-      let depth = 0;
-      let i = m.index + m[0].length - 1;
-      for (; i < src.length; i++) {
-        if (src[i] === "(") depth++;
-        else if (src[i] === ")" && --depth === 0) break;
-      }
-      const stmt = src.slice(m.index, i + 1);
-      if (!/timeout/.test(stmt)) {
-        const line = src.slice(0, m.index).split("\n").length;
-        offenders.push(`${f}:${line} ${m[1]}`);
-      }
-    }
+    offenders.push(
+      ...unboundedWaits(fs.readFileSync(path.join(DIR, f), "utf8"), f)
+    );
   }
   assert.deepEqual(
     offenders,
     [],
-    "无 timeout 的等待会挂住整条套件（或按默认 30s 静默烧）"
+    "等待要么没界、要么超时被静默忽略（options 要在第三参）"
   );
 });
 

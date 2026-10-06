@@ -460,6 +460,7 @@ class ResolveFormerPhotosTests(unittest.TestCase):
             {
                 "name": "石黒彩",
                 "status": "former",
+                "group": "モーニング娘。",
                 "file": "morningmusume:石黒彩",
                 # 旧站逐成员照片的 URL：早安的旧列表页**没有**这种配对
                 # （见 resolve_former_photos 的注释），所以这一节只在
@@ -498,7 +499,17 @@ class ResolveFormerPhotosTests(unittest.TestCase):
         msgs = []
         members = self._members()
         urls = {members[0]["file"]: "/upload/images/a.webp"}
-        mm.resolve_former_photos(members, urls, lambda url: "[]", warn=msgs.append)
+
+        # 「查了但没有」要用**形状合法**的空响应：`"[]"` 是端点异常时的形状，
+        # 现在会被记成「查询失败」（工单 09/10 的区分）。
+        def empty(url):
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
+            if "pageimages" in url:
+                return json.dumps({"query": {"pages": {}}})
+            return "[]"  # CDX 等其它端点
+
+        mm.resolve_former_photos(members, urls, empty, warn=msgs.append)
         self.assertNotIn(members[1]["file"], urls)
         # 工单 09 起还有一行「照片未解析到 N 人（原因）」汇总 —— 断言 intent 不变：
         # **有人喊过**、且喊到了具体的人（不钉消息条数，条数会随汇总行漂）。
@@ -564,7 +575,7 @@ class ScanBudgetTests(unittest.TestCase):
             calls.append(url)
             return "<html></html>"
 
-        fetched = mm._pick_old_site_group(best, {}, {}, fetch, budget, 0, limit)
+        fetched, _cut = mm._pick_old_site_group(best, {}, {}, fetch, budget, 0, limit)
         return fetched, calls
 
     def test_budget_counts_fetches_not_urls(self):
@@ -592,7 +603,7 @@ class ScanBudgetTests(unittest.TestCase):
 
         def fake_pick(best, by_name, urls, fetch, budget, fetched, limit):
             budgets.append(budget)
-            return fetched
+            return fetched, None
 
         members = (
             [{"name": f"a{i}", "group": "モーニング娘。", "status": "former", "file": f"f{i}"} for i in range(3)]
@@ -625,7 +636,7 @@ class ScanConcurrencyTests(unittest.TestCase):
             return pages["http://x/a"] if "/x/a" in u else pages["http://x/b"]
 
         urls = {}
-        fetched = mm._pick_old_site_group(best, by_name, urls, fake, 100, 0, 900)
+        fetched, _cut = mm._pick_old_site_group(best, by_name, urls, fake, 100, 0, 900)
         self.assertEqual(fetched, 2)
         self.assertIn("pic/a.jpg", urls["f1"], "URL 序靠前的候选必须先应用")
 
@@ -642,7 +653,7 @@ class ScanConcurrencyTests(unittest.TestCase):
             return '<img ALT="甲" SRC="http://pic/b.jpg">'
 
         urls = {}
-        mm._pick_old_site_group(best, by_name, urls, fake, 100, 0, 900)
+        mm._pick_old_site_group(best, by_name, urls, fake, 100, 0, 900)  # 只看副作用
         self.assertIn("pic/b.jpg", urls["f1"])
 
 
@@ -1471,3 +1482,39 @@ class PhotoReasonTests(unittest.TestCase):
         joined = "\n".join(warns)
         self.assertIn("照片未解析到 1 人（原因）：", joined)
         self.assertIn("後藤真希：查询失败", joined)
+
+    def test_old_site_reason_survives_the_commons_stage(self):
+        """链尾的 Commons 不得覆盖旧站的原因（两轴审查抓到：覆盖让工单 09 的整条
+        目的落空 —— 全链路报告永远看不到「预算内未扫完」）。"""
+        members = [dict(self.MEMBER)]
+        urls, notes = {}, {}
+        notes[members[0]["file"]] = "旧站预算内未扫完"  # 模拟旧站段先写
+
+        def empty(url):
+            import json
+
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
+            return json.dumps({"query": {"pages": {}}})
+
+        mm._resolve_commons(members, urls, empty, lambda *a: None, 0, notes)
+        self.assertEqual(notes[members[0]["file"]], "旧站预算内未扫完")
+
+    def test_group_cut_by_global_limit_is_noted(self):
+        """团被全局上限中途截断（预算没用完）：既不是「扫完了没找到」，也不是
+        「预算用尽」—— 单独一类（此前静默落到 Commons 写成「源里没有」）。"""
+        members = [dict(self.MEMBER)]
+        urls, notes = {}, {}
+        best = {"http://x/a": ["20200101000000", "20200202000000", "20200303000000"]}
+
+        def fake_candidates(prefixes, fetch, missing):
+            return best
+
+        with mock.patch.object(mm, "_old_site_candidates", fake_candidates), mock.patch.object(
+            mm, "_group_budget", lambda missing, g: 50
+        ):
+            # limit=1：只够抓 1 个快照 → 团被全局上限截断
+            mm._resolve_old_site_groups(
+                members, {}, urls, lambda u: "<html>x</html>", 0, 1, notes
+            )
+        self.assertEqual(notes.get(members[0]["file"]), "旧站被全局上限截断")

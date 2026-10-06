@@ -115,6 +115,28 @@ function selfTest() {
     0,
     "compareCounts：失败的套件由失败路径管，不重复报"
   );
+  // parseArgs 的退化路径（retro 规则 1：坏参数最容易假绿）——此前 main 内联重写
+  // 同一逻辑、parseArgs 没人调用，两轴审查抓到；现在 main 调它、自检覆盖它。
+  eq(
+    [
+      parseArgs(["--max-parallel"]).error !== undefined,
+      parseArgs(["--max-parallel", "0"]).error !== undefined,
+      parseArgs(["--max-parallel", "x"]).error !== undefined,
+      parseArgs(["--only"]).error !== undefined,
+    ],
+    [true, true, true, true],
+    "parseArgs 坏参数要报错"
+  );
+  eq(
+    [
+      parseArgs(["--max-parallel", "2"]).maxParallel,
+      parseArgs(["--only", "v5,pwa"]).only.has("pwa"),
+      parseArgs([]).error === undefined,
+      parseArgs(["--max-parallel", "3"]).only === null,
+    ],
+    [2, true, true, true],
+    "parseArgs 正常路径"
+  );
   return { ok: failures.length === 0, failures };
 }
 
@@ -219,30 +241,14 @@ async function main() {
     console.log("✓ 自检全过（含失败路径）");
     return;
   }
-  // 参数校验：缺值/非法值要**明确报错**，不能算出 NaN 然后「0/0 通过、exit 0」
-  // （把「失败」记成「通过」正是最坏的假绿方向）。注意 --max-parallel 也可能是
-  // 第一个参数（argv[0]）—— 早先写成 `mi > 0` 会把它静默忽略。
-  const mi = argv.indexOf("--max-parallel");
-  let maxParallel = null;
-  if (mi >= 0) {
-    maxParallel = Number(argv[mi + 1]);
-    if (!Number.isInteger(maxParallel) || maxParallel < 1) {
-      console.error(
-        `✗ --max-parallel 需要一个正整数，实得 ${JSON.stringify(argv[mi + 1])}`
-      );
-      process.exit(2);
-    }
+  // 参数校验走 `parseArgs`（单一出处）：缺值/非法值要**明确报错**，不能算出 NaN
+  // 然后「0/0 通过、exit 0」（把「失败」记成「通过」正是最坏的假绿方向）。
+  // 两轴审查抓到 main 曾内联重写同一逻辑 → 定义与行为会漂，已收回一处。
+  const { maxParallel, only, error } = parseArgs(argv);
+  if (error) {
+    console.error(`✗ ${error}`);
+    process.exit(2);
   }
-  const only = (() => {
-    const i = argv.indexOf("--only");
-    if (i < 0) return null;
-    const val = argv[i + 1];
-    if (!val) {
-      console.error("✗ --only 需要一个逗号分隔的套件名（v5,pwa,header,e2e）");
-      process.exit(2);
-    }
-    return new Set(val.split(",").map((s) => s.trim()));
-  })();
   const suites = only ? SUITES.filter((s) => only.has(s.name)) : SUITES;
   if (!suites.length) {
     console.error(

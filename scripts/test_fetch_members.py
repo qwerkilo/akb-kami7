@@ -1718,3 +1718,29 @@ class PhotoFailureReasonTests(unittest.TestCase):
         out = buf.getvalue()
         self.assertIn("有原栞菜", out)
         self.assertIn("下载失败", out)
+
+
+class MissingUnionTests(unittest.TestCase):
+    """工单 10 判据 3 的端到端面：两段的并集 = 缺图名单 ——
+    「取不下来」的那段只列**真的没有图**的人（失败过但最终有图的不列），
+    且原因段与缺图名单不重不漏。"""
+
+    def test_union_of_sections_equals_missing_list(self):
+        members = [
+            {"id": "m1", "name": "有原栞菜", "img": False},  # 解析到、取不下来
+            {"id": "m2", "name": "福田明日香", "img": False},  # 上游未解析到
+            {"id": "m3", "name": "梅田えりか", "img": True},  # 失败过但最终有图
+        ]
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            fetch_members.warn_missing_images(
+                members, {"m1": "下载失败", "m3": "下载失败"}
+            )
+        out = buf.getvalue()
+        # 第二段只列 m1（m3 有图，不列）
+        self.assertIn("有原栞菜", out)
+        self.assertIn("照片解析到了但取不下来 1 人", out)
+        self.assertNotIn("梅田えりか", out)
+        # 缺图名单含 m1、m2；m3 不在
+        self.assertIn("2 位成员没有照片", out)
+        self.assertNotIn("梅田えりか", out.split("照片解析到了")[0])

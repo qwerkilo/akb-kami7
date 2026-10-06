@@ -9,6 +9,7 @@
   - ⚠️ **Wikipedia 的表有 `rowspan="2"`**（加入年月日与加入期会横跨相邻两行），于是有的行只有 8 格 —— 按位置取列会串位。`split_rows` 先按**列号**把 rowspan 向下填充。**这一条与等爱不同，不能复用它的 parser**（实测把 `love_members.parse_wiki_members` 套上来得到 0 人）。
   - ⚠️ **毕业照片的三节链**（工单 01/02，2026-10-04 起）：① **现官网 `/og/`**（仍在事务所的卒业生，官方肖像；链首，命中即止）→ ② **旧官网 Wayback 快照**（按团枚举 `artist/01/NN` 等一人一页/扁平页 + 在籍期校验；两个坑：2005 前后的页是 **Shift_JIS** 且属性大写、CDX 的 URL 有 `:80`/非 `:80` 两种形态要归一）→ ③ **Commons**（先查条目首图 `pageimages`，落空再搜**文件命名空间** `commons_search_photo`：身份校验 = 文件名/描述须含本人姓名，拒视频截帧 `Media from YouTube`/`Extracted images`，多个命中取面积最大；节流 `pause=1.5`，否则 429 会被记成「源里没有」）。**现役走官网照片**。
   - ⚠️ **旧站与 `/og/` 的图一律套 Wayback**：`cdn.helloproject.com` 对脚本一律 403（实测 43 张下载全失败），旧路径也早 404 —— 只有存档里有真图。
+  - **「为什么没有照片」的汇总分两段**：各 loader 的「未解析到 N 人（原因）」（查询失败 / 源里没有 / 旧站预算内未扫完 / 旧站被全局上限截断 / 旧站未扫到）+ 管线的「照片解析到了但取不下来 N 人（原因）」（下载失败 / 源图过小 / 文件不是图）。范围：第一段目前只有早安 loader 会打；全站并集等于缺图名单在当前数据下成立，**不是结构性不变量**（48G/等爱今天没有缺图者；`--no-dl` 下缓存缺失者也不进第二段）。
   - ⚠️ **Commons 要节流**（`resolve_former_photos(pause=1.5)`）：连打几十次会回 429，而失败被吞成「没有照片」—— 缺口名单会把限流记成源里没有。真实缺口名单逐人写进 `.scratch/helloproject-all/issues/03-pipeline.md`（数字让那份记录与产物测试钉，不在这里写第二份）。
 - **共用装配契约**：`scripts/roster.py`（`sort_members` / `project` / `section` / `ymd`）定义组内排序（现役优先 → 假名、空则姓名）、成员投影（基础字段恒在，可选字段仅真值带上）、分段形状 `{group, series, label, members}` 与统一日期格式 `ymd`（`YYYY.MM.DD`，缺月日只给年份）；两个数据源只提供各自的分组逻辑与可选字段集。
 - `simplified.js`（OpenCC 离线生成，缺依赖时跳过）与 `members.js` 同批产出；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。

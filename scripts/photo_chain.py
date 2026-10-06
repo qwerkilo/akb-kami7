@@ -70,6 +70,7 @@ def commons_photo(name, fetch, errors=None):
     # 而原来只把 json.loads 包在 try 里，后面的 .get 就抛出去了 ——
     # 抓取路径上抛异常会让整条早安装配停摆。取不到就当没有。
     if not isinstance(data, dict):
+        _note(errors, ValueError("unexpected payload shape"))
         return None
     for page in (data.get("query") or {}).get("pages", {}).values():
         src = (page.get("thumbnail") or {}).get("source")
@@ -107,6 +108,9 @@ def _search_hits(name, fetch, errors=None):
         _note(errors, e)
         return []
     if not isinstance(data, dict):
+        # 形状异常也是失败形状（端点在异常时回 JSON 数组）—— 不记的话会被写成
+        # 「源里没有」（两轴审查）。
+        _note(errors, ValueError("unexpected payload shape"))
         return []
     return [
         h.get("title", "")
@@ -132,6 +136,7 @@ def _imageinfo(titles, fetch, errors=None):
         _note(errors, e)
         return {}
     if not isinstance(data, dict):
+        _note(errors, ValueError("unexpected payload shape"))
         return {}
     return (data.get("query") or {}).get("pages", {})
 

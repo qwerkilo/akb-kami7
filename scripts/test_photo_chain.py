@@ -362,3 +362,86 @@ class FailureVisibilityTests(unittest.TestCase):
         errors = []
         self.assertIsNone(photo_chain.commons_photo("後藤真希", boom, errors=errors))
         self.assertEqual(len(errors), 1)
+
+
+class ShapeAnomalyTests(unittest.TestCase):
+    """形状异常（端点异常时回 JSON 数组）也是**失败形状**，不是「源里没有」——
+    两轴审查：这三处此前直接返回空、被记成「源里没有」。"""
+
+    def test_array_payload_is_a_failure_not_an_empty_result(self):
+        def arr(url):
+            return json.dumps(["not", "a", "dict"])
+
+        errors = []
+        self.assertIsNone(photo_chain.commons_photo("後藤真希", arr, errors=errors))
+        self.assertEqual(len(errors), 1)
+
+    def test_array_payload_in_search_is_a_failure(self):
+        def arr(url):
+            return json.dumps(["nope"])
+
+        errors = []
+        self.assertIsNone(
+            photo_chain.commons_search_photo("後藤真希", arr, errors=errors)
+        )
+        self.assertEqual(len(errors), 1)
+
+
+class SameWritingLimitationTests(unittest.TestCase):
+    """工单 09 判据 3：**已知限制**——子串校验挡得住不同写法的同名（村上愛 vs 村上恵），
+    挡不住**同写法的两个人**；`commons_photo`（条目首图）路径更弱（无姓名校验）。
+    测试名写明这是记录限制，不是验收正确性（要更严得要求姓名出现在文件标题或交叉核对分类）。"""
+
+    @staticmethod
+    def _fetch(hits, pages):
+        def fetch(url):
+            if "list=search" in url:
+                return json.dumps({"query": {"search": [{"title": t} for t in hits]}})
+            return json.dumps({"query": {"pages": pages}})
+
+        return fetch
+
+    def test_known_limitation_same_writing_other_person_is_not_rejected(self):
+        fetch = self._fetch(
+            ["File:小川紗季.jpg"],
+            {
+                "1": {
+                    "title": "File:小川紗季.jpg",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/ballet.jpg",
+                            "width": 300,
+                            "height": 400,
+                            "extmetadata": {
+                                "ImageDescription": {"value": "バレエダンサーの小川紗季"}
+                            },
+                        }
+                    ],
+                }
+            },
+        )
+        # 记录当前行为：同写法他人**会**被采纳（已知限制，见 ADR-0022 补充）
+        self.assertEqual(
+            photo_chain.commons_search_photo("小川紗季", fetch), "https://upload/ballet.jpg"
+        )
+
+    def test_cross_field_concatenation_no_longer_false_matches(self):
+        """跨界拼接（title="File:前田" + desc="憂佳です"）此前会假命中「前田憂佳」——
+        两轴审查修掉：姓名必须出现在**标题或描述各自**里。"""
+        fetch = self._fetch(
+            ["File:前田"],
+            {
+                "1": {
+                    "title": "File:前田",
+                    "imageinfo": [
+                        {
+                            "url": "https://upload/x.jpg",
+                            "width": 300,
+                            "height": 400,
+                            "extmetadata": {"ImageDescription": {"value": "憂佳です"}},
+                        }
+                    ],
+                }
+            },
+        )
+        self.assertIsNone(photo_chain.commons_search_photo("前田憂佳", fetch))

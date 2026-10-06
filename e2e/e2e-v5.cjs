@@ -76,6 +76,7 @@ async function ready(pg) {
           imgs.length > 0 && imgs.every((i) => i.complete && i.naturalWidth > 0)
         );
       },
+      null,
       { timeout: 15000 }
     )
     .catch(() => noteTimeout("v5 视口内图片"));

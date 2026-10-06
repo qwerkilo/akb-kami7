@@ -666,6 +666,7 @@ function isExpectedResourceNoise(m) {
           im.naturalWidth > 100
         );
       },
+      null,
       { timeout: 15000 }
     );
     check("海报生成成功", true);
@@ -1352,6 +1353,7 @@ function isExpectedResourceNoise(m) {
           im && (im.getAttribute("src") || "").startsWith("data:image/png")
         );
       },
+      null,
       { timeout: 20000 }
     );
     await page.evaluate(() => document.fonts.ready);

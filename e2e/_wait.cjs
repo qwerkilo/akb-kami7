@@ -3,8 +3,10 @@
 // 为什么：主套件 21 分钟里有 18 分钟是 9 次 `ready()` 各烧满 120s 超时 —— 条件恒假
 // （名册的 `<img loading="lazy">` 在视口外永不加载），而 `.catch(() => {})` 把超时吞掉：
 // 不报错、不失败，只是安静地烧。任何「等一等、失败就继续」的地方都走这里 ——
-// 超时打一行 ⚠（含标签与超时值），>5s 报耗时。
+// 超时打一行 ⚠（含标签与超时值），慢过 `SLOW_WAIT_MS` 的等待报耗时。
 const { waitTicker } = require("./_progress.cjs");
+
+const SLOW_WAIT_MS = 5000;
 
 async function _run(label, timeout, call) {
   const t0 = Date.now();
@@ -13,7 +15,8 @@ async function _run(label, timeout, call) {
   try {
     await call();
     const ms = Date.now() - t0;
-    if (ms >= 5000) console.log(`  …${label} 等了 ${(ms / 1000).toFixed(1)}s`);
+    if (ms >= SLOW_WAIT_MS)
+      console.log(`  …${label} 等了 ${(ms / 1000).toFixed(1)}s`);
     return true;
   } catch {
     console.log(

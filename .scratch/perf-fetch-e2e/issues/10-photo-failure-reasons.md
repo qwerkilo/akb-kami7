@@ -53,3 +53,11 @@ warning: 7 位成员没有照片（界面显示占位）：福田明日香、…
   （JPEG/PNG/WebP/HTML/JSON 都不以 `1f 8b` 开头，判据安全；坏 gzip 原样返回）。
   两个 ℃-ute 人（有原栞菜 404 / 梅田えりか 错误页）的图**源里确实没有** ——
   Commons 与 /og/ 都已试过，是真实上限。
+
+## 两轴审查后的补做（2026-10-06）
+
+- 判据 3 的端到端面补齐：`MissingUnionTests`（失败过但最终有图的人**不**进第二段；
+  两段与缺图名单不重不漏）。
+- `photo_chain` 的「形状异常」分支（端点异常时回 JSON 数组）此前静默返回空、被写成
+  「源里没有」→ 现在也记 `errors`（`ShapeAnomalyTests` 两条）。
+- 并集的范围写进 `docs/agents/data-pipeline.md`。
