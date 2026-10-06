@@ -1,6 +1,7 @@
 /* 向导模式（v5 A）E2E：先红后绿。用法：node e2e-v5.cjs */
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
+const { noteTimeout } = require("./_wait.cjs");
 const { chromium } = loadPlaywright();
 const ROOT = require("node:path").join(__dirname, "..");
 const PORT = 8777;
@@ -77,8 +78,10 @@ async function ready(pg) {
       },
       { timeout: 15000 }
     )
-    .catch(() => {});
-  await pg.evaluate(() => document.fonts.ready).catch(() => {});
+    .catch(() => noteTimeout("v5 视口内图片"));
+  await pg
+    .evaluate(() => document.fonts.ready)
+    .catch(() => noteTimeout("v5 字体"));
   await pg.waitForTimeout(600);
 }
 

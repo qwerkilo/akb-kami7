@@ -1,0 +1,36 @@
+name: check
+
+# 仓库的提交闸门（retro 2026-10-06）。本机跑不了钩子（/mnt/sdcard 是 FUSE 挂载、
+# husky 的 pre-commit 没有可执行位 → git 直接跳过），所以闸门一直是「agent 记得跑
+# `npm run check`」——本仓为此付过两次红闸门提交。CI 把它变成机制。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: python3 -m pip install --user Pillow
+      - run: npm run check
+
+  e2e:
+    # E2E 是 UI 层唯一的验收手段（app.js 没有单测缝），也放进来 —— 但只在主套件上，
+    # 全量四套件在 CI 上偏重（本机已用 npm run e2e:all 覆盖）。
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm i --no-save playwright # 只为让 require("playwright") 能解析；不动 lock
+      - run: npx playwright install --with-deps chromium
+      - run: python3 -m pip install --user Pillow
+      - run: npm run e2e

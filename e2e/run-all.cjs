@@ -118,6 +118,29 @@ function selfTest() {
   return { ok: failures.length === 0, failures };
 }
 
+/** 解析参数：返回 {maxParallel, only, error}。校验失败给 error（调用方 exit 2）。 */
+function parseArgs(argv) {
+  const mi = argv.indexOf("--max-parallel");
+  let maxParallel = null;
+  if (mi >= 0) {
+    maxParallel = Number(argv[mi + 1]);
+    if (!Number.isInteger(maxParallel) || maxParallel < 1) {
+      return {
+        error: `--max-parallel 需要一个正整数，实得 ${JSON.stringify(argv[mi + 1])}`,
+      };
+    }
+  }
+  const oi = argv.indexOf("--only");
+  let only = null;
+  if (oi >= 0) {
+    const val = argv[oi + 1];
+    if (!val)
+      return { error: "--only 需要一个逗号分隔的套件名（v5,pwa,header,e2e）" };
+    only = new Set(val.split(",").map((s) => s.trim()));
+  }
+  return { maxParallel, only };
+}
+
 /** 通过但 check 数与基线不符的套件（数守恒要能一眼看出）。 */
 function compareCounts(results) {
   return results.filter(

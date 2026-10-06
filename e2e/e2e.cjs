@@ -1,6 +1,7 @@
 const { spawn } = require("node:child_process");
 const { loadPlaywright } = require("./_playwright.cjs");
-const { elapsed, blockStarter, waitTicker } = require("./_progress.cjs");
+const { waitFor, noteTimeout } = require("./_wait.cjs");
+const { elapsed, blockStarter } = require("./_progress.cjs");
 const { chromium } = loadPlaywright();
 
 const ROOT = require("node:path").join(__dirname, "..");
@@ -75,35 +76,35 @@ try {
 // 或图片没解码都会让底色断言假红（实测 0,0,0 / 255,255,255）。以前靠 page.goto 的
 // waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
 // 不触发 → 改成 domcontentloaded 后必须显式等，否则是我把工具改弱了。
+async function _waitFonts(pg) {
+  try {
+    await pg.evaluate(() => document.fonts.ready);
+  } catch {
+    noteTimeout("字体");
+  }
+}
+
 async function ready(pg) {
   // 等「渲染就绪」，**不是**「所有图片就绪」：名册卡片的 `<img loading="lazy">`
   // 在视口外永远不会加载，`imgs.every(complete && naturalWidth>0)` 恒假 —— 实测
   // 每次 ready() 都烧满 120s 超时（9 次 = 18 分钟，占整套 21 分钟的 85%）。
   // 现在只等视口内的图（有界 15s）+ 字体；海报的像素断言另有 `#poster-img` 的
   // data-URL 就绪信号（那才是「画出来了」）。
-  const ticker = waitTicker("等待字体/视口内图片就绪");
-  const poll = setInterval(() => ticker.tick(), 1000);
-  try {
-    await pg
-      .waitForFunction(
-        () => {
-          const imgs = [...document.images].filter((i) => {
-            const r = i.getBoundingClientRect();
-            return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
-          });
-          return (
-            imgs.length > 0 &&
-            imgs.every((i) => i.complete && i.naturalWidth > 0)
-          );
-        },
-        { timeout: 15000 }
-      )
-      .catch(() => {});
-    await pg.evaluate(() => document.fonts.ready).catch(() => {});
-  } finally {
-    clearInterval(poll);
-    ticker.done();
-  }
+  await waitFor(
+    pg,
+    "视口内图片",
+    () => {
+      const imgs = [...document.images].filter((i) => {
+        const r = i.getBoundingClientRect();
+        return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+      });
+      return (
+        imgs.length > 0 && imgs.every((i) => i.complete && i.naturalWidth > 0)
+      );
+    },
+    { timeout: 15000 }
+  );
+  await _waitFonts(pg);
   await pg.waitForTimeout(600);
 }
 
@@ -920,7 +921,9 @@ function isExpectedResourceNoise(m) {
     await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
     await page.waitForTimeout(500);
     await page.click("#start-btn");
-    await page.waitForSelector("#phase-screen:not([hidden])");
+    await page.waitForSelector("#phase-screen:not([hidden])", {
+      timeout: 15000,
+    });
     // 40 档逐轮细分：每划完一轮题数递减，「继续细分」在最后一轮消失
     // （边界二选一：138 → 119 → 110 → 106，层级 [3,2,5,10,20]）
     const est40 = [];
@@ -1202,7 +1205,7 @@ function isExpectedResourceNoise(m) {
         null,
         { timeout: 60000 }
       )
-      .catch(() => {});
+      .catch(() => noteTimeout("等爱 tab 生效"));
     await page.waitForTimeout(500);
     const loveBrand = await page.textContent("#brand");
     const loveGroups = await page.locator(".grp-name").allTextContents();
@@ -1606,7 +1609,7 @@ function isExpectedResourceNoise(m) {
       });
       await settledPage
         .waitForSelector(".card", { timeout: 20000 })
-        .catch(() => {});
+        .catch(() => noteTimeout("切换皮肤后名册卡片"));
       const settled = await readSkin(settledPage);
       const settledAttr = await settledPage.evaluate(
         () => document.documentElement.dataset.skin || "(无)"
@@ -1674,7 +1677,7 @@ function isExpectedResourceNoise(m) {
           null,
           { timeout: 90000 }
         )
-        .catch(() => {});
+        .catch(() => noteTimeout("390px 首屏卡片"));
       await fp.waitForTimeout(600);
       // 别点 html：视口中心落在第一组的段头上 → 折叠掉全部卡片（实测 16→0），
       // 断言读到 card=undefined。语言键走 document 级监听，不需要焦点。

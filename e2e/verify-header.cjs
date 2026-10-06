@@ -1,5 +1,6 @@
 // 复核 P0 修复：档位 × 语言 × 在线/离线，每个 tab 都必须点得到
 const { loadPlaywright } = require("./_playwright.cjs");
+const { noteTimeout } = require("./_wait.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const path = require("node:path");
@@ -85,7 +86,7 @@ const BASE = `http://127.0.0.1:${PORT}/`;
           await page.waitForTimeout(1200);
           await page
             .click(`.seg-series [data-series="${series}"]`, { force: true })
-            .catch(() => {});
+            .catch(() => noteTimeout("点系列 tab"));
           await page.waitForTimeout(300);
           for (const off of [false, true]) {
             await ctx.setOffline(off);

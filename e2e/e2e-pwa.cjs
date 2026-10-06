@@ -5,6 +5,7 @@
  */
 const { loadPlaywright } = require("./_playwright.cjs");
 const { elapsed, waitTicker } = require("./_progress.cjs");
+const { noteTimeout } = require("./_wait.cjs");
 const { chromium } = loadPlaywright();
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
@@ -408,14 +409,14 @@ async function pickMembers(page, n) {
       null,
       { timeout: 15000 }
     )
-    .catch(() => {});
+    .catch(() => noteTimeout("海报像素出现（断网前）"));
   await page
     .waitForFunction(
       () => (document.getElementById("poster-img")?.src || "").length > 100,
       null,
       { timeout: 20000 }
     )
-    .catch(() => {});
+    .catch(() => noteTimeout("海报图生成"));
   const onResult = await page.evaluate(() => ({
     steps: document
       .querySelector('[data-step="result"]')
@@ -794,7 +795,9 @@ async function pickMembers(page, n) {
     .then(() => true)
     .catch(() => false);
   ok(reloaded, "点「刷新」后页面真的重载（新文档）");
-  await page.waitForSelector(".masthead", { timeout: 20000 }).catch(() => {});
+  await page
+    .waitForSelector(".masthead", { timeout: 20000 })
+    .catch(() => noteTimeout("重载后 masthead"));
   const v2 = await page.evaluate(async () => {
     const keys = await caches.keys();
     return keys.filter((k) => k.includes("v2")).length;
