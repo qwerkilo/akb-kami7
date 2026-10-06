@@ -76,19 +76,27 @@ try {
 // waitUntil:"load" 顺带保证（load 等所有子资源），但本机单次导航要 30s、load 事件经常
 // 不触发 → 改成 domcontentloaded 后必须显式等，否则是我把工具改弱了。
 async function ready(pg) {
-  const ticker = waitTicker("等待图片/字体就绪");
+  // 等「渲染就绪」，**不是**「所有图片就绪」：名册卡片的 `<img loading="lazy">`
+  // 在视口外永远不会加载，`imgs.every(complete && naturalWidth>0)` 恒假 —— 实测
+  // 每次 ready() 都烧满 120s 超时（9 次 = 18 分钟，占整套 21 分钟的 85%）。
+  // 现在只等视口内的图（有界 15s）+ 字体；海报的像素断言另有 `#poster-img` 的
+  // data-URL 就绪信号（那才是「画出来了」）。
+  const ticker = waitTicker("等待字体/视口内图片就绪");
   const poll = setInterval(() => ticker.tick(), 1000);
   try {
     await pg
       .waitForFunction(
         () => {
-          const imgs = [...document.images];
+          const imgs = [...document.images].filter((i) => {
+            const r = i.getBoundingClientRect();
+            return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+          });
           return (
             imgs.length > 0 &&
             imgs.every((i) => i.complete && i.naturalWidth > 0)
           );
         },
-        { timeout: 120000 }
+        { timeout: 15000 }
       )
       .catch(() => {});
     await pg.evaluate(() => document.fonts.ready).catch(() => {});
@@ -600,7 +608,10 @@ function isExpectedResourceNoise(m) {
           return [nm("#fighter-a"), nm("#fighter-b")].join("|");
         });
       const pairs = new Set();
-      for (let k = 0; k < 4; k++) {
+      // 6 次而不是 4 次：首对来自第一层（7 档下 4 人 → 6 种可能），4 次全同的概率
+      // ~0.5%，实测在 2026-10-05 的第 2 次连跑里撞到过一次（244/245 假红）。
+      // 6 次把它降到 ~0.01%；「resort 没洗牌」的真缺陷仍然会全同 → 照样红。
+      for (let k = 0; k < 6; k++) {
         await page.waitForSelector("#resort-btn", {
           state: "visible",
           timeout: 10000,
@@ -625,7 +636,7 @@ function isExpectedResourceNoise(m) {
         }
       }
       check(
-        "重新排序会换对手（4 场点出多组第一对）",
+        "重新排序会换对手（6 场点出多组第一对）",
         pairs.size >= 2,
         `${pairs.size} 组: ${[...pairs].join(" / ")}`
       );
@@ -1326,13 +1337,16 @@ function isExpectedResourceNoise(m) {
       if (!(await page.isVisible("#phase-duel"))) break;
       await page.click("#fighter-a");
     }
-    // 显式等图：海报要 img/full 全部解码完才画得出来。以前靠 page.goto 的 waitUntil:"load"
-    // 顺带保证（load 等所有子资源），改成 domcontentloaded 后那个保证没了，
-    // 偶发 poster=false。等 document.fonts.ready + 全部 img.complete，而不是加 sleep。
+    // 等海报**真的画出来**：`#poster-img` 的 src 变成 data URL 才是那个信号。
+    // （不要等 `document.images` 全 complete —— 海报的图是 `new Image()` 加载的、
+    // 根本不在 document.images 里，而名册的 lazy 图在视口外永不加载，实测恒假、
+    // 白烧 20s 超时。）
     await page.waitForFunction(
       () => {
-        const imgs = [...document.images];
-        return imgs.length > 0 && imgs.every((i) => i.complete);
+        const im = document.getElementById("poster-img");
+        return (
+          im && (im.getAttribute("src") || "").startsWith("data:image/png")
+        );
       },
       { timeout: 20000 }
     );

@@ -65,12 +65,17 @@ async function ready(pg) {
   await pg
     .waitForFunction(
       () => {
-        const imgs = [...document.images];
+        // 只等**视口内**的图：名册的 `<img loading="lazy">` 在视口外永不加载，
+        // 全量 `every(complete)` 恒假（e2e.cjs 实测每次白烧 120s 超时）。
+        const imgs = [...document.images].filter((i) => {
+          const r = i.getBoundingClientRect();
+          return r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
+        });
         return (
           imgs.length > 0 && imgs.every((i) => i.complete && i.naturalWidth > 0)
         );
       },
-      { timeout: 120000 }
+      { timeout: 15000 }
     )
     .catch(() => {});
   await pg.evaluate(() => document.fonts.ready).catch(() => {});
