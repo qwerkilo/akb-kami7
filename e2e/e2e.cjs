@@ -1628,8 +1628,8 @@ function isExpectedResourceNoise(m) {
     // （各 3 张），那 47px 只决定第二行露多少而第二行的名字本来就被托盘压着。
     // 为阈值改版式是零收益付代价。现在的说法与用户实际看到的东西对齐，且可证伪：
     // 页头/步骤条/引导卡/进度任一处涨到把第一行压进托盘就红。
-    // （宽度维度的完整矩阵在 /tmp/opencode/verify-first-screen.cjs：
-    //  两皮肤 × 三语言 × 320/360/375/390/414/560 共 36 状态全达标。）
+    // （宽度维度的完整矩阵已入仓：`npm run e2e:first` —— 皮肤 × 语言 × 宽度 × 档位，
+    //  状态数与检查数由那个套件的 expect 钉住。）
     for (const lang of ["zh", "en", "ja"]) {
       const fc = await browser.newContext({
         viewport: { width: 390, height: 844 },
@@ -1712,6 +1712,7 @@ function isExpectedResourceNoise(m) {
           : 1;
         return {
           card: box(".card"),
+          visible: cards.length,
           coach: box("#coach"),
           toolbarRows: rows,
           trayAlpha: alpha,
@@ -1722,7 +1723,8 @@ function isExpectedResourceNoise(m) {
       });
       check(
         `390px/${lang}：新访客首屏完整可见 ≥ 一整行脸`,
-        geo.cols > 0 && geo.fullFaces >= geo.cols,
+        // visible ≥ 6 是前提：可见卡太少时 cols 会跟着缩水（自指假绿）
+        geo.visible >= 6 && geo.cols > 0 && geo.fullFaces >= geo.cols,
         `${geo.fullFaces} 张完整可见 / ${geo.cols} 列（第一张卡 top=${geo.card?.top}）`
       );
       check(

@@ -13,7 +13,7 @@
 
 ## 决定
 
-把宽度矩阵收进仓：新建 `e2e/verify-first-screen.cjs`（36 状态）+ `npm run e2e:first` +
+把宽度矩阵收进仓：新建 `e2e/verify-first-screen.cjs`（36 状态，后加档位维到 72）+ `npm run e2e:first` +
 进 `run-all`（`expect: 72` —— 每状态两条检查）+ 守卫（有 `createChecker` 的套件必须进 run-all）。
 
 判据与主套件 390px 块**同源**：
@@ -27,7 +27,7 @@
 
 ## 验收（可证伪）
 
-1. `npm run e2e:first` 36 状态 × 2 = **72/72**。
-2. `npm run e2e:all` 5 套件全绿（新的 `first` 套件在列）。
+1. `npm run e2e:first` **72 状态 × 2 检查 = 144/144**（档位维 7 / 40 两端）。
+2. `npm run e2e:all` 5 套件全绿（新的 `first` 套件在列；实测 245/54/43/72/144）。
 3. 守卫：把 `first` 从 `run-all` 删掉 → 测试红（变异被杀）。
 4. 陈旧指针修掉：`e2e/*.cjs` 里不再有指向 `/tmp` 的**活**指针（只剩解释历史的注释）。

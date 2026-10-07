@@ -160,7 +160,13 @@ test("检查记录只有一处：runner 不解析收尾行、套件不自报收�
       `run-all.cjs 不许再有 ${dead} —— 数守恒由套件自报（createChecker({expect})）`
     );
   }
-  const suites = ["e2e.cjs", "e2e-v5.cjs", "e2e-pwa.cjs", "verify-header.cjs"];
+  const suites = [
+    "e2e.cjs",
+    "e2e-v5.cjs",
+    "e2e-pwa.cjs",
+    "verify-header.cjs",
+    "verify-first-screen.cjs",
+  ];
   for (const f of suites) {
     const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
     // 承重点三条：走记录器、带数守恒声明、收尾真的接上 exit code

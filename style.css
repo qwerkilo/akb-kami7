@@ -742,22 +742,34 @@ main {
 .slots {
   list-style: none;
   margin: 0;
-  padding: 0;
+  /* 上下留 6px：overflow 容器会把 :focus-visible 的外圈（3px + offset 2px）裁掉；
+     负 margin 把这 12px 从布局里收回来，托盘高度不变 */
+  padding: 6px 0;
+  margin: -6px 0;
   display: flex;
   gap: 8px;
   /* 单行横向滚动：此前是 7/8 列的网格 —— 16/40 档的槽位换行成 3/5 行，
-     40 档实测托盘 244px、把首屏的脸全盖住（390px：托盘顶 600 vs 第一行卡底 617）。
-     槽位宽度取「7 档塞满托盘」时的宽度，档位再大也不换行、只横滑。 */
+     40 档托盘被撑到 300px、把首屏的脸全盖住（同条件实测见工单 02 的表）。
+     槽位宽度取「7 档塞满托盘」时的宽度（宽视口下封顶到 3:4 的自然宽 ——
+     旧网格对 aspect-ratio + max-height 的项不拉伸，实测 1280px 下 40.5×54）。 */
+  justify-content: space-between;
   overflow-x: auto;
   scrollbar-width: none;
 }
 .slots::-webkit-scrollbar {
   display: none;
 }
+/* 细指针（鼠标）下给一条细滚动条：40 档的槽位溢出时，藏掉的滚动条让「还有更多」
+   无从发现（触屏靠横滑、键盘 Tab 会自动滚入视野，都不受影响） */
+@media (pointer: fine) {
+  .slots {
+    scrollbar-width: thin;
+  }
+}
 .slot {
   position: relative;
   aspect-ratio: 3 / 4;
-  flex: 0 0 calc((100% - 6 * 8px) / 7);
+  flex: 0 0 min(calc((100% - 6 * 8px) / 7), calc(54px * 3 / 4));
   /* 托盘只是「选了谁」的缩略索引，不需要看清脸；54px 够认人（工单 04） */
   max-height: 54px;
   border: var(--border);

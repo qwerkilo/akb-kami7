@@ -6,8 +6,9 @@
 // 宽度维度覆盖 320/360/375/390/414/560 —— ≤380px 是历史上出过 P0 的地方
 // （页头换行 +47px、系列 tab 点不到），而主套件只覆盖 390px 一档。
 //
-// 档位维取两端（7 / 40）：40 档的托盘槽位最多，曾是「空槽位换行 → 托盘 244px →
-// 首屏 0 张脸」的最坏档（检查点第六十一轮记录），修成单行横向滚动后它必须与 7 档一样过。
+// 档位维取两端（7 / 40）：40 档的托盘槽位最多，曾是「空槽位换行 → 托盘 300px →
+// 首屏 0 张脸」的最坏档（同条件实测见工单 02 的表）；修成单行横向滚动后，
+// 档位数只影响横滑长度，7 与 40 都必须过。
 const { loadPlaywright } = require("./_playwright.cjs");
 const { waitFor } = require("./_wait.cjs");
 const { createChecker } = require("./_check.cjs");
@@ -23,7 +24,6 @@ const SKINS = ["classic", "sticker"];
 // 档位维取两端：7 档（判据建立时的默认档）与 40 档（托盘槽位最多 → 最坏）。
 // 中间档位（16）在两者之间，槽位数只影响换行 —— 40 档过了它必过。
 const SIZES = [7, 40];
-const STATES = SKINS.length * LANGS.length * WIDTHS.length * SIZES.length;
 (async () => {
   const server = spawn(
     "python3",
@@ -35,7 +35,8 @@ const STATES = SKINS.length * LANGS.length * WIDTHS.length * SIZES.length;
   );
   let browser = null;
   // 每个状态两条检查（见脸 / 横滚）
-  const checker = createChecker({ name: "first", expect: STATES * 2 });
+  // 数守恒：2 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查 = 144（矩阵变了必须显式改这里）
+  const checker = createChecker({ name: "first", expect: 144 });
   const check = checker.check;
   try {
     await new Promise((r) => setTimeout(r, 1200));
@@ -101,6 +102,7 @@ const STATES = SKINS.length * LANGS.length * WIDTHS.length * SIZES.length;
               return {
                 cols,
                 fullFaces,
+                visible: cards.length,
                 firstTop: cards[0]
                   ? Math.round(cards[0].getBoundingClientRect().top)
                   : -1,
@@ -110,7 +112,8 @@ const STATES = SKINS.length * LANGS.length * WIDTHS.length * SIZES.length;
             });
             check(
               `${label}：首屏完整可见 ≥ 一整行脸`,
-              geo.cols > 0 && geo.fullFaces >= geo.cols,
+              // visible ≥ 6 是前提：可见卡太少时 cols 会跟着缩水（自指假绿）
+              geo.visible >= 6 && geo.cols > 0 && geo.fullFaces >= geo.cols,
               `${geo.fullFaces} 张完整可见 / ${geo.cols} 列（第一张卡 top=${geo.firstTop}）`
             );
             check(
