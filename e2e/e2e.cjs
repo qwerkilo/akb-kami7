@@ -1,4 +1,11 @@
 const { waitFor, waitForSelector, ready } = require("./_wait.cjs");
+const {
+  openFilterPanel,
+  openMore,
+  fillScreening,
+  passScreening,
+  goToPick,
+} = require("./_ui.cjs");
 const { blockStarter } = require("./_progress.cjs");
 const { runSuite } = require("./_suite.cjs");
 
@@ -59,16 +66,6 @@ async function openFirstSection(page) {
   }
 }
 
-// 对决页收起页头/步骤条/页脚（工单 03）→ 回挑人页只能走页内那个「保存并返回」
-async function goToPick(page) {
-  if (await page.isVisible("#back-pick-btn")) {
-    await page.click("#back-pick-btn");
-  } else {
-    await page.click('#steps [data-step="pick"]');
-  }
-  await page.waitForTimeout(300);
-}
-
 const block = blockStarter(); // 功能块头（进度 + 分块耗时）
 // 检查记录、失败日志、收尾行与 exit code 都收在共享记录器里（第五轮扫描候选 3）；
 // 套件生命周期（起服务/就绪/浏览器/清理/退出码）收在 `e2e/_suite.cjs`（第六轮扫描候选 2）。
@@ -80,39 +77,6 @@ async function dismissIntro(page) {
 }
 
 // 筛选是定值门槛：划够一半才给提交（ADR-0019 改写版）
-async function fillScreening(page) {
-  await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
-    timeout: 5000,
-    hard: true,
-  });
-  const sub = page.locator("#screen-submit");
-  let guard = 0;
-  while ((await sub.isDisabled()) && guard++ < 60) {
-    const btn = page
-      .locator('[data-cut][aria-pressed="false"]:not([disabled])')
-      .first();
-    if ((await btn.count()) === 0) break;
-    await btn.click();
-    await page.waitForTimeout(60);
-  }
-}
-
-async function passScreening(page) {
-  await fillScreening(page);
-  await page.click("#screen-submit");
-  await page.waitForTimeout(250);
-}
-
-// 工单 04 起语言/皮肤收进「更多」浮层（窄屏页头只留一行）
-async function openMore(page) {
-  const btn = page.locator("#more-btn");
-  if (!(await btn.count()) || !(await btn.isVisible())) return;
-  if ((await btn.getAttribute("aria-expanded")) !== "true") {
-    await btn.click();
-    await page.waitForTimeout(150);
-  }
-}
-
 async function setSkin(page, skin) {
   await openMore(page);
   await page.click(`.seg-skin [data-skin="${skin}"]`);
@@ -123,17 +87,6 @@ async function setLang(page, lang) {
   await openMore(page);
   await page.click(`.seg-lang [data-lang="${lang}"]`);
   await page.waitForTimeout(300);
-}
-
-// 16 档两轮细分 + 行锁定：返回 [名称, 是否通过] 对，交给 check 统一记录
-async function openFilterPanel(page) {
-  const open = await page
-    .$eval(".filter-panel", (el) => el.open)
-    .catch(() => true);
-  if (!open) {
-    await page.click(".filter-trigger");
-    await page.waitForTimeout(150);
-  }
 }
 
 async function checkSecondRound(page) {

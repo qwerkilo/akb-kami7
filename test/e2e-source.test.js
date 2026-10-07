@@ -273,6 +273,46 @@ test("套件生命周期只有一处：不许手写 spawn(serve.py)/process.exit
   assert.ok(suite.includes("finally"), "_suite.cjs 的清理必须在 finally 里");
 });
 
+test("页面操作词汇只有一处：五个共享操作不许在套件里重复定义（候选 3）", () => {
+  const strip = (src) =>
+    src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const names = [
+    "openFilterPanel",
+    "openMore",
+    "fillScreening",
+    "passScreening",
+    "goToPick",
+  ];
+  const ui = strip(fs.readFileSync(path.join(DIR, "_ui.cjs"), "utf8"));
+  for (const n of names) {
+    assert.match(ui, new RegExp(`function ${n}\\(`), `${n} 的实现在 _ui.cjs`);
+  }
+  const suites = fs
+    .readdirSync(DIR)
+    .filter(
+      (f) => f.endsWith(".cjs") && !f.startsWith("_") && f !== "run-all.cjs"
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
+  for (const f of suites) {
+    const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
+    for (const n of names) {
+      assert.ok(
+        !new RegExp(`function ${n}\\(`).test(src),
+        `${f} 不许重复定义 ${n} —— 走 e2e/_ui.cjs（同一约定写两遍、改一处就静默失效）`
+      );
+    }
+    if (names.some((n) => src.includes(n))) {
+      assert.ok(
+        src.includes('require("./_ui.cjs")'),
+        `${f} 用到共享页面操作就必须从 ./_ui.cjs 引入`
+      );
+    }
+  }
+});
+
 test("每个 E2E 套件都进了 run-all（漏一个 = 全量跑不到它）", () => {
   const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
   const suites = fs

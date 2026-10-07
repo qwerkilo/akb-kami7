@@ -1,63 +1,18 @@
 /* 向导模式（v5 A）E2E：先红后绿。用法：node e2e-v5.cjs */
 const { waitForSelector } = require("./_wait.cjs");
+const {
+  openFilterPanel,
+  openMore,
+  fillScreening,
+  passScreening,
+  goToPick,
+} = require("./_ui.cjs");
 const { runSuite } = require("./_suite.cjs");
 const PORT = 8777;
 const BASE = `http://127.0.0.1:${PORT}/`;
 
 // 工单 04 起语言/皮肤收进「更多」浮层（窄屏页头只留一行）
-async function openFilterPanel(page) {
-  const open = await page
-    .$eval(".filter-panel", (el) => el.open)
-    .catch(() => true);
-  if (!open) {
-    await page.click(".filter-trigger");
-    await page.waitForTimeout(150);
-  }
-}
-
-async function openMore(page) {
-  const btn = page.locator("#more-btn");
-  if (!(await btn.count())) return;
-  if (!(await btn.isVisible())) return;
-  if ((await btn.getAttribute("aria-expanded")) !== "true") {
-    await btn.click();
-    await page.waitForTimeout(150);
-  }
-}
-
-// 筛选是定值门槛：划够一半才给提交（ADR-0019 改写版）
-async function fillScreening(page) {
-  await waitForSelector(page, "筛选相位", "#phase-screen:not([hidden])", {
-    timeout: 5000,
-    hard: true,
-  });
-  const sub = page.locator("#screen-submit");
-  let guard = 0;
-  while ((await sub.isDisabled()) && guard++ < 60) {
-    const btn = page
-      .locator('[data-cut][aria-pressed="false"]:not([disabled])')
-      .first();
-    if ((await btn.count()) === 0) break;
-    await btn.click();
-    await page.waitForTimeout(60);
-  }
-}
-
-async function passScreening(page) {
-  await fillScreening(page);
-  await page.click("#screen-submit");
-  await page.waitForTimeout(250);
-}
-
 const results = [];
-// 回挑人页：步骤条在挑人页可用；对决页收起了步骤条，从「保存并返回」出去
-async function goToPick(page) {
-  if (await page.isVisible("#back-pick-btn"))
-    await page.click("#back-pick-btn");
-  else await page.click('#steps [data-step="pick"]');
-  await page.waitForTimeout(250);
-}
-
 // 就绪屏障 `ready()` 收在 `e2e/_wait.cjs`（原先这里与 e2e.cjs 各一份、语义相同）。
 
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
