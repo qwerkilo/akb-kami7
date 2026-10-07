@@ -1384,4 +1384,4 @@
 - **验证**：`npm run e2e:all` **5/5 · 6m47s**（245/54/43/72/**144**）；`npm run check` exit=0；
   同条件 A/B 探针 `/tmp/opencode/probe-ab.cjs`。
 - 遗留：`run-all` 的顺序收益是跨轮对比（非交替 A/B），机制成立、数字仅供参考。
-- 下次基点：待推后取 HEAD。
+- 下次基点：`44a09dd`。
