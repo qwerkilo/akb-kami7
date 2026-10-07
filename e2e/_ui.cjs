@@ -2,7 +2,7 @@
 //
 // 此前 e2e.cjs 与 e2e-v5.cjs 各写一份：三个函数逐字节相同（openFilterPanel /
 // fillScreening / passScreening）、openMore 写法分叉、goToPick 已真漂移
-// （300ms vs 250ms，注释也只有一边）。「同一约定写两遍、改一处就静默失效」——
+// （300ms vs 250ms，两边的注释措辞也各写各的）。「同一约定写两遍、改一处就静默失效」——
 // 这里的漂移已经发生，所以收成一处。守卫在 test/e2e-source.test.js。
 const { waitForSelector } = require("./_wait.cjs");
 

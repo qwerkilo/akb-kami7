@@ -1,5 +1,4 @@
 /* 向导模式（v5 A）E2E：先红后绿。用法：node e2e-v5.cjs */
-const { waitForSelector } = require("./_wait.cjs");
 const {
   openFilterPanel,
   openMore,
@@ -11,7 +10,6 @@ const { runSuite } = require("./_suite.cjs");
 const PORT = 8777;
 const BASE = `http://127.0.0.1:${PORT}/`;
 
-// 工单 04 起语言/皮肤收进「更多」浮层（窄屏页头只留一行）
 const results = [];
 // 就绪屏障 `ready()` 收在 `e2e/_wait.cjs`（原先这里与 e2e.cjs 各一份、语义相同）。
 

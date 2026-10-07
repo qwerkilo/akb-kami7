@@ -76,7 +76,6 @@ async function dismissIntro(page) {
     await page.click('#duel-intro [data-act="intro-go"]');
 }
 
-// 筛选是定值门槛：划够一半才给提交（ADR-0019 改写版）
 async function setSkin(page, skin) {
   await openMore(page);
   await page.click(`.seg-skin [data-skin="${skin}"]`);
@@ -89,6 +88,7 @@ async function setLang(page, lang) {
   await page.waitForTimeout(300);
 }
 
+// 16 档两轮细分 + 行锁定：返回 [名称, 是否通过] 对，交给 check 统一记录
 async function checkSecondRound(page) {
   const out = [];
   out.push([

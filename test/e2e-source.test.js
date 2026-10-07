@@ -284,9 +284,12 @@ test("页面操作词汇只有一处：五个共享操作不许在套件里重�
     "goToPick",
   ];
   const ui = strip(fs.readFileSync(path.join(DIR, "_ui.cjs"), "utf8"));
-  for (const n of names) {
-    assert.match(ui, new RegExp(`function ${n}\\(`), `${n} 的实现在 _ui.cjs`);
-  }
+  const defs = [...ui.matchAll(/function\s+(\w+)\s*\(/g)].map((m) => m[1]);
+  assert.deepEqual(
+    defs.sort(),
+    [...names].sort(),
+    `_ui.cjs 的函数集合必须恰好是这五个（实得 ${defs.join(", ")}）`
+  );
   const suites = fs
     .readdirSync(DIR)
     .filter(
@@ -304,11 +307,22 @@ test("页面操作词汇只有一处：五个共享操作不许在套件里重�
         `${f} 不许重复定义 ${n} —— 走 e2e/_ui.cjs（同一约定写两遍、改一处就静默失效）`
       );
     }
-    if (names.some((n) => src.includes(n))) {
-      assert.ok(
-        src.includes('require("./_ui.cjs")'),
-        `${f} 用到共享页面操作就必须从 ./_ui.cjs 引入`
-      );
+    // 名字级：用到哪个就必须从 ./_ui.cjs 解构引入哪个（文件级 require 检查会被
+    // 「解构里删掉一个、调用还在」骗过）
+    const im = src.match(/\{([^}]*)\}\s*=\s*require\("\.\/_ui\.cjs"\)/);
+    const imported = im
+      ? im[1]
+          .split(",")
+          .map((x) => x.trim())
+          .filter(Boolean)
+      : [];
+    for (const n of names) {
+      if (new RegExp(`\\b${n}\\b`).test(src)) {
+        assert.ok(
+          imported.includes(n),
+          `${f} 用到 ${n} 就必须从 ./_ui.cjs 解构引入`
+        );
+      }
     }
   }
 });

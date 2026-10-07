@@ -41,7 +41,7 @@
 | ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（命令与各套件矩阵见下节；收尾行与 check 数守恒由 `e2e/_check.cjs` 统一，套件自报 `EXPECT`）                         |
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
-- **套件生命周期**（起服务 / 就绪 / 起浏览器 / 清理 / 退出码）唯一出处是 `e2e/_suite.cjs` 的 `runSuite`：套件只提供 `body({ browser, base, checker })`，不许手写 `spawn(serve.py)` 或 `process.exit`（守卫在 `test/e2e-source.test.js`）。
+- **套件生命周期**（起服务 / 就绪 / 起浏览器 / 清理 / 退出码）唯一出处是 `e2e/_suite.cjs` 的 `runSuite`：套件只提供 `body({ browser, base, checker })`，不许手写 `spawn(serve.py)` 或 `process.exit`；共享的页面操作（筛选/更多浮层/回挑人页等五个）唯一出处是 `e2e/_ui.cjs`（守卫都在 `test/e2e-source.test.js`）。
 - **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（页头矩阵：语言 × 档位 × 系列 × 在线/离线）/ `:first`（首屏矩阵：皮肤 × 语言 × 320–560px）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
 - 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
 - 缝④ 的夹具 id 前缀：`a1–a40` = 48g、`s1–s40` = 坂道、`l1–l40` = 等爱。写错前缀时 `toggleSelect` 静默返回 false，测试会以「筛不出东西」的方式假绿。
