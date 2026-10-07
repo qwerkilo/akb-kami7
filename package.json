@@ -9,6 +9,7 @@
     "prepare": "husky",
     "check": "npm run format:check && npm run lint:undef && npm test && npm run complexity",
     "format:check": "node node_modules/prettier/bin/prettier.cjs --check .",
+    "format:write": "node node_modules/prettier/bin/prettier.cjs --write .",
     "complexity": "node scripts/complexity.mjs",
     "e2e": "node e2e/e2e.cjs",
     "e2e:v5": "node e2e/e2e-v5.cjs",

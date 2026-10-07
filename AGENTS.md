@@ -30,15 +30,15 @@
 
 跨缝前先跟用户确认。`npm test` 一次跑全部（`node --test` + Python unittest），均离线不联网。
 
-| 缝                  | 落点                                       | 文件                                                                                                                                                  |
-| ------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ① Python 解析纯函数 | fixture 驱动                               | `scripts/test_*.py`                                                                                                                                   |
-| ② `core.js` 纯逻辑  | 纯函数直接调                               | `test/core.test.js`                                                                                                                                   |
-| ③ 产物不变量        | 清单 vs 盘上 reality **双向**比对          | `test/members-artifact.test.js`、`test/pwa-artifact.test.js`、`test/style-artifact.test.js`、`test/sw-cache-rules.test.js`                            |
-| ④ `session.js`      | 注入内存 storage + 假成员表                | `test/session.test.js`                                                                                                                                |
-| ⑤ `poster.js`       | 注入假 ctx 与 tokens                       | `test/poster.test.js`                                                                                                                                 |
-| ⑥ `i18n` 键完整性   | 含**拼出来的键家族**（死键守卫查不到它们） | `test/i18n.test.js`                                                                                                                                   |
-| ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（`npm run e2e` / `:v5` / `:pwa` / `:header` / `:first`；全量并行 `e2e:all`；收尾行与 check 数守恒由 `e2e/_check.cjs` 统一，套件自报 `EXPECT`） |
+| 缝                  | 落点                                       | 文件                                                                                                                       |
+| ------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| ① Python 解析纯函数 | fixture 驱动                               | `scripts/test_*.py`                                                                                                        |
+| ② `core.js` 纯逻辑  | 纯函数直接调                               | `test/core.test.js`                                                                                                        |
+| ③ 产物不变量        | 清单 vs 盘上 reality **双向**比对          | `test/members-artifact.test.js`、`test/pwa-artifact.test.js`、`test/style-artifact.test.js`、`test/sw-cache-rules.test.js` |
+| ④ `session.js`      | 注入内存 storage + 假成员表                | `test/session.test.js`                                                                                                     |
+| ⑤ `poster.js`       | 注入假 ctx 与 tokens                       | `test/poster.test.js`                                                                                                      |
+| ⑥ `i18n` 键完整性   | 含**拼出来的键家族**（死键守卫查不到它们） | `test/i18n.test.js`                                                                                                        |
+| ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（命令与各套件矩阵见下节；收尾行与 check 数守恒由 `e2e/_check.cjs` 统一，套件自报 `EXPECT`）                         |
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
 - **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（页头矩阵：语言 × 档位 × 系列 × 在线/离线）/ `:first`（首屏矩阵：皮肤 × 语言 × 320–560px）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
@@ -58,6 +58,8 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 每个变异单独跑一次命令、**跑完立刻还原**，全被杀掉则退出 0，有存活则退出 1。**锚点必须恰好命中一次**，命中 0 次或多次一律退出 2（工具失败，结论不可信）—— 「变异没打上」与「变异存活」在结果上长得一模一样，手搓脚本时我两者都报错过。
 
+- **变异只打产品代码**：改测试或守卫本身不是有效变异（存活也不构成覆盖缺口）—— 验守卫要对产品动手。
+- **存活先判等价**：逐情形对照它是否与原实现同输出（如 `key in (skipped or set())` 与原式在 None/空集/非空集三路同输出）—— 等价变异存活是预期，不是缺口。
 - **锚点含换行时要传真的换行**（bash 里 `$'…\n…'`），写 `\n` 两个字面字符会命中 0 次、退出 2。
 - **接线行为的变异命令用 E2E**：`app.js` 的接线没有单测缝，`e2e/` 脚本退出 1 就是「被杀」。仓内守卫守形状、E2E 守行为，两边都要有。
 
@@ -71,7 +73,8 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 - 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
 - **提交闸门 = `npm run check`**（`prettier --check .` + `npm run lint:undef` + `npm test` + `npm run complexity`）。格式化、未定义标识符（`no-undef`，抓过 e2e-v5 的 `errs`）与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。
-- 格式化写回用（`check` 红了之后）：`PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
+- 格式化写回：全仓 `npm run format:write`；只处理**已暂存**文件用
+  `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。**顺序有陷阱**：lint-staged 只处理**已暂存**的文件，先跑 `graph:sync` 再 `git add` 会让它变成 no-op（本项目踩过两次）。
 - 仓库没有 typecheck 脚本；lint 只有 `npm run lint:undef`（eslint 的 no-undef，接在闸门里）。
 - 查看原型：原型在 `prototype/*` 分支上，main 工作区里没有属预期。`git worktree add /tmp/akb-proto-<名> prototype/<分支>` 检出，再静态服务器托管（原型引用的 `members.js`/`img/` 在 worktree 内齐全）。
@@ -157,9 +160,9 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 ## Code Review 检查点
 
-- 每次 review 结束后，向 `docs/reviews/checkpoints.md` 追加一条记录（格式见该文件）：日期、本次基点、审查范围、结论、遗留问题、下次基点（本次 HEAD 的 SHA）。
+- 每次 review 结束后，向 `docs/reviews/checkpoints.md` 追加一条记录（格式见该文件）：日期、本次基点、审查范围、结论、遗留问题、下次基点（**本批最后一个提交**的 SHA —— `git rev-parse HEAD` 在推送前后同值，不必等推送再补一个「填基点」提交）。
 - 下次 review 从上次记录的基点开始，不重复审查已经通过的部分。
-- **两轴审查要核 `docs/reviews/review-rules.md` 的五条硬性检查项**（新工具退化路径 / 性能 A/B / 测试开关保存恢复 / 等待失败出声 / 长跑后台）。
+- **两轴审查要核 `docs/reviews/review-rules.md` 的六条硬性检查项**（新工具退化路径 / 性能 A/B / 测试开关保存恢复 / 等待失败出声 / 长跑后台 / 视觉同条件 A/B）。
 - 质检基线在 `docs/reviews/qa-baseline.md`；口径「CCN > 10 才列修」由 `npm run complexity` 的趋势棘轮守（只拦新增/变高，2026-10-04 接进闸门）；CRAP 与覆盖率仍靠手动跑（lizard 不输出 CRAP，本仓无覆盖率工具链）。
 
 ## 约定
