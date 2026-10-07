@@ -29,7 +29,9 @@
 ## 验收（可证伪）
 
 1. 新特征测试（没轮到那类）在重构前绿、在「去掉该判据」的变异下红（承重）。
-2. `_resolve_old_site_groups` 里不再有 `scanned`/`exhausted`/`capped`；原因串只在
-   `_CUT_REASON`（2 个）与 `_note_scan_gaps`（1 个）各出现一次。
+2. `_resolve_old_site_groups` 里不再有 `scanned`/`exhausted`/`capped`；原因串的
+   **代码定义点**各一处：`_CUT_REASON` 两个、`_note_scan_gaps` 一个
+   （口径 = 代码定义点，不含 docstring 引用 —— 「旧站未扫到（全局上限）」在
+   `_note_scan_gaps` 的 docstring 里另有一处说明性引用）。
 3. 328 条 Python 单测全绿；`npm run check` exit=0。
 4. 变异 2/2 被杀。

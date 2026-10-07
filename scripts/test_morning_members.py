@@ -1535,6 +1535,20 @@ class PhotoReasonTests(unittest.TestCase):
             )
         self.assertEqual(notes.get(members[0]["file"]), "旧站未扫到（全局上限）")
 
+    def test_unknown_cut_reason_is_loud(self):
+        """未来加了第四种截断却忘改 `_CUT_REASON` 时必须出声 ——
+        静默当「扫完」会让它落到 Commons 写成「源里没有」（工单 09 的事故类）。"""
+        members = [dict(self.MEMBER)]
+        with mock.patch.object(
+            mm, "_pick_old_site_group", lambda *a, **k: (0, "other")
+        ), mock.patch.object(
+            mm, "_old_site_candidates", lambda *a, **k: {"http://x/a": ["20200101000000"]}
+        ):
+            with self.assertRaises(KeyError):
+                mm._resolve_old_site_groups(
+                    members, {}, {}, lambda u: "<html>x</html>", 0, 900, {}
+                )
+
     def test_query_failure_is_not_downgraded_by_a_later_empty_result(self):
         """两轴审查抓到的真缺陷：pageimages 请求失败 + 搜索查询成功但空 ——
         原因必须是「查询失败」，不许被后一阶段的空结果降级成「源里没有」

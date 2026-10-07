@@ -1244,7 +1244,9 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=
             fetched, cut = _pick_old_site_group(
                 best, by_name, urls, fetch, budget, fetched, limit
             )
-            verdicts[group] = _CUT_REASON.get(cut)
+            # `[cut]` 而不是 `.get`：未来加了第四种截断却忘改表时**出声**，
+            # 不许静默降级成「扫完」（那正是本工单要消灭的形状）
+            verdicts[group] = None if cut is None else _CUT_REASON[cut]
     if notes is not None:
         _note_scan_gaps(missing, urls, verdicts, notes)
     return fetched
