@@ -2,7 +2,7 @@
 
 `members.js`、`img/full`（长边 ≤720×960 等比 WebP，不放大原图）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成：
 
-- **48G / 坂道**：48pedia 的 11 个来源页（`SOURCES`）；跨团按姓名+假名去重归口，跨系列兼任由 keeper+extras 合并；bio 取表内 `生年月日`/`出身地`。
+- **48G / 坂道**：48pedia 的 11 个来源页（`SOURCES`）；跨团按姓名+假名去重归口，跨系列兼任由 keeper+`groups` 合并（全部隶属，元素 {group,current}；2026-10-07 前叫 extras）；bio 取表内 `生年月日`/`出身地`。
 - **等爱三团**：`scripts/love_members.py` 抓官网（列表+详情：血型/星座/身长/趣味/特技/罗马字）+ 日文 Wikipedia（假名/生年月日/出身地/元成员/毕业日）；毕业成员照片走回退链 **Web Archive 列表快照 → 图片快照 → Wikipedia/Commons → 沿用站内已有照片（无则占位）**；`main` 的 `love_loader` 可注入（测试离线）。
 - **早安家族（11 团：モーニング娘。/℃-ute/Berryz工房/カントリー・ガールズ/こぶしファクトリー/アンジュルム/Juice=Juice/つばきファクトリー/BEYOOOOONDS/OCHA NORMA/ロージークロニクル）**：`scripts/morningmusume_members.py` 抓**官网 7 个现役团**（列表 `MemberPanel` + 详情页的 `dl/dt/dd`；已停止活动的四团没有官网页面）**与各团的日文 Wikipedia 条目**（段标题按团配置在 `GROUPS`：现役段/毕业段的名字各团不同）。两源按姓名归一后合并：**官网只有现役且没有假名与期生**，Wikipedia 才有毕业者、期生与假名。`main` 的 `morning_loader` 可注入（测试离线）。
   - ⚠️ **跨团合并**：同一人只留一份（现役优先 → 毕业日较晚 → 团体终止年份，见 `GROUP_END_YEAR`）；两个现役团同时认领才抛 `ValueError`。真实数据里有 6 位转籍者。
@@ -28,5 +28,5 @@
   - **后台跑**（全量 30–100 分钟）：`setsid nohup timeout 14400 python3 -u scripts/fetch_members.py > /tmp/opencode/pipe.log 2>&1 < /dev/null & disown` —— 发起命令要**快速返回**：发起调用自己超时的话任务会连坐被杀（实测）。
   - **只改装配数据**（给成员加字段之类）时跳过照片解析：`mm.load(fetch, photo=False)` —— 旧站那 900 次快照扫描只服务照片，装配字段用不到。
   - **解析结果有缓存**（`scripts/_resolved.json`，gitignore）：重跑只解析缺的人；删掉它可强制全量重解析。**别放回 `_orig/`**：`prune_unused` 每次成功跑完会清空那里「stem 不是成员 id」的文件，缓存会被一起删掉（两轴审查抓到过）。
-  - **跑完核对名册完整性**：`python3 scripts/check_roster.py`（视图级：按团筛选 vs 各团 Wikipedia 表；2026-10-04 用它抓到 3 个团缺转籍者）。
+  - **跑完核对名册完整性**：`python3 scripts/check_roster.py`（视图级：按团筛选 vs 各团上游 —— 早安=Wikipedia、48G/坂道=48pedia；2026-10-04 用它抓到 3 个团缺转籍者）。
 - 规模随数据更新漂移 —— **以脚本输出为准**（产物测试钉人数，本文不写第二份）。

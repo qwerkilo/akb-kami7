@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""名册完整性核对（**视图级**）：按团筛选看到的成员 vs 各团 Wikipedia 表。
+"""名册完整性核对（**视图级**）：按团筛选看到的成员 vs 各团上游
+（早安家族 = ja.wikipedia 表；48G/坂道 = 48pedia 源页，与管线同源）。
 
 为什么是视图级而不是数据级：转籍者按「一人多团」只留一份记录（最近归属），
 按团筛选靠成员上的 `groups` 补全 —— 数据级比对会把补全的那几个人误报成缺失
@@ -62,55 +63,58 @@ def _gap_line(missing, extra):
     return out + ("；多: " + "、".join(extra) if extra else "")
 
 
+def _compare_group(group, upstream, site):
+    """一个团的名字集合比对。True=一致，False=有缺口。"""
+    got = set(site.get(group, []))
+    missing = sorted(n for n in upstream if n not in got)
+    extra = sorted(n for n in got if n not in upstream)
+    if missing or extra:
+        print(
+            "  ✗ {}: 上游 {} / 视图 {}{}".format(
+                group, len(upstream), len(got), _gap_line(missing, extra)
+            )
+        )
+        return False
+    print("  ✓ {}: {} 人".format(group, len(upstream)))
+    return True
+
+
 def check_group(group, cfg, site, fetch):
-    """一个团的比对。返回 True=一致，False=有缺口，None=上游失败。"""
+    """一个团的比对（早安家族：上游 = ja.wikipedia）。返回 True/False/None（上游失败）。"""
     try:
         text = mm.ja_wiki.wiki_wikitext(cfg["page"], fetch)
         parsed = mm.parse_wiki_members(text, group)
     except Exception as e:  # 抓取失败与「缺人」要分开报
         print("  ? {}: 上游抓取/解析失败（{}）".format(group, e))
         return None
-    wiki = [m["name"] for m in parsed]
-    got = set(site.get(group, []))
-    missing = [n for n in wiki if n not in got]
-    extra = [n for n in got if n not in wiki]
-    if missing or extra:
-        print(
-            "  ✗ {}: wiki {} / 视图 {}{}".format(
-                group, len(wiki), len(got), _gap_line(missing, extra)
-            )
-        )
-        return False
-    print("  ✓ {}: {} 人".format(group, len(wiki)))
-    return True
+    return _compare_group(group, [m["name"] for m in parsed], site)
 
 
-def check_48pedia(site):
+def check_48pedia(site, load_rows=None):
     """48G/坂道：上游 = 48pedia 源页（与管线同源）。逐团比名字集合。
 
     转籍者在上游的两个团名单里都有（她待过），视图靠 `groups` 补全后也应在两处
     出现 —— 2026-10-07 前 48G 侧只写 extras、视图只认 groups，这条比对能抓出那 49 人。
+
+    按 **SOURCES 配置**遍历（不是按上游返回的团）：源页解析成 0 行时该团会整段消失，
+    按返回值遍历会静默算过（「上游失败」与「真的没有成员」同形 —— review-rules #4）。
     """
-    rows = fetch_members.load_rows()
+    rows = (load_rows or fetch_members.load_rows)()
     by_group = {}
     for r in rows:
         by_group.setdefault(r["group"], set()).add(r["name"])
+    expected = [group for group, _, _ in fetch_members.SOURCES]
     results = []
-    for group in sorted(by_group):
-        upstream = by_group[group]
-        got = set(site.get(group, []))
-        missing = sorted(n for n in upstream if n not in got)
-        extra = sorted(n for n in got if n not in upstream)
-        if missing or extra:
-            print(
-                "  ✗ {}: 上游 {} / 视图 {}{}".format(
-                    group, len(upstream), len(got), _gap_line(missing, extra)
-                )
-            )
-            results.append(False)
-        else:
-            print("  ✓ {}: {} 人".format(group, len(upstream)))
-            results.append(True)
+    for group in expected:
+        upstream = by_group.get(group)
+        if not upstream:
+            print("  ? {}: 上游 0 人（源页解析失败？）".format(group))
+            results.append(None)
+            continue
+        results.append(_compare_group(group, upstream, site))
+    for group in sorted(set(by_group) - set(expected)):
+        print("  ? {}: 源里有这个团但不在 SOURCES 配置里".format(group))
+        results.append(None)
     return results
 
 
@@ -125,6 +129,8 @@ def main():
     skipped = results.count(None)
     note = "；{} 个团上游失败未核对".format(skipped) if skipped else ""
     print("\n结论:", ("仍有缺口" if bad else "无缺口（视图与上游一致）") + note)
+    if skipped:  # 有团没核对 = 工具没能完成核对，不是「一致」（退出码 2 见文档头）
+        return 2
     return 1 if bad else 0
 
 

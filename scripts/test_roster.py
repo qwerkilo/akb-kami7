@@ -13,7 +13,7 @@ def member(name, kana="", status="current", **kw):
         "status": status,
         "end": kw.get("end"),
         "img": kw.get("img", True),
-        **{k: v for k, v in kw.items() if k in ("bio", "leave", "note", "extras")},
+        **{k: v for k, v in kw.items() if k in ("bio", "leave", "note", "groups")},
     }
 
 
@@ -46,13 +46,13 @@ class RosterTest(unittest.TestCase):
 
     def test_project_optional_only_when_truthy(self):
         out = roster.project(
-            member("A", "あ", "former", end="2013", leave="卒業", note="", extras=None),
-            optional=("bio", "leave", "note", "extras"),
+            member("A", "あ", "former", end="2013", leave="卒業", note="", groups=None),
+            optional=("bio", "leave", "note", "groups"),
         )
         self.assertEqual(out["end"], "2013")
         self.assertEqual(out["leave"], "卒業")
         self.assertNotIn("note", out)
-        self.assertNotIn("extras", out)
+        self.assertNotIn("groups", out)
 
     def test_section_shape_and_member_order(self):
         s = roster.section(

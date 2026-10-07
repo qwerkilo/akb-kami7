@@ -1583,6 +1583,25 @@ class CheckRosterSmokeTests(unittest.TestCase):
                 "上游失败要报 None（与「缺人」分开），否则网络问题会被当成名册缺口",
             )
 
+    def test_check_48pedia_flags_empty_upstream_as_failure(self):
+        """源页解析成 0 行时该团会整段消失 —— 按 SOURCES 配置遍历才不会静默算过。"""
+        with mock.patch.object(check_roster.fetch_members, "SOURCES", (("G", "p", ""),)):
+            out = check_roster.check_48pedia({}, load_rows=lambda: [])
+        self.assertEqual(out, [None], "上游 0 人 = 没核对（退出码 2 的输入）")
+
+    def test_check_48pedia_matches_and_gaps(self):
+        rows = [{"group": "G", "name": "a"}, {"group": "G", "name": "b"}]
+        with mock.patch.object(check_roster.fetch_members, "SOURCES", (("G", "p", ""),)):
+            self.assertEqual(
+                check_roster.check_48pedia({"G": {"a", "b"}}, load_rows=lambda: rows),
+                [True],
+            )
+            self.assertEqual(
+                check_roster.check_48pedia({"G": {"a"}}, load_rows=lambda: rows),
+                [False],
+                "视图缺 b（转籍者缺席旧团名册就是这条）",
+            )
+
 
 
 class MorningSeriesPipelineTests(unittest.TestCase):
