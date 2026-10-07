@@ -1385,3 +1385,24 @@
   同条件 A/B 探针 `/tmp/opencode/probe-ab.cjs`。
 - 遗留：`run-all` 的顺序收益是跨轮对比（非交替 A/B），机制成立、数字仅供参考。
 - 下次基点：`44a09dd`。
+
+## 第六十三轮 · 2026-10-07 · 第五轮扫描候选 8（Wayback 知识收进 wayback.py）
+
+- 基点：`387bebd`（第六十二轮推送后的 HEAD）
+- 范围：`387bebd..HEAD` —— `.scratch/wayback-module/`（spec + 两工单）+ 新模块
+  `scripts/wayback.py` + 三个模块的调用点搬迁 + 测试搬迁 + 缝③ 守卫 + 两轴审查后的加固。
+- **问题**：快照 URL 的**格式**散在三处（`photo_chain` / love 内联 / morning）、**解析**有
+  两种写法 —— 漏改一处不会红（两条链各自都有测试），症状是某条链静默取到被 Wayback
+  注入改写的 HTML（`id_` 就是「不要改写」）。
+- **修复**：新模块 `scripts/wayback.py`（先例 `ja_wiki.py`）收 `cdx_rows` / `snapshot_url` /
+  `snapshot_ts` / `original_url` / `latest_snapshot`（原 `wayback_photo` 改名）；
+  love/morning 全部改指，`photo_chain` 不再定义那两个；调用点无 re-export。
+- **两轴审查**（子代理）：无高无中。等价性逐字 + 运行时双重对照通过（正则 pattern 相等、
+  `im_/id_/js_/if_` 后缀与空白边界同输出）；测试搬迁机械对账（8 条逐字进新文件、2 条删除
+  同覆盖）；守卫的 docstring 剥离实测有效（raw 3 处 → stripped 1 处）。四条低：morning 缺
+  正向断言（**验收 3 只做了一半**，已补）、`.strip()` 无用例（已补）、工单笔误（已订正）、
+  计数守卫的拼接旁路（固有边界，记下不加码）。
+- **验证**：`npm run check` exit=0；`scripts/` 单测 **326 条 OK**（test_wayback 14）；
+  `members-artifact` 23/23；变异 3 个全杀（含「值相同的第二份实现」只有计数守卫杀得掉）。
+- 纯 Python 重构：`members.js` 逐字节未动、未跑 E2E。
+- 下次基点：待推后取 HEAD。
