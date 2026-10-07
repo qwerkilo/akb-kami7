@@ -30,7 +30,7 @@ const root = process.argv[1];
 const core = require(path.join(root, "core.js"));
 const sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, "members.js"), "utf8"), sandbox);
-const sections = sandbox.window.AKB_GROUPS.filter((s) => s.series === "morning");
+const sections = sandbox.window.AKB_GROUPS;
 const out = {};
 for (const s of sections) {
   const view = core.rosterView(sections, { group: s.group });
@@ -85,12 +85,46 @@ def check_group(group, cfg, site, fetch):
     return True
 
 
+def check_48pedia(site):
+    """48G/坂道：上游 = 48pedia 源页（与管线同源）。逐团比名字集合。
+
+    转籍者在上游的两个团名单里都有（她待过），视图靠 `groups` 补全后也应在两处
+    出现 —— 2026-10-07 前 48G 侧只写 extras、视图只认 groups，这条比对能抓出那 49 人。
+    """
+    rows = fetch_members.load_rows()
+    by_group = {}
+    for r in rows:
+        by_group.setdefault(r["group"], set()).add(r["name"])
+    results = []
+    for group in sorted(by_group):
+        upstream = by_group[group]
+        got = set(site.get(group, []))
+        missing = sorted(n for n in upstream if n not in got)
+        extra = sorted(n for n in got if n not in upstream)
+        if missing or extra:
+            print(
+                "  ✗ {}: 上游 {} / 视图 {}{}".format(
+                    group, len(upstream), len(got), _gap_line(missing, extra)
+                )
+            )
+            results.append(False)
+        else:
+            print("  ✓ {}: {} 人".format(group, len(upstream)))
+            results.append(True)
+    return results
+
+
 def main():
     site = site_view()
     fetch = fetch_members.text_fetcher(get)
+    print("早安家族（上游：ja.wikipedia）：")
     results = [check_group(g, cfg, site, fetch) for g, cfg in mm.GROUPS.items()]
+    print("48G / 坂道（上游：48pedia）：")
+    results += check_48pedia(site)
     bad = results.count(False)
-    print("\n结论:", "仍有缺口" if bad else "无缺口（视图与上游一致）")
+    skipped = results.count(None)
+    note = "；{} 个团上游失败未核对".format(skipped) if skipped else ""
+    print("\n结论:", ("仍有缺口" if bad else "无缺口（视图与上游一致）") + note)
     return 1 if bad else 0
 
 

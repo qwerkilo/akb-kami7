@@ -154,16 +154,23 @@ test("成员字段无 wikitext/排序键残留", () => {
   }
 });
 
-test("跨团来源以结构化 extras 表示，note 不写死标注文案", () => {
-  let withExtras = 0;
+test("全部隶属以结构化 groups 表示（含自家团），extras 退役，note 不写死标注文案", () => {
+  // 2026-10-07（第六轮扫描候选①）：`extras`（48G 侧旧形状，不含自家团）与 `groups`
+  // （早安侧）是同一事实的两份表示 —— 收成一个 rich `groups`，元素 {group, current}。
+  let withGroups = 0;
   for (const section of loadGroups()) {
     for (const m of section.members) {
-      if (m.extras) {
-        withExtras++;
-        for (const e of m.extras) {
-          assert.equal(typeof e.group, "string");
-          assert.equal(typeof e.current, "boolean");
+      assert.ok(!m.extras, `${m.name} 还带退役的 extras`);
+      if (m.groups) {
+        withGroups++;
+        for (const g of m.groups) {
+          assert.equal(typeof g.group, "string");
+          assert.equal(typeof g.current, "boolean");
         }
+        assert.ok(
+          m.groups.some((g) => g.group === section.group),
+          `${m.name} 的 groups 缺自家团（${section.group}）`
+        );
       }
       assert.ok(
         !/兼任|移籍/.test(m.note || ""),
@@ -171,7 +178,7 @@ test("跨团来源以结构化 extras 表示，note 不写死标注文案", () =
       );
     }
   }
-  assert.ok(withExtras > 0, "应存在带 extras 的合并成员");
+  assert.ok(withGroups > 0, "应存在带 groups 的合并成员");
 });
 
 test("每个分段都有期生标签，人物身份（姓名+假名）不重复", () => {
@@ -299,13 +306,43 @@ test("一人多团：转籍者带 groups（每个待过的团都能看到），�
   };
   for (const [name, groups] of Object.entries(expect)) {
     assert.equal(
-      (byName.get(name)?.groups || []).join("/"),
+      (byName.get(name)?.groups || []).map((g) => g.group).join("/"),
       groups.join("/"),
       name
     );
   }
-  const withGroups = [...byName.values()].filter((m) => m.groups);
-  assert.equal(withGroups.length, 6, "只有转籍者带 groups");
+  const perSeries = {};
+  for (const section of loadGroups()) {
+    for (const m of section.members) {
+      if (m.groups)
+        perSeries[section.series] = (perSeries[section.series] || 0) + 1;
+    }
+  }
+  assert.deepEqual(
+    perSeries,
+    { morning: 6, "48g": 46, sakamichi: 3 },
+    "转籍者按系列计数（等爱 0：没有跨团者）—— 单团成员不带 groups"
+  );
+});
+
+test("视图不变量：带 groups 的成员在每个列出的团的视图里都出现（全系列，第六轮扫描候选①）", () => {
+  // 这比抽查强：49 位转籍者缺席旧团名册就是这条不变量被违反（48G 只写 extras、
+  // 视图层只认 groups）。走真实的 core.rosterView，不加任何网络依赖。
+  const sections = loadGroups();
+  const flagged = [];
+  for (const s of sections) {
+    for (const m of s.members) {
+      if (!m.groups) continue;
+      for (const g of m.groups) {
+        const v = core.rosterView(sections, { group: g.group });
+        const ids = v.nodes.flatMap((n) =>
+          n.sections.flatMap((sec) => sec.members.map((x) => x.id))
+        );
+        if (!ids.includes(m.id)) flagged.push(`${m.name} 不在 ${g.group} 视图`);
+      }
+    }
+  }
+  assert.deepEqual(flagged, [], flagged.slice(0, 8).join("；"));
 });
 
 test("照片回退链：与站点无关的三段在共享模块，与站点有关的留在 loader（工单 01）", () => {

@@ -472,7 +472,11 @@ window.AKB_GROUPS = [
      "birth": "1991.07.15",
      "from": "鹿児島県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
      {
       "group": "NMB48",
       "current": false
@@ -1484,7 +1488,11 @@ window.AKB_GROUPS = [
      "birth": "1992.12.08",
      "from": "京都府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
      {
       "group": "NMB48",
       "current": false
@@ -2147,7 +2155,11 @@ window.AKB_GROUPS = [
      "birth": "1997.11.07",
      "from": "神奈川県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
      {
       "group": "STU48",
       "current": false
@@ -4555,7 +4567,11 @@ window.AKB_GROUPS = [
      "birth": "1994.04.11",
      "from": "大阪府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
      {
       "group": "NMB48",
       "current": false
@@ -4574,7 +4590,11 @@ window.AKB_GROUPS = [
      "birth": "1996.02.11",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
      {
       "group": "SKE48",
       "current": false
@@ -4593,7 +4613,11 @@ window.AKB_GROUPS = [
      "birth": "1995.05.12",
      "from": "福岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "AKB48",
+      "current": false
+     },
      {
       "group": "HKT48",
       "current": false
@@ -4882,7 +4906,11 @@ window.AKB_GROUPS = [
      "birth": "1988.03.14",
      "from": "三重県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -4940,7 +4968,11 @@ window.AKB_GROUPS = [
      "birth": "1997.03.08",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -4959,7 +4991,11 @@ window.AKB_GROUPS = [
      "birth": "1991.07.27",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "乃木坂46",
       "current": false
@@ -5076,7 +5112,11 @@ window.AKB_GROUPS = [
      "birth": "1996.05.27",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -5213,7 +5253,11 @@ window.AKB_GROUPS = [
      "birth": "1991.11.29",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "NMB48",
       "current": false
@@ -5574,7 +5618,11 @@ window.AKB_GROUPS = [
      "birth": "1997.08.11",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "HKT48",
       "current": false
@@ -5888,7 +5936,11 @@ window.AKB_GROUPS = [
      "birth": "1996.09.15",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -6033,7 +6085,11 @@ window.AKB_GROUPS = [
      "birth": "1998.10.09",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -7871,7 +7927,11 @@ window.AKB_GROUPS = [
      "birth": "1992.04.03",
      "from": "神奈川県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -7890,7 +7950,11 @@ window.AKB_GROUPS = [
      "birth": "1993.11.20",
      "from": "埼玉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -7909,7 +7973,11 @@ window.AKB_GROUPS = [
      "birth": "1996.01.05",
      "from": "福岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "HKT48",
       "current": false
@@ -7928,7 +7996,11 @@ window.AKB_GROUPS = [
      "birth": "1989.01.24",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -7947,7 +8019,11 @@ window.AKB_GROUPS = [
      "birth": "1990.08.13",
      "from": "東京都"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -7966,7 +8042,11 @@ window.AKB_GROUPS = [
      "birth": "1994.12.08",
      "from": "千葉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SKE48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -8083,7 +8163,11 @@ window.AKB_GROUPS = [
      "birth": "1994.08.24",
      "from": "京都府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -8141,7 +8225,11 @@ window.AKB_GROUPS = [
      "birth": "1997.10.14",
      "from": "大阪府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -8278,7 +8366,11 @@ window.AKB_GROUPS = [
      "birth": "1992.04.03",
      "from": "大阪府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "SKE48",
       "current": false
@@ -8297,7 +8389,11 @@ window.AKB_GROUPS = [
      "birth": "1993.07.14",
      "from": "大阪府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -8329,7 +8425,11 @@ window.AKB_GROUPS = [
      "birth": "1993.09.19",
      "from": "奈良県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -8607,7 +8707,11 @@ window.AKB_GROUPS = [
      "birth": "1997.02.24",
      "from": "大阪府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -9035,7 +9139,11 @@ window.AKB_GROUPS = [
      "birth": "1996.08.25",
      "from": "大阪府"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -10842,7 +10950,11 @@ window.AKB_GROUPS = [
      "birth": "1994.02.12",
      "from": "埼玉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -10861,7 +10973,11 @@ window.AKB_GROUPS = [
      "birth": "1989.01.03",
      "from": "福岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -10880,7 +10996,11 @@ window.AKB_GROUPS = [
      "birth": "1994.02.01",
      "from": "千葉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NMB48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -11007,7 +11127,11 @@ window.AKB_GROUPS = [
      "birth": "1996.09.19",
      "from": "福岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -11067,7 +11191,11 @@ window.AKB_GROUPS = [
      "birth": "2000.08.10",
      "from": "福岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "SKE48",
       "current": false
@@ -11140,7 +11268,11 @@ window.AKB_GROUPS = [
      "birth": "1998.03.19",
      "from": "鹿児島県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -11159,7 +11291,11 @@ window.AKB_GROUPS = [
      "birth": "1998.07.29",
      "from": "山口県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "NMB48",
       "current": false
@@ -11458,7 +11594,11 @@ window.AKB_GROUPS = [
      "birth": "1998.05.17",
      "from": "福岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -11588,7 +11728,11 @@ window.AKB_GROUPS = [
      "birth": "2001.06.18",
      "from": "東京都"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -12566,7 +12710,11 @@ window.AKB_GROUPS = [
      "birth": "1994.12.08",
      "from": "埼玉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -12585,7 +12733,11 @@ window.AKB_GROUPS = [
      "birth": "1992.11.21",
      "from": "大分県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "HKT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -13837,7 +13989,11 @@ window.AKB_GROUPS = [
      "birth": "1991.06.24",
      "from": "愛知県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "NGT48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15231,7 +15387,11 @@ window.AKB_GROUPS = [
      "birth": "1985.10.23",
      "from": "埼玉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15262,7 +15422,11 @@ window.AKB_GROUPS = [
      "birth": "1983.08.25",
      "from": "千葉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15317,7 +15481,11 @@ window.AKB_GROUPS = [
      "birth": "1988.04.12",
      "from": "広島県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15348,7 +15516,11 @@ window.AKB_GROUPS = [
      "birth": "1988.11.22",
      "from": "静岡県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15427,7 +15599,11 @@ window.AKB_GROUPS = [
      "birth": "1983.10.28",
      "from": "東京都"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15702,7 +15878,11 @@ window.AKB_GROUPS = [
      "birth": "1988.12.16",
      "from": "埼玉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15733,7 +15913,11 @@ window.AKB_GROUPS = [
      "birth": "1988.07.11",
      "from": "埼玉県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "SDN48",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -15833,7 +16017,11 @@ window.AKB_GROUPS = [
      "birth": "1995.12.29",
      "from": "秋田県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "乃木坂46",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -16386,7 +16574,11 @@ window.AKB_GROUPS = [
      "from": "東京都"
     },
     "leave": "活動辞退",
-    "extras": [
+    "groups": [
+     {
+      "group": "乃木坂46",
+      "current": false
+     },
      {
       "group": "AKB48",
       "current": false
@@ -17453,7 +17645,11 @@ window.AKB_GROUPS = [
      "birth": "1998.09.04",
      "from": "長崎県"
     },
-    "extras": [
+    "groups": [
+     {
+      "group": "櫻坂46",
+      "current": false
+     },
      {
       "group": "日向坂46",
       "current": false
@@ -20044,8 +20240,14 @@ window.AKB_GROUPS = [
      "ちぃこ"
     ],
     "groups": [
-     "モーニング娘。",
-     "カントリー・ガールズ"
+     {
+      "group": "モーニング娘。",
+      "current": false
+     },
+     {
+      "group": "カントリー・ガールズ",
+      "current": false
+     }
     ]
    },
    {
@@ -20609,8 +20811,14 @@ window.AKB_GROUPS = [
      "（ふなちゃん）"
     ],
     "groups": [
-     "アンジュルム",
-     "カントリー・ガールズ"
+     {
+      "group": "アンジュルム",
+      "current": false
+     },
+     {
+      "group": "カントリー・ガールズ",
+      "current": false
+     }
     ]
    },
    {
@@ -20718,8 +20926,14 @@ window.AKB_GROUPS = [
      "height": "163cm"
     },
     "groups": [
-     "Juice=Juice",
-     "こぶしファクトリー"
+     {
+      "group": "Juice=Juice",
+      "current": true
+     },
+     {
+      "group": "こぶしファクトリー",
+      "current": false
+     }
     ]
    },
    {
@@ -20883,8 +21097,14 @@ window.AKB_GROUPS = [
      "from": "北海道"
     },
     "groups": [
-     "Juice=Juice",
-     "カントリー・ガールズ"
+     {
+      "group": "Juice=Juice",
+      "current": false
+     },
+     {
+      "group": "カントリー・ガールズ",
+      "current": false
+     }
     ]
    },
    {
@@ -20978,8 +21198,14 @@ window.AKB_GROUPS = [
      "from": "神奈川県"
     },
     "groups": [
-     "Juice=Juice",
-     "カントリー・ガールズ"
+     {
+      "group": "Juice=Juice",
+      "current": false
+     },
+     {
+      "group": "カントリー・ガールズ",
+      "current": false
+     }
     ]
    }
   ]
@@ -21983,8 +22209,14 @@ window.AKB_GROUPS = [
      "（PM）"
     ],
     "groups": [
-     "Berryz工房",
-     "カントリー・ガールズ"
+     {
+      "group": "Berryz工房",
+      "current": false
+     },
+     {
+      "group": "カントリー・ガールズ",
+      "current": false
+     }
     ]
    },
    {

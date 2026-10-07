@@ -933,6 +933,23 @@ def _pick_candidate(group_cands):
     return best, _merge_one(_first(same, "official"), _first(same, "wiki"))
 
 
+def _belonged_groups(key, cands):
+    """全部隶属（含自家团，配置顺序）：{group, current}，current = 该团记录是否现役。
+
+    与 48G 侧 `_affiliations` 同形（CONTEXT「移籍」）；只在多于一个团时写进记录。
+    """
+    return [
+        {
+            "group": g,
+            "current": any(
+                c["status"] == "current" for c in cands[key] if c["group"] == g
+            ),
+        }
+        for g in GROUPS
+        if any(c["group"] == g for c in cands[key])
+    ]
+
+
 def _assemble(official, parsed):
     """official: {团: {姓名: parse_list 项}}；parsed: {团: [成员记录]}（parse_all 的产物）。
     返回 (members, urls) —— 照片按 file 键索引，与 love_members 同契约。
@@ -954,7 +971,7 @@ def _assemble(official, parsed):
         # 一人多团（转籍者）：记录只留一份（最近归属），但**每个待过的团都要记得** ——
         # 按团筛选的名册靠这份 groups 补全（否则カントリー・ガールズ只有 4/8 人）。
         # 只在多于一个团时才写，单团成员不带这个字段（载荷不为所有人加噪音）。
-        belonged = [g for g in GROUPS if any(c["group"] == g for c in cands[key])]
+        belonged = _belonged_groups(key, cands)
         if len(belonged) > 1:
             rec["groups"] = belonged
         members.append(rec)

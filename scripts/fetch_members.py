@@ -293,14 +293,25 @@ def merge_person(records):
         bio.update(r.get("bio") or {})
     if bio:
         keeper["bio"] = {**bio, **(keeper.get("bio") or {})}
-    extras = {}
+    groups = _affiliations(records, keeper)
+    if len(groups) > 1:
+        keeper["groups"] = groups
+    return keeper
+
+
+def _affiliations(records, keeper):
+    """全部隶属（含自家团，自家在前）：{group, current}，current = 该团记录是否现役。
+
+    只在多于一个团时由调用方写进记录（单团成员不带这个字段）—— 与早安的 `groups` 同形
+    （CONTEXT「移籍」）。旧形状 extras 已退役：48G 只写 extras、视图层只认 groups，
+    49 位转籍者因此缺席旧团名册（2026-10-07）。
+    """
+    groups = {keeper["group"]: keeper["status"] == "current"}
     for r in records:
         if r is keeper:
             continue
-        entry = extras.setdefault(r["group"], {"group": r["group"], "current": False})
-        entry["current"] = entry["current"] or r["status"] == "current"
-    keeper["extras"] = list(extras.values())
-    return keeper
+        groups[r["group"]] = groups.get(r["group"], False) or r["status"] == "current"
+    return [{"group": g, "current": c} for g, c in groups.items()]
 
 
 def merge_members(rows):
@@ -325,7 +336,7 @@ def assign_ids(members):
 
 def section_key(m):
     key, label = group_of(m["join"], m["group"])
-    if key >= 130 and not m.get("note") and not m.get("extras"):
+    if key >= 130 and not m.get("note") and not m.get("groups"):
         m["note"] = note_of(m["join"])
     return (GROUP_ORDER.index(m["group"]), key, label)
 
@@ -343,7 +354,7 @@ def build_sections(members):
                 SERIES_OF[GROUP_ORDER[gi]],
                 label,
                 ms,
-                optional=("bio", "leave", "note", "extras"),
+                optional=("bio", "leave", "note", "groups"),
             )
         )
     return out

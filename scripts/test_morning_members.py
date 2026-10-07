@@ -1374,6 +1374,47 @@ class TestCrossGroupMerge(unittest.TestCase):
             mm.build_members(official, {})
         self.assertIn("同名子", str(ctx.exception))
 
+    def test_groups_are_rich_and_include_home(self):
+        """统一载荷：`groups` 元素 {group, current}，含自家团（与 48G 同形）。"""
+        pages = {
+            "Berryz工房": mini_table("嗣永桃子", "=== 無期限活動休止発表時のメンバー ==="),
+            "カントリー・ガールズ": mini_table("嗣永桃子", "=== 活動休止時のメンバー ==="),
+        }
+        members = mm.build_members_from_wiki(pages)
+        self.assertEqual(len(members), 1)
+        self.assertEqual(
+            members[0]["groups"],
+            [
+                {"group": "Berryz工房", "current": False},
+                {"group": "カントリー・ガールズ", "current": False},
+            ],
+        )
+
+    def test_groups_current_flag_follows_each_group_record(self):
+        """`current` 是**每团**的：官网现役（アンジュルム）+ Wikipedia 毕业（カントリー）
+        → 两条各按自己的记录状态（现役 true / 毕业 false）。"""
+        official = {
+            "アンジュルム": {
+                "転籍花": {"name": "転籍花", "group": "アンジュルム", "detail": {}}
+            }
+        }
+        pages = {
+            "カントリー・ガールズ": mini_table(
+                "転籍花", "=== 活動休止時のメンバー ==="
+            )
+        }
+        members, _ = mm.build_members(official, mm.parse_all(pages))
+        m = {x["name"]: x for x in members}["転籍花"]
+        self.assertEqual(m["group"], "アンジュルム", "现役赢")
+        # 顺序 = GROUPS 配置顺序（早安侧；48G 侧是自家在前 + 记录顺序 —— 消费者都不看顺序）
+        self.assertEqual(
+            m["groups"],
+            [
+                {"group": "アンジュルム", "current": True},
+                {"group": "カントリー・ガールズ", "current": False},
+            ],
+        )
+
     def test_tie_without_end_dates_uses_group_end_rank(self):
         """两边毕业日都缺时的裁决：按团体终止年份取较晚的（审查实测嗣永桃子
         被错判进 Berryz —— 她 2015 休止后仍在カントリー到 2017）。"""

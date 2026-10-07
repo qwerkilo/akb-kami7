@@ -240,7 +240,12 @@ test("字幕：现役与毕业的基本形态", () => {
 });
 
 test("字幕：来源标注走 i18n，英文用逗号连接", () => {
-  const cur = person({ extras: [{ group: "SKE48", current: true }] });
+  const cur = person({
+    groups: [
+      { group: "AKB48", current: true },
+      { group: "SKE48", current: true },
+    ],
+  });
   assert.equal(
     core.metaText(cur, t, "zh"),
     "[src_concurrent:SKE48] · [active]"
@@ -248,7 +253,8 @@ test("字幕：来源标注走 i18n，英文用逗号连接", () => {
   assert.equal(
     core.sourceNote(
       person({
-        extras: [
+        groups: [
+          { group: "AKB48", current: true },
           { group: "A", current: true },
           { group: "B", current: true },
         ],
@@ -261,7 +267,10 @@ test("字幕：来源标注走 i18n，英文用逗号连接", () => {
   const mixed = person({
     status: "former",
     end: "2016.01.01",
-    extras: [{ group: "NMB48", current: false }],
+    groups: [
+      { group: "AKB48", current: false },
+      { group: "NMB48", current: false },
+    ],
   });
   assert.equal(
     core.metaText(mixed, t, "zh"),
@@ -311,7 +320,12 @@ test("字幕：海报副标题全分支且不产生 undefined", () => {
   );
   assert.equal(
     core.posterSub(
-      person({ extras: [{ group: "SKE48", current: true }] }),
+      person({
+        groups: [
+          { group: "AKB48", current: true },
+          { group: "SKE48", current: true },
+        ],
+      }),
       t,
       "zh"
     ),
@@ -786,22 +800,28 @@ test("期生英文序数：1st/2nd/3rd/4th、带小数与非法输入", () => {
   );
 });
 
-test("字幕：移籍来源（现役但非全现役）、zh 分隔符与无 extras 回退", () => {
+test("字幕：移籍来源（现役但非全现役）、文字不含自家团、zh 分隔符与无 groups 回退", () => {
   const transferred = person({
-    extras: [
+    groups: [
       { group: "AKB48", current: true },
       { group: "NMB48", current: false },
+      { group: "SKE48", current: false },
     ],
   });
   assert.equal(
     core.sourceNote(transferred, t, "zh"),
-    "[src_transferred:AKB48、NMB48]"
+    "[src_transferred:NMB48、SKE48]"
   );
   assert.equal(
     core.sourceNote(transferred, t, "en"),
-    "[src_transferred:AKB48, NMB48]"
+    "[src_transferred:NMB48, SKE48]"
   );
-  const full = person({ extras: [{ group: "SKE48", current: true }] });
+  const full = person({
+    groups: [
+      { group: "AKB48", current: true },
+      { group: "SKE48", current: true },
+    ],
+  });
   assert.equal(
     core.fullMeta(full, t, "zh"),
     "AKB48 · 1期生 · [src_concurrent:SKE48] · [active]"
@@ -1473,7 +1493,10 @@ function transferSections() {
           id: "m1",
           name: "森戸知沙希",
           status: "former",
-          groups: ["モーニング娘。", "カントリー・ガールズ"],
+          groups: [
+            { group: "モーニング娘。", current: false },
+            { group: "カントリー・ガールズ", current: false },
+          ],
           hay: "森戸知沙希",
         },
       ],
@@ -1497,6 +1520,38 @@ test("按团筛选：转籍者（groups 含本团）补进该团名册，id 不�
   );
   assert.deepEqual(ids.sort(), ["m1", "m2"]);
   assert.equal(v.nodes[0].count, 2);
+});
+
+test("按团筛选：48G 转籍者也进旧团名册（柏木由紀形状：groups 含 NMB48/NGT48）", () => {
+  const sections = [
+    {
+      group: "AKB48",
+      label: "AKB48",
+      members: [
+        {
+          id: "k1",
+          name: "柏木由紀",
+          status: "former",
+          groups: [
+            { group: "AKB48", current: false },
+            { group: "NMB48", current: false },
+            { group: "NGT48", current: false },
+          ],
+          hay: "柏木由紀",
+        },
+      ],
+    },
+    {
+      group: "NMB48",
+      label: "NMB48",
+      members: [{ id: "n1", name: "甲", hay: "甲" }],
+    },
+  ];
+  const v = core.rosterView(sections, { group: "NMB48" });
+  const ids = v.nodes.flatMap((n) =>
+    n.sections.flatMap((s) => s.members.map((m) => m.id))
+  );
+  assert.deepEqual(ids.sort(), ["k1", "n1"]);
 });
 
 test("反向：不属于本团的人不补进来", () => {

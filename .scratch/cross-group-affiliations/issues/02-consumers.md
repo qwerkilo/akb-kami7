@@ -1,6 +1,6 @@
 # 工单 02：消费点改读统一字段（`core.js` 三处）+ E2E
 
-- **Status**: ready
+- **Status**: resolved
 - **Blocked by**: 01
 
 ## 实现
@@ -21,6 +21,16 @@
 - 变异：①`sourceNote` 文字不过滤自家团 ②搜索不认 `groups` —— 均被杀。
 - `npm run check` exit=0；`npm run e2e:all` 5/5。
 
+## 判据与结果
+
+- `core.js` 三处改读 rich `groups`：名册补全 / 搜索（`gs.some(g => g.group === 团)`）、
+  徽标（文字过滤自家团，三支判据不变）。
+- 新用例：柏木由紀形状（48G 转籍者进旧团名册）；徽标文字不含自家团（`src_transferred:NMB48、SKE48`
+  —— 自家 AKB48 被排除）。
+- core 118 条全绿；i18n 的真实数据驱动测试（三语 × 全成员无空值/undefined）绿。
+- E2E 全量：见 Comments。
+- 记账：`m.group` 是 `flattenMembers` 从段回填的（产品成员本身不带）—— 徽标的自家团过滤依赖它。
+
 ## Comments
 
-（实现时填写）
+- 与工单 01 原子提交（见 01 的记账）。

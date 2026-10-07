@@ -375,7 +375,8 @@
       if (s.group === groupFilter) continue;
       for (const m of s.members || []) {
         const gs = Array.isArray(m.groups) ? m.groups : [];
-        if (!gs.includes(groupFilter) || seen.has(m.id)) continue;
+        if (!gs.some((g) => g.group === groupFilter) || seen.has(m.id))
+          continue;
         seen.add(m.id);
         out.push(m);
       }
@@ -427,7 +428,11 @@
       // 段级不整段跳过：转籍者的记录在别的团段里，按团搜也要能搜到（认 m.groups）
       for (const m of s.members) {
         const gs = Array.isArray(m.groups) ? m.groups : [];
-        if (f.group !== "all" && s.group !== f.group && !gs.includes(f.group))
+        if (
+          f.group !== "all" &&
+          s.group !== f.group &&
+          !gs.some((g) => g.group === f.group)
+        )
           continue;
         if (searchHit(s, m, f, wantGen, q)) hits.push(m);
       }
@@ -558,10 +563,12 @@
   }
 
   function sourceNote(m, t, lang) {
-    if (m.extras && m.extras.length) {
+    // 文字只列「非自家团」（groups 含自家团 —— 全部隶属的字面义）；三个分支判据不变。
+    const others = (m.groups || []).filter((g) => g.group !== m.group);
+    if (others.length) {
       const sep = lang === "en" ? ", " : "、";
-      const groups = m.extras.map((e) => e.group).join(sep);
-      if (m.status === "current" && m.extras.every((e) => e.current))
+      const groups = others.map((g) => g.group).join(sep);
+      if (m.status === "current" && m.groups.every((g) => g.current))
         return t("src_concurrent", groups);
       if (m.status === "current") return t("src_transferred", groups);
       return t("src_mixed", groups);

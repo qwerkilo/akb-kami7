@@ -427,7 +427,14 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([old, new])
         self.assertEqual(len(merged), 1)
         self.assertEqual(merged[0]["group"], "NMB48")
-        self.assertEqual(merged[0]["extras"], [{"group": "SKE48", "current": False}])
+        # groups = 全部隶属（含自家团，自家在前），current = 该团记录是否现役
+        self.assertEqual(
+            merged[0]["groups"],
+            [
+                {"group": "NMB48", "current": True},
+                {"group": "SKE48", "current": False},
+            ],
+        )
 
     def test_merges_concurrent_members_preferring_home_group(self):
         home = member("兼任子", "けんにん こ", "AKB48", "current", "14期|AKB48")
@@ -435,7 +442,13 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([side, home])
         self.assertEqual(len(merged), 1)
         self.assertEqual(merged[0]["group"], "AKB48")
-        self.assertEqual(merged[0]["extras"], [{"group": "STU48", "current": True}])
+        self.assertEqual(
+            merged[0]["groups"],
+            [
+                {"group": "AKB48", "current": True},
+                {"group": "STU48", "current": True},
+            ],
+        )
 
     def test_keeps_same_name_with_different_kana(self):
         a = member("同名", "どうめい いち", "AKB48", "former", "1期|AKB48", "2010.01.01")
@@ -448,9 +461,9 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([one])
         self.assertEqual(merged, [one])
         self.assertNotIn("note", merged[0])
-        self.assertNotIn("extras", merged[0])
+        self.assertNotIn("groups", merged[0])
 
-    def test_same_group_records_collapse_into_one_extra(self):
+    def test_same_group_records_collapse_into_one_group(self):
         akb = member("兼任子", "けんにん こ", "AKB48", "current", "1期|AKB48")
         ske_now = member("兼任子", "けんにん こ", "SKE48", "current", "1期|SKE48")
         ske_old = member(
@@ -459,7 +472,35 @@ class MergeMembersTests(unittest.TestCase):
         merged = fetch_members.merge_members([akb, ske_now, ske_old])
         self.assertEqual(len(merged), 1)
         self.assertEqual(merged[0]["group"], "AKB48")
-        self.assertEqual(merged[0]["extras"], [{"group": "SKE48", "current": True}])
+        self.assertEqual(
+            merged[0]["groups"],
+            [
+                {"group": "AKB48", "current": True},
+                {"group": "SKE48", "current": True},
+            ],
+        )
+
+    def test_home_entry_carries_the_keeper_status(self):
+        """自家团条目不是恒真：keeper 是毕业者时它也是 false。"""
+        a = member("卒業花", "そつぎょう はな", "AKB48", "former", "1期|AKB48", "2015.03.31")
+        b = member("卒業花", "そつぎょう はな", "SKE48", "former", "1期|SKE48", "2012.03.31")
+        merged = fetch_members.merge_members([a, b])
+        self.assertEqual(merged[0]["group"], "AKB48", "毕业日较晚的归属为 keeper")
+        self.assertEqual(
+            merged[0]["groups"],
+            [
+                {"group": "AKB48", "current": False},
+                {"group": "SKE48", "current": False},
+            ],
+        )
+
+    def test_two_records_in_one_group_write_no_groups(self):
+        """同团两条记录（毕业再入籍等）= 一个团 —— 单团成员不带 groups。"""
+        a = member("再入籍", "さいにゅうせき", "AKB48", "former", "1期|AKB48", "2012.03.31")
+        b = member("再入籍", "さいにゅうせき", "AKB48", "current", "再入籍|AKB48")
+        merged = fetch_members.merge_members([a, b])
+        self.assertEqual(len(merged), 1)
+        self.assertNotIn("groups", merged[0])
 
 
 AKB_CURRENT_PAGE = """== 現役メンバー ==
@@ -776,7 +817,7 @@ class BuildSectionsTests(unittest.TestCase):
             {"id", "name", "kana", "nick", "status", "end", "img"},
         )
 
-    def test_projects_note_and_extras(self):
+    def test_projects_note_and_groups(self):
         concurrent = member(
             "兼任子",
             "けんにん こ",
@@ -786,7 +827,10 @@ class BuildSectionsTests(unittest.TestCase):
             id="m1",
             img=True,
             nick="",
-            extras=[{"group": "STU48", "current": True}],
+            groups=[
+                {"group": "AKB48", "current": True},
+                {"group": "STU48", "current": True},
+            ],
         )
         foreign = member(
             "外来子",
@@ -802,7 +846,11 @@ class BuildSectionsTests(unittest.TestCase):
         out = fetch_members.build_sections([concurrent, foreign])
         by_name = {m["name"]: m for s in out for m in s["members"]}
         self.assertEqual(
-            by_name["兼任子"]["extras"], [{"group": "STU48", "current": True}]
+            by_name["兼任子"]["groups"],
+            [
+                {"group": "AKB48", "current": True},
+                {"group": "STU48", "current": True},
+            ],
         )
         self.assertNotIn("note", by_name["兼任子"])
         self.assertEqual(by_name["外来子"]["note"], "JKT48 2期")
