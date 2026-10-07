@@ -1126,6 +1126,11 @@ def _match_page(html, original, ts, by_name, urls):
         urls[m["file"]] = wayback.snapshot_url(ts, abs_src)
 
 
+# 截断原因（`_scan_tasks` 的 cut 枚举 → 文案）：**结论在产生处写一次**，
+# `_note_scan_gaps` 只按成员查结论，不再有「枚举→三集合→中文」两次翻译
+_CUT_REASON = {"budget": "旧站预算内未扫完", "limit": "旧站被全局上限截断"}
+
+
 def _scan_tasks(best, budget, fetched, limit):
     """按预算把「(原页, 快照 ts)」展开成任务表（每 URL 试最早 3 个）。
 
@@ -1222,9 +1227,9 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=
     在预算修好后的下一轮就找回了）。"""
     fetched = 0
     groups = _groups_with_missing(missing)
-    scanned = set()
-    exhausted = set()  # 团预算用尽
-    capped = set()  # 团被全局上限截断（预算还没用完）
+    # 每团的**结局**四选一（结论在产生处写一次）：没轮到的团**不进表**（循环提前 break）、
+    # 扫完存 None、被截断存原因串 —— 此前用三个集合 + 隐式补集编码同一件事
+    verdicts = {}
     # 心跳的「总数」= 各团预算之和（全局上限再夹一次）：比写 limit 更接近真实工作量
     with progress.stage(
         "旧站扫描", total=min(limit, sum(_group_budget(missing, g) for g in groups))
@@ -1234,41 +1239,34 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=
                 break
             if not any(m.get("group") == group for m in missing):
                 continue
-            scanned.add(group)
             budget = _group_budget(missing, group)
             best = _old_site_candidates(prefixes, fetch, missing)
             fetched, cut = _pick_old_site_group(
                 best, by_name, urls, fetch, budget, fetched, limit
             )
-            if cut == "budget":
-                exhausted.add(group)
-            elif cut == "limit":
-                capped.add(group)
+            verdicts[group] = _CUT_REASON.get(cut)
     if notes is not None:
-        _note_scan_gaps(missing, urls, scanned, exhausted, capped, notes)
+        _note_scan_gaps(missing, urls, verdicts, notes)
     return fetched
 
 
-def _note_scan_gaps(missing, urls, scanned, exhausted, capped, notes):
+def _note_scan_gaps(missing, urls, verdicts, notes):
     """「没扫完」的原因写进 notes（工单 09）：三种截断分开记。
 
-    - 团压根没轮到 → 「旧站未扫到（全局上限）」
-    - 团预算用尽 → 「旧站预算内未扫完」
-    - 团被全局上限中途截断（预算还没用完）→ 「旧站被全局上限截断」
-      （此前这一类既不入 exhausted、也因 group 在 scanned 里而跳过 → 静默落到
-      Commons 写成「源里没有」，两轴审查抓出）
+    `verdicts`（每团结局）：**不在表里** = 团压根没轮到 → 「旧站未扫到（全局上限）」；
+    存原因串 = 被截断；存 None = 扫完了（原因交给后面的源去说）。
+
+    「被全局上限中途截断」（预算还没用完）此前既不入 exhausted、也因 group 在 scanned
+    里而跳过 → 静默落到 Commons 写成「源里没有」，两轴审查抓出。
     """
-    for m in missing:
-        if m["file"] in urls or m.get("group") in scanned:
-            continue  # 扫完了、也没超预算 —— 原因交给后面的源去说
-        notes.setdefault(m["file"], "旧站未扫到（全局上限）")
     for m in missing:
         if m["file"] in urls:
             continue
-        if m.get("group") in exhausted:
-            notes.setdefault(m["file"], "旧站预算内未扫完")
-        elif m.get("group") in capped:
-            notes.setdefault(m["file"], "旧站被全局上限截断")
+        group = m.get("group")
+        if group not in verdicts:
+            notes.setdefault(m["file"], "旧站未扫到（全局上限）")
+        elif verdicts[group]:
+            notes.setdefault(m["file"], verdicts[group])
 
 
 def resolve_old_site_photos(

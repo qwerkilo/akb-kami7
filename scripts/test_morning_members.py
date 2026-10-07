@@ -1519,6 +1519,22 @@ class PhotoReasonTests(unittest.TestCase):
             )
         self.assertEqual(notes.get(members[0]["file"]), "旧站被全局上限截断")
 
+    def test_group_never_reached_is_noted_as_limit_not_missing_page(self):
+        """第一类截断：全局上限在轮到该团**之前**就用完 —— 三分类里唯一没有测试的一类
+        （grep 此前只在源码里命中「旧站未扫到（全局上限）」）。"""
+        members = [dict(self.MEMBER)]
+        urls, notes = {}, {}
+
+        def fake_candidates(prefixes, fetch, missing):
+            return {}
+
+        with mock.patch.object(mm, "_old_site_candidates", fake_candidates):
+            # limit=0：循环开头就 break → 该团压根没轮到
+            mm._resolve_old_site_groups(
+                members, {}, urls, lambda u: "<html>x</html>", 0, 0, notes
+            )
+        self.assertEqual(notes.get(members[0]["file"]), "旧站未扫到（全局上限）")
+
     def test_query_failure_is_not_downgraded_by_a_later_empty_result(self):
         """两轴审查抓到的真缺陷：pageimages 请求失败 + 搜索查询成功但空 ——
         原因必须是「查询失败」，不许被后一阶段的空结果降级成「源里没有」
