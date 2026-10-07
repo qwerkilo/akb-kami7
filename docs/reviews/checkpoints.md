@@ -1406,3 +1406,22 @@
   `members-artifact` 23/23；变异 3 个全杀（含「值相同的第二份实现」只有计数守卫杀得掉）。
 - 纯 Python 重构：`members.js` 逐字节未动、未跑 E2E。
 - 下次基点：`92088d7`。
+
+## 第六十四轮 · 2026-10-07 · 第五轮扫描候选 9（截断原因收成「每团结局」）
+
+- 基点：`12985ee`
+- 范围：`12985ee..HEAD` —— `.scratch/scan-gap-verdicts/`（spec + 工单）+
+  `morningmusume_members.py` 的 `_CUT_REASON`/`_resolve_old_site_groups`/`_note_scan_gaps` +
+  测试 + 两轴审查后的加固。
+- **问题**：同一事实三份表示（`cut` 枚举 → 三集合 `scanned/exhausted/capped` → 中文串 ×3，
+  中间还隔着两个循环与 `setdefault` 顺序）；每团结局实为**四选一**（没轮到/预算截断/
+  上限截断/扫完）。顺带核出真缺口：第一类「旧站未扫到（全局上限）」**全仓没有测试**。
+- **修复**：`verdicts`（没轮到的团不进表、扫完存 None、截断存原因串）；三集合与第二循环
+  删除；`_CUT_REASON` = 截断原因串的唯一定义点；补那类特征测试（重构前绿、变异下红）。
+- **两轴审查**（子代理）：无高无中。等价性经 **198 场景差分**（穷举四结局 × limit ×
+  已解析子集）0 不一致、三类原因串均真实触发；`scanned ⊇ exhausted ∪ capped` 保证旧版
+  两循环无副作用。两条低：`.get(cut)` 的静默降级面（**已改成 KeyError 出声 + 测试**）、
+  验收 2 的计数口径（已注明）。
+- **验证**：`npm run check` exit=0；**329 条** Python 单测全绿；变异 3 个全杀（两类对调 /
+  去掉「没轮到」判据 / 回到 `.get`）。纯 Python 重构：`members.js` 未动、未跑 E2E。
+- 下次基点：待推后取 HEAD。
