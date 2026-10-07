@@ -109,6 +109,15 @@ class SnapshotURLTests(unittest.TestCase):
         )
         self.assertEqual(wayback.original_url("https://x/y.jpg"), "https://x/y.jpg")
 
+    def test_strip_trims_whitespace(self):
+        # 旧实现是 `url.strip()` 后剥前缀 —— 搬迁后必须保持（CDX 行里带空白）
+        self.assertEqual(
+            wayback.original_url(
+                "  https://web.archive.org/web/20150113120352id_/http://x/y.jpg\n"
+            ),
+            "http://x/y.jpg",
+        )
+
     def test_round_trip(self):
         for url in ["http://www.helloproject.com/x.jpg", "https://x/a/b.html"]:
             ts = "20150113120352"

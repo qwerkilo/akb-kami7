@@ -14,7 +14,7 @@
    - `photo_chain`：删 `cdx_rows`/`wayback_photo`（不再需要 `urllib.parse` 时一并删 import）。
    - `love_members`：`photo_chain.cdx_rows`→`wayback.cdx_rows`、`photo_chain.wayback_photo`→
      `wayback.latest_snapshot`、内联格式→`wayback.snapshot_url`、自己的 `WAYBACK_PREFIX`/
-     `original_url` 删掉、3 处调用改 `wayback.original_url`。
+     `original_url` 删掉、2 处调用（:69 / :205）改 `wayback.original_url`。
    - `morningmusume_members`：`snapshot_ts`/`_snapshot_url` 删掉、改 `wayback.*`；
      `photo_chain.cdx_rows`/`photo_chain.wayback_photo` 改指。
 4. 测试跟着搬（`test_photo_chain` 的 `cdx_rows`、`test_morning_members.snapshot_ts`、
