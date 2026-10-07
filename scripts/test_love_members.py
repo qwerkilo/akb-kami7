@@ -334,7 +334,7 @@ class IncrementalSkipTests(unittest.TestCase):
             return "[]"
 
         love_members.resolve_former_photos(
-            members, urls, fetch, skip=lambda m: m["file"] == "f1"
+            members, urls, fetch, skip={("=LOVE", "A")}
         )
         self.assertEqual(urls, {})
         self.assertEqual(calls, [], "全被跳过时不该抓归档页")

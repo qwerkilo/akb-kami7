@@ -7,6 +7,7 @@ import re
 import fetch_pool
 import ja_wiki
 import photo_chain
+import photo_skip
 import wayback
 import progress
 import roster
@@ -285,7 +286,7 @@ def _needs_photo(m, urls, skip):
     """这个人要不要解析照片：还没有 URL，且不在增量跑的跳过名单里（ADR-0023）。"""
     if m["file"] in urls:
         return False
-    return not (skip and skip(m))
+    return not photo_skip.skips(skip, m)
 
 
 def resolve_former_photos(members, urls, fetch, skip=None, notes=None):

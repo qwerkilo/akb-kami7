@@ -561,6 +561,44 @@ test("Wayback URL 格式与解析只许在 wayback.py（第五轮扫描候选 8�
   }
 });
 
+test("跳过名单：键与判定只许在 photo_skip.py（第五轮扫描候选 10）", () => {
+  const dir = path.join(__dirname, "..", "scripts");
+  // 此前名单是「函数 + 隐藏属性 skip.skipped」：调用方 getattr 取回名单（属性名一改
+  // 警告静默消失），而 (团, 名) 这个键在 producer / 两个 loader / 复核警告四处各派生一次
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".py") && !f.startsWith("test_"));
+  for (const f of files) {
+    const src = stripCommentsAndDocs(
+      fs.readFileSync(path.join(dir, f), "utf8")
+    );
+    assert.ok(
+      !/getattr\([^)]*"skipped"/.test(src),
+      `${f} 不许再用「隐藏属性」协议（名单就是一组键，用 photo_skip.skips()）`
+    );
+    if (f === "photo_skip.py") continue;
+    assert.ok(
+      !/\.skipped\b/.test(src),
+      `${f} 不许访问 .skipped 属性 —— 隐藏协议不许复活`
+    );
+  }
+  // 两个 loader 必须走共享判定（不许各自再写一遍 (group, name) 的成员测试）
+  for (const name of ["love_members.py", "morningmusume_members.py"]) {
+    const src = fs.readFileSync(path.join(dir, name), "utf8");
+    assert.ok(
+      src.includes("photo_skip.skips("),
+      `${name} 必须调 photo_skip.skips()`
+    );
+  }
+  const mod = fs.readFileSync(path.join(dir, "photo_skip.py"), "utf8");
+  const defs = [...mod.matchAll(/^def (\w+)/gm)].map((m) => m[1]).sort();
+  assert.deepEqual(
+    defs,
+    ["key", "skips"],
+    "photo_skip.py 只该有键与判定两个函数"
+  );
+});
+
 test("日期格式只有一个家：morning 必须走 roster.ymd（深化㉙）", () => {
   const src = fs.readFileSync(
     path.join(__dirname, "..", "scripts", "morningmusume_members.py"),

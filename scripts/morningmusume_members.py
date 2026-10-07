@@ -21,6 +21,7 @@ from urllib.parse import urljoin
 import fetch_pool
 import ja_wiki
 import photo_chain
+import photo_skip
 import wayback
 import progress
 import roster
@@ -1373,7 +1374,7 @@ def resolve_former_photos(
     `notes`（工单 01 / ADR-0024）：没解析到的原因**交给调用方**（`notes[file]`），
     这里不打汇总 —— 报告由管线合并解析阶段与下载/压缩阶段后打**一份**。
     """
-    target = [m for m in members if not (skip and skip(m))]
+    target = [m for m in members if not photo_skip.skips(skip, m)]
     if notes is None:
         notes = {}  # 独立调用（测试）没有报告需求，原因随调用方处置
     # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的

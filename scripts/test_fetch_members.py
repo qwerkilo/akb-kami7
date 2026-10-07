@@ -46,8 +46,8 @@ class WiringTests(unittest.TestCase):
                     + ";\n"
                 )
             skip = fetch_members.photo_skip_for(False, td, full, thumb)
-            self.assertTrue(skip({"group": "AKB48", "name": "A"}))
-            self.assertFalse(skip({"group": "AKB48", "name": "B"}))
+            self.assertIn(("AKB48", "A"), skip)
+            self.assertNotIn(("AKB48", "B"), skip)
 
     def test_skip_photo_and_cache_reach_the_right_loaders(self):
         sentinel = lambda m: True
@@ -165,6 +165,66 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual([no_dl, force, accept_drop, refresh], [True, True, False, True])
 
 
+class WarnSkippedWithoutFilesTests(unittest.TestCase):
+    """`_warn_skipped_without_files` 此前零测试（grep 命中 0）—— 它是「跳过名单」的
+    最后一个消费者：跳过的人在新 id 下没有文件时要出声（同名新人换 id 的场景）。"""
+
+    def _dirs(self, td):
+        full, thumb = os.path.join(td, "full"), os.path.join(td, "thumb")
+        os.makedirs(full)
+        os.makedirs(thumb)
+        return full, thumb
+
+    def _touch(self, d, name):
+        with open(os.path.join(d, name), "wb") as fh:
+            fh.write(b"x")
+
+    def test_skipped_member_without_files_warns(self):
+        import contextlib
+
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            dirs = {"full": full, "thumb": thumb}
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                fetch_members._warn_skipped_without_files(
+                    [{"group": "AKB48", "name": "A", "id": "m9"}],
+                    {("AKB48", "A")},
+                    dirs,
+                )
+            self.assertIn("跳过了 A", err.getvalue())
+
+    def test_skipped_member_with_files_is_silent(self):
+        import contextlib
+
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            self._touch(full, "m9.webp")
+            self._touch(thumb, "m9.webp")
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                fetch_members._warn_skipped_without_files(
+                    [{"group": "AKB48", "name": "A", "id": "m9"}],
+                    {("AKB48", "A")},
+                    {"full": full, "thumb": thumb},
+                )
+            self.assertEqual(err.getvalue(), "")
+
+    def test_member_not_in_skip_list_is_silent(self):
+        import contextlib
+
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                fetch_members._warn_skipped_without_files(
+                    [{"group": "AKB48", "name": "A", "id": "m9"}],
+                    {("AKB48", "B")},
+                    {"full": full, "thumb": thumb},
+                )
+            self.assertEqual(err.getvalue(), "")
+
+
 class PhotoSkipPredicateTests(unittest.TestCase):
     """增量跑：已有站内照片的成员跳过照片解析（ADR-0023）。判据是**站内文件**
     （full + thumb 都在且非空），不是解析缓存 —— 缓存只覆盖早安，且会与文件脱节
@@ -189,22 +249,22 @@ class PhotoSkipPredicateTests(unittest.TestCase):
             self._touch(full, "m1.webp")
             self._touch(thumb, "m1.webp")
             prev = [{"group": "AKB48", "name": "A", "id": "m1", "img": True}]
-            skip = fetch_members.photo_skip_predicate(prev, full, thumb)
-            self.assertTrue(skip({"group": "AKB48", "name": "A"}))
-            self.assertFalse(skip({"group": "AKB48", "name": "B"}))
-            self.assertFalse(skip({"group": "NMB48", "name": "A"}))
+            skip = fetch_members.photo_skip_keys(prev, full, thumb)
+            self.assertIn(("AKB48", "A"), skip)
+            self.assertNotIn(("AKB48", "B"), skip)
+            self.assertNotIn(("NMB48", "A"), skip)
 
     def test_thumb_missing_or_empty_does_not_skip(self):
         """名册卡片读 thumb、海报读 full：只写出一半或 0 字节时宁可重解析。"""
         with tempfile.TemporaryDirectory() as td:
             full, thumb = self._dirs(td)
             self._touch(full, "m1.webp")
-            skip = fetch_members.photo_skip_predicate(
+            skip = fetch_members.photo_skip_keys(
                 [{"group": "AKB48", "name": "A", "id": "m1", "img": True}], full, thumb
             )
-            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+            self.assertNotIn(("AKB48", "A"), skip)
             self._touch(thumb, "m1.webp", size=0)  # 0 字节 = 损坏
-            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+            self.assertNotIn(("AKB48", "A"), skip)
 
     def test_img_false_does_not_skip(self):
         """img 是站内文件的派生值；img=false 说明文件不齐 —— 不该跳过。"""
@@ -212,10 +272,10 @@ class PhotoSkipPredicateTests(unittest.TestCase):
             full, thumb = self._dirs(td)
             self._touch(full, "m1.webp")
             self._touch(thumb, "m1.webp")
-            skip = fetch_members.photo_skip_predicate(
+            skip = fetch_members.photo_skip_keys(
                 [{"group": "AKB48", "name": "A", "id": "m1", "img": False}], full, thumb
             )
-            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+            self.assertNotIn(("AKB48", "A"), skip)
 
     def test_duplicate_name_in_same_group_is_not_skipped(self):
         """同名不同人（id 带 #join 后缀）→ 从名字判不出 id，保守不跳过。"""
@@ -227,8 +287,8 @@ class PhotoSkipPredicateTests(unittest.TestCase):
                 {"group": "AKB48", "name": "A", "id": "m1", "img": True},
                 {"group": "AKB48", "name": "A", "id": "m2", "img": True},
             ]
-            skip = fetch_members.photo_skip_predicate(prev, full, thumb)
-            self.assertFalse(skip({"group": "AKB48", "name": "A"}))
+            skip = fetch_members.photo_skip_keys(prev, full, thumb)
+            self.assertNotIn(("AKB48", "A"), skip)
 
 
 class DecodePageTests(unittest.TestCase):

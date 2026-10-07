@@ -21,6 +21,7 @@ import fetch_pool
 import love_members
 import morningmusume_members
 import progress
+import photo_skip
 import roster
 from wiki import api, get, wikitext
 
@@ -523,15 +524,14 @@ def load_rows(fetch_page=wikitext, sources=SOURCES, exclude=EXCLUDE):
     return [r for r in rows if not r["join"].startswith(exclude)]
 
 
-def _warn_skipped_without_files(members, skip_photo, dirs):
+def _warn_skipped_without_files(members, skipped, dirs):
     """跳过的判据是「上一轮的 (团,名) → id」：同名新人出现时 assign_ids 会把 "" 后缀
     让给先出现者、旧成员换 id，而旧文件挂在旧 id 下 —— 那时跳过就是「跳过了但文件在
     新 id 下不存在」。按新 id 复核一次，缺了就打警告（缺图棘轮会在提交时红，但管线
     本身不该静默）。
     """
-    skipped = getattr(skip_photo, "skipped", set())
     for m in members:
-        if (m.get("group"), m.get("name")) not in skipped:
+        if not photo_skip.skips(skipped, m):
             continue
         if all(
             usable(os.path.join(d, m["id"] + ".webp"))
@@ -549,8 +549,8 @@ def photo_skip_for(refresh_photos, root, full_dir, thumb_dir):
     """本次跑要跳过谁的照片解析（ADR-0023）。
 
     `--refresh-photos` → None（不跳过任何人）；否则按**站内照片**决定（读上一轮
-    members.js 拿 name+group → id 的映射）。读不到 members.js（首次跑）→ 空表 →
-    不跳过任何人（全解析）。
+    members.js 拿 name+group → id 的映射），返回**键的集合**（`photo_skip.key`）。
+    读不到 members.js（首次跑）→ 空表 → 不跳过任何人（全解析）。
     """
     if refresh_photos:
         return None
@@ -562,7 +562,7 @@ def photo_skip_for(refresh_photos, root, full_dir, thumb_dir):
             "members.js 读不到上一轮名册 → 本轮全量解析照片（增量跳过不生效）",
             file=sys.stderr,
         )
-    return photo_skip_predicate(prev, full_dir, thumb_dir)
+    return photo_skip_keys(prev, full_dir, thumb_dir)
 
 
 def default_loaders(skip_photo, use_cache, notes=None):
@@ -634,8 +634,8 @@ def read_prev_members(root):
     ]
 
 
-def photo_skip_predicate(prev_members, full_dir, thumb_dir):
-    """增量跑：谁的照片解析可以跳过（ADR-0023）。
+def photo_skip_keys(prev_members, full_dir, thumb_dir):
+    """增量跑：谁的照片解析可以跳过（ADR-0023）—— 返回**键的集合**（`photo_skip.key`）。
 
     判据是**站内文件**（`img/full` 与 `img/thumb` 都在且非空 —— 与 `img` 标志同一真值源），
     不是解析缓存：缓存只覆盖早安 loader，且会与文件脱节（有 URL 但下载失败的人会被缓存
@@ -645,24 +645,19 @@ def photo_skip_predicate(prev_members, full_dir, thumb_dir):
     """
     counts = {}
     for m in prev_members:
-        key = (m.get("group"), m.get("name"))
-        counts[key] = counts.get(key, 0) + 1
+        k = photo_skip.key(m)
+        counts[k] = counts.get(k, 0) + 1
     have = set()
     for m in prev_members:
-        key = (m.get("group"), m.get("name"))
-        if counts[key] != 1 or not m.get("img"):
+        k = photo_skip.key(m)
+        if counts[k] != 1 or not m.get("img"):
             continue
         mid = m.get("id") or ""
         if usable(os.path.join(full_dir, mid + ".webp")) and usable(
             os.path.join(thumb_dir, mid + ".webp")
         ):
-            have.add(key)
-
-    def skip(member):
-        return (member.get("group"), member.get("name")) in have
-
-    skip.skipped = have  # 供调用方按**新 id** 复核（assign_ids 可能给同名新人换 id）
-    return skip
+            have.add(k)
+    return frozenset(have)
 
 
 def read_baseline(root):

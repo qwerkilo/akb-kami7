@@ -546,7 +546,7 @@ class IncrementalSkipTests(unittest.TestCase):
             return "[]"
 
         mm.resolve_former_photos(
-            members, urls, fetch, warn=lambda *a: None, skip=lambda m: m["file"] == "f1"
+            members, urls, fetch, warn=lambda *a: None, skip={("G", "A")}
         )
         self.assertEqual(urls, {})
         self.assertEqual(calls, [mm.OG_URL], "除 og 页外不该有任何请求")
