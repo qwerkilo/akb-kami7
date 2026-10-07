@@ -337,6 +337,13 @@ test("存储种子协议只有一处：e2e/ 不许出现键字面量（候选 4�
     ...Object.values(core.PREF_KEYS).filter((v) => typeof v === "string"),
     core.PREF_KEYS.state(""),
   ];
+  assert.ok(
+    keys.length >= 7,
+    `键清单太少（${keys.length}）—— PREF_KEYS 被清空？`
+  );
+  // 扫描集含 `_store.cjs` 自己：唯一知道键名的地方若被写死，本批要消灭的漂移类会原地复活
+  // （`_` 前缀的助手此前被排除在外 —— 两轴审查抓的正是这个缺口）。
+  // 已知边界：strip 的 `//` 注释剥离会误剥字符串里的 `//`（如 URL 同行），文本守卫的固有边界。
   const suites = fs
     .readdirSync(DIR)
     .filter(
@@ -346,7 +353,7 @@ test("存储种子协议只有一处：e2e/ 不许出现键字面量（候选 4�
     suites.length >= 5,
     `套件太少（${suites.length}）—— 守卫本身坏了？`
   );
-  for (const f of suites) {
+  for (const f of [...suites, "_store.cjs"]) {
     const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
     for (const k of keys) {
       assert.ok(
@@ -356,10 +363,17 @@ test("存储种子协议只有一处：e2e/ 不许出现键字面量（候选 4�
         `${f} 不许出现键字面量 ${k} —— 走 e2e/_store.cjs（键从 core.PREF_KEYS 派生）`
       );
     }
-    if (src.includes("_store.cjs")) {
+    // 用了 _store 的 API 就必须真的 require 它（注释掉 require 后 `S.` 会运行时崩 ——
+    // 只有这条抓得住）；种入存储的套件还必须走 _store（直接 require core 自建载荷也不行）
+    const usesStore =
+      /\bS\.(prefKey|stateKey|statePayload|seedPrefs|seedStates)\(/.test(src);
+    if (
+      f !== "_store.cjs" &&
+      (usesStore || src.includes("localStorage.setItem"))
+    ) {
       assert.ok(
         src.includes('require("./_store.cjs")'),
-        `${f} 用了 _store 就必须真的 require 它`
+        `${f} 用了 _store 的 API（或直接种存储）就必须 require _store.cjs`
       );
     }
   }
