@@ -531,7 +531,7 @@ OG_HTML = """<div class="commonGrid--base">
 
 
 class IncrementalSkipTests(unittest.TestCase):
-    """增量跑（ADR-0023）：`skip_photo(m)` 为真的成员**不解析照片** —— 一个成员级请求
+    """增量跑（ADR-0023）：在 `skip_photo` 名单（键集合）里的成员**不解析照片** —— 一个成员级请求
     都不发（og 那一页服务全体，仍会抓）。判据由 fetch_members 注入（id 规则在那里）。"""
 
     def test_resolve_former_photos_skips_flagged_member(self):

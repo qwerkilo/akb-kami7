@@ -321,7 +321,7 @@ ARCHIVED_ME_FIXTURE = '''<li class="inview">
 
 
 class IncrementalSkipTests(unittest.TestCase):
-    """增量跑（ADR-0023）：`skip_photo(m)` 为真的成员不解析照片 —— 连该团的归档页
+    """增量跑（ADR-0023）：在 `skip_photo` 名单（键集合）里的成员不解析照片 —— 连该团的归档页
     都不抓（没有需要解析的人时不该发任何请求）。"""
 
     def test_resolve_former_photos_skips_flagged_member(self):

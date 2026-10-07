@@ -29,6 +29,8 @@
 ## 验收（可证伪）
 
 1. 三条警告测试：新契约下「跳过的人缺文件 → 出声」「有文件 → 静默」「不在名单 → 静默」。
-2. `getattr(..., "skipped")` 与 `.skipped` 在产品代码 0 处；两个 loader 调 `photo_skip.skips(`。
+2. `getattr(..., "skipped")` 与 `.skipped` 在产品代码**可执行代码** 0 处（`photo_skip.py`
+   的模块 docstring 里作为历史说明仍提一次，守卫剥注释后判）；两个 loader 调
+   `photo_skip.skips(`（剥注释后判）。
 3. 332 条 Python 单测全绿；`npm run check` exit=0。
 4. 变异 2/2 被杀（去掉 None 处理 / 键只用 name）。

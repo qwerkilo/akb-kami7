@@ -292,7 +292,8 @@ def _needs_photo(m, urls, skip):
 def resolve_former_photos(members, urls, fetch, skip=None, notes=None):
     """官网列表缺照片的成员（通常是已毕业）：Web Archive 列表快照 → 快照图片 → Commons。
 
-    `skip(member)` 为真的人不解析（增量跑：已有站内照片，ADR-0023）。
+    `skip` 是**跳过名单**（一组 `(团, 名)` 键，见 `photo_skip.py`）——在名单里的人不解析
+    （增量跑：已有站内照片，ADR-0023）。
     `notes`（工单 01 / ADR-0024）：没解析到的原因交给调用方（报告由管线打一份）。
     """
     if notes is None:

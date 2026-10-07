@@ -573,7 +573,7 @@ test("跳过名单：键与判定只许在 photo_skip.py（第五轮扫描候选
       fs.readFileSync(path.join(dir, f), "utf8")
     );
     assert.ok(
-      !/getattr\([^)]*"skipped"/.test(src),
+      !/getattr\s*\(\s*[^)]*["']skipped["']/.test(src),
       `${f} 不许再用「隐藏属性」协议（名单就是一组键，用 photo_skip.skips()）`
     );
     if (f === "photo_skip.py") continue;
@@ -584,7 +584,10 @@ test("跳过名单：键与判定只许在 photo_skip.py（第五轮扫描候选
   }
   // 两个 loader 必须走共享判定（不许各自再写一遍 (group, name) 的成员测试）
   for (const name of ["love_members.py", "morningmusume_members.py"]) {
-    const src = fs.readFileSync(path.join(dir, name), "utf8");
+    // 剥注释再判：注释里写这句不算数（本仓记录过「守卫扫到注释」的坑）
+    const src = stripCommentsAndDocs(
+      fs.readFileSync(path.join(dir, name), "utf8")
+    );
     assert.ok(
       src.includes("photo_skip.skips("),
       `${name} 必须调 photo_skip.skips()`

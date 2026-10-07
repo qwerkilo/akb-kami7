@@ -180,8 +180,6 @@ class WarnSkippedWithoutFilesTests(unittest.TestCase):
             fh.write(b"x")
 
     def test_skipped_member_without_files_warns(self):
-        import contextlib
-
         with tempfile.TemporaryDirectory() as td:
             full, thumb = self._dirs(td)
             dirs = {"full": full, "thumb": thumb}
@@ -195,8 +193,6 @@ class WarnSkippedWithoutFilesTests(unittest.TestCase):
             self.assertIn("跳过了 A", err.getvalue())
 
     def test_skipped_member_with_files_is_silent(self):
-        import contextlib
-
         with tempfile.TemporaryDirectory() as td:
             full, thumb = self._dirs(td)
             self._touch(full, "m9.webp")
@@ -211,8 +207,6 @@ class WarnSkippedWithoutFilesTests(unittest.TestCase):
             self.assertEqual(err.getvalue(), "")
 
     def test_member_not_in_skip_list_is_silent(self):
-        import contextlib
-
         with tempfile.TemporaryDirectory() as td:
             full, thumb = self._dirs(td)
             err = io.StringIO()
