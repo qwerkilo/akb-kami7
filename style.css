@@ -743,16 +743,21 @@ main {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(var(--slots, 7), minmax(0, 1fr));
+  display: flex;
   gap: 8px;
+  /* 单行横向滚动：此前是 7/8 列的网格 —— 16/40 档的槽位换行成 3/5 行，
+     40 档实测托盘 244px、把首屏的脸全盖住（390px：托盘顶 600 vs 第一行卡底 617）。
+     槽位宽度取「7 档塞满托盘」时的宽度，档位再大也不换行、只横滑。 */
+  overflow-x: auto;
+  scrollbar-width: none;
 }
-.tray.wide .slots {
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+.slots::-webkit-scrollbar {
+  display: none;
 }
 .slot {
   position: relative;
   aspect-ratio: 3 / 4;
+  flex: 0 0 calc((100% - 6 * 8px) / 7);
   /* 托盘只是「选了谁」的缩略索引，不需要看清脸；54px 够认人（工单 04） */
   max-height: 54px;
   border: var(--border);

@@ -534,8 +534,6 @@
       );
     }
     $("#slots").innerHTML = slots.join("");
-    $("#tray").classList.toggle("wide", pick !== 7);
-    $("#slots").style.setProperty("--slots", String(pick === 7 ? 7 : 8));
     const left = pick - snap.selected.length;
     const btn = $("#start-btn");
     btn.disabled = left > 0;

@@ -21,12 +21,15 @@ const ROOT = join(__dirname, "..");
 // 与 package.json 的四条命令一一对应。**check 数守恒不在这里**（第五轮扫描候选 3）：
 // 每个套件在 `createChecker({expect})` 里自报并自检 —— 数守恒由最知道自己的那一方守，
 // 这里不再解析收尾行、也不存第二份基线。
+// 顺序 = 启动顺序：**长的排前面**（并发数 < 套件数时，短套件排队比长套件排队省时间）。
+// 实测（4 并发、5 套件）：长的排后面会让总耗时 8m54s（它等短套件腾位），
+// 长的排前面约等于最长那条（~5m）。
 const SUITES = [
   { name: "e2e", script: "e2e/e2e.cjs" },
+  { name: "first", script: "e2e/verify-first-screen.cjs" },
+  { name: "header", script: "e2e/verify-header.cjs" },
   { name: "v5", script: "e2e/e2e-v5.cjs" },
   { name: "pwa", script: "e2e/e2e-pwa.cjs" },
-  { name: "header", script: "e2e/verify-header.cjs" },
-  { name: "first", script: "e2e/verify-first-screen.cjs" },
 ];
 
 /** 可用内存（MB）→ 并发数：≥6000 → 4；≥3000 → 2；否则串行。 */

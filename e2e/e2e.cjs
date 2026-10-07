@@ -1673,7 +1673,12 @@ function isExpectedResourceNoise(m) {
         };
         // 首屏判据的数据：托盘顶 + 每张卡的可见区间
         const trayBox = document.querySelector("#tray").getBoundingClientRect();
-        const cards = [...document.querySelectorAll(".card")];
+        // 只数**可见**的卡：被折叠段里的卡 rect 全 0，会被算成「完整可见」
+        // 且给列数添一个 0 列（假绿/假红各一条）—— 与 e2e:first 同一处判据
+        const cards = [...document.querySelectorAll(".card")].filter((c) => {
+          const x = c.getBoundingClientRect();
+          return x.width > 0 && x.height > 0;
+        });
         const cols = new Set(
           cards
             .slice(0, 6)
