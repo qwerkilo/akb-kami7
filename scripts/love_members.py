@@ -7,6 +7,7 @@ import re
 import fetch_pool
 import ja_wiki
 import photo_chain
+import wayback
 import progress
 import roster
 
@@ -54,13 +55,6 @@ DETAIL_MAP = {
 norm_name = photo_chain.norm_name
 
 
-WAYBACK_PREFIX = re.compile(r"^https?://web\.archive\.org/web/\d+[a-z]*_/")
-
-
-def original_url(url):
-    return WAYBACK_PREFIX.sub("", url.strip())
-
-
 def strip_thumb(url):
     return re.sub(r"_thumb(\.\w+)$", r"\1", url)
 
@@ -72,7 +66,7 @@ def parse_list(html, kind):
             "path": path,
             "name": re.sub(r"\s+", " ", name).strip(),
             "romaji": romaji.strip(),
-            "photo": strip_thumb(original_url(photo)),
+            "photo": strip_thumb(wayback.original_url(photo)),
         })
     return out
 
@@ -208,7 +202,7 @@ def archived_photo_pairs(html):
             name = re.search(r"<span>([^<]+)</span>", chunk)
         if not name:
             continue
-        out.setdefault(norm_name(name.group(1)), strip_thumb(original_url(url)))
+        out.setdefault(norm_name(name.group(1)), strip_thumb(wayback.original_url(url)))
     return out
 
 
@@ -217,10 +211,10 @@ def archived_list_photos(group, fetch):
     site = SITES[group]
     list_url = site["base"] + LIST_PATH
     out = {}
-    for row in photo_chain.cdx_rows(list_url, fetch, limit=8):
+    for row in wayback.cdx_rows(list_url, fetch, limit=8):
         ts = row[1]
         try:
-            html = fetch("https://web.archive.org/web/{}id_/{}".format(ts, list_url))
+            html = fetch(wayback.snapshot_url(ts, list_url))
         except Exception:
             continue
         for name, photo in archived_photo_pairs(html).items():
@@ -321,7 +315,7 @@ def _resolve_member_photo(m, photos, fetch, urls, notes):
     显示占位。
     """
     photo = photos.get(norm_name(m["name"]))
-    resolved = photo_chain.wayback_photo(photo, fetch) if photo else None
+    resolved = wayback.latest_snapshot(photo, fetch) if photo else None
     reason = None
     if not resolved:
         resolved, reason = photo_chain.commons_photo(m["name"], fetch)

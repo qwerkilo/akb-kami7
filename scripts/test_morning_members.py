@@ -715,13 +715,6 @@ class OldSitePhotoTests(unittest.TestCase):
         self.assertEqual(pairs, [("", "a.jpg"), ("X", "b.jpg")])
         self.assertEqual(mm.parse_img_pairs(""), [])
 
-    def test_snapshot_ts(self):
-        self.assertEqual(
-            mm.snapshot_ts("https://web.archive.org/web/20090602100604id_/http://x/y"),
-            "20090602100604",
-        )
-        self.assertEqual(mm.snapshot_ts("http://x/y"), "")
-
     def test_tenure_boundaries(self):
         m = {"join": "2002.01.01", "end": "2009.10.25", "group": "℃-ute"}
         self.assertTrue(mm.tenure_ok(m, "20020101"))

@@ -21,6 +21,7 @@ from urllib.parse import urljoin
 import fetch_pool
 import ja_wiki
 import photo_chain
+import wayback
 import progress
 import roster
 
@@ -1041,12 +1042,6 @@ def parse_img_pairs(html):
     return out
 
 
-def snapshot_ts(url):
-    """Wayback 快照 URL → 捕获时间戳（`/web/20150113120352id_/…` → 20150113120352）。"""
-    m = re.search(r"/web/(\d{4,14})", url or "")
-    return m.group(1) if m else ""
-
-
 def _bound(raw, day):
     """把 `2015` / `2015.10.02` 归一成 8 位比较串；只有年份时补该年首/末。"""
     s = (raw or "").replace(".", "")
@@ -1080,11 +1075,6 @@ def _norm_old_url(u):
     return u.replace("://www.helloproject.com:80/", "://www.helloproject.com/")
 
 
-def _snapshot_url(ts, url):
-    """Wayback 原始快照 URL（`id_` = 不做注入改写）。"""
-    return "https://web.archive.org/web/{}id_/{}".format(ts, url)
-
-
 def _old_site_candidates(prefixes, fetch, missing):
     """按前缀枚举 CDX → `{归一 URL: [在籍内快照 ts…]}`（只收 HTML）。
 
@@ -1094,7 +1084,7 @@ def _old_site_candidates(prefixes, fetch, missing):
     # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
     rows_by_prefix = fetch_pool.fetch_many(
         list(prefixes),
-        lambda p: photo_chain.cdx_rows(p, fetch, limit=1000, prefix=True),
+        lambda p: wayback.cdx_rows(p, fetch, limit=1000, prefix=True),
         host="web.archive.org",
     )
     for prefix in prefixes:
@@ -1133,7 +1123,7 @@ def _match_page(html, original, ts, by_name, urls):
             abs_src = "http://www.helloproject.com" + src
         else:
             abs_src = urljoin(original, src)
-        urls[m["file"]] = _snapshot_url(ts, abs_src)
+        urls[m["file"]] = wayback.snapshot_url(ts, abs_src)
 
 
 def _scan_tasks(best, budget, fetched, limit):
@@ -1191,7 +1181,7 @@ def _pick_old_site_group(best, by_name, urls, fetch, budget, fetched, limit):
     # 并发抓（每主机的并发/间隔见 `fetch_pool.HOST_LIMITS`；调用方的 pause 是
     # Commons 的节流，不套在 Wayback 上），但**按任务顺序**应用配对：同一成员多个
     # 候选时先到者胜，与串行结果一致（确定性）。
-    snap_urls = [_snapshot_url(ts, original) for original, ts in tasks]
+    snap_urls = [wayback.snapshot_url(ts, original) for original, ts in tasks]
     pages = fetch_pool.fetch_many(
         snap_urls, fetch, host="web.archive.org", raise_first=False
     )
@@ -1207,10 +1197,10 @@ def _resolve_file_evidence(by_name, urls, fetch, pause):
             continue
         if pause:
             time.sleep(pause)
-        for row in photo_chain.cdx_rows(original, fetch, limit=6):
+        for row in wayback.cdx_rows(original, fetch, limit=6):
             if not tenure_ok(m, row[1]):
                 continue
-            urls[m["file"]] = _snapshot_url(row[1], row[2])
+            urls[m["file"]] = wayback.snapshot_url(row[1], row[2])
             break
 
 
@@ -1309,7 +1299,7 @@ def _resolve_og(members, urls, fetch):
         # `/og/` 的图挂在 cdn.helloproject.com 上，对脚本 403 —— 走 Wayback
         # 的最近一次存档（cdx 查询）；查不到就保留原 URL（下载失败会跳过）。
         if "cdn.helloproject.com" in resolved:
-            resolved = photo_chain.wayback_photo(resolved, fetch) or resolved
+            resolved = wayback.latest_snapshot(resolved, fetch) or resolved
         urls[m["file"]] = resolved
 
 
@@ -1339,7 +1329,7 @@ def _commons_for(m, fetch, pause):
     if not resolved and m.get("photo_url"):
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
-        fallback = photo_chain.wayback_photo(m["photo_url"], fetch)
+        fallback = wayback.latest_snapshot(m["photo_url"], fetch)
         if fallback:
             return fallback, None
     return resolved, reason

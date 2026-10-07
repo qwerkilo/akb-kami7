@@ -352,15 +352,6 @@ class ArchivedPageTests(unittest.TestCase):
         )
         self.assertEqual(items[0]["path"], "/feature/profile_suganami_mirei")
 
-    def test_original_url_strips_wayback_prefix(self):
-        self.assertEqual(
-            love_members.original_url(
-                "https://web.archive.org/web/20210305034043im_/https://x/y.jpg"
-            ),
-            "https://x/y.jpg",
-        )
-        self.assertEqual(love_members.original_url("https://x/y.jpg"), "https://x/y.jpg")
-
 
 ARCHIVED_LONG_SNS_FIXTURE = '''<li class="inview">
 <a href="/web/20200922165743/https://not-equal-me.jp/feature/profile_suganami_mirei">

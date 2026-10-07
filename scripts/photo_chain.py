@@ -1,4 +1,4 @@
-"""成员照片的通用回退链：Wayback CDX 查询 / Wayback 取图 / Wikipedia Commons 取图。
+"""成员照片的通用回退链：Wikipedia Commons 取图（Wayback 那段在 `wayback.py`）。
 
 与站点无关的三段在此定义 —— 等爱（love_members）与早安（love_members 的姊妹 loader）
 要用的回退链完全同形（官网 SSR + 日文 Wikipedia + Wayback + Commons），所以共享。
@@ -34,31 +34,6 @@ _SEARCH_JUNK = (
 # 视频截帧不算自由素材：Commons 上有一批「Media from YouTube / Extracted images」的
 # 成员图（实测 Juice=Juice 两人），授权是上传者自述、实为视频画面 —— 不用。
 _VIDEO_CATS = ("media from youtube", "extracted images")
-
-
-def cdx_rows(url, fetch, limit=6, prefix=False):
-    params = {
-        "url": url,
-        "output": "json",
-        "limit": str(limit),
-        "filter": "statuscode:200",
-        "collapse": "digest",
-    }
-    if prefix:
-        params["matchType"] = "prefix"
-    query = "http://web.archive.org/cdx/search/cdx?" + urllib.parse.urlencode(params)
-    try:
-        rows = json.loads(fetch(query) or "[]")
-    except Exception:
-        return []
-    return rows[1:] if rows else []
-
-
-def wayback_photo(url, fetch):
-    rows = cdx_rows(url, fetch, limit=1)
-    if not rows:
-        return None
-    return "https://web.archive.org/web/{}id_/{}".format(rows[0][1], url)
 
 
 def commons_photo(name, fetch):

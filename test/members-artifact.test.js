@@ -326,12 +326,10 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   assert.deepEqual(
     defs,
     [
-      "cdx_rows",
       "commons_photo",
       "commons_search_photo",
       "is_placeholder_src",
       "norm_name",
-      "wayback_photo",
     ],
     "photo_chain.py 只该有与站点无关的取数段与判定谓词（多了说明站点相关的漏进来了，少了说明共享的没搬干净）"
   );
@@ -347,15 +345,21 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   }
 
   // 等爱必须真的用上共享模块（否则「搬走」只是复制，两条链会各自漂移）
-  for (const fn of ["cdx_rows", "wayback_photo", "commons_photo"]) {
+  for (const [mod, fn] of [
+    ["wayback", "cdx_rows"],
+    ["wayback", "latest_snapshot"],
+    ["photo_chain", "commons_photo"],
+  ]) {
     assert.ok(
-      love.includes(`photo_chain.${fn}(`),
-      `love_members 必须调 photo_chain.${fn}()，不能自己留一份`
+      love.includes(`${mod}.${fn}(`),
+      `love_members 必须调 ${mod}.${fn}()，不能自己留一份`
     );
   }
   assert.ok(
-    !/^def (cdx_rows|wayback_photo|commons_photo)\(/m.test(love),
-    "love_members 里不该还有这三段的定义"
+    !/^def (cdx_rows|wayback_photo|commons_photo|latest_snapshot)\(/m.test(
+      love
+    ),
+    "love_members 里不该还有这些段的定义"
   );
 });
 
@@ -510,6 +514,51 @@ test("ja.wikipedia 取数只许在 ja_wiki.py（深化㉘）", () => {
     assert.ok(!/^def wiki_wikitext\(/m.test(src), `${name} 不许再自己留一份`);
   }
   assert.ok(!/^def wiki_wikitext\(/m.test(chain), "photo_chain 不许定义它");
+});
+
+test("Wayback URL 格式与解析只许在 wayback.py（第五轮扫描候选 8）", () => {
+  const dir = path.join(__dirname, "..", "scripts");
+  const files = fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".py") && !f.startsWith("test_"));
+  // 快照 URL 的格式此前散在三处（photo_chain / love 内联 / morning），解析有两种写法 ——
+  // 漏改一处不会红：两条链各自都有测试，症状是某条链静默取到被 Wayback 注入改写的 HTML
+  for (const f of files) {
+    if (f === "wayback.py") continue;
+    const src = stripCommentsAndDocs(
+      fs.readFileSync(path.join(dir, f), "utf8")
+    );
+    assert.ok(
+      !src.includes("id_/") && !src.includes("web.archive.org/web/"),
+      `${f} 不许自拼快照 URL —— 用 wayback.snapshot_url()`
+    );
+    assert.ok(
+      !/^def (cdx_rows|snapshot_url|snapshot_ts|original_url|latest_snapshot)\(/m.test(
+        src
+      ),
+      `${f} 不许定义 Wayback 函数（知识只有一个家）`
+    );
+  }
+  const wb = fs.readFileSync(path.join(dir, "wayback.py"), "utf8");
+  // 格式字面量全仓**恰好一处**：wayback.py 内部也必须走 snapshot_url()
+  // （否则改格式时 latest_snapshot 里那份会静默漂移 —— 值相同的第二份实现）
+  assert.equal(
+    (stripCommentsAndDocs(wb).match(/id_\//g) || []).length,
+    1,
+    "快照 URL 的格式串只许出现在 snapshot_url() 的返回里"
+  );
+  for (const fn of [
+    "cdx_rows",
+    "snapshot_url",
+    "snapshot_ts",
+    "original_url",
+    "latest_snapshot",
+  ]) {
+    assert.ok(
+      new RegExp(`^def ${fn}\\(`, "m").test(wb),
+      `wayback.py 必须定义 ${fn}`
+    );
+  }
 });
 
 test("日期格式只有一个家：morning 必须走 roster.ymd（深化㉙）", () => {
