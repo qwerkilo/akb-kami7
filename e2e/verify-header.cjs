@@ -1,30 +1,15 @@
 // 复核 P0 修复：档位 × 语言 × 在线/离线，每个 tab 都必须点得到
-const { loadPlaywright } = require("./_playwright.cjs");
 const { noteTimeout } = require("./_wait.cjs");
-const { createChecker } = require("./_check.cjs");
-const { chromium } = loadPlaywright();
-const { spawn } = require("node:child_process");
+const { runSuite } = require("./_suite.cjs");
 const path = require("node:path");
-const ROOT = path.join(__dirname, "..");
 const PORT = 8861;
 const BASE = `http://127.0.0.1:${PORT}/`;
-(async () => {
-  const server = spawn(
-    "python3",
-    [path.join(__dirname, "serve.py"), String(PORT)],
-    {
-      cwd: ROOT,
-      stdio: "ignore",
-    }
-  );
-  // try/finally：任何页面操作抛错都要关浏览器、杀服务器（否则留一个 8861 的僵尸进程 ——
-  // 历轮 preflight 真的报过这种残留）
-  let browser = null;
-  const checker = createChecker({ name: "header", expect: 72 });
-  const check = checker.check;
-  try {
-    await new Promise((r) => setTimeout(r, 1200));
-    browser = await chromium.launch();
+runSuite({
+  name: "header",
+  expect: 72,
+  port: PORT,
+  body: async ({ browser, checker }) => {
+    const check = checker.check;
     // 一次性取「档位 × 系列 → 成员 id」表：每个状态自己 goto+reload 两次只为拿它，
     // 而它只随 size 变（与语言/离线无关）—— 实测 72 次页面加载里有一半是白跑。
     const idsBySize = await (async () => {
@@ -136,9 +121,5 @@ const BASE = `http://127.0.0.1:${PORT}/`;
         }
       }
     }
-  } finally {
-    if (browser) await browser.close();
-    server.kill();
-  }
-  process.exit(checker.done());
-})();
+  },
+});

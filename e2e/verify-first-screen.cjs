@@ -9,13 +9,9 @@
 // 档位维取两端（7 / 40）：40 档的托盘槽位最多，曾是「空槽位换行 → 托盘 300px →
 // 首屏 0 张脸」的最坏档（同条件实测见工单 02 的表）；修成单行横向滚动后，
 // 档位数只影响横滑长度，7 与 40 都必须过。
-const { loadPlaywright } = require("./_playwright.cjs");
 const { waitFor } = require("./_wait.cjs");
-const { createChecker } = require("./_check.cjs");
-const { chromium } = loadPlaywright();
-const { spawn } = require("node:child_process");
+const { runSuite } = require("./_suite.cjs");
 const path = require("node:path");
-const ROOT = path.join(__dirname, "..");
 const PORT = 8871;
 const BASE = `http://127.0.0.1:${PORT}/`;
 const WIDTHS = [320, 360, 375, 390, 414, 560];
@@ -24,23 +20,12 @@ const SKINS = ["classic", "sticker"];
 // 档位维取两端：7 档（判据建立时的默认档）与 40 档（托盘槽位最多 → 最坏）。
 // 中间档位（16）在两者之间，槽位数只影响换行 —— 40 档过了它必过。
 const SIZES = [7, 40];
-(async () => {
-  const server = spawn(
-    "python3",
-    [path.join(__dirname, "serve.py"), String(PORT)],
-    {
-      cwd: ROOT,
-      stdio: "ignore",
-    }
-  );
-  let browser = null;
-  // 每个状态两条检查（见脸 / 横滚）
-  // 数守恒：2 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查 = 144（矩阵变了必须显式改这里）
-  const checker = createChecker({ name: "first", expect: 144 });
-  const check = checker.check;
-  try {
-    await new Promise((r) => setTimeout(r, 1200));
-    browser = await chromium.launch();
+runSuite({
+  name: "first",
+  expect: 144, // 数守恒：2 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查（矩阵变了必须显式改这里）
+  port: PORT,
+  body: async ({ browser, checker }) => {
+    const check = checker.check;
     for (const skin of SKINS) {
       for (const lang of LANGS) {
         for (const width of WIDTHS) {
@@ -126,13 +111,5 @@ const SIZES = [7, 40];
         }
       }
     }
-  } finally {
-    // 任何抛错都要关浏览器、杀服务器（否则留一个 8871 的僵尸进程）
-    if (browser) await browser.close();
-    server.kill();
-  }
-  process.exit(checker.done());
-})().catch((e) => {
-  console.error(e);
-  process.exit(1);
+  },
 });

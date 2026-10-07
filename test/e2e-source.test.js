@@ -157,9 +157,17 @@ test("检查记录只有一处：runner 不解析收尾行、套件不自报收�
   for (const dead of ["parseCounts", "compareCounts", "expect:"]) {
     assert.ok(
       !runner.includes(dead),
-      `run-all.cjs 不许再有 ${dead} —— 数守恒由套件自报（createChecker({expect})）`
+      `run-all.cjs 不许再有 ${dead} —— 数守恒由套件自报（runSuite({expect})）`
     );
   }
+  // 记录器与退出码的接线在**执行器**里（套件只声明 expect）
+  const suite = strip(fs.readFileSync(path.join(DIR, "_suite.cjs"), "utf8"));
+  assert.match(suite, /createChecker\(/, "_suite.cjs 建记录器");
+  assert.match(
+    suite,
+    /checker\.done\(\)/,
+    "_suite.cjs 把 checker.done() 接到退出码"
+  );
   const suites = [
     "e2e.cjs",
     "e2e-v5.cjs",
@@ -169,17 +177,20 @@ test("检查记录只有一处：runner 不解析收尾行、套件不自报收�
   ];
   for (const f of suites) {
     const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
-    // 承重点三条：走记录器、带数守恒声明、收尾真的接上 exit code
+    // 承重点三条：走执行器、带数守恒声明、不许自己记账
     assert.match(
       src,
-      /createChecker\(/,
-      `${f} 必须用 createChecker（不许自己记账）`
+      /runSuite\(/,
+      `${f} 必须走 e2e/_suite.cjs 的 runSuite（生命周期只有一处）`
     );
     assert.match(src, /expect:\s*\d+/, `${f} 必须声明 expect（数守恒）`);
-    assert.match(
-      src,
-      /process\.exit\(checker\.done\(\)\)|=\s*checker\.done\(\)/,
-      `${f} 必须把 checker.done() 接到退出码`
+    assert.ok(
+      !src.includes("createChecker("),
+      `${f} 不许自己建记录器 —— 执行器建好交给 body`
+    );
+    assert.ok(
+      !src.includes("checker.done("),
+      `${f} 不许自己接退出码 —— 执行器按 checker.done() 退出`
     );
     // 收尾行只许在 _check.cjs 拼（模板串与双引号都算）
     assert.ok(
@@ -225,6 +236,40 @@ test("等待只有一个入口：套件不许裸 waitForFunction/waitForSelector
   assert.match(wait, /hard/, "硬等待（hard: true）在 _wait.cjs");
 });
 
+test("套件生命周期只有一处：不许手写 spawn(serve.py)/process.exit，必须走 runSuite（候选 2）", () => {
+  const strip = (src) =>
+    src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  // 派生自磁盘（不手抄套件清单 —— 手抄的清单会与现状脱节，本轮扫描候选 6/7 的教训）
+  const suites = fs
+    .readdirSync(DIR)
+    .filter(
+      (f) => f.endsWith(".cjs") && !f.startsWith("_") && f !== "run-all.cjs"
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
+  for (const f of suites) {
+    const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
+    assert.ok(
+      !src.includes("serve.py"),
+      `${f} 不许手写 serve.py 的 spawn —— 起服务收在 e2e/_suite.cjs`
+    );
+    assert.ok(
+      !src.includes("process.exit"),
+      `${f} 不许自己 process.exit —— 退出码由执行器按 checker.done() 给`
+    );
+    assert.match(src, /runSuite\(/, `${f} 必须走 e2e/_suite.cjs 的 runSuite`);
+  }
+  const suite = strip(fs.readFileSync(path.join(DIR, "_suite.cjs"), "utf8"));
+  assert.ok(suite.includes("serve.py"), "_suite.cjs 负责起服务（唯一出处）");
+  assert.ok(
+    suite.includes("process.exit"),
+    "_suite.cjs 负责退出码（唯一出处）"
+  );
+  assert.ok(suite.includes("finally"), "_suite.cjs 的清理必须在 finally 里");
+});
+
 test("每个 E2E 套件都进了 run-all（漏一个 = 全量跑不到它）", () => {
   const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
   const suites = fs
@@ -232,7 +277,7 @@ test("每个 E2E 套件都进了 run-all（漏一个 = 全量跑不到它）", (
     .filter((f) => f.endsWith(".cjs") && !f.startsWith("_"))
     .filter((f) => f !== "run-all.cjs")
     .filter((f) =>
-      fs.readFileSync(path.join(DIR, f), "utf8").includes("createChecker(")
+      fs.readFileSync(path.join(DIR, f), "utf8").includes("runSuite(")
     );
   assert.ok(
     suites.length >= 5,
