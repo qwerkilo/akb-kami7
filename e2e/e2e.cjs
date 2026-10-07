@@ -8,6 +8,7 @@ const {
 } = require("./_ui.cjs");
 const { blockStarter } = require("./_progress.cjs");
 const { runSuite } = require("./_suite.cjs");
+const S = require("./_store.cjs");
 
 const PORT = 8765;
 const BASE = `http://127.0.0.1:${PORT}/`;
@@ -558,7 +559,10 @@ runSuite({
         );
         // 说明卡的「已看过」标记是这次点出来的，会影响后面流程是否弹说明卡 ——
         // 恢复成「没看过」，别让本块污染后面的断言
-        await page.evaluate(() => localStorage.removeItem("akb:duelintro:v1"));
+        await page.evaluate(
+          (k) => localStorage.removeItem(k),
+          S.prefKey("duelIntro")
+        );
       }
       const rankCount = await page.locator("#rank-list li").count();
       check("结果 7 项", rankCount === 7, `实际 ${rankCount}`);
@@ -803,12 +807,8 @@ runSuite({
           .map((m) => m.id)
       );
       await page.evaluate(
-        (sel) =>
-          localStorage.setItem(
-            "akb:state:v2:48g",
-            JSON.stringify({ v: 1, size: 16, selected: sel, duel: null })
-          ),
-        ids16
+        ([k, v]) => localStorage.setItem(k, v),
+        [S.stateKey("48g"), S.statePayload({ size: 16, selected: ids16 })]
       );
       await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
       await page.waitForTimeout(500);
@@ -829,12 +829,8 @@ runSuite({
           .map((m) => m.id)
       );
       await page.evaluate(
-        (sel) =>
-          localStorage.setItem(
-            "akb:state:v2:48g",
-            JSON.stringify({ v: 1, size: 40, selected: sel, duel: null })
-          ),
-        ids40
+        ([k, v]) => localStorage.setItem(k, v),
+        [S.stateKey("48g"), S.statePayload({ size: 40, selected: ids40 })]
       );
       await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
       await page.waitForTimeout(500);
@@ -888,10 +884,8 @@ runSuite({
       // 层级段数必须等于 core.screenTiers 的**独立计算结果**。此前只有上面那条
       // 「显示 1/5」，而它和段数用的是同一个字段（snap.duel.tiers）—— 验的是
       // 同一个数字被渲染了两次，不可能不一致（恒真）。
-      const tiers40 = await page.evaluate(() => {
-        const state = JSON.parse(
-          localStorage.getItem("akb:state:v2:48g") || "{}"
-        );
+      const tiers40 = await page.evaluate((k) => {
+        const state = JSON.parse(localStorage.getItem(k) || "{}");
         const expected = window.AKB_CORE.screenTiers(
           state.selected || [],
           state.cut || []
@@ -904,7 +898,7 @@ runSuite({
           done: document.querySelectorAll("#duel-tiers i.done").length,
           now: document.querySelectorAll("#duel-tiers i.now").length,
         };
-      });
+      }, S.stateKey("48g"));
       check(
         "40 档：层级段数 = core.screenTiers 独立算出的层级数（5）",
         tiers40.rendered === tiers40.expected && tiers40.expected === 5,
@@ -1002,13 +996,16 @@ runSuite({
           .slice(0, 7)
           .map((m) => m.id)
       );
-      await page.evaluate((sel) => {
-        localStorage.clear();
-        localStorage.setItem(
-          "akb:state:v2:sakamichi",
-          JSON.stringify({ v: 1, size: 7, selected: sel, duel: null })
-        );
-      }, idsSaka);
+      await page.evaluate(
+        ([k, v]) => {
+          localStorage.clear();
+          localStorage.setItem(k, v);
+        },
+        [
+          S.stateKey("sakamichi"),
+          S.statePayload({ size: 7, selected: idsSaka }),
+        ]
+      );
       await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
       await page.waitForTimeout(500);
       await goToPick(page);
@@ -1327,8 +1324,9 @@ runSuite({
       await setSkin(page, "sticker");
       await page.waitForTimeout(300);
       const skinAfter = await page.getAttribute("html", "data-skin");
-      const skinStored = await page.evaluate(() =>
-        localStorage.getItem("akb:skin")
+      const skinStored = await page.evaluate(
+        (k) => localStorage.getItem(k),
+        S.prefKey("skin")
       );
       check(
         "皮肤：切换为贴纸并持久化",
@@ -1480,8 +1478,9 @@ runSuite({
       check("切杂志封面：画面变白底", pxB === "255,255,255", pxB);
       check(
         "样式选择已持久化",
-        (await page.evaluate(() =>
-          localStorage.getItem("akb:poster-style")
+        (await page.evaluate(
+          (k) => localStorage.getItem(k),
+          S.prefKey("posterStyle")
         )) === "b"
       );
       await page.click('.seg-style [data-style="a"]');
@@ -1514,10 +1513,7 @@ runSuite({
       ]) {
         const want = SKIN_FLOOR[seed || "classic"];
         const firstCtx = await browser.newContext();
-        if (seed)
-          await firstCtx.addInitScript(
-            `localStorage.setItem("akb:skin", ${JSON.stringify(seed)})`
-          );
+        if (seed) await S.seedPrefs(firstCtx, { skin: seed });
         const firstPage = await firstCtx.newPage();
         await firstPage.route("**/app.js", (r) => r.abort());
         await firstPage.goto(BASE, {
@@ -1531,10 +1527,7 @@ runSuite({
         await firstCtx.close();
 
         const settledCtx = await browser.newContext();
-        if (seed)
-          await settledCtx.addInitScript(
-            `localStorage.setItem("akb:skin", ${JSON.stringify(seed)})`
-          );
+        if (seed) await S.seedPrefs(settledCtx, { skin: seed });
         const settledPage = await settledCtx.newPage();
         await settledPage.goto(BASE, {
           waitUntil: "domcontentloaded",

@@ -7,6 +7,7 @@ const {
   goToPick,
 } = require("./_ui.cjs");
 const { runSuite } = require("./_suite.cjs");
+const S = require("./_store.cjs");
 const PORT = 8777;
 const BASE = `http://127.0.0.1:${PORT}/`;
 
@@ -90,8 +91,10 @@ runSuite({
       check("引导卡关闭", await page.isHidden("#coach"));
       check(
         "引导卡持久化",
-        (await page.evaluate(() => localStorage.getItem("akb:coach:v1"))) ===
-          "1"
+        (await page.evaluate(
+          (k) => localStorage.getItem(k),
+          S.prefKey("coach")
+        )) === "1"
       );
       await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
       await page.waitForTimeout(600);
@@ -180,8 +183,9 @@ runSuite({
       check("说明卡关闭", await page.isHidden("#duel-intro"));
       check(
         "说明卡持久化",
-        (await page.evaluate(() =>
-          localStorage.getItem("akb:duelintro:v1")
+        (await page.evaluate(
+          (k) => localStorage.getItem(k),
+          S.prefKey("duelIntro")
         )) === "1"
       );
       check("保存提示可见", await page.isVisible("#duel-saved"));

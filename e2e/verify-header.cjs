@@ -1,12 +1,13 @@
 // 复核 P0 修复：档位 × 语言 × 在线/离线，每个 tab 都必须点得到
 const { noteTimeout } = require("./_wait.cjs");
 const { runSuite } = require("./_suite.cjs");
+const S = require("./_store.cjs");
 const path = require("node:path");
 const PORT = 8861;
 const BASE = `http://127.0.0.1:${PORT}/`;
 runSuite({
   name: "header",
-  expect: 72,
+  expect: 73, // +1 = 「种子生效」check（Q3）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -36,6 +37,7 @@ runSuite({
       await ctx.close();
       return table;
     })();
+    let seedChecked = false;
     for (const lang of ["zh", "en", "ja"]) {
       for (const size of [7, 16, 40]) {
         for (const series of ["48g", "sakamichi", "love", "morning"]) {
@@ -48,28 +50,33 @@ runSuite({
           // goto 拿 origin + evaluate 种 + reload，第一次加载整个被丢掉）。
           // 四个系列都要种：switchSeries 对没有存档的系列回落 {size:7}，
           // 只写 48g 的话「档位 × 系列」是假交叉（当年三系列 54 个状态里 18 个量的是 7 档）。
-          await ctx.addInitScript(
-            ([l, sz, ids]) => {
-              localStorage.setItem("akb-lang", l);
-              for (const k of ["48g", "sakamichi", "love", "morning"]) {
-                localStorage.setItem(
-                  "akb:state:v2:" + k,
-                  JSON.stringify({
-                    v: 1,
-                    size: sz,
-                    selected: ids[k],
-                    duel: null,
-                  })
-                );
-              }
-            },
-            [lang, size, idsBySize[size]]
-          );
+          // 键与载荷从产品派生（e2e/_store.cjs）—— 手写键名时 PREF_KEYS 一改就静默失效。
+          await S.seedPrefs(ctx, { lang });
+          await S.seedStates(ctx, ["48g", "sakamichi", "love", "morning"], {
+            size,
+            selected: idsBySize[size],
+          });
           await page.goto(BASE + "?cb=" + Date.now(), {
             waitUntil: "domcontentloaded",
             timeout: 120000,
           });
           await page.waitForTimeout(1200);
+          // 种子的正面防线：键派生防「改名」，这条防「载荷/其他原因导致种子无效」——
+          // 此前种子静默失效会回落 7 档，而本套件只断言 tab 可达，照样全绿。
+          if (size !== 7 && !seedChecked) {
+            seedChecked = true;
+            const applied = await page.evaluate(
+              () =>
+                document.querySelector(
+                  '.seg-size [data-pick][aria-checked="true"]'
+                )?.dataset.pick
+            );
+            check(
+              `种子生效：档位 = ${size}`,
+              applied === String(size),
+              `实得 ${applied}`
+            );
+          }
           await page
             .click(`.seg-series [data-series="${series}"]`, { force: true })
             .catch(() => noteTimeout("点系列 tab"));

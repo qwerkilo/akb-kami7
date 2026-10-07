@@ -11,6 +11,7 @@
 // 档位数只影响横滑长度，7 与 40 都必须过。
 const { waitFor } = require("./_wait.cjs");
 const { runSuite } = require("./_suite.cjs");
+const S = require("./_store.cjs");
 const path = require("node:path");
 const PORT = 8871;
 const BASE = `http://127.0.0.1:${PORT}/`;
@@ -22,10 +23,11 @@ const SKINS = ["classic", "sticker"];
 const SIZES = [7, 40];
 runSuite({
   name: "first",
-  expect: 144, // 数守恒：2 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查（矩阵变了必须显式改这里）
+  expect: 145, // 数守恒：2 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查 + 「种子生效」1 条
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
+    let seedChecked = false;
     for (const skin of SKINS) {
       for (const lang of LANGS) {
         for (const width of WIDTHS) {
@@ -37,19 +39,10 @@ runSuite({
             });
             // addInitScript 在每次导航前跑：语言 / 皮肤 / 档位一次种好（7 档 = 默认档，
             // 与判据建立时量的是同一个状态）
-            await ctx.addInitScript(
-              ([l, s, sz]) => {
-                localStorage.setItem("akb-lang", l);
-                localStorage.setItem("akb:skin", s);
-                for (const k of ["48g", "sakamichi", "love", "morning"]) {
-                  localStorage.setItem(
-                    "akb:state:v2:" + k,
-                    JSON.stringify({ v: 1, size: sz, selected: [], duel: null })
-                  );
-                }
-              },
-              [lang, skin, size]
-            );
+            await S.seedPrefs(ctx, { lang, skin });
+            await S.seedStates(ctx, ["48g", "sakamichi", "love", "morning"], {
+              size,
+            });
             const page = await ctx.newPage();
             page.setDefaultNavigationTimeout(180000);
             page.setDefaultTimeout(180000);
@@ -63,6 +56,21 @@ runSuite({
               { timeout: 90000 }
             );
             await page.waitForTimeout(600);
+            // 种子的正面防线（见 header 同款注释）：档位塌成默认 7 时本套件此前照样全绿。
+            if (size !== 7 && !seedChecked) {
+              seedChecked = true;
+              const applied = await page.evaluate(
+                () =>
+                  document.querySelector(
+                    '.seg-size [data-pick][aria-checked="true"]'
+                  )?.dataset.pick
+              );
+              check(
+                `种子生效：档位 = ${size}`,
+                applied === String(size),
+                `实得 ${applied}`
+              );
+            }
             const geo = await page.evaluate(() => {
               const trayTop = document
                 .querySelector("#tray")

@@ -327,6 +327,50 @@ test("页面操作词汇只有一处：五个共享操作不许在套件里重�
   }
 });
 
+test("存储种子协议只有一处：e2e/ 不许出现键字面量（候选 4）", () => {
+  const strip = (src) =>
+    src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const core = require("../core.js");
+  // 清单从产品计算（含按系列存档的**前缀**）—— 手写键名时 PREF_KEYS 一改就静默失效：
+  // 种子落空 → 应用回落默认档位 → 矩阵塌成 7 档、断言照样全绿。
+  const keys = [
+    ...Object.values(core.PREF_KEYS).filter((v) => typeof v === "string"),
+    core.PREF_KEYS.state(""),
+  ];
+  const suites = fs
+    .readdirSync(DIR)
+    .filter(
+      (f) => f.endsWith(".cjs") && !f.startsWith("_") && f !== "run-all.cjs"
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
+  for (const f of suites) {
+    const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
+    for (const k of keys) {
+      assert.ok(
+        !src.includes(`"${k}"`) &&
+          !src.includes(`'${k}'`) &&
+          !src.includes("`" + k + "`"),
+        `${f} 不许出现键字面量 ${k} —— 走 e2e/_store.cjs（键从 core.PREF_KEYS 派生）`
+      );
+    }
+    if (src.includes("_store.cjs")) {
+      assert.ok(
+        src.includes('require("./_store.cjs")'),
+        `${f} 用了 _store 就必须真的 require 它`
+      );
+    }
+  }
+  const store = strip(fs.readFileSync(path.join(DIR, "_store.cjs"), "utf8"));
+  assert.match(
+    store,
+    /require\("\.\.\/core\.js"\)/,
+    "_store.cjs 必须从产品派生键"
+  );
+});
+
 test("每个 E2E 套件都进了 run-all（漏一个 = 全量跑不到它）", () => {
   const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
   const suites = fs
