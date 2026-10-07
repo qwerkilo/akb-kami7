@@ -1405,4 +1405,4 @@
 - **验证**：`npm run check` exit=0；`scripts/` 单测 **326 条 OK**（test_wayback 14）；
   `members-artifact` 23/23；变异 3 个全杀（含「值相同的第二份实现」只有计数守卫杀得掉）。
 - 纯 Python 重构：`members.js` 逐字节未动、未跑 E2E。
-- 下次基点：待推后取 HEAD。
+- 下次基点：`92088d7`。
