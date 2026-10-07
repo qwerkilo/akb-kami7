@@ -1477,3 +1477,31 @@
   非本批引入，待单独决定）②retro 提交里 CI 注释的性能数字（26 分钟 → 5–7 分钟）非同日 A/B、
   出处未注明 ③7 人缺图（源上限）④等爱若出现转籍者，合并与投影需跟上（本批范围外）。
 - 下次基点：`2603b93`。
+
+## 第六十七轮 · 2026-10-07 · 第六轮扫描候选②（套件生命周期收口）
+
+- 基点：`cbc087c`
+- 范围：`cbc087c..HEAD` —— 候选②的实现（`e85a6dd`）+ 两轴审查加固（`a3e61e9`）。
+- **缺陷**：五个 E2E 套件各手写「spawn serve.py → 就绪 → launch → body → close+kill → exit」，
+  收尾纪律三档（header/first try/finally、v5 catch 后清理、e2e.cjs launch 在 try 外、
+  **pwa 无顶层 finally**）——pwa 是 hard 门最多、最常抛的那个，门一抛就留孤儿（现场记录过
+  8781 残留）；就绪四样（四个盲等 1200ms、只有 pwa 轮询）。
+- **修复**：新模块 `e2e/_suite.cjs` 的 `runSuite` 拥有 spawn + 就绪轮询 + launch +
+  finally(close+kill) + `exit(checker.done())`；五套件全迁移；pwa 的「静态服务器就绪」
+  check 由执行器保证后删除（43 → 42）。
+- **两轴审查**（子代理，逐条自复核）：无高；一条中 —— finally 里 close 抛错会跳过 kill
+  （孤儿类，已修 + 补单测）；五条低全处置（spawn ENOENT 崩进程 → 挂 error 监听；
+  fetch 无超时 → AbortSignal；守卫手抄清单 → 派生自磁盘；run-all 注释；记录订正）。
+- **验证**：`npm run check` exit=0（**316 JS + 338 Python** + 棘轮无新增）；`npm run e2e:all`
+  三次 **5/5**（245/54/**42**/72/144），每次跑完五个端口全空、无 serve.py 残留；
+  **故障注入（真跑）**：v5 与 pwa 的 body 首行必抛 → 都是 `脚本异常` FAIL、退出码 1、
+  端口空闲无孤儿；变异 **6/6 被杀**（finally 去 kill / 去轮询 / 扁平 finally / 去 error
+  监听 / 注入 process.exit / 删 expect）。
+- **订正**：`e85a6dd` 的信息写「336 Python」实为 **338**（上批加固的 2 条 smoke 之后就是 338）；
+  时长样本 6m31（前）/ 7m07、8m11、8m41（后）机器负载漂移，**不作为结论**（review-rules #2）。
+- **记账**：故障注入用 `git checkout <file>` 还原时把**未提交的迁移**一起回退了（v5/pwa）——
+  已重放并重新过闸门。教训：临时改动要在提交后再注入，或逐行撤销而不是整文件 checkout。
+- **遗留**：①「检查记录只有一处」守卫已派生；「等待只有一个入口」守卫仍手抄 4 个套件名
+  （缺 `verify-first-screen.cjs`，本轮扫描候选 ⑦ 范围）②`server.kill()` 后不等子进程退出
+  （与迁移前同；端口独立无竞争）③早安非モー娘。成员的团名重复展示 ④CI 注释的性能数字出处。
+- 下次基点：`a3e61e9`。
