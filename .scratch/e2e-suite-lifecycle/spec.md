@@ -50,7 +50,7 @@ close+kill → process.exit(checker.done())`。三处摩擦：
 3. `npm run e2e:all` **5/5**；check 数 = 245 / 54 / **42** / 72 / 144（pwa 少的那条是执行器保证的）；
    时长不显著变差（前后各一次实测对比）。
 4. `npm run check` exit=0（含 `test/e2e-source.test.js` 的新守卫）。
-5. 孤儿实测：单测里「body 抛错 → close+kill 都调用」；`e2e:all` 跑完四个端口空闲。
+5. 孤儿实测：单测里「body 抛错 → close+kill 都调用」；`e2e:all` 跑完五个端口空闲。
 
 ## 风险
 

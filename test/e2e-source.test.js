@@ -168,13 +168,16 @@ test("检查记录只有一处：runner 不解析收尾行、套件不自报收�
     /checker\.done\(\)/,
     "_suite.cjs 把 checker.done() 接到退出码"
   );
-  const suites = [
-    "e2e.cjs",
-    "e2e-v5.cjs",
-    "e2e-pwa.cjs",
-    "verify-header.cjs",
-    "verify-first-screen.cjs",
-  ];
+  // 派生自磁盘（不手抄套件清单 —— 手抄的会与现状脱节，本轮扫描候选 6/7 的教训）
+  const suites = fs
+    .readdirSync(DIR)
+    .filter(
+      (f) => f.endsWith(".cjs") && !f.startsWith("_") && f !== "run-all.cjs"
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
   for (const f of suites) {
     const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
     // 承重点三条：走执行器、带数守恒声明、不许自己记账
@@ -256,8 +259,8 @@ test("套件生命周期只有一处：不许手写 spawn(serve.py)/process.exit
       `${f} 不许手写 serve.py 的 spawn —— 起服务收在 e2e/_suite.cjs`
     );
     assert.ok(
-      !src.includes("process.exit"),
-      `${f} 不许自己 process.exit —— 退出码由执行器按 checker.done() 给`
+      !/process\.exit\(/.test(src),
+      `${f} 不许自己 process.exit() —— 退出码由执行器按 checker.done() 给`
     );
     assert.match(src, /runSuite\(/, `${f} 必须走 e2e/_suite.cjs 的 runSuite`);
   }

@@ -11,7 +11,7 @@ const SUITE = require(path.join(__dirname, "..", "e2e", "_suite.cjs"));
 
 function fakes({ fetchOk = true } = {}) {
   const calls = { kill: 0, close: 0, exit: null, spawned: [] };
-  const server = { kill: () => calls.kill++ };
+  const server = { kill: () => calls.kill++, on: () => {} };
   const browser = { close: async () => calls.close++ };
   return {
     calls,
@@ -122,6 +122,49 @@ test("body 拿到 base、browser 与 checker", async () => {
   assert.ok(got.browser, "body 用注入的 browser");
   assert.equal(typeof got.checker.check, "function");
   assert.equal(typeof got.checker.done, "function");
+});
+
+test("close 抛错：kill 仍要跑到、退出码照给（嵌套 finally）", async () => {
+  const calls = { kill: 0, exit: null };
+  const deps = {
+    spawn: () => ({ kill: () => calls.kill++, on: () => {} }),
+    launch: async () => ({
+      close: async () => {
+        throw new Error("browser crashed");
+      },
+    }),
+    fetchFn: async () => ({ ok: true }),
+    sleepFn: async () => {},
+    exit: (c) => {
+      calls.exit = c;
+    },
+  };
+  await SUITE.runSuite({ name: "t", port: 9999, body: async () => {} }, deps);
+  assert.equal(calls.kill, 1, "close 抛错也不能吞掉 server.kill()");
+  assert.equal(calls.exit, 0, "清理失败不影响退出码（打印警告，不占 check）");
+});
+
+test("spawn 挂 error 监听（ENOENT 不许直接崩进程）", async () => {
+  const calls = { exit: null };
+  let onError = null;
+  const deps = {
+    spawn: () => ({
+      kill: () => {},
+      on: (ev, fn) => {
+        if (ev === "error") onError = fn;
+      },
+    }),
+    fetchFn: async () => {
+      throw new Error("ECONNREFUSED");
+    },
+    sleepFn: async () => {},
+    exit: (c) => {
+      calls.exit = c;
+    },
+  };
+  await SUITE.runSuite({ name: "t", port: 9999, body: async () => {} }, deps);
+  assert.ok(onError, "必须挂 'error' 监听 —— 否则未处理事件直接崩掉进程");
+  assert.equal(calls.exit, 2, "起服务失败 = 工具失败");
 });
 
 test("spawn 的契约：serve.py + 端口 + cwd（pwa 的 TMP 靠它）", async () => {

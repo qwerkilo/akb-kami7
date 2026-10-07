@@ -24,7 +24,8 @@ async function waitServer(
 ) {
   for (let i = 0; i < tries; i++) {
     try {
-      const r = await fetchFn(base);
+      // fetch 也要有上界：端口被「接受连接但不响应」的进程占用时，单次 fetch 能远超 10s
+      const r = await fetchFn(base, { signal: AbortSignal.timeout(1000) });
       if (r.ok) return true;
     } catch (_) {}
     await sleepFn(interval);
@@ -37,8 +38,9 @@ async function waitServer(
  * `exit(checker.done())`。`body({ browser, base, checker })` 保留套件自己的
  * contexts / pages / 超时选项。
  *
- * 错误语义与迁移前一致：body 抛 → `脚本异常` 记一条失败（exit 1）；服务器没起来 →
- * 工具失败（exit 2，不占 check 计数）。
+ * 错误语义：body 抛 → `脚本异常` 记一条失败（exit 1）—— 与 e2e/v5 迁移前一致；
+ * pwa/header/first 迁移前是未处理拒绝（栈打印），现在同样收敛成 `脚本异常` FAIL
+ * （退出码都是 1）。服务器没起来 → 工具失败（exit 2，不占 check 计数）。
  *
  * `deps` 是测试注入口（不在测试里改模块级开关）：
  * `{ spawn, launch, fetchFn, exit, sleepFn }`。
@@ -56,6 +58,12 @@ async function runSuite({ name, expect, port, cwd = ROOT, body }, deps = {}) {
     [path.join(__dirname, "serve.py"), String(port)],
     { cwd, stdio: "ignore" }
   );
+  // 挂 error 监听：python3 不存在（ENOENT）时未处理的 'error' 事件会直接崩掉进程
+  // （退出码 1、且 waitServer 的 exit 2 路径根本走不到）。记下来，就绪失败时一起报。
+  let spawnError = null;
+  server.on("error", (e) => {
+    spawnError = e;
+  });
   const checker = createChecker({ name, expect });
   let browser = null;
   let code = 2; // 默认：工具失败（就绪没起来）
@@ -65,15 +73,24 @@ async function runSuite({ name, expect, port, cwd = ROOT, body }, deps = {}) {
       await body({ browser, base, checker });
       code = checker.done();
     } else {
-      console.error(`✗ [${name}] 静态服务器未就绪：${base}`);
+      console.error(
+        `✗ [${name}] 静态服务器未就绪：${base}${spawnError ? `（spawn 失败：${spawnError.message}）` : ""}`
+      );
     }
   } catch (e) {
     checker.check("脚本异常", false, String(e).slice(0, 300));
     code = checker.done();
   } finally {
-    // 异常路径也必须收干净：关浏览器、杀服务（否则留孤儿进程）
-    if (browser) await browser.close();
-    server.kill();
+    // 异常路径也必须收干净：关浏览器、杀服务（否则留孤儿进程）。
+    // close 自己抛错（浏览器崩了/OOM）也不能吞掉 kill —— 嵌套 try/finally +
+    // 不把 close 的异常放出去，否则 exit(code) 都跑不到（这正是本模块要消灭的孤儿类）。
+    try {
+      if (browser) await browser.close();
+    } catch (e) {
+      console.error(`⚠ [${name}] 关闭浏览器失败：${e}`);
+    } finally {
+      server.kill();
+    }
   }
   exit(code);
 }

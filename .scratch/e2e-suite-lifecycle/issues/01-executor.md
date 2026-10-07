@@ -29,9 +29,13 @@
 - `e2e/_suite.cjs`：`runSuite({name, expect, port, cwd, body}, deps)` + `waitServer`（内部）；
   `deps` 注入 `{spawn, launch, fetchFn, exit, sleepFn}`（测试用，不改模块级开关）。
 - 错误语义：body 抛 → `脚本异常` FAIL + exit 1；就绪超时 → exit 2（工具失败，不占 check）。
-- 单测 5 条全绿（`test/e2e-suite.test.js`）：抛错仍 close+kill / 退出码=done() / 就绪超时 exit 2
+- 单测 7 条全绿（`test/e2e-suite.test.js`）：抛错仍 close+kill / 退出码=done() / 就绪超时 exit 2
   且 body 不跑 / body 拿到 base+browser / spawn 契约（serve.py+端口+cwd）。
-- 变异 2/2 被杀：finally 去掉 `server.kill()`、去掉就绪轮询（直接 launch）。
+- 变异 4/4 被杀：finally 去掉 `server.kill()`、去掉就绪轮询（直接 launch）、
+  扁平 finally（close 抛错跳过 kill）、去掉 spawn 的 error 监听。
+- 两轴审查后的加固：`close` 抛错不许吞掉 `kill`（嵌套 try/finally + 警告）、spawn 挂
+  `error` 监听（ENOENT 不再直接崩进程）、`fetch` 加 `AbortSignal.timeout(1000)`（让
+  「10s 上界」成为真上界）。
 - 记账：`waitServer` 曾导出但无人用 → 收敛为只导出 `runSuite`。
 
 ## Comments
