@@ -1425,3 +1425,28 @@
 - **验证**：`npm run check` exit=0；**329 条** Python 单测全绿；变异 3 个全杀（两类对调 /
   去掉「没轮到」判据 / 回到 `.get`）。纯 Python 重构：`members.js` 未动、未跑 E2E。
 - 下次基点：`e769502`。
+
+## 第六十五轮 · 2026-10-07 · 第五轮扫描候选 10（跳过名单收进 photo_skip.py）
+
+- 基点：`ba52c4d`
+- 范围：`ba52c4d..HEAD` —— `.scratch/photo-skip-module/`（spec + 工单）+ 新模块
+  `scripts/photo_skip.py` + `fetch_members`/love/morning 三个消费点 + 测试 + 守卫 +
+  两轴审查后的加固。
+- **问题**：跳过名单是「一个函数 + 挂在它上面的隐藏属性 `skip.skipped`」：调用方要
+  `getattr(..., "skipped", set())` 才能取回名单（属性名一改、警告静默消失），而 `(团, 名)`
+  键在 producer / 两个 loader / 复核警告**四处**各派生一次。顺带核出：
+  `_warn_skipped_without_files` **零测试**。
+- **修复**：`photo_skip.py`（`key` + `skips`，纯函数、零 import —— 无循环依赖）；
+  `photo_skip_predicate` → `photo_skip_keys`（返回 frozenset）；warn 直接收集合；
+  两个 loader 改调 `photo_skip.skips()`。先补三条警告特征测试（新契约下先红）。
+- **两轴审查**（子代理）：无高无中。契约变更全仓 0 残留（可执行代码）；等价性 **3000 场景
+  差分 0 不一致**；无循环依赖（实测 import 成功）；守卫承重（canonical 复活被杀）。
+  四条低：陈旧 docstring ×4（已改）、守卫漏网形状（正则放宽 + 剥注释，attrgetter/非递归
+  按固有边界处理）、验收口径（已写明）、测试冗余 import（已删）。
+- **验证**：`npm run check` exit=0；**332 条** Python 单测全绿；守卫 24/24；变异 3 个全杀
+  （去掉 None 处理 / 键只用 name / 注释掉真调用）。第一版等价变异存活是预期（已记账）；
+  另一版「改守卫自己」不算有效变异（对测试动手），已换单锚点形态重验。
+- **第五轮扫描 10 条候选全部落地**（候选 1–10：卡 1/2 修复 → 卡 7 photo-outcome →
+  卡 3 E2E 记录器 → 卡 4 等待收口 → 卡 5 宽度矩阵 → 卡 6 decode 接线 → 卡 8 wayback 模块 →
+  卡 9 截断原因 → 卡 10 photo_skip）。
+- 下次基点：待推后取 HEAD。
