@@ -230,8 +230,9 @@ runSuite({
     // 曾经在这里加 Network.clearBrowserCache，想让「断网后仍有照片」不被浏览器 HTTP
     // 缓存兜住（两轴实测：删掉图片分类分支、akb-img-v1 归零，这两条断言照样绿）。
     // 撤掉了：清了之后字体断言反而红（Latin 子集的 Nunito 离线没被应用，根因未查明，
-    // 见 .scratch/deepening/18-sw-cache-rules.md 的开放问题）。改由 pwa-cache-probe.cjs
-    // 单独做这项核对，不拖累主 E2E。
+    // 见 .scratch/deepening/18-sw-cache-rules.md 的开放问题）。曾用一次性探针
+    // （pwa-cache-probe.cjs，**不在仓内**、已随 /tmp 丢失）单独核对 ——
+    // 也就是这项核对目前没有常设守卫，要恢复得重写探针。
     await page.waitForTimeout(300);
     const chipLive = await page.evaluate(() => ({
       onLine: navigator.onLine,

@@ -10,6 +10,10 @@ const path = require("node:path");
 
 const DIR = path.join(__dirname, "..", "e2e");
 
+// 已知边界（第七轮扫描复核过）：本守卫只钉最危险的形态 —— 空函数体
+// `.catch(() => {})`。`() => true`（$eval 面板缺失视为开着）、`() => null`
+// （textContent 取值兜底）这类**取值兜底**是合法的，机械禁写会误伤；
+// 它们与「等待被吞」的区别要靠审查判断。
 test("e2e 里的等待不许裸吞超时（.catch(() => {}) 要带标签）", () => {
   const offenders = [];
   for (const f of fs.readdirSync(DIR).sort()) {
@@ -45,6 +49,12 @@ function unboundedWaits(src, f) {
     const line = src.slice(0, m.index).split("\n").length;
     if (!/timeout/.test(stmt)) {
       offenders.push(`${f}:${line} ${m[1]} 无 timeout`);
+      continue;
+    }
+    // 词扫会被「写着 timeout 但值不限时」骗过：Playwright 里 0/null = 无超时
+    // （第七轮扫描）。
+    if (/timeout\s*:\s*(0|null)\b/.test(stmt)) {
+      offenders.push(`${f}:${line} ${m[1]} timeout 为 0/null = 不限时`);
       continue;
     }
     // Playwright 的签名是 (fn, arg, options)：options 放**第二参**会被当成 arg、
