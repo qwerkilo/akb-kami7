@@ -18,6 +18,7 @@ from functools import partial
 from PIL import Image, ImageOps
 
 import fetch_pool
+import photo_chain
 import love_members
 import morningmusume_members
 import progress
@@ -410,7 +411,13 @@ def prune_unused(keep, dirs):
     return removed
 
 
-def image_urls(files, api_fn=api):
+def image_urls(files, api_fn=api, reasons=None):
+    """48pedia 的 imageinfo → {文件名: url}。
+
+    落空/批次失败**在产生处写原因**（ADR-0024）：`reasons[文件名]` 记
+    「48pedia 没有该文件」/「查询失败」—— 此前是静默 `continue`，缺图者最后只得到
+    「未记录」，与另两系列的逐人原因不对称。`reasons=None` 表示不收集。
+    """
     out = {}
     batches = [files[i:i + 50] for i in range(0, len(files), 50)]
 
@@ -419,18 +426,35 @@ def image_urls(files, api_fn=api):
         return api_fn(action="query", prop="imageinfo", iiprop="url|size",
                       titles="|".join("ファイル:" + f for f in batch))
 
-    answers = fetch_pool.fetch_many(range(len(batches)), one, host="48pedia.org")
+    try:
+        answers = fetch_pool.fetch_many(
+            range(len(batches)), one, host="48pedia.org"
+        )
+    except Exception:
+        # **全部**批次失败时 fetch_many 会重抛（raise_first=False 只保证「部分失败」
+        # 时不抛、把异常留在答案列表里）—— 记「查询失败」而不是让整轮崩掉。
+        for f in files:
+            _record_failure(reasons, f, photo_chain.QUERY_FAILED)
+        return out
     for i in range(len(batches)):
         progress.tick()
         batch = batches[i]
         data = answers[i]
+        if isinstance(data, Exception):
+            # raise_first=False 会把批次异常带回来 —— 此前这里直接 data["query"] 崩，
+            # 现在记「查询失败」并继续（整轮不再因一批失败白跑）。
+            for f in batch:
+                _record_failure(reasons, f, photo_chain.QUERY_FAILED)
+            continue
         norm = {n["to"]: n["from"] for n in data["query"].get("normalized", [])}
-        for p in data["query"]["pages"].values():
-            ii = p.get("imageinfo")
+        for page in data["query"]["pages"].values():
+            title = norm.get(page["title"], page["title"])
+            key = title.split(":", 1)[-1]
+            ii = page.get("imageinfo")
             if not ii:
+                _record_failure(reasons, key, "48pedia 没有该文件")
                 continue
-            title = norm.get(p["title"], p["title"])
-            out[title.split(":", 1)[1]] = ii[0]["url"]
+            out[key] = ii[0]["url"]
     return out
 
 
@@ -1006,7 +1030,7 @@ def main(
     # total 是**批数**：tick 每批一次（早先写文件数 → 心跳显示 3/1335 这种假进度）
     n_files = len(member_files(members))
     with progress.stage("48pedia 图片 URL", total=(n_files + 49) // 50):
-        urls = image_urls(member_files(members), api_fn)
+        urls = image_urls(member_files(members), api_fn, photo_notes)
     urls.update(love_urls)
     urls.update(morning_urls)
     report_missing_info(resolve_missing(members, urls))

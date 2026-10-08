@@ -1866,6 +1866,64 @@ class NewSeriesBaselineTests(unittest.TestCase):
         self.assertEqual(len(morning[1]["members"]), 8, "℃-ute 仍是 8 人")
 
 
+class ImageUrlReasonTests(unittest.TestCase):
+    """48pedia 落空/批次失败也要写原因（ADR-0024；工单 11）。"""
+
+    def test_missing_imageinfo_records_reason(self):
+        def fake_api(**kw):
+            return {
+                "query": {
+                    "pages": {
+                        "1": {
+                            "title": "ファイル:柏木由紀.jpg",
+                            "imageinfo": [{"url": "https://48pedia/x.jpg"}],
+                        },
+                        "2": {"title": "ファイル:渡辺麻友.jpg", "missing": True},
+                    }
+                }
+            }
+
+        reasons = {}
+        fetch_members.image_urls(
+            ["柏木由紀.jpg", "渡辺麻友.jpg"], api_fn=fake_api, reasons=reasons
+        )
+        self.assertEqual(reasons.get("渡辺麻友.jpg"), "48pedia 没有该文件")
+        self.assertNotIn("柏木由紀.jpg", reasons)
+
+    def test_partial_batch_failure_records_only_that_batch(self):
+        """部分批次失败：fetch_many 把异常留在答案列表里（不抛）—— 只给那批记原因。"""
+        ok = {
+            "query": {
+                "pages": {
+                    "1": {
+                        "title": "ファイル:f50.jpg",
+                        "imageinfo": [{"url": "https://48pedia/b.jpg"}],
+                    }
+                }
+            }
+        }
+        # 批大小 50：51 个文件 = 两个批次（第一批判失败、第二批成功）
+        files = ["f{}.jpg".format(i) for i in range(51)]
+        with mock.patch.object(
+            fetch_pool, "fetch_many", return_value=[OSError("boom"), ok]
+        ):
+            reasons = {}
+            out = fetch_members.image_urls(files, api_fn=lambda **k: ok, reasons=reasons)
+        self.assertEqual(reasons.get("f0.jpg"), "查询失败")
+        self.assertEqual(reasons.get("f49.jpg"), "查询失败")
+        self.assertNotIn("f50.jpg", reasons)
+        self.assertEqual(out.get("f50.jpg"), "https://48pedia/b.jpg")
+
+    def test_batch_failure_records_query_failed_without_crashing(self):
+        def fake_api(**kw):
+            raise OSError("48pedia down")
+
+        reasons = {}
+        out = fetch_members.image_urls(["A.jpg"], api_fn=fake_api, reasons=reasons)
+        self.assertEqual(out, {})
+        self.assertEqual(reasons.get("A.jpg"), "查询失败")
+
+
 if __name__ == "__main__":
     unittest.main()
 
