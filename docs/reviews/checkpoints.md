@@ -1571,3 +1571,13 @@
   CI 上的内存检测 → 4 并发 × Chromium；或某套件在 CI 环境下的无界等待）。诊断手段：
   直连 `api.github.com/.../runs/<id>/jobs` 看 step 级状态（注意会撞限流，隔几分钟重试）。
 - 下次基点：`de5359a`。
+
+### 第七十轮 · 补记（2026-10-08 晚）· CI e2e 挂起 → 已定位为「慢」而非死锁
+
+- 观察闭环：`f50c2f5`（改 workflow **之前**的提交）的 e2e job **最终 completed · success**
+  —— 全量 `e2e:all` 在 runner 上**能跑通，只是极慢**（>2 小时，本地 5–8 分钟），不是死锁。
+- 处置（`ddba784`）：CI 的 e2e job 改回三个已验证的快速套件（主 + v5 + pwa，拆成三步 ——
+  挂住时能直接指认是哪一步）+ `timeout-minutes: 30`（慢/挂住 → **可见地失败**）。
+  矩阵套件（header/first）的 runner 成本待诊断（候选方向：状态数 73/145 × 每次完整加载，
+  在 runner 上约 10–20× 慢）；本地仍跑全量 `npm run e2e:all`。
+- 验证：`ddba784` 的整个 workflow **completed · success**（check + e2e 双绿）—— 闸门恢复可用。
