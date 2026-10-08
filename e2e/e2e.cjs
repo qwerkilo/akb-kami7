@@ -1167,15 +1167,17 @@ runSuite({
       const cuteCards = await page
         .locator('section.grp[data-group="℃-ute"] .card')
         .count();
-      const cuteStatus = await page
-        .locator(".card .status-tag")
-        .allTextContents()
-        .catch(() => []);
+      // 状态从产品运行时数据读（卡片上没有状态标签 —— 曾用 `.card .status-tag`，
+      // 那个选择器产品从不渲染，`.catch(() => [])` 又把失败吞成空集 →
+      // 「全部毕业」半句永久假绿，第七轮扫描抓到）。
+      const cuteStatus = await page.evaluate(() =>
+        window.AKB_GROUPS.filter((g) => g.group === "℃-ute")
+          .flatMap((g) => g.members)
+          .map((m) => m.status)
+      );
       check(
         "℃-ute：展开后 8 张卡、全部毕业",
-        cuteCards === 8 &&
-          (cuteStatus.length === 0 ||
-            cuteStatus.every((t) => /毕业|graduate|卒業/.test(t))),
+        cuteCards === 8 && cuteStatus.every((s) => s === "former"),
         `cards=${cuteCards} status=${cuteStatus.join("|")}`
       );
       const cutePlaceholders = await page
