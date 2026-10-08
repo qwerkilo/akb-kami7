@@ -1852,3 +1852,13 @@
   仍有一条不过，未定位到是 skin 还是别的口径）。**先恢复 size-only** 保 repo 绿；
   证据与实测值留在本记录，别再从零试。
 - 验证：`npm run e2e:header` 全 PASS（尾部逐条）；`npm run check` exit=0；run-all 自检 4/4。
+
+### 第八十一轮 · 补记五 · pwa 的划除循环收进 _ui.passScreening（候选 8）
+
+- `e2e-pwa.cjs` 抄了一份「划够一半」循环（guard 20 / 80ms，与 `_ui.fillScreening` 的
+  60 / 60ms 已分叉）→ 改调 `_ui.passScreening`（共享入口）；`npm run e2e:pwa` **42/42** 绿。
+- 变异：`_ui` 的 guard 60→0 → **被杀**（划不动 → 提交点不动 → 超时；绿基线上跑）。
+- **守卫两次试着立才立对**：第一版指纹 `[data-cut][aria-pressed` **过宽** —— `e2e.cjs`
+  里有多处**合法**的单次划除点击，守卫一红就是误伤（守卫不能对合法代码变红）。
+  收窄为「pwa 必须含 `passScreening(`」；**已知边界**（重新抄回去但保留调用抓不到）已写进注释。
+- 验证：守卫 13/13；`npm run check` 见当次输出。

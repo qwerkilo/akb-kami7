@@ -408,6 +408,18 @@ test("首屏判据只有一处：两个套件都必须调 _ui.cjs 的 firstScree
   assert.match(ui, /function firstScreenOk\(/, "firstScreenOk 在 _ui.cjs");
 });
 
+test("筛选循环只有一处：pwa 用共享的 passScreening（候选 8）", () => {
+  // 第七轮扫描：pwa 抄了第六份「划够一半」循环、参数已分叉 20/80 vs 60/60。
+  // 指纹式禁写（`[data-cut][aria-pressed`）**过宽** —— e2e.cjs 里有多处合法的单次
+  // 划除点击，会误伤；所以只钉「pwa 走共享入口」这件事（已知边界：重新抄回去
+  // 但**保留**调用仍抓不到，靠审查）。
+  const pwa = fs.readFileSync(path.join(DIR, "e2e-pwa.cjs"), "utf8");
+  assert.ok(
+    pwa.includes("passScreening("),
+    "pwa 必须用 _ui.cjs 的 passScreening（不许抄划除循环）"
+  );
+});
+
 test("预期噪声判定只有一处：e2e/ 不许再写噪声字面量（候选 6）", () => {
   const strip = (src) =>
     src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");

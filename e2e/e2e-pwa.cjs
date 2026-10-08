@@ -7,6 +7,7 @@ const { waitTicker } = require("./_progress.cjs");
 const { waitFor, waitForSelector } = require("./_wait.cjs");
 const { runSuite } = require("./_suite.cjs");
 const { isExpectedNoise } = require("./_noise.cjs");
+const { passScreening } = require("./_ui.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -310,20 +311,9 @@ runSuite({
       (await page.locator(".screen-row").count()) === 7,
       "断网状态下筛选页一屏列出 7 人"
     );
-    // 定值门槛：先划够一半才给提交（ADR-0019 改写版）
-    let screenGuard = 0;
-    while (
-      (await page.locator("#screen-submit").isDisabled()) &&
-      screenGuard++ < 20
-    ) {
-      const btn = page
-        .locator('[data-cut][aria-pressed="false"]:not([disabled])')
-        .first();
-      if ((await btn.count()) === 0) break;
-      await btn.click();
-      await page.waitForTimeout(80);
-    }
-    await page.locator("#screen-submit").click();
+    // 定值门槛：走共享的 _ui.passScreening —— 此前这里抄了一份循环，参数（guard 20 /
+    // 80ms）与主套件（60 / 60ms）已经分叉（第七轮扫描）。
+    await passScreening(page);
     await waitForSelector(page, "对决开始", "#fighter-a, .fighter", {
       timeout: 15000,
       hard: true,
