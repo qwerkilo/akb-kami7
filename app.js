@@ -1330,12 +1330,19 @@
 
   function ensureOpen() {
     sync();
-    if (snap.open.length || snap.query || snap.group !== "all") return;
-    const first = rosterView().nodes[0];
-    if (!first) return;
-    S.toggleOpen(first.id);
+    if (snap.query || snap.group !== "all") return;
+    const nodes = rosterView().nodes;
+    if (!nodes.length) return;
+    // 判据是「有没有**展开的段**活在当前投影里」——不能只看 snap.open 非空：
+    // 筛选一出（如「现役」），原先展开的段可能被整体剔除，旧键变悬空，于是
+    // 早退后没人补展开 → 名册 0 张卡且无空态（2026-10-08 修，ux-probe10）。
+    const secIds = new Set();
+    nodes.forEach((n) => (n.sections || []).forEach((x) => secIds.add(x.id)));
+    if (snap.open.some((id) => secIds.has(id))) return;
+    const first = nodes[0];
+    if (!snap.open.includes(first.id)) S.toggleOpen(first.id);
     const sec = first.sections[0];
-    if (sec) S.toggleOpen(sec.id);
+    if (sec && !snap.open.includes(sec.id)) S.toggleOpen(sec.id);
   }
 
   function renderGuide() {
