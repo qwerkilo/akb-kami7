@@ -207,12 +207,18 @@ test("检查记录只有一处：runner 不解析收尾行、套件不自报收�
 });
 
 test("等待只有一个入口：套件不许裸 waitForFunction/waitForSelector、不许自己实现 ready（候选 4）", () => {
-  for (const f of [
-    "e2e.cjs",
-    "e2e-v5.cjs",
-    "e2e-pwa.cjs",
-    "verify-header.cjs",
-  ]) {
+  // 派生自磁盘（不手抄套件清单 —— 手抄的会与现状脱节：此前缺 verify-first-screen.cjs，
+  // 第六轮扫描候选 7 抓到的就是这个）
+  const suites = fs
+    .readdirSync(DIR)
+    .filter(
+      (f) => f.endsWith(".cjs") && !f.startsWith("_") && f !== "run-all.cjs"
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
+  for (const f of suites) {
     const src = fs.readFileSync(path.join(DIR, f), "utf8");
     assert.ok(
       !src.includes("waitForFunction"),
