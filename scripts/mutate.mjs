@@ -51,6 +51,26 @@ if (!mutations.length || !testCmd.length) {
   process.exit(1);
 }
 
+// 基线检查（retro 2026-10-08）：先在**未变异**的代码上跑一次测试命令。
+// 基线已红时，每个变异的「被杀」都是假信号 —— 本会话为此白信过两次（⑪⑫ 两个候选）。
+// 红 → 退出 2（工具失败，与「锚点没命中」同族：结论不可信）。
+if (!dryRun) {
+  const base = spawnSync(testCmd[0], testCmd.slice(1), {
+    stdio: ["ignore", "pipe", "pipe"],
+    encoding: "utf8",
+  });
+  if (base.status !== 0) {
+    console.error(
+      `✗ 基线已红（exit ${base.status}）：先在未变异的代码上跑绿，再谈「变异被杀」——` +
+        "红基线下的『被杀』是假信号"
+    );
+    const tail = (base.stdout || "").split("\n").filter(Boolean).slice(-6);
+    if (tail.length) console.error(tail.join("\n"));
+    process.exit(2);
+  }
+  console.log("✓ 基线绿（未变异）");
+}
+
 const backups = new Map();
 let restored = false;
 function restoreAll() {
