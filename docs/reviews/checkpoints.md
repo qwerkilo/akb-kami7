@@ -1862,3 +1862,16 @@
   里有多处**合法**的单次划除点击，守卫一红就是误伤（守卫不能对合法代码变红）。
   收窄为「pwa 必须含 `passScreening(`」；**已知边界**（重新抄回去但保留调用抓不到）已写进注释。
 - 验证：守卫 13/13；`npm run check` 见当次输出。
+
+### 第八十一轮 · 补记六 · lang/skin 断言的下一步事实（本轮没做完）
+
+- 读循环头后确定：**header 只种 `{lang}`**（`S.seedPrefs(ctx, { lang })`）——那里加
+  skin 断言**没有意义**（皮肤恒为默认 classic）；**first-screen 种 `{lang, skin}`**
+  （SKINS × LANGS × WIDTHS × SIZES），断言该加在它那里。
+- 第一版红（`{"size":"16","lang":"zh-CN","skin":"classic"}`）**没记下 label** ——
+  下一步做：把断言只加到 first-screen（**它缩进比 header 深 4 格，锚点要按文件实际缩进取**，
+  本轮按 header 的缩进写就 AssertionError 了），失败信息里带 `${label}`，跑
+  `npm run e2e:first` 看是哪个组合红 —— 若是 **sticker** 档红，则「皮肤种子没生效」
+  是真发现、不是断言口径问题。
+- 已验证：first-screen 现状（size-only）**145/145 绿**；header 73 项里 72 绿是旧日志的
+  假象（那次运行中读的尾巴），实际 `npm run e2e:header` 全 PASS。
