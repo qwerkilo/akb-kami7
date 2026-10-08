@@ -1330,7 +1330,9 @@
 
   function ensureOpen() {
     sync();
-    if (snap.query || snap.group !== "all") return;
+    // 只让搜索态早退：团/期生作用域同样需要「没有可见卡就补展开」——否则该作用域
+    // 与筛选相交为空时，整个名册空白且没有空态文案（M1 的 E 变体）。
+    if (snap.query) return;
     const nodes = rosterView().nodes;
     if (!nodes.length) return;
     // 判据是「有没有**展开的段**活在当前投影里」——不能只看 snap.open 非空：

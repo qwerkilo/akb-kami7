@@ -1974,3 +1974,13 @@
   UX 批次待办（探针 `/tmp/opencode/ux-probe10.cjs`；`snap.group !== "all"` 的早退
   可能也参与）。
 - 验证：`npm run e2e` 见当次输出（app.js 改动必须 E2E）。
+
+### 第八十二轮 · 补记三 · M1 变体全修（放开 `snap.group` 早退）
+
+- 补记二的「部分修复」补完：`ensureOpen` 的早退从「非搜索态且 group==all」放开为
+  **只让搜索态早退** —— 团/期生作用域同样需要「没有可见卡就补展开」，否则该作用域
+  与筛选相交为空时整片空白且无空态文案。
+- 探针 `ux-probe10.cjs` 五场景实测（修前 → 修后）：A_fresh 16→16；B_activeFilter
+  **0→1**；C_open17 43→43；D_open17_active **0→10**；E_gen2 **0→13**。`emptyMsg`
+  全为 null（不再有「空白页」场景；真正空的段仍走 `empty_filter` 兜底，见 app.js:390）。
+- 验证：`npm run e2e` 见当次输出。
