@@ -411,6 +411,11 @@ def prune_unused(keep, dirs):
     return removed
 
 
+# 48pedia 的 imageinfo 批量查询大小：分批与进度总分母共用这一个来源
+# （此前 50 在 `image_urls` 与 main 的进度行各写一次，改一处不会红）。
+IMAGE_BATCH = 50
+
+
 def image_urls(files, api_fn=api, reasons=None):
     """48pedia 的 imageinfo → {文件名: url}。
 
@@ -419,7 +424,7 @@ def image_urls(files, api_fn=api, reasons=None):
     「未记录」，与另两系列的逐人原因不对称。`reasons=None` 表示不收集。
     """
     out = {}
-    batches = [files[i:i + 50] for i in range(0, len(files), 50)]
+    batches = [files[i:i + IMAGE_BATCH] for i in range(0, len(files), IMAGE_BATCH)]
 
     def one(i):
         batch = batches[i]
@@ -1025,7 +1030,8 @@ def main(
 
     # total 是**批数**：tick 每批一次（早先写文件数 → 心跳显示 3/1335 这种假进度）
     n_files = len(member_files(members))
-    with progress.stage("48pedia 图片 URL", total=(n_files + 49) // 50):
+    n_batches = (n_files + IMAGE_BATCH - 1) // IMAGE_BATCH
+    with progress.stage("48pedia 图片 URL", total=n_batches):
         urls = image_urls(member_files(members), api_fn, photo_notes)
     urls.update(love_urls)
     urls.update(morning_urls)

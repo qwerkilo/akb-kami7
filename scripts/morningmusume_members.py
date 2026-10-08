@@ -1204,8 +1204,8 @@ def _pick_old_site_group(best, by_name, urls, fetch, budget, fetched, limit):
     团体导航页、alt 全是团名，一个成员都配不到）。
     """
     tasks, cut = _scan_tasks(best, budget, fetched, limit)
-    # 并发抓（每主机的并发/间隔见 `fetch_pool.HOST_LIMITS`；调用方的 pause 是
-    # Commons 的节流，不套在 Wayback 上），但**按任务顺序**应用配对：同一成员多个
+    # 并发抓（每主机的并发/间隔见 `fetch_pool.HOST_LIMITS`；调用方的 pause **只**
+    # 服务 _resolve_file_evidence 的串行 CDX、不套在这批抓取上），但**按任务顺序**应用配对：同一成员多个
     # 候选时先到者胜，与串行结果一致（确定性）。
     snap_urls = [wayback.snapshot_url(ts, original) for original, ts in tasks]
     pages = fetch_pool.fetch_many(
@@ -1301,8 +1301,9 @@ def resolve_old_site_photos(
     if not missing:
         return members, urls
     by_name = {m["name"]: m for m in missing}
-    # pause 只给 _resolve_file_evidence（48pedia 要节流）——Wayback 走 fetch_pool 的
-    # 主机闸门，不套 Commons 的节流（这就是上面注释说的那件事）
+    # pause 只给 _resolve_file_evidence：它逐条**串行**打 Wayback 的 CDX（量小、
+    # 不在 fetch_pool 的批量闸门里，平时没人给它限速）；上面的批量快照走主机闸门，
+    # 不套这个节流。（旧注释写「48pedia 要节流」是错的 —— 那段根本不碰 48pedia。）
     _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes)
     _resolve_file_evidence(by_name, urls, fetch, pause)
     return members, urls
@@ -1329,8 +1330,9 @@ def _resolve_og(members, urls, fetch):
 def _commons_for(m, fetch, pause):
     """一个成员的 Commons 查询：条目首图 → 文件命名空间搜索 → 注入的 photo_url 兜底。
 
-    Commons 会限流：连打几十次会回 429，而 commons_photo 把失败吞成 None ——
-    不节流时缺口名单会把「被限流」记成「源里没有照片」（等爱那轮实测过）。
+    原因：`pause` 来自等爱那轮的实测 —— Commons 连打几十次会回 429，不节流时缺口
+    名单会把「被限流」错记成「源里没有照片」。ADR-0024 之后「查询失败」与「源里没有」
+    是可区分的两种原因（见下行），本段只解释 pause 为什么在这里。
 
     返回 `(url, reason)`（ADR-0024）：链自己给出原因（`photo_chain.QUERY_FAILED` /
     `SOURCE_EMPTY`），调用方不再需要中转；**任一阶段失败**都算「查询失败」。

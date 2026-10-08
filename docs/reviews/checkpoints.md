@@ -1889,10 +1889,22 @@
 ### 第八十一轮 · 补记八 · 原因守卫引号无关化（扫描 e2e/scripts 第 4 条）
 
 - 两条守卫此前只看特定引号形态：链守卫 `!/return None, "/`、loader 守卫
-  `!src.includes(\`"${reason}"\`)` —— `return (None, "查询失败")`、`'源里没有'` 等形态
+  `!src.includes(\`"${reason}"\`)`——`return (None, "查询失败")`、`'源里没有'` 等形态
   都能绕过（第七轮扫描）。
 - 修：**剥注释/docstring 后查裸词** —— 链守卫先摘掉两条常量定义行、再禁「查询失败/
   源里没有」出现；loader 守卫对剥注释后的文本查裸词。**已知边界**（`"查询"+"失败"`
   拼接抓不到）写进注释。
 - 变异：① `photo_chain` 常量旁加 `HACK = "源里没有"` → **被杀**；② `love_members`
   加 `_X = '查询失败'`（单引号形态）→ **被杀**。守卫 26/26。
+
+### 第八十一轮 · 补记九 · scripts ⑤⑥⑦ 三条小项（注释/常量层）
+
+- **⑤ pause 的注释两处自指矛盾**：`:1304` 写「pause 只给 _resolve_file_evidence
+  （48pedia 要节流）」—— **错**（那段逐条打的是 Wayback 的 CDX、根本不碰 48pedia）；
+  `:1207` 写「pause 是 Commons 的节流，不套在 Wayback 上」——与上句互相打脸。改为：
+  pause 服务 `_resolve_file_evidence` 的**串行 CDX**（不在批量闸门里），批量抓取不套它。
+- **⑥ 批大小 50 两处合一**：新增 `fetch_members.IMAGE_BATCH = 50`，分批与进度总分母
+  都从它派生。变异 `50→60` → **被杀**（有测试钉着实际分批行为）。
+- **⑦ `_commons_for` docstring 过时**：删掉「commons_photo 把失败吞成 None…记成源里
+  没有」的旧叙述（ADR-0024 之后已可区分两种原因），只留 pause 的历史理由。
+- 验证：Python 348 全绿；变异 1/1 被杀（绿基线上）。
