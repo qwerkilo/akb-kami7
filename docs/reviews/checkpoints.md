@@ -1829,3 +1829,14 @@
 - **补守卫**（上一次同类修复没留守卫、于是又冒出四个）：`scripts/test_*.py` 的
   `unittest.main()` 必须**唯一且在末尾** —— 进 `test/members-artifact.test.js`。
 - 验证：守卫 26/26；Python 348；`npm run check` exit=0（棘轮 1<2）。
+
+### 第八十一轮 · 补记三 · 工具两处（mutate 的 SIGINT / run-all 的 `--flag=value`）
+
+- **mutate.mjs**：① 信号处理器只还原不退出（注释却写「先还原再退出」）→ 补 `process.exit(2)`；
+  ② 被测命令被**信号杀死**（`status === null`）曾按 `!== 0` 判成「被杀」→ 假绿；改为
+  不算被杀并置 `toolFailed`（退出码 2）。第二条经 CLI 难以复现（同一命令也会杀掉基线、
+  基线检查先响），属防御性修正。
+- **run-all.cjs**：`--only=e2e` / `--max-parallel=2` 此前只认空格形式、被**静默忽略**
+  （后者静默撤掉低内存保护）→ 抽出 `flagValue(argv, flag)` 支持两种写法；实测
+  `--only=e2e` 不再为 null、`--max-parallel=abc` 仍报错。
+- 验证：`npm run check` 见当次输出；两文件语法检查通过。

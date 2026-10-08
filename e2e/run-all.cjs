@@ -94,24 +94,32 @@ function selfTest() {
 }
 
 /** 解析参数：返回 {maxParallel, only, error}。校验失败给 error（调用方 exit 2）。 */
+function flagValue(argv, flag) {
+  // 支持 `--flag value` 与 `--flag=value` 两种写法 —— 此前只认前者，
+  // `--only=e2e` / `--max-parallel=2` 会被**静默忽略**（后者还静默撤掉低内存保护）。
+  const i = argv.indexOf(flag);
+  if (i >= 0) return argv[i + 1];
+  const pre = argv.find((a) => a.startsWith(flag + "="));
+  return pre === undefined ? undefined : pre.slice(flag.length + 1);
+}
+
 function parseArgs(argv) {
-  const mi = argv.indexOf("--max-parallel");
+  const mv = flagValue(argv, "--max-parallel");
   let maxParallel = null;
-  if (mi >= 0) {
-    maxParallel = Number(argv[mi + 1]);
+  if (mv !== undefined) {
+    maxParallel = Number(mv);
     if (!Number.isInteger(maxParallel) || maxParallel < 1) {
       return {
-        error: `--max-parallel 需要一个正整数，实得 ${JSON.stringify(argv[mi + 1])}`,
+        error: `--max-parallel 需要一个正整数，实得 ${JSON.stringify(mv)}`,
       };
     }
   }
-  const oi = argv.indexOf("--only");
+  const ov = flagValue(argv, "--only");
   let only = null;
-  if (oi >= 0) {
-    const val = argv[oi + 1];
-    if (!val)
+  if (ov !== undefined) {
+    if (!ov)
       return { error: "--only 需要一个逗号分隔的套件名（v5,pwa,header,e2e）" };
-    only = new Set(val.split(",").map((s) => s.trim()));
+    only = new Set(ov.split(",").map((s) => s.trim()));
   }
   return { maxParallel, only };
 }

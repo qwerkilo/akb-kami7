@@ -86,7 +86,11 @@ function restoreAll() {
 }
 for (const sig of ["SIGINT", "SIGTERM", "exit"])
   process.on(sig, () => {
-    if (sig !== "exit") restoreAll();
+    if (sig === "exit") return restoreAll();
+    // 还原后**必须退出**（此前只还原不退出：中断后会继续跑到结尾、报出假结论）；
+    // 2 = 结论不可信，与「锚点没命中」同族。
+    restoreAll();
+    process.exit(2);
   });
 process.on("uncaughtException", (e) => {
   restoreAll();
@@ -141,7 +145,10 @@ for (const [idx, m] of mutations.entries()) {
   const after = readFileSync(m.file);
   const ref = readFileSync(m.__backup);
   const restoreOk = after.equals(ref);
-  const killed = r.status !== 0;
+  // 被信号杀死（status === null，如 SIGKILL/CI 超时杀）**不是**「被杀」——
+  // 那是工具失败（此前的 `!== 0` 会把 null 判成被杀 → 假绿；第七轮扫描实证）。
+  const killed = r.status !== 0 && r.status !== null;
+  if (r.status === null) toolFailed = true;
   results.push({ name, killed, restoreOk, status: r.status });
   console.log(
     `${killed ? "✓ 被杀" : "✗ 存活"}  ${name}  (测试退出码 ${r.status}${restoreOk ? "" : " ⚠ 还原后与快照不一致"})`
