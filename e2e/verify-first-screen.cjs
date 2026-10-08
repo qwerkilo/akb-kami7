@@ -60,16 +60,21 @@ runSuite({
             // 种子的正面防线（见 header 同款注释）：档位塌成默认 7 时本套件此前照样全绿。
             if (size !== 7 && !seedChecked) {
               seedChecked = true;
-              const applied = await page.evaluate(
-                () =>
-                  document.querySelector(
-                    '.seg-size [data-pick][aria-checked="true"]'
-                  )?.dataset.pick
-              );
+              const applied = await page.evaluate(() => ({
+                size: document.querySelector(
+                  '.seg-size [data-pick][aria-checked="true"]'
+                )?.dataset.pick,
+                lang: document.documentElement.lang,
+                skin: document.documentElement.dataset.skin,
+              }));
+              // lang 用 startsWith（产品把 zh 映射成 zh-CN）；skin 必须精确 ——
+              // 若 sticker 档红了，是「皮肤种子没生效」而非断言口径问题。
               check(
-                `种子生效：档位 = ${size}`,
-                applied === String(size),
-                `实得 ${applied}`
+                "种子生效：档位/语言/外观",
+                applied.size === String(size) &&
+                  applied.lang.startsWith(lang) &&
+                  applied.skin === skin,
+                `${label} 实得 ${JSON.stringify(applied)}`
               );
             }
             const geo = await page.evaluate(firstScreenGeo);

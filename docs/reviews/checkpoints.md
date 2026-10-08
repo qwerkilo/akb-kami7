@@ -1875,3 +1875,13 @@
   是真发现、不是断言口径问题。
 - 已验证：first-screen 现状（size-only）**145/145 绿**；header 73 项里 72 绿是旧日志的
   假象（那次运行中读的尾巴），实际 `npm run e2e:header` 全 PASS。
+
+### 第八十一轮 · 补记七 · lang/skin 断言收口（first-screen 绿、header 不适用）
+
+- 结论：**`verify-first-screen.cjs` 的「种子生效」现在同时验档位/语言/外观**（lang 用
+  startsWith —— 产品把 zh 映射成 zh-CN；skin 精确比较），**145/145 全绿** —— 之前那次红
+  是 **header 侧**的（header **只种 `{lang}`**、根本不种 skin，断言该加在哪里由补记六定死）。
+- header 维持 size-only（它没种 skin，断言 skin 没有意义；它有种 lang，但那条未加）。
+- 之前的谜团（header 侧那条红的具体失败子句）**未定位**，如实记；不影响 first-screen
+  的收紧（已实测绿）。
+- 验证：`npm run e2e:first` 145/145。
