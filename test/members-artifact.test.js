@@ -345,6 +345,28 @@ test("视图不变量：带 groups 的成员在每个列出的团的视图里都
   assert.deepEqual(flagged, [], flagged.slice(0, 8).join("；"));
 });
 
+test("Python 测试文件的直跑入口只在末尾：中间出现会让其后的测试类静默不跑", () => {
+  // 两次栽在这上面：质检批修过三个文件，第七轮扫描又发现四个 —— 所以留守卫。
+  // 直跑脚本（python3 scripts/test_x.py）时中间的 `if __name__ == "__main__":
+  // unittest.main()` 会先跑一遍并 sys.exit()，其后的测试类**从不执行**；
+  // 经 -m unittest 的路径则看不出来（数字来自直跑与 discovery 的对照）。
+  const dir = path.join(__dirname, "..", "scripts");
+  const offenders = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!/^test_.*\.py$/.test(f)) continue;
+    const src = fs.readFileSync(path.join(dir, f), "utf8");
+    const hits = [...src.matchAll(/unittest\.main\(\)/g)];
+    if (hits.length === 0) continue;
+    if (hits.length > 1) {
+      offenders.push(`${f}: unittest.main() × ${hits.length}`);
+      continue;
+    }
+    const rest = src.slice(hits[0].index + "unittest.main()".length);
+    if (rest.trim() !== "") offenders.push(`${f}: 入口之后还有内容`);
+  }
+  assert.deepEqual(offenders, [], "直跑入口必须唯一且在文件末尾（见注释）");
+});
+
 test("照片回退链：与站点无关的三段在共享模块，与站点有关的留在 loader（工单 01）", () => {
   const chain = fs.readFileSync(
     path.join(__dirname, "..", "scripts", "photo_chain.py"),

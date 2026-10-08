@@ -1818,3 +1818,14 @@
   唯一真正的静默吞（`e2e.cjs` 的 `[]`）已随本修复删除。守卫是否要按「wait 链上的
   catch 只许 noteTimeout」收窄，留待下轮连同其余候选一起定。
 - 验证：`npm run e2e` **249/249**；变异 1/1 被杀。
+
+### 第八十一轮 · 补记二 · scripts ③（四个测试文件的直跑入口在中部）
+
+- `test_photo_chain.py` / `test_fetch_members.py` / `test_morning_members.py` / `test_wiki.py`
+  的 `if __name__ == "__main__": unittest.main()` **在文件中部** —— 直跑脚本时先跑一遍并
+  `sys.exit()`，**其后的测试类从不执行**（实测直跑 14/117/113/3，discovery 21/123/123/6）。
+  经 `-m unittest` 的路径看不出差别（`npm test` 一直绿）。
+- 修：四个入口移到**文件末尾**；直跑现在与 discovery 一致（21/123/123/6）。
+- **补守卫**（上一次同类修复没留守卫、于是又冒出四个）：`scripts/test_*.py` 的
+  `unittest.main()` 必须**唯一且在末尾** —— 进 `test/members-artifact.test.js`。
+- 验证：守卫 26/26；Python 348；`npm run check` exit=0（棘轮 1<2）。

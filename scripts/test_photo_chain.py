@@ -320,8 +320,6 @@ class CommonsSearchPhotoTests(unittest.TestCase):
 
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class ReasonTests(unittest.TestCase):
@@ -426,3 +424,7 @@ class SameWritingLimitationTests(unittest.TestCase):
         self.assertEqual(
             photo_chain.commons_search_photo("前田憂佳", fetch), (None, "源里没有")
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

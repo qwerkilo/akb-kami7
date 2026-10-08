@@ -1924,8 +1924,6 @@ class ImageUrlReasonTests(unittest.TestCase):
         self.assertEqual(reasons.get("A.jpg"), "查询失败")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class PhotoFailureReasonTests(unittest.TestCase):
@@ -2037,3 +2035,7 @@ class SinglePhotoReportTests(unittest.TestCase):
                 members, {"m1": "下载失败"}, {"f1": "源里没有"}
             )
         self.assertIn("X：源里没有", buf.getvalue())
+
+
+if __name__ == "__main__":
+    unittest.main()

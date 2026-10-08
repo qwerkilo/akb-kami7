@@ -56,8 +56,6 @@ class GetRetryTests(unittest.TestCase):
         self.assertEqual(slept, [])
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class GzipPayloadTests(unittest.TestCase):
@@ -92,3 +90,7 @@ class GzipPayloadTests(unittest.TestCase):
 
         out = wiki.get("https://x", opener=Opener())
         self.assertEqual(out, b"\x1f\x8bnot really gzip")
+
+
+if __name__ == "__main__":
+    unittest.main()

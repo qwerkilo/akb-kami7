@@ -1468,8 +1468,6 @@ class BuildBioTests(unittest.TestCase):
         self.assertEqual(bio["blood"], "O型")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 class PhotoReasonTests(unittest.TestCase):
@@ -1639,3 +1637,7 @@ class PhotoReasonTests(unittest.TestCase):
 
         mm._resolve_commons(members, urls, fetch, 0, notes)
         self.assertEqual(notes.get(members[0]["file"]), "源里没有")
+
+
+if __name__ == "__main__":
+    unittest.main()
