@@ -1683,3 +1683,25 @@
   变成**显式参数**而不是两份清单。教训：合并「看起来一样」的两份实现前，先各自找一处
   **只有它成立**的输入去问「为什么」；行为断言（全量跑）是唯一会红的那层。
 - 下次基点：本提交。
+
+## 第七十六轮 · 2026-10-08 · 第六轮扫描候选⑤（首屏判据两份合一）
+
+- 基点：`6650d6b`
+- 范围：`6650d6b..HEAD` —— 候选⑤：首屏判据（托盘顶 / 只数可见卡 / cols / fullFaces +
+  阈值 `visible≥6 && cols>0 && fullFaces>=cols`）在 `e2e.cjs` 的 390px 块与
+  `verify-first-screen.cjs` 里**逐字节各写一份**。
+- **修复**：`e2e/_ui.cjs` 增 `firstScreenGeo`（页内执行、无闭包的纯函数 ——
+  `page.evaluate(firstScreenGeo)` 直接序列化）与 `firstScreenOk(geo)`（阈值）；
+  两个套件改调共享实现（e2e.cjs 的 extras —— toolbar 行数/coach/trayAlpha —— 留在自己的
+  evaluate 里，判据部分走共享）。
+- **守卫**：`_ui.cjs` 的 def 集合断言更新（5 操作 + 2 判据）；新增「两个套件都必须用
+  firstScreenGeo」。
+- **验证**：`npm run e2e` **249/249**、`npm run e2e:first` **145/145**（合一后行为不变）；
+  `npm run check` 绿（318 JS + 343 Python + 棘轮 1<2）；守卫 12/12；
+  变异 1/1 被杀（`trayTop + 1` → `trayTop - 500`，卡全被排除 → first 红 —— **判据的变异
+  必须往「更严」改**：恒 true 是假绿方向、不会红）。
+- **写守卫时踩的两个坑（都是这次修的）**：① 「名字级解构」守卫只取**第一个**
+  `{…} = require("./_ui.cjs")` match —— 套件分两处引入（prettier 折行 + 后加的一行）时
+  第二处被当成「没引入」→ 改成 `matchAll` 取并集；② 新守卫写 `/firstScreenGeo\(/` ——
+  而它是**作为值**传进 `evaluate` 的（没有括号）→ 去掉 `\(`。
+- 下次基点：本提交。

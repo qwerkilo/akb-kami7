@@ -9,6 +9,7 @@ const {
 const { blockStarter } = require("./_progress.cjs");
 const { runSuite } = require("./_suite.cjs");
 const { isExpectedNoise } = require("./_noise.cjs");
+const { firstScreenGeo } = require("./_ui.cjs");
 const S = require("./_store.cjs");
 
 const PORT = 8765;
@@ -1620,25 +1621,6 @@ runSuite({
               bottom: Math.round(r.bottom + scrollY),
             };
           };
-          // 首屏判据的数据：托盘顶 + 每张卡的可见区间
-          const trayBox = document
-            .querySelector("#tray")
-            .getBoundingClientRect();
-          // 只数**可见**的卡：被折叠段里的卡 rect 全 0，会被算成「完整可见」
-          // 且给列数添一个 0 列（假绿/假红各一条）—— 与 e2e:first 同一处判据
-          const cards = [...document.querySelectorAll(".card")].filter((c) => {
-            const x = c.getBoundingClientRect();
-            return x.width > 0 && x.height > 0;
-          });
-          const cols = new Set(
-            cards
-              .slice(0, 6)
-              .map((c) => Math.round(c.getBoundingClientRect().left))
-          ).size;
-          const fullFaces = cards.filter((c) => {
-            const x = c.getBoundingClientRect();
-            return x.top >= 0 && x.bottom <= trayBox.top + 1;
-          }).length;
           const tb = document.querySelector(".toolbar");
           let rows = 0;
           // 按「垂直范围是否重叠」分组，而不是比 top / 分桶：同一行内子元素因
@@ -1663,15 +1645,14 @@ runSuite({
             : 1;
           return {
             card: box(".card"),
-            visible: cards.length,
             coach: box("#coach"),
             toolbarRows: rows,
             trayAlpha: alpha,
             trayH: box("#tray")?.h,
-            cols,
-            fullFaces,
           };
         });
+        // 首屏判据走共享实现（e2e/_ui.cjs）—— 与 verify-first-screen 同一处
+        Object.assign(geo, await fp.evaluate(firstScreenGeo));
         check(
           `390px/${lang}：新访客首屏完整可见 ≥ 一整行脸`,
           // visible ≥ 6 是前提：可见卡太少时 cols 会跟着缩水（自指假绿）

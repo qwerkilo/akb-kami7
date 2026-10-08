@@ -60,7 +60,42 @@ async function goToPick(page) {
   await page.waitForTimeout(300);
 }
 
+/** 首屏判据的数据（页内执行，**无闭包** —— 直接 page.evaluate(firstScreenGeo)）。
+ *  托盘顶 + 每张卡的可见区间；只数**可见**的卡：被折叠段里的卡 rect 全 0，会被算成
+ *  「完整可见」且给列数添一个 0 列（假绿/假红各一条）。此前这份判据在两个套件里
+ *  逐字节各写一遍（e2e.cjs 的 390px 块与 verify-first-screen）。 */
+function firstScreenGeo() {
+  const trayTop = document.querySelector("#tray").getBoundingClientRect().top;
+  const cards = [...document.querySelectorAll(".card")].filter((c) => {
+    const x = c.getBoundingClientRect();
+    return x.width > 0 && x.height > 0;
+  });
+  const cols = new Set(
+    cards.slice(0, 6).map((c) => Math.round(c.getBoundingClientRect().left))
+  ).size;
+  const fullFaces = cards.filter((c) => {
+    const x = c.getBoundingClientRect();
+    return x.top >= 0 && x.bottom <= trayTop + 1;
+  }).length;
+  return {
+    cols,
+    fullFaces,
+    visible: cards.length,
+    firstTop: cards[0] ? Math.round(cards[0].getBoundingClientRect().top) : -1,
+    scrollW: document.documentElement.scrollWidth,
+    innerW: window.innerWidth,
+  };
+}
+
+/** 判据：一整行的脸完整可见。visible ≥ 6 是前提 —— 可见卡太少时 cols 会跟着缩水
+ *  （自指假绿）。 */
+function firstScreenOk(geo) {
+  return geo.visible >= 6 && geo.cols > 0 && geo.fullFaces >= geo.cols;
+}
+
 module.exports = {
+  firstScreenGeo,
+  firstScreenOk,
   openMore,
   openFilterPanel,
   fillScreening,

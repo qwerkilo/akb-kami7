@@ -288,6 +288,8 @@ test("页面操作词汇只有一处：五个共享操作不许在套件里重�
     "fillScreening",
     "passScreening",
     "goToPick",
+    "firstScreenGeo",
+    "firstScreenOk",
   ];
   const ui = strip(fs.readFileSync(path.join(DIR, "_ui.cjs"), "utf8"));
   const defs = [...ui.matchAll(/function\s+(\w+)\s*\(/g)].map((m) => m[1]);
@@ -315,13 +317,16 @@ test("页面操作词汇只有一处：五个共享操作不许在套件里重�
     }
     // 名字级：用到哪个就必须从 ./_ui.cjs 解构引入哪个（文件级 require 检查会被
     // 「解构里删掉一个、调用还在」骗过）
-    const im = src.match(/\{([^}]*)\}\s*=\s*require\("\.\/_ui\.cjs"\)/);
-    const imported = im
-      ? im[1]
-          .split(",")
-          .map((x) => x.trim())
-          .filter(Boolean)
-      : [];
+    // 取**全部** require("./_ui.cjs") 解构行的并集：prettier 会把长解构折成多行、
+    // 套件也可能分两处引入（曾只取第一个 match → 第二处被当成「没引入」）
+    const imported = [
+      ...src.matchAll(/\{([^}]*)\}\s*=\s*require\("\.\/_ui\.cjs"\)/g),
+    ].flatMap((m) =>
+      m[1]
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean)
+    );
     for (const n of names) {
       if (new RegExp(`\\b${n}\\b`).test(src)) {
         assert.ok(
@@ -389,6 +394,18 @@ test("存储种子协议只有一处：e2e/ 不许出现键字面量（候选 4�
     /require\("\.\.\/core\.js"\)/,
     "_store.cjs 必须从产品派生键"
   );
+});
+
+test("首屏判据只有一处：两个套件都必须调 _ui.cjs 的 firstScreenGeo（候选 5）", () => {
+  for (const f of ["e2e.cjs", "verify-first-screen.cjs"]) {
+    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    assert.ok(
+      /firstScreenGeo/.test(src),
+      `${f} 必须用 _ui.cjs 的 firstScreenGeo（首屏判据不许再抄一份）`
+    );
+  }
+  const ui = fs.readFileSync(path.join(DIR, "_ui.cjs"), "utf8");
+  assert.match(ui, /function firstScreenOk\(/, "firstScreenOk 在 _ui.cjs");
 });
 
 test("预期噪声判定只有一处：e2e/ 不许再写噪声字面量（候选 6）", () => {

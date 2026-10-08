@@ -10,6 +10,7 @@
 // 首屏 0 张脸」的最坏档（同条件实测见工单 02 的表）；修成单行横向滚动后，
 // 档位数只影响横滑长度，7 与 40 都必须过。
 const { waitFor } = require("./_wait.cjs");
+const { firstScreenGeo, firstScreenOk } = require("./_ui.cjs");
 const { runSuite } = require("./_suite.cjs");
 const S = require("./_store.cjs");
 const path = require("node:path");
@@ -71,42 +72,10 @@ runSuite({
                 `实得 ${applied}`
               );
             }
-            const geo = await page.evaluate(() => {
-              const trayTop = document
-                .querySelector("#tray")
-                .getBoundingClientRect().top;
-              // 只数**可见**的卡：被折叠段里的卡 rect 全 0，会被算成「完整可见」
-              // 且给列数添一个 0 列（假绿/假红各一条）
-              const cards = [...document.querySelectorAll(".card")].filter(
-                (c) => {
-                  const x = c.getBoundingClientRect();
-                  return x.width > 0 && x.height > 0;
-                }
-              );
-              const cols = new Set(
-                cards
-                  .slice(0, 6)
-                  .map((c) => Math.round(c.getBoundingClientRect().left))
-              ).size;
-              const fullFaces = cards.filter((c) => {
-                const x = c.getBoundingClientRect();
-                return x.top >= 0 && x.bottom <= trayTop + 1;
-              }).length;
-              return {
-                cols,
-                fullFaces,
-                visible: cards.length,
-                firstTop: cards[0]
-                  ? Math.round(cards[0].getBoundingClientRect().top)
-                  : -1,
-                scrollW: document.documentElement.scrollWidth,
-                innerW: window.innerWidth,
-              };
-            });
+            const geo = await page.evaluate(firstScreenGeo);
             check(
               `${label}：首屏完整可见 ≥ 一整行脸`,
-              // visible ≥ 6 是前提：可见卡太少时 cols 会跟着缩水（自指假绿）
-              geo.visible >= 6 && geo.cols > 0 && geo.fullFaces >= geo.cols,
+              firstScreenOk(geo),
               `${geo.fullFaces} 张完整可见 / ${geo.cols} 列（第一张卡 top=${geo.firstTop}）`
             );
             check(
