@@ -1994,3 +1994,17 @@
 - 实测（ux-probe2，390px 场景）：save 的 top **4209 → 835** —— 落到首屏边缘内
   （≈844 高）；再往上（如吸底/贴领奖台）属设计取舍，留待需要时再做。
 - 验证：`npm run e2e` 见当次输出（index.html 改动走 E2E）。
+
+### 第八十二轮 · 补记五 · M3+M4：名册「i」可聚焦 + 简介浮层焦点进出
+
+- **M3 修**：名册 `.info`（app.js:286）补 `tabindex="0"` —— 键盘 Enter/Space 早有
+  `profileKey` 处理，缺的只是可聚焦性（结果页同元素一直有 tabindex）。探针实测：
+  `infoCount=16 / infoWithTabindex=16`（修前 0），Tab 序列里出现 `span.info`。
+- **M4 修（部分）**：`openProfile` 记住触发者并把焦点送进 `#pf-close`；
+  `closeProfile` 把焦点还给触发者（照 `pwa-sheet` 的成法）。探针实测
+  `activeAfterClose="SPA…"`（= 触发它的 `.info`，还焦点生效）。
+- **未做（如实）**：**焦点圈禁（trap）**没实现 —— 探针 `focusEscapesDialog: true`
+  仍为真，Tab 8 步仍能走到浮层外；`aria-modal="true"` 的完整语义（trap +
+  `inert` 背景）留给无障碍批。探针的 `inDialog` 判据疑似按 `<dialog>` 标签算，
+  `#profile` 不是 dialog，该字段存疑（下轮改用 aria-modal 属性判定）。
+- 验证：`npm run e2e` 249/249。

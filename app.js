@@ -283,7 +283,7 @@
     // 在 app.js 与测试里各存一份，改了一处另一处不响。
     const idx = typeof i === "number" ? i : 0;
     return `<button class="card" style="--i:${idx}" data-id="${m.id}" aria-pressed="${sel >= 0}" data-order="${sel + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
-      <span class="info" role="button" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
+      <span class="info" role="button" tabindex="0" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
       <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
       <span class="nm">${esc(m.name)}</span>
       <span class="meta${m.status === "current" ? " now" : ""}">${esc(meta)}</span>
@@ -551,6 +551,8 @@
   /* ---------------- 简介（原型 C 杂志编辑） ---------------- */
   let profileId = null;
 
+  let profileOpener = null;
+
   function openProfile(id) {
     const m = BY_ID.get(id);
     if (!m) return;
@@ -566,11 +568,16 @@
       .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
       .join("");
     $("#profile").hidden = false;
+    profileOpener = document.activeElement;
+    $("#pf-close")?.focus();
   }
 
   function closeProfile() {
     profileId = null;
     $("#profile").hidden = true;
+    // 焦点还给真正的触发者（pwa-sheet 同款；不还的话键盘用户会落回页面开头）
+    if (profileOpener && profileOpener.isConnected) profileOpener.focus();
+    profileOpener = null;
   }
 
   $("#profile").addEventListener("click", (e) => {
