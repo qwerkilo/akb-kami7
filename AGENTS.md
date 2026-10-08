@@ -155,6 +155,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 - 当前 Node v20.19.2：lint-staged 固定在 `^16`，不要升级到 v17（需要 Node ≥22）。
 - **跑浏览器套件之前先跑 `node scripts/preflight.mjs`**：它报可用内存并列出历轮遗留的静态服务器，不足就退出 1。本机可用内存掉到 3GB 以下时单次页面导航要 30 秒（正常 ~1 秒），症状是「goto 超时」，看起来像产品坏了 —— 本项目已经因此白烧过两成回合。
 - **内存是 E2E 的实际瓶颈**：本机 15GB 总量，可用常驻掉到 3GB 以下时单次页面导航要 **30 秒**（正常 ~1 秒），全量 E2E 必然超时。跑之前先 `free -m`，并清掉历轮遗留的静态服务器（`ps aux | grep http.server`；**别用宽泛的 `pkill http`，会误杀用户自己的预览**）。预算不足时把重矩阵拆成独立脚本分开跑。
+- **别跑无版本号的 `npx playwright …`**：它会把 npx 缓存里的 playwright 重装/换版，与已装 chromium 失配后 E2E 直接 0/1（2026-10-08 实际发生过一次）；要跑就用带版本的 `npx playwright@<与已装浏览器配套的版本> …`。`e2e/_playwright.cjs` 现在按「chromium 可执行文件存在」挑缓存、挑不到会警告。
 - 网络：`github.com` 资源一律走 `https://gh-proxy.com/` 前缀；纯信息查询先 websearch。`gh` CLI 未安装，API 走 `https://gh-proxy.com/https://api.github.com/...`（列目录比猜 raw 路径可靠）。
 - **调研外部源（Wikipedia/Commons 等）要节流（≥3s）**：429 会被当成「源里没有/页面不存在」——本批因此把 9 个**有表格**的团误判成「散文段落、要新写解析器」，那个错误结论还进了 spec 草稿。结论里要注明「是否可能被限流影响」。
 
