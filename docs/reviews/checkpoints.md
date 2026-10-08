@@ -1744,3 +1744,25 @@
   （reasons → photo_notes → `_photo_reason`，这条消费链有测试）；数据面不变
   （只加原因、不改 URL 选择）。
 - 下次基点：本提交。
+
+## 第七十九轮 · 2026-10-08 · 第六轮扫描候选⑫（love 限流标签）+ 扫描 12/12 收尾
+
+- 基点：`cabdfa5`
+- 范围：`cabdfa5..HEAD` —— love 的详情抓取按**本站域名**限流（此前统一传
+  `host="www.helloproject.com"` 的标签：标签是别人的主机名、与早安共享预算）。
+- **修复**：`HOST_LIMITS` 显式登记三个等爱域（`equal-love.jp` / `not-equal-me.jp` /
+  `nearly-equal-joy.jp`，同值 `(2, 0.2)`）；调用点改
+  `host=urllib.parse.urlsplit(site["base"]).netloc`（love_members 此前没 import
+  urllib.parse —— 第一版直接 NameError，测试立刻红）。
+- **测试**：SITES 的每个域名都必须有 HOST_LIMITS 条目（新增团/域时自动红）+
+  源码守卫（调用点必须用本站域名、不许再出现那个字面量）。
+- **验证**：Python **348** 全绿；变异 **2/2 被杀**（绿基线上）；`npm run check` 绿
+  （320 JS + 348 Python + 棘轮 1<2）。
+- **重复踩到的坑（两轮内第二次，写下来）**：新加测试后**先跑基线**再跑变异 ——
+  ⑪ 与 ⑫ 我都先跑了一次「基线已红」的变异，`mutate.mjs` 照报「被杀」，信号**无效**
+  （`/retro` 可考虑把它做成工具侧检查：变异前先跑一次基线、红则 exit 2）。
+- **第六轮扫描 12/12 全部收尾**（㉔-㉙ 之外的第二批）：① 48G groups 统一 ✓
+  ② `_suite.cjs` 生命周期 ✓ ③ `_ui.cjs` 页面操作 ✓ ④ `_store.cjs` 存储种子 ✓
+  ⑤ 首屏判据合一 ✓ ⑥ 噪声判定合一 ✓ ⑦ 等待守卫派生 ✓ ⑧ 血型回退 ✓
+  ⑨ Commons 两段合一 ✓ ⑩ 接口清理 ✓ ⑪ 48pedia 原因 ✓ ⑫ 限流标签 ✓。
+- 下次基点：本提交。

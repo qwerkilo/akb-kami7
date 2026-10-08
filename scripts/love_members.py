@@ -3,6 +3,7 @@
 解析全部为纯函数（fixture 驱动测试）；网络经注入的 text fetcher 访问，测试离线。
 """
 import re
+import urllib.parse
 
 import fetch_pool
 import ja_wiki
@@ -346,8 +347,10 @@ def load(fetch, skip_photo=None, notes=None):
             items = parse_list(html, site["kind"])
             urls = [site["base"] + item["path"] for item in items]
             # 详情页彼此独立：并发取（按主机限流），解析仍按列表顺序
+            # 按**本站**域名限流（此前统一传 www.helloproject.com 的标签 —— 标签是
+            # 别人的主机名，且与早安的抓取共享预算）
             details = fetch_pool.fetch_many(
-                urls, fetch, host="www.helloproject.com"
+                urls, fetch, host=urllib.parse.urlsplit(site["base"]).netloc
             )
             for item in items:
                 item["detail"] = parse_detail(details[site["base"] + item["path"]])

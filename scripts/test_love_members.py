@@ -1,3 +1,5 @@
+import io
+import os
 import json
 import urllib.parse
 import unittest
@@ -593,6 +595,27 @@ class BuildBioTest(unittest.TestCase):
     def test_romaji_comes_from_official(self):
         bio = love_members.build_bio({"romaji": "Mirei"}, {})
         self.assertEqual(bio["romaji"], "Mirei")
+
+
+class HostLabelTests(unittest.TestCase):
+    """等爱三个站各算一个主机（候选 12）：SITES 的每个域名都要有 HOST_LIMITS 条目，
+    且详情抓取的标签必须是本站域名 —— 此前统一传 www.helloproject.com。"""
+
+    def test_every_site_domain_has_its_own_host_limit(self):
+        hosts = {
+            urllib.parse.urlsplit(s["base"]).netloc
+            for s in love_members.SITES.values()
+        }
+        missing = sorted(h for h in hosts if h not in fetch_pool.HOST_LIMITS)
+        self.assertEqual(missing, [], "这些等爱域名没有 HOST_LIMITS 条目")
+
+    def test_detail_fetch_uses_the_site_domain_as_label(self):
+        src = io.open(
+            os.path.join(os.path.dirname(__file__), "love_members.py"),
+            encoding="utf-8",
+        ).read()
+        self.assertIn('urlsplit(site["base"]).netloc', src)
+        self.assertNotIn('host="www.helloproject.com"', src)
 
 
 if __name__ == "__main__":

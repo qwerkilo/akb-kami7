@@ -19,6 +19,12 @@ from urllib.parse import urlparse
 # 每主机 (并发上限, 最小间隔秒)。未列出的主机用 DEFAULT。
 HOST_LIMITS = {
     "www.helloproject.com": (3, 0.2),
+    # 等爱三个官网各算一个主机（此前 love 侧统一传 www.helloproject.com 的标签 ——
+    # 标签是别人的主机名，且与早安的抓取共享同一份限流预算；两相位今天顺序跑、
+    # 不冲突，但按真实主机分开才是对的）
+    "equal-love.jp": (2, 0.2),
+    "not-equal-me.jp": (2, 0.2),
+    "nearly-equal-joy.jp": (2, 0.2),
     "ja.wikipedia.org": (3, 0.2),
     "48pedia.org": (2, 0.5),
     "www.48pedia.org": (2, 0.5),
