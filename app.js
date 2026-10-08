@@ -1102,7 +1102,11 @@
   $("#resort-btn").addEventListener("click", () =>
     navigate("resort", { shuffle: CORE.shuffle })
   );
-  $("#restart-btn").addEventListener("click", () => navigate("restart"));
+  $("#restart-btn").addEventListener("click", () => {
+    // 与「清空」同款确认：重新选人会作废当前对决进度（此前一键销毁、0 确认）。
+    if (!window.confirm(t("reselect_confirm"))) return;
+    navigate("restart");
+  });
   $("#save-btn").addEventListener("click", savePoster);
   $("#share-btn").addEventListener("click", () => {
     const ex = resultExport();

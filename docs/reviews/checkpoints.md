@@ -2008,3 +2008,13 @@
   `inert` 背景）留给无障碍批。探针的 `inDialog` 判据疑似按 `<dialog>` 标签算，
   `#profile` 不是 dialog，该字段存疑（下轮改用 aria-modal 属性判定）。
 - 验证：`npm run e2e` 249/249。
+
+### 第八十二轮 · 补记六 · M5（部分）：重新选人加确认
+
+- `#restart-btn`（结果页「重新选人」）此前一键 `navigate("restart")` —— 作废对决进度
+  且 0 确认（对照：「清空」有 `window.confirm(t("clear_confirm"))`）。修：同款确认，
+  新键 `reselect_confirm` ×3 语言。
+- **未做（如实）**：M5 报告里的另一半「放弃」（`resume_drop`，index.html:263）没找到
+  处理器（不在 app.js 的 grep 命中里，疑在事件委托/`data-act` 路径）—— 留给下一轮；
+  **M6**（划掉/留两态可及名相同）也未动。
+- 验证：i18n 17/17；`npm run e2e` 249/249。

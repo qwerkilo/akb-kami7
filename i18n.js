@@ -624,6 +624,7 @@
       cols_std: "中",
       cols_compact: "小",
       clear_pick: "清空",
+      reselect_confirm: "重新选人？当前对决进度将作废。",
       clear_confirm: "清空已选？当前系列的筛选与对决进度将一并作废。",
       need: (n) => `还差 ${n} 位`,
       steps_label: "流程",
@@ -808,6 +809,8 @@
       cols_std: "Medium",
       cols_compact: "Small",
       clear_pick: "Clear",
+      reselect_confirm:
+        "Start over? The current duel progress will be lost.",
       clear_confirm:
         "Clear all picks? This series' screening and duel progress will be discarded.",
       need: (n) => `${n} more`,
@@ -1000,6 +1003,7 @@
       cols_std: "中",
       cols_compact: "小",
       clear_pick: "クリア",
+      reselect_confirm: "選び直しますか？現在の対決の進行は破棄されます。",
       clear_confirm:
         "選択をクリアしますか？現在のシリーズの絞り込みと対決の進行は破棄されます。",
       need: (n) => `あと${n}人`,
