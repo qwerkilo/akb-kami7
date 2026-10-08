@@ -954,7 +954,9 @@
         (idx + (e.key === "ArrowRight" ? 1 : items.length - 1)) % items.length
       ];
     next.focus();
-    switchSkin(next.dataset.skin);
+    // 分派按所在 seg 走：此前写死 switchSkin —— 新 seg 的键盘导航会误切皮肤
+    if (next.dataset.cols) setCols(next.dataset.cols);
+    else switchSkin(next.dataset.skin);
     return true;
   }
 
@@ -1239,11 +1241,42 @@
     if (st) return setPosterStyle(st.dataset.style);
     const k = e.target.closest(".seg-skin [data-skin]");
     if (k) switchSkin(k.dataset.skin);
+    const c = e.target.closest(".seg-cols [data-cols]");
+    if (c) setCols(c.dataset.cols);
   });
 
   function paintSkin() {
     document.documentElement.dataset.skin = snap.skin;
     paintSeg(".seg-skin", "skin", snap.skin);
+  }
+
+  // 名册卡片大小档位（大/中/小 → --card-min 120/92/72）：外观偏好，不进 session
+  // （对局状态）；键名走 PREF_KEYS（守卫禁止字面量）。默认「中」= 不留属性。
+  function readCols() {
+    try {
+      const v = localStorage.getItem(CORE.PREF_KEYS.cols);
+      return ["large", "compact"].includes(v) ? v : "std";
+    } catch (e) {
+      return "std";
+    }
+  }
+
+  function setCols(name) {
+    const v = ["large", "std", "compact"].includes(name) ? name : "std";
+    try {
+      if (v === "std") localStorage.removeItem(CORE.PREF_KEYS.cols);
+      else localStorage.setItem(CORE.PREF_KEYS.cols, v);
+    } catch (e) {
+      /* 隐私模式等：仍应用本次选择 */
+    }
+    paintCols(v);
+  }
+
+  function paintCols(v) {
+    const name = v || readCols();
+    if (name === "std") delete document.documentElement.dataset.cols;
+    else document.documentElement.dataset.cols = name;
+    paintSeg(".seg-cols", "cols", name);
   }
 
   function switchSkin(next) {
@@ -1783,6 +1816,7 @@
 
   /* ---------------- boot ---------------- */
   paintSkin();
+  paintCols();
   renderChrome();
   navigate("boot");
   initPWA();

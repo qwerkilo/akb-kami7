@@ -1295,6 +1295,7 @@
     // session.js 读写、app.js 的粘滞标记、SW 缓存名、E2E 脚本都按这些名字找。
     PREF_KEYS: {
       lang: "akb-lang",
+      cols: "akb:cols", // 名册卡片大小档位（一排几张卡）
       skin: "akb:skin",
       series: "akb:series",
       posterStyle: "akb:poster-style",

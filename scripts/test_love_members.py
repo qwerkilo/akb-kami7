@@ -473,19 +473,12 @@ EMPTY_WIKI = "== メンバー ==\n{|\n|}"
 def load_fetcher(fail_detail=None, fail_cdx=False):
     """按 URL 分派的最小离线抓取器（三官网 + Wikipedia + 空 CDX/Commons）。"""
 
-    def fetch(url):
-        if url.startswith(love_members.WIKI_API):
-            page = urllib.parse.unquote(url)
-            text = WIKI_FIXTURE if "page==LOVE" in page else EMPTY_WIKI
-            return json.dumps({"parse": {"wikitext": {"*": text}}})
-        if "cdx" in url:
-            if fail_cdx:
-                raise OSError("cdx down")
-            return "[]"
-        if "list=search" in url:
-            return json.dumps({"query": {"search": []}})
-        if "pageimages" in url:
-            return json.dumps({"query": {"pages": {"1": {}}}})
+    def wiki(url):
+        page = urllib.parse.unquote(url)
+        text = WIKI_FIXTURE if "page==LOVE" in page else EMPTY_WIKI
+        return json.dumps({"parse": {"wikitext": {"*": text}}})
+
+    def site(url):
         if url == "https://equal-love.jp/feature/profile":
             return LOVE_LIST_FIXTURE
         if url == "https://not-equal-me.jp/feature/profile":
@@ -497,6 +490,19 @@ def load_fetcher(fail_detail=None, fail_cdx=False):
                 raise OSError("detail down")
             return DETAIL_FIXTURE
         raise AssertionError("unexpected url " + url)
+
+    def fetch(url):
+        if url.startswith(love_members.WIKI_API):
+            return wiki(url)
+        if "cdx" in url:
+            if fail_cdx:
+                raise OSError("cdx down")
+            return "[]"
+        if "list=search" in url:
+            return json.dumps({"query": {"search": []}})
+        if "pageimages" in url:
+            return json.dumps({"query": {"pages": {"1": {}}}})
+        return site(url)
 
     return fetch
 

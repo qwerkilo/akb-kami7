@@ -183,7 +183,7 @@ function isExpectedResourceNoise(m) {
 
 runSuite({
   name: "e2e",
-  expect: 247, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 249, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1915,6 +1915,23 @@ runSuite({
       await pd.waitForTimeout(300);
       const langNow = await pd.evaluate(() => document.documentElement.lang);
       check("桌面：点 EN 真的切换语言", langNow === "en", `lang=${langNow}`);
+
+      // ---- 卡片大小档位（「一排几个头像」）----
+      const cardW = () =>
+        pd.$eval(".card", (el) => el.getBoundingClientRect().width);
+      const w0 = await cardW();
+      await pd.click('.seg-cols [data-cols="large"]');
+      await pd.waitForTimeout(300);
+      const w1 = await cardW();
+      check("切「大」档：卡片真的变宽", w1 > w0 + 4, `${w0} → ${w1}`);
+      await pd.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
+      await pd.waitForTimeout(800);
+      const w2 = await cardW();
+      check(
+        "刷新后档位保持（akb:cols）",
+        Math.abs(w2 - w1) < 2,
+        `${w1} → ${w2}`
+      );
       await ctxD.close();
     }
   },

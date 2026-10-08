@@ -528,6 +528,13 @@ main {
   display: none;
 }
 
+html[data-cols="large"] {
+  --card-min: 120px;
+}
+html[data-cols="compact"] {
+  --card-min: 72px;
+}
+
 .roster {
   background: var(--card);
   border: var(--border);
@@ -602,7 +609,9 @@ main {
 }
 .gen-body {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  /* 卡宽由「卡片大小档位」控制（大/中/小 = 120/92/72）—— 列数是结果：
+     auto-fill 下卡小了每排自然多几张，窄屏也不会被压扁。 */
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 92px), 1fr));
   gap: 12px 10px;
   padding: 14px 16px 18px;
 }

@@ -749,19 +749,18 @@ def build_bio(detail, wiki_row):
     for key in ("birth", "blood", "from", "hobby", "skill"):
         if detail.get(key):
             bio[key] = detail[key]
-    if wiki_row.get("birth") and not bio.get("birth"):
-        bio["birth"] = wiki_row["birth"]
-    if wiki_row.get("from") and not bio.get("from"):
-        bio["from"] = wiki_row["from"]
-    # 血型：与 from 同因（毕业成员不在官网上）—— 解析侧两个来源都完好
-    # （_split_vitals 的合并列 / _col("血液型")），装配侧曾漏了这一键。
-    if wiki_row.get("blood") and not bio.get("blood"):
-        bio["blood"] = wiki_row["blood"]
-    # 身高：只有℃-ute 那两张表有。决定 3「有就显示、没有就不占位」——
-    # 空串直接不写进 bio，产物里就不会有这一键（资料卡少一行可以，造假值不行）。
-    if wiki_row.get("height") and not bio.get("height"):
-        bio["height"] = wiki_row["height"]
+    # wiki 补官网没有的键（毕业成员不在官网上；血型与 from 同因）——
+    # 解析侧都完好，曾漏接的是装配这一侧。身高只有℃-ute 那两张表有，
+    # 决定 3「有就显示、没有就不占位」：空串是 falsy，不会写进 bio。
+    for key in ("birth", "blood", "from", "height"):
+        _fill_from_wiki(bio, wiki_row, key)
     return bio
+
+
+def _fill_from_wiki(bio, wiki_row, key):
+    """wiki 有、bio 还没有的键才补（官网优先）。"""
+    if wiki_row.get(key) and not bio.get(key):
+        bio[key] = wiki_row[key]
 
 
 def _pick_nick(detail, w):
