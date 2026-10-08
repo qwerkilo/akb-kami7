@@ -753,6 +753,10 @@ def build_bio(detail, wiki_row):
         bio["birth"] = wiki_row["birth"]
     if wiki_row.get("from") and not bio.get("from"):
         bio["from"] = wiki_row["from"]
+    # 血型：与 from 同因（毕业成员不在官网上）—— 解析侧两个来源都完好
+    # （_split_vitals 的合并列 / _col("血液型")），装配侧曾漏了这一键。
+    if wiki_row.get("blood") and not bio.get("blood"):
+        bio["blood"] = wiki_row["blood"]
     # 身高：只有℃-ute 那两张表有。决定 3「有就显示、没有就不占位」——
     # 空串直接不写进 bio，产物里就不会有这一键（资料卡少一行可以，造假值不行）。
     if wiki_row.get("height") and not bio.get("height"):

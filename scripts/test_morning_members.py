@@ -1452,6 +1452,22 @@ class TestCrossGroupMerge(unittest.TestCase):
         self.assertEqual(members[0]["status"], "current")
 
 
+class BuildBioTests(unittest.TestCase):
+    def test_wiki_blood_type_fills_in_when_official_detail_is_missing(self):
+        """毕业成员不在官网上：血型必须能从 Wikipedia 回退（与 birth/from 同构）。
+
+        此前 build_bio 只从官网 detail 取 blood —— 血型在解析侧完好（两个来源：
+        合并列 _split_vitals / 独立列 _col("血液型")），到这里被丢弃：真实抓取里
+        99 位毕业者全无血型（与上一轮修的 from 是同一形状的漏修）。
+        """
+        bio = mm.build_bio({}, {"blood": "A型"})
+        self.assertEqual(bio.get("blood"), "A型")
+
+    def test_official_blood_type_wins_over_wiki(self):
+        bio = mm.build_bio({"blood": "O型"}, {"blood": "A型"})
+        self.assertEqual(bio["blood"], "O型")
+
+
 if __name__ == "__main__":
     unittest.main()
 

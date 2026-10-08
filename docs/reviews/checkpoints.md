@@ -1581,3 +1581,20 @@
   矩阵套件（header/first）的 runner 成本待诊断（候选方向：状态数 73/145 × 每次完整加载，
   在 runner 上约 10–20× 慢）；本地仍跑全量 `npm run e2e:all`。
 - 验证：`ddba784` 的整个 workflow **completed · success**（check + e2e 双绿）—— 闸门恢复可用。
+
+## 第七十一轮 · 2026-10-08 · 第六轮扫描候选⑧（毕业者血型被丢弃）
+
+- 基点：`b37c330`
+- 范围：`b37c330..HEAD` —— 候选⑧的实现（`build_bio` 补 wiki 回退）+ 真实管线重跑。
+- **缺陷**：`scripts/morningmusume_members.py` 的 `build_bio` 只从**官网详情页**取 `blood`
+  ✗ —— wiki 回退只写了 `birth` / `from` / `height`，漏了 `blood`。毕业成员不在官网上，
+  于是他们**解析出来的血型在装配处被丢弃**（99 位毕业者全无血型）。与上一轮修的 `from`
+  是同一形状的漏修。
+- **修复**：`build_bio` 补 `blood` 的 wiki 回退（与 `birth`/`from` 同构；官网有值时仍官网优先）。
+- **真实管线重跑**：**新增 blood 87 人 · 丢失 0 · 其他差异 0**（groups 125 / members 1544 /
+  with image 1537 不变）；早安毕业者 99 人中仍无血型的 **12 人**（稲場愛香、植村あかり、
+  大塚愛菜、金澤朋子、高木紗友希、宮崎由加 …）—— 那些团的 wiki 表**没有血型列**，属源里没有。
+- **验证**：红测试先行（`AssertionError: None != 'A型'`）→ 修 → 绿；变异 **2/2 被杀**
+  （删回退 / 让 wiki 覆盖官网优先级）；`npm run check` exit=0（**318 JS + 340 Python** +
+  棘轮无新增）；`npm run e2e:all` **5/5**（245/54/42/73/145 不变）。
+- 下次基点：本提交（`git rev-parse HEAD`）。
