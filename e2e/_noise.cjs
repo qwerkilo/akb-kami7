@@ -7,10 +7,12 @@
 // 判据只放行**已知的**噪声，别把它放宽成全放行：
 // - favicon / net::ERR 这类资源加载失败；
 // - 「导航中断字体预热（两百多个 woff2）」只认字体域，其余资源错误仍算失败；
-// - 断网阶段浏览器给的 "A network error occurred"（只有 pwa 跑离线，对它才是预期噪声）。
+// - 断网阶段浏览器给的 "A network error occurred" 与全部 net::ERR —— **只在离线阶段**
+//   （pwa）放行。在线套件放行它们会把真错误静默吃掉：收口时曾把该串写成无条件放行，
+//   而旧实现里在线套件对该串计数为 0（第七轮扫描的 Strong）。
 function isExpectedNoise(m, { offline = false } = {}) {
   const text = m.text();
-  if (/A network error occurred/.test(text)) return true;
+  if (offline && /A network error occurred/.test(text)) return true;
   if (!/Failed to load resource|net::ERR/.test(text)) return false;
   // 离线阶段（pwa 套件）浏览器对**所有**请求都报 net::ERR —— 那里只守 JS 错误，
   // 资源失败一律放行；在线套件（e2e/v5）只放行 favicon 与字体域的那批。

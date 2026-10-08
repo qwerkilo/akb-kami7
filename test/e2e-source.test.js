@@ -400,8 +400,8 @@ test("首屏判据只有一处：两个套件都必须调 _ui.cjs 的 firstScree
   for (const f of ["e2e.cjs", "verify-first-screen.cjs"]) {
     const src = fs.readFileSync(path.join(DIR, f), "utf8");
     assert.ok(
-      /firstScreenGeo/.test(src),
-      `${f} 必须用 _ui.cjs 的 firstScreenGeo（首屏判据不许再抄一份）`
+      /firstScreenGeo/.test(src) && /firstScreenOk\(/.test(src),
+      `${f} 必须用 _ui.cjs 的 firstScreenGeo/firstScreenOk（首屏判据不许再抄一份）`
     );
   }
   const ui = fs.readFileSync(path.join(DIR, "_ui.cjs"), "utf8");

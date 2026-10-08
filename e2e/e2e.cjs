@@ -9,7 +9,7 @@ const {
 const { blockStarter } = require("./_progress.cjs");
 const { runSuite } = require("./_suite.cjs");
 const { isExpectedNoise } = require("./_noise.cjs");
-const { firstScreenGeo } = require("./_ui.cjs");
+const { firstScreenGeo, firstScreenOk } = require("./_ui.cjs");
 const S = require("./_store.cjs");
 
 const PORT = 8765;
@@ -1655,8 +1655,7 @@ runSuite({
         Object.assign(geo, await fp.evaluate(firstScreenGeo));
         check(
           `390px/${lang}：新访客首屏完整可见 ≥ 一整行脸`,
-          // visible ≥ 6 是前提：可见卡太少时 cols 会跟着缩水（自指假绿）
-          geo.visible >= 6 && geo.cols > 0 && geo.fullFaces >= geo.cols,
+          firstScreenOk(geo),
           `${geo.fullFaces} 张完整可见 / ${geo.cols} 列（第一张卡 top=${geo.card?.top}）`
         );
         check(

@@ -426,16 +426,12 @@ def image_urls(files, api_fn=api, reasons=None):
         return api_fn(action="query", prop="imageinfo", iiprop="url|size",
                       titles="|".join("ファイル:" + f for f in batch))
 
-    try:
-        answers = fetch_pool.fetch_many(
-            range(len(batches)), one, host="48pedia.org"
-        )
-    except Exception:
-        # **全部**批次失败时 fetch_many 会重抛（raise_first=False 只保证「部分失败」
-        # 时不抛、把异常留在答案列表里）—— 记「查询失败」而不是让整轮崩掉。
-        for f in files:
-            _record_failure(reasons, f, photo_chain.QUERY_FAILED)
-        return out
+    # raise_first=False：任一批次失败都不抛，把异常留在答案列表里按批处理 ——
+    # 默认的 raise_first=True 会在**首个**错误就重抛，等于一批挂掉就丢光整轮
+    # （第七轮扫描的 High：此前正是这样，且 except 会把全部文件误记为查询失败）。
+    answers = fetch_pool.fetch_many(
+        range(len(batches)), one, host="48pedia.org", raise_first=False
+    )
     for i in range(len(batches)):
         progress.tick()
         batch = batches[i]
