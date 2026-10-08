@@ -1598,3 +1598,27 @@
   （删回退 / 让 wiki 覆盖官网优先级）；`npm run check` exit=0（**318 JS + 340 Python** +
   棘轮无新增）；`npm run e2e:all` **5/5**（245/54/42/73/145 不变）。
 - 下次基点：本提交（`git rev-parse HEAD`）。
+
+## 第七十二轮 · 2026-10-08 · 第六轮扫描候选⑨（love 接上完整的 Commons 链）+ 补 ⑧ 漏提交的产物
+
+- 基点：`2e759c2`
+- 范围：`2e759c2..HEAD` —— 候选⑨（`commons_for` 两段合一 + 等爱接线）+ **`members.js`（⑧ 的血型数据）**。
+- **⑧ 的漏提交（重要记账）**：`2e759c2` 只 `git add scripts docs` —— **`members.js` 没进提交** ✗，
+  而提交信息声称「真实管线重跑：新增 blood 87 人」。后果：线上仍是旧产物（无血型），
+  而本地检查全绿（产物测试不钉血型）。本提交把 `members.js` 补上（本轮的逐成员 diff
+  显示 **blood 新增 87 人**、其余零差异）。
+- **候选⑨ 缺陷**：`love_members` 只调 `photo_chain.commons_photo`（条目首图）—— **半条链**；
+  早安那条「首图 → 文件命名空间搜索」是为等爱也能用的形状。
+- **修复**：`photo_chain.commons_for(name, fetch, pause=0)` 收两段 + 原因合并
+  （任一阶段失败 = 查询失败；成功则清原因）；morning 的 `_commons_for` 与 love 都改调它。
+- **验证**：缝① 新测试 3 条（love 接线行为级 + `commons_for` 两段 + 不降级）✓；
+  变异 **3/3 被杀**（含「love 退回只调 commons_photo」）✓；真实管线重跑：
+  **逐成员 diff 0/0/0（今天没补到照片 —— 等爱当前无「只在 Commons 文件命名空间」的缺图者，
+  这是能力修复、不是当下缺口）**；`npm run check` exit=0（**318 JS + 343 Python** + 棘轮无新增）；
+  `npm run e2e:all` **5/5**（245/54/42/73/145 不变，含 blood 数据变更后）。
+- **守卫更新**：`members-artifact.test.js` 的「共享模块 def 集合」加 `commons_for`；
+  「love 必须调」的断言从 `commons_photo` 改为 `commons_for`（更强的共享入口）。
+- **新任务（用户报告，handoff 在 `.scratch/desktop-controls/HANDOFF.md`）**：① 桌面 >560px
+  **语言切换不可达**（`.more-btn` 只在 ≤560px 显示，而 seg-lang 只在该浮层里）—— 真 bug，
+  桌面宽度 E2E 从未覆盖是漏网根因 ② 「一排几个头像」**不存在该控件** —— 功能请求，走功能链。
+- 下次基点：本提交。

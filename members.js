@@ -19668,7 +19668,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1981.08.10",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "A型"
     },
     "generation": "1期生",
     "nick_aliases": [
@@ -19685,7 +19686,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1994.11.07",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "O型"
     },
     "generation": "10期生"
    },
@@ -19699,7 +19701,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1981.08.08",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "A型"
     },
     "generation": "1期生"
    },
@@ -19713,7 +19716,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1997.07.07",
-     "from": "福岡県"
+     "from": "福岡県",
+     "blood": "A型"
     },
     "generation": "9期生",
     "nick_aliases": [
@@ -19731,7 +19735,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1985.01.19",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "A型"
     },
     "generation": "4期生",
     "nick_aliases": [
@@ -19748,7 +19753,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1978.05.12",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "A型"
     },
     "generation": "1期生"
    },
@@ -19762,7 +19768,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1997.01.07",
-     "from": "宮城県"
+     "from": "宮城県",
+     "blood": "O型"
     },
     "generation": "10期生",
     "nick_aliases": [
@@ -19780,7 +19787,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1983.12.31",
-     "from": "千葉県"
+     "from": "千葉県",
+     "blood": "A型"
     },
     "generation": "2期生",
     "nick_aliases": [
@@ -19797,7 +19805,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.02.15",
-     "from": "大阪府"
+     "from": "大阪府",
+     "blood": "A型"
     },
     "generation": "12期生"
    },
@@ -19811,7 +19820,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1987.10.29",
-     "from": "新潟県"
+     "from": "新潟県",
+     "blood": "O型"
     },
     "generation": "5期生"
    },
@@ -19825,7 +19835,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.11.30",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "A型"
     },
     "generation": "13期生",
     "nick_aliases": [
@@ -19843,7 +19854,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1988.02.07",
-     "from": "奈良県"
+     "from": "奈良県",
+     "blood": "AB型"
     },
     "generation": "4期生",
     "nick_aliases": [
@@ -19860,7 +19872,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1988.12.23",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "AB型"
     },
     "generation": "6期生",
     "nick_aliases": [
@@ -19878,7 +19891,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2004.03.16",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "O型"
     },
     "generation": "15期生",
     "nick_aliases": [
@@ -19895,7 +19909,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1992.07.15",
-     "from": "新潟県"
+     "from": "新潟県",
+     "blood": "A型"
     },
     "generation": "7期生"
    },
@@ -19909,7 +19924,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.10.27",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "A型"
     },
     "generation": "10期生",
     "nick_aliases": [
@@ -19927,7 +19943,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1987.05.07",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "B型"
     },
     "generation": "5期生",
     "nick_aliases": [
@@ -19944,7 +19961,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1985.09.23",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "O型"
     },
     "generation": "3期生",
     "nick_aliases": [
@@ -19962,7 +19980,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.05.07",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "A型"
     },
     "generation": "10期生",
     "nick_aliases": [
@@ -19980,7 +19999,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1998.05.28",
-     "from": "広島県"
+     "from": "広島県",
+     "blood": "AB型"
     },
     "generation": "9期生",
     "nick_aliases": [
@@ -19998,7 +20018,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1988.01.11",
-     "from": "中国 湖南省"
+     "from": "中国 湖南省",
+     "blood": "O型"
     },
     "generation": "8期生"
    },
@@ -20012,7 +20033,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1998.08.05",
-     "from": "愛知県"
+     "from": "愛知県",
+     "blood": "B型"
     },
     "generation": "9期生"
    },
@@ -20026,7 +20048,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1986.09.14",
-     "from": "福井県"
+     "from": "福井県",
+     "blood": "A型"
     },
     "generation": "5期生"
    },
@@ -20040,7 +20063,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1989.11.11",
-     "from": "福岡県"
+     "from": "福岡県",
+     "blood": "A型"
     },
     "generation": "6期生",
     "nick_aliases": [
@@ -20060,7 +20084,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1987.06.17",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "O型"
     },
     "generation": "4期生",
     "nick_aliases": [
@@ -20078,7 +20103,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1973.06.19",
-     "from": "京都府"
+     "from": "京都府",
+     "blood": "O型"
     },
     "generation": "1期生",
     "nick_aliases": [
@@ -20095,7 +20121,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1988.10.20",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "B型"
     },
     "generation": "5期生",
     "nick_aliases": [
@@ -20112,7 +20139,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2002.03.07",
-     "from": "長野県"
+     "from": "長野県",
+     "blood": "O型"
     },
     "generation": "12期生",
     "nick_aliases": [
@@ -20130,7 +20158,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1984.12.17",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "B型"
     },
     "generation": "1期生",
     "nick_aliases": [
@@ -20147,7 +20176,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1996.10.30",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "O型"
     },
     "generation": "9期生",
     "nick_aliases": [
@@ -20166,7 +20196,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1985.02.26",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "A型"
     },
     "generation": "6期生"
    },
@@ -20180,7 +20211,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2001.02.02",
-     "from": "愛知県"
+     "from": "愛知県",
+     "blood": "A型"
     },
     "generation": "12期生"
    },
@@ -20194,7 +20226,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1989.07.13",
-     "from": "山口県"
+     "from": "山口県",
+     "blood": "A型"
     },
     "generation": "6期生",
     "nick_aliases": [
@@ -20214,7 +20247,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1993.01.12",
-     "from": "滋賀県"
+     "from": "滋賀県",
+     "blood": "O型"
     },
     "generation": "8期生",
     "nick_aliases": [
@@ -20231,7 +20265,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2000.02.19",
-     "from": "栃木県"
+     "from": "栃木県",
+     "blood": "A型"
     },
     "generation": "14期生",
     "nick_aliases": [
@@ -20260,7 +20295,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1983.01.20",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "A型"
     },
     "generation": "2期生",
     "nick_aliases": [
@@ -20278,7 +20314,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1980.12.06",
-     "from": "千葉県"
+     "from": "千葉県",
+     "blood": "A型"
     },
     "generation": "2期生",
     "nick_aliases": [
@@ -20295,7 +20332,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2001.02.22",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "O型"
     },
     "generation": "13期生",
     "nick_aliases": [
@@ -20313,7 +20351,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1985.04.12",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "O型"
     },
     "generation": "4期生",
     "nick_aliases": [
@@ -20331,7 +20370,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1991.03.11",
-     "from": "中国 浙江省"
+     "from": "中国 浙江省",
+     "blood": "B型"
     },
     "generation": "8期生"
    }
@@ -20352,7 +20392,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1993.06.15",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "A型"
     }
    },
    {
@@ -20365,7 +20406,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1991.05.24",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "A型"
     }
    },
    {
@@ -20379,6 +20421,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1994.06.21",
      "from": "埼玉県",
+     "blood": "A型",
      "height": "152cm"
     }
    },
@@ -20393,6 +20436,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1994.04.12",
      "from": "千葉県",
+     "blood": "B型",
      "height": "161cm"
     }
    },
@@ -20407,6 +20451,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1994.02.05",
      "from": "埼玉県",
+     "blood": "O型",
      "height": "156cm"
     }
    },
@@ -20421,6 +20466,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1996.02.07",
      "from": "埼玉県",
+     "blood": "AB型",
      "height": "158cm"
     }
    },
@@ -20434,7 +20480,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1992.06.06",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "A型"
     }
    },
    {
@@ -20448,6 +20495,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1992.02.07",
      "from": "埼玉県",
+     "blood": "O型",
      "height": "166cm"
     }
    }
@@ -20623,7 +20671,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.03.26",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "A型"
     },
     "nick_aliases": [
      "（まほちゃん）"
@@ -20639,7 +20688,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2003.10.21",
-     "from": "北海道"
+     "from": "北海道",
+     "blood": "B型"
     },
     "nick_aliases": [
      "（はち）"
@@ -20655,7 +20705,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1996.11.18",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "A型"
     }
    },
    {
@@ -20668,7 +20719,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2003.10.22",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "A型"
     }
    },
    {
@@ -20681,7 +20733,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1998.04.06",
-     "from": "東京都"
+     "from": "東京都",
+     "blood": "A型"
     }
    },
    {
@@ -20694,7 +20747,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.10.24",
-     "from": "熊本県"
+     "from": "熊本県",
+     "blood": "O型"
     }
    },
    {
@@ -20707,7 +20761,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.07.07",
-     "from": "高知県"
+     "from": "高知県",
+     "blood": "A型"
     }
    },
    {
@@ -20720,7 +20775,8 @@ window.AKB_GROUPS = [
     "img": false,
     "bio": {
      "birth": "1997.11.19",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "O型"
     }
    },
    {
@@ -20733,7 +20789,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2001.05.28",
-     "from": "宮城県"
+     "from": "宮城県",
+     "blood": "A型"
     }
    },
    {
@@ -20746,7 +20803,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1997.11.23",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "O型"
     },
     "nick_aliases": [
      "（おでん）"
@@ -20762,7 +20820,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1998.10.30",
-     "from": "群馬県"
+     "from": "群馬県",
+     "blood": "O型"
     }
    },
    {
@@ -20775,7 +20834,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1997.06.04",
-     "from": "大阪府"
+     "from": "大阪府",
+     "blood": "A型"
     }
    },
    {
@@ -20788,7 +20848,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1995.03.12",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "A型"
     },
     "nick_aliases": [
      "（まろ）"
@@ -20804,7 +20865,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2002.05.10",
-     "from": "大阪府"
+     "from": "大阪府",
+     "blood": "O型"
     },
     "nick_aliases": [
      "ふなきち",
@@ -20831,7 +20893,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1994.12.28",
-     "from": "千葉県"
+     "from": "千葉県",
+     "blood": "B型"
     }
    },
    {
@@ -20844,7 +20907,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1998.06.12",
-     "from": "千葉県"
+     "from": "千葉県",
+     "blood": "AB型"
     }
    },
    {
@@ -20857,7 +20921,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1994.08.01",
-     "from": "群馬県"
+     "from": "群馬県",
+     "blood": "A型"
     },
     "nick_aliases": [
      "あやちょ",
@@ -21425,6 +21490,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2000.09.03",
      "from": "千葉県",
+     "blood": "AB型",
      "height": "153cm"
     }
    },
@@ -21439,6 +21505,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1998.11.05",
      "from": "東京都",
+     "blood": "A型",
      "height": "159cm"
     }
    },
@@ -21453,6 +21520,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2000.04.01",
      "from": "大阪府",
+     "blood": "B型",
      "height": "166.5cm"
     }
    },
@@ -21467,6 +21535,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1999.10.20",
      "from": "愛知県",
+     "blood": "O型",
      "height": "160.2cm"
     }
    },
@@ -21480,7 +21549,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2003.09.19",
-     "from": "愛知県"
+     "from": "愛知県",
+     "blood": "O型"
     }
    },
    {
@@ -21494,6 +21564,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1998.11.24",
      "from": "千葉県",
+     "blood": "B型",
      "height": "155cm"
     }
    }
@@ -21863,6 +21934,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2004.04.20",
      "from": "北海道",
+     "blood": "A型",
      "height": "165cm"
     },
     "nick_aliases": [
@@ -21881,6 +21953,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2005.06.16",
      "from": "神奈川県",
+     "blood": "不明",
      "height": "157cm"
     }
    }
@@ -22069,7 +22142,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1992.11.20",
-     "from": "神奈川県"
+     "from": "神奈川県",
+     "blood": "AB型"
     }
    },
    {
@@ -22083,6 +22157,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1993.08.03",
      "from": "神奈川県",
+     "blood": "B型",
      "height": "181cm"
     }
    },
@@ -22097,6 +22172,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1991.11.22",
      "from": "神奈川県",
+     "blood": "O型",
      "height": "153cm"
     }
    },
@@ -22111,6 +22187,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1994.04.04",
      "from": "神奈川県",
+     "blood": "A型",
      "height": "161cm"
     }
    },
@@ -22125,6 +22202,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1992.07.03",
      "from": "東京都",
+     "blood": "O型",
      "height": "167cm"
     }
    },
@@ -22139,6 +22217,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1992.05.22",
      "from": "神奈川県",
+     "blood": "O型",
      "height": "164cm"
     }
    },
@@ -22153,6 +22232,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1992.08.25",
      "from": "埼玉県",
+     "blood": "O型",
      "height": "160cm"
     }
    }
@@ -22249,7 +22329,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2000.03.27",
-     "from": "栃木県"
+     "from": "栃木県",
+     "blood": "A型"
     }
    },
    {
@@ -22262,7 +22343,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "2000.07.21",
-     "from": "埼玉県"
+     "from": "埼玉県",
+     "blood": "A型"
     }
    },
    {
@@ -22276,6 +22358,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2000.02.10",
      "from": "東京都",
+     "blood": "B型",
      "height": "155cm"
     },
     "nick_aliases": [
@@ -22293,6 +22376,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2000.04.26",
      "from": "埼玉県",
+     "blood": "AB型",
      "height": "162cm"
     },
     "nick_aliases": [
@@ -22310,6 +22394,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "1999.08.04",
      "from": "神奈川県",
+     "blood": "O型",
      "height": "156cm"
     }
    },
@@ -22323,7 +22408,8 @@ window.AKB_GROUPS = [
     "img": true,
     "bio": {
      "birth": "1999.03.04",
-     "from": "愛知県"
+     "from": "愛知県",
+     "blood": "B型"
     },
     "nick_aliases": [
      "（藤丼、イーヨー）"
@@ -22340,6 +22426,7 @@ window.AKB_GROUPS = [
     "bio": {
      "birth": "2001.03.08",
      "from": "愛知県",
+     "blood": "B型",
      "height": "163.5cm"
     },
     "nick_aliases": [

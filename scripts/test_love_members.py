@@ -1,12 +1,14 @@
 import json
 import urllib.parse
 import unittest
+from unittest import mock
 
 import fetch_pool
 
 # 测试的 fetch 是瞬时假对象：关掉真实源站的请求间隔（否则每个用例白等几十秒）
 fetch_pool.INTERVAL_SCALE = 0.0
 import love_members
+import photo_chain
 
 
 LOVE_LIST_FIXTURE = '''
@@ -154,6 +156,8 @@ class PhotoFallbackTests(unittest.TestCase):
                 ])
             if "web.archive.org/web/20220101000000id_" in url:
                 return archived_list
+            if "list=search" in url:
+                return json.dumps({"query": {"search": []}})
             if "pageimages" in url:
                 if "%E7%A6%8F%E5%B1%B1" in url:
                     return json.dumps({"query": {"pages": {"1": {}}}})
@@ -194,6 +198,26 @@ class PhotoFallbackTests(unittest.TestCase):
         urls, notes = {}, {}
         love_members.resolve_former_photos(members, urls, fetch, notes=notes)
         self.assertEqual(notes.get("love:=LOVE:佐竹のん乃"), "查询失败")
+
+
+class CommonsSearchFallbackTests(unittest.TestCase):
+    def test_photo_falls_back_to_commons_search(self):
+        """等爱此前只用 pageimages（半条链）：图在 Commons 有文件、没被用进条目时找不到。
+
+        行为级：把两段 mock 掉 —— 首图落空 + 搜索命中 → URL 必须落进 urls、且不记原因。
+        （修复前这里没有搜索调用，mock 的 commons_search_photo 不会被触发。）
+        """
+        m = {"name": "佐竹のん乃", "file": "love:佐竹のん乃", "status": "former"}
+        urls, notes = {}, {}
+        with mock.patch.object(
+            photo_chain, "commons_photo", return_value=(None, photo_chain.SOURCE_EMPTY)
+        ), mock.patch.object(
+            photo_chain, "commons_search_photo",
+            return_value=("https://upload/found.jpg", None),
+        ):
+            love_members._resolve_member_photo(m, {}, lambda u: "", urls, notes)
+        self.assertEqual(urls.get("love:佐竹のん乃"), "https://upload/found.jpg")
+        self.assertNotIn("love:佐竹のん乃", notes)
 
 
 class BuildMembersTests(unittest.TestCase):
@@ -458,6 +482,8 @@ def load_fetcher(fail_detail=None, fail_cdx=False):
             if fail_cdx:
                 raise OSError("cdx down")
             return "[]"
+        if "list=search" in url:
+            return json.dumps({"query": {"search": []}})
         if "pageimages" in url:
             return json.dumps({"query": {"pages": {"1": {}}}})
         if url == "https://equal-love.jp/feature/profile":

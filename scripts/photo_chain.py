@@ -9,6 +9,7 @@
 """
 import json
 import re
+import time
 import urllib.parse
 
 from ja_wiki import WIKI_API
@@ -118,6 +119,28 @@ _PLACEHOLDER_SRC = (
     "spacer.gif", "spacer.png", "1x1", "pixel.gif", "pixel.png",
     "clear.gif", "clear.png", "empty.gif", "empty.png", "dot_clear",
 )
+
+
+def commons_for(name, fetch, pause=0):
+    """一个成员的 Commons 查询：条目首图 → 文件命名空间搜索（两段合一，等爱与早安共用）。
+
+    返回 `(url, reason)`（ADR-0024）：链自己给出原因（QUERY_FAILED / SOURCE_EMPTY）；
+    **任一阶段失败**都算「查询失败」—— 后一阶段的空结果不许把前一阶段的失败降级成
+    「源里没有」（429 被记成「源里没有」是本仓记录过的坑）。`pause` 在两次请求之间
+    节流（Commons 连打几十次会回 429；早安侧传入，等爱侧不传）。
+    """
+    resolved, reason = commons_photo(name, fetch)
+    if not resolved:
+        # 条目首图没有时再搜文件命名空间：不少成员的照片在 Commons 有文件、
+        # 却没被用进条目（早安那轮实测 Berryz 四人 + 後藤真希），pageimages 看不见。
+        if pause:
+            time.sleep(pause)
+        resolved, search_reason = commons_search_photo(name, fetch)
+        if resolved:
+            reason = None  # 成功就不带原因（reason ⟺ 失败；调用方本就只在落空时读它）
+        elif search_reason == QUERY_FAILED:
+            reason = search_reason
+    return resolved, reason
 
 
 def is_placeholder_src(url):

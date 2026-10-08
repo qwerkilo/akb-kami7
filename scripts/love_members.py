@@ -320,7 +320,9 @@ def _resolve_member_photo(m, photos, fetch, urls, notes):
     resolved = wayback.latest_snapshot(photo, fetch) if photo else None
     reason = None
     if not resolved:
-        resolved, reason = photo_chain.commons_photo(m["name"], fetch)
+        # 两段合一（首图 → 文件命名空间搜索）：等爱此前只用 pageimages（半条链），
+        # 图在 Commons 有文件、没被用进条目时永远找不到（早安那轮实测过这条路径）。
+        resolved, reason = photo_chain.commons_for(m["name"], fetch)
     if resolved:
         urls[m["file"]] = resolved
     else:

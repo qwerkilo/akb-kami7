@@ -363,6 +363,7 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   assert.deepEqual(
     defs,
     [
+      "commons_for", // 两段合一（首图 → 文件命名空间搜索）—— 等爱与早安共用（候选 9）
       "commons_photo",
       "commons_search_photo",
       "is_placeholder_src",
@@ -385,7 +386,8 @@ test("照片回退链：与站点无关的三段在共享模块，与站点有�
   for (const [mod, fn] of [
     ["wayback", "cdx_rows"],
     ["wayback", "latest_snapshot"],
-    ["photo_chain", "commons_photo"],
+    // 两段合一（首图 → 文件命名空间搜索）：等爱必须走共享入口，不能只接前一段
+    ["photo_chain", "commons_for"],
   ]) {
     assert.ok(
       love.includes(`${mod}.${fn}(`),

@@ -59,6 +59,56 @@ class CommonsPhotoCharacterizationTests(unittest.TestCase):
         self.assertEqual(photo_chain.commons_photo("x", boom), (None, "查询失败"))
 
 
+class CommonsForTests(unittest.TestCase):
+    """commons_for：条目首图 → 文件命名空间搜索（两段合一，等爱与早安共用）。"""
+
+    def test_falls_through_to_search_when_pageimages_misses(self):
+        def fetch(url):
+            if "pageimages" in url:
+                return json.dumps({"query": {"pages": {"1": {}}}})
+            if "list=search" in url:
+                return json.dumps(
+                    {"query": {"search": [{"title": "File:佐竹のん乃 photo.jpg"}]}}
+                )
+            return json.dumps(
+                {
+                    "query": {
+                        "pages": {
+                            "1": {
+                                "title": "File:佐竹のん乃 photo.jpg",
+                                "imageinfo": [
+                                    {
+                                        "url": "https://upload/found.jpg",
+                                        "width": 100,
+                                        "height": 200,
+                                        "extmetadata": {
+                                            "ImageDescription": {
+                                                "value": "Nonno Satake (佐竹 のん乃)"
+                                            }
+                                        },
+                                    }
+                                ],
+                            }
+                        }
+                    }
+                }
+            )
+
+        url, reason = photo_chain.commons_for("佐竹のん乃", fetch)
+        self.assertEqual(url, "https://upload/found.jpg")
+        self.assertIsNone(reason)
+
+    def test_search_failure_not_downgraded_to_source_empty(self):
+        def fetch(url):
+            if "pageimages" in url:
+                return json.dumps({"query": {"pages": {"1": {}}}})
+            raise RuntimeError("429")
+
+        url, reason = photo_chain.commons_for("佐竹のん乃", fetch)
+        self.assertIsNone(url)
+        self.assertEqual(reason, photo_chain.QUERY_FAILED)
+
+
 class PlaceholderSrcTests(unittest.TestCase):
     """占位图判定：旧站用透明 gif 占位、alt 写成员名 —— 实测四个 Berryz 被配成同一张
     transparent.gif（1×1），压缩阶段才发现。"""

@@ -1336,18 +1336,9 @@ def _commons_for(m, fetch, pause):
     """
     if pause:
         time.sleep(pause)
-    resolved, reason = photo_chain.commons_photo(m["name"], fetch)
-    if not resolved:
-        # 条目首图没有时再搜 Commons 文件命名空间：不少毕业者的照片在 Commons
-        # 有文件、却没被用进条目（实测 Berryz 四人 + 後藤真希），pageimages 看不见。
-        if pause:
-            time.sleep(pause)
-        resolved, search_reason = photo_chain.commons_search_photo(m["name"], fetch)
-        # **任一阶段失败 → 「查询失败」**：后一阶段的空结果不许把前一阶段的失败
-        # 降级成「源里没有」（429 被记成「源里没有」是本仓记录过的坑；两轴审查
-        # 抓到这条组合路径）。
-        if search_reason == photo_chain.QUERY_FAILED:
-            reason = search_reason
+    # 两段（首图 → 文件命名空间搜索）与原因合并收在 photo_chain.commons_for
+    # —— 等爱此前只接了前一段（半条链）。
+    resolved, reason = photo_chain.commons_for(m["name"], fetch, pause=pause)
     if not resolved and m.get("photo_url"):
         # 已知照片 URL 的钩子（photo_url，测试注入；生产侧目前没有写入点）：
         # Commons 落空时再试它的 Wayback 快照。
