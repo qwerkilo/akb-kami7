@@ -6,6 +6,7 @@
 const { waitTicker } = require("./_progress.cjs");
 const { waitFor, waitForSelector } = require("./_wait.cjs");
 const { runSuite } = require("./_suite.cjs");
+const { isExpectedNoise } = require("./_noise.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -97,10 +98,10 @@ runSuite({
       });
     });
     page.on("console", (m) => {
-      if (
-        m.type() === "error" &&
-        !/favicon|net::ERR|A network error occurred/.test(m.text())
-      )
+      // 断网阶段的资源加载失败（ERR_FAILED / ERR_INTERNET_DISCONNECTED）与
+      // "A network error occurred" 是预期噪声 —— 判定收在 e2e/_noise.cjs。
+      // （此前这里注册了**两个条件逐字相同**的 console 监听，错误被记两次。）
+      if (m.type() === "error" && !isExpectedNoise(m, { offline: true }))
         errs.push(m.text());
     });
     page.on("pageerror", (e) => {
@@ -112,15 +113,6 @@ runSuite({
       );
       errs.push(e.message);
     });
-    page.on("console", (m) => {
-      // 断网阶段的资源加载失败（ERR_FAILED / ERR_INTERNET_DISCONNECTED）是预期噪声，不是 JS 错误
-      if (
-        m.type() === "error" &&
-        !/favicon|net::ERR|A network error occurred/.test(m.text())
-      )
-        errs.push(m.text());
-    });
-
     console.log("\n[1] SW 注册与接管");
     await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
     const controlled = await waitFor(

@@ -8,6 +8,7 @@ const {
 } = require("./_ui.cjs");
 const { blockStarter } = require("./_progress.cjs");
 const { runSuite } = require("./_suite.cjs");
+const { isExpectedNoise } = require("./_noise.cjs");
 const S = require("./_store.cjs");
 
 const PORT = 8765;
@@ -172,15 +173,6 @@ async function checkSecondRound(page) {
 }
 
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
-function isExpectedResourceNoise(m) {
-  const text = m.text();
-  if (!/Failed to load resource|net::ERR/.test(text)) return false;
-  if (/favicon/.test(text)) return true;
-  // 「导航中断字体预热（两百多个 woff2）」这类资源错误只认字体域；
-  // 其余资源错误仍算失败——别把断言放宽成全放行
-  return /fonts\.g/.test(m.location()?.url || "");
-}
-
 runSuite({
   name: "e2e",
   expect: 249, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
@@ -201,8 +193,7 @@ runSuite({
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => {
-      if (m.type() === "error" && !isExpectedResourceNoise(m))
-        errors.push(m.text());
+      if (m.type() === "error" && !isExpectedNoise(m)) errors.push(m.text());
     });
 
     {

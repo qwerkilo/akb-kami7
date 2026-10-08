@@ -7,6 +7,7 @@ const {
   goToPick,
 } = require("./_ui.cjs");
 const { runSuite } = require("./_suite.cjs");
+const { isExpectedNoise } = require("./_noise.cjs");
 const S = require("./_store.cjs");
 const PORT = 8777;
 const BASE = `http://127.0.0.1:${PORT}/`;
@@ -15,15 +16,6 @@ const results = [];
 // 就绪屏障 `ready()` 收在 `e2e/_wait.cjs`（原先这里与 e2e.cjs 各一份、语义相同）。
 
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
-function isExpectedResourceNoise(m) {
-  const text = m.text();
-  if (!/Failed to load resource|net::ERR/.test(text)) return false;
-  if (/favicon/.test(text)) return true;
-  // 「导航中断字体预热（两百多个 woff2）」这类资源错误只认字体域；
-  // 其余资源错误仍算失败——别把断言放宽成全放行
-  return /fonts\.g/.test(m.location()?.url || "");
-}
-
 runSuite({
   name: "v5",
   expect: 54,
@@ -44,8 +36,7 @@ runSuite({
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => {
-      if (m.type() === "error" && !isExpectedResourceNoise(m))
-        errors.push(m.text());
+      if (m.type() === "error" && !isExpectedNoise(m)) errors.push(m.text());
     });
 
     {

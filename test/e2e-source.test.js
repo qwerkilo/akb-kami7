@@ -391,6 +391,44 @@ test("存储种子协议只有一处：e2e/ 不许出现键字面量（候选 4�
   );
 });
 
+test("预期噪声判定只有一处：e2e/ 不许再写噪声字面量（候选 6）", () => {
+  const strip = (src) =>
+    src.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const bits = [
+    "Failed to load resource",
+    "net::ERR",
+    "A network error occurred",
+  ];
+  const suites = fs
+    .readdirSync(DIR)
+    .filter(
+      (f) => f.endsWith(".cjs") && !f.startsWith("_") && f !== "run-all.cjs"
+    );
+  assert.ok(
+    suites.length >= 5,
+    `套件太少（${suites.length}）—— 守卫本身坏了？`
+  );
+  for (const f of suites) {
+    const src = strip(fs.readFileSync(path.join(DIR, f), "utf8"));
+    for (const b of bits) {
+      assert.ok(
+        !src.includes(b),
+        `${f} 不许写噪声字面量「${b}」—— 判定收在 e2e/_noise.cjs`
+      );
+    }
+    if (/page\.on\("console"/.test(src)) {
+      assert.ok(
+        src.includes('require("./_noise.cjs")'),
+        `${f} 注册了 console 监听就必须用 _noise.cjs 的判定`
+      );
+    }
+  }
+  const noise = strip(fs.readFileSync(path.join(DIR, "_noise.cjs"), "utf8"));
+  for (const b of bits) {
+    assert.ok(noise.includes(b), `_noise.cjs 应当包含「${b}」`);
+  }
+});
+
 test("每个 E2E 套件都进了 run-all（漏一个 = 全量跑不到它）", () => {
   const runner = fs.readFileSync(path.join(DIR, "run-all.cjs"), "utf8");
   const suites = fs
