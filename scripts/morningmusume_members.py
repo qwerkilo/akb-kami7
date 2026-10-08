@@ -1240,7 +1240,7 @@ def _group_budget(missing, group):
     return max(30, 15 * in_group)
 
 
-def _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes=None):
+def _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes=None):
     """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。
 
     `notes`（工单 09）：预算用尽/全局上限时，该团没解析到的人原因写进 `notes[file]` ——
@@ -1293,7 +1293,7 @@ def _note_scan_gaps(missing, urls, verdicts, notes):
 
 
 def resolve_old_site_photos(
-    members, urls, fetch, warn=print, pause=0.0, limit=900, notes=None
+    members, urls, fetch, pause=0.0, limit=900, notes=None
 ):
     """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
     **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
@@ -1301,7 +1301,9 @@ def resolve_old_site_photos(
     if not missing:
         return members, urls
     by_name = {m["name"]: m for m in missing}
-    _resolve_old_site_groups(missing, by_name, urls, fetch, pause, limit, notes)
+    # pause 只给 _resolve_file_evidence（48pedia 要节流）——Wayback 走 fetch_pool 的
+    # 主机闸门，不套 Commons 的节流（这就是上面注释说的那件事）
+    _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes)
     _resolve_file_evidence(by_name, urls, fetch, pause)
     return members, urls
 
@@ -1376,7 +1378,8 @@ def resolve_former_photos(
     2. **旧官网 Wayback 快照**（工单 02：毕业者与已停止活动的团；按团枚举 + 在籍期校验）。
     3. **Wikipedia Commons**（现役与兜底；`(url, reason)` —— 失败与空结果分开记）。
 
-    取不到就 warn 并进缺图名单（站里显示占位卡）—— 缺图是**显式记录的状态**，
+    取不到就进缺图名单（站里显示占位卡；不再逐人 warn —— 报告只打一份）——
+    缺图是**显式记录的状态**，
     不是静默降级。
 
     `skip` 是**跳过名单**（一组 `(团, 名)` 键，见 `photo_skip.py`）——在名单里的人
@@ -1392,7 +1395,7 @@ def resolve_former_photos(
     # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的
     _resolve_og(target, urls, fetch)
     try:
-        resolve_old_site_photos(target, urls, fetch, warn=warn, pause=pause, notes=notes)
+        resolve_old_site_photos(target, urls, fetch, pause=pause, notes=notes)
     except Exception as e:
         warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
     _resolve_commons(target, urls, fetch, pause, notes)

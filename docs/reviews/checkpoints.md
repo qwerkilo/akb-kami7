@@ -1705,3 +1705,21 @@
   第二处被当成「没引入」→ 改成 `matchAll` 取并集；② 新守卫写 `/firstScreenGeo\(/` ——
   而它是**作为值**传进 `evaluate` 的（没有括号）→ 去掉 `\(`。
 - 下次基点：本提交。
+
+## 第七十七轮 · 2026-10-08 · 第六轮扫描候选⑩（接口参数名不副实）
+
+- 基点：`d4df3ce`
+- 范围：`d4df3ce..HEAD` —— 三个接口清理，**纯 Python、零行为变化**（无 E2E）。
+- **实测核实后删掉的死参数**：① `love_members.load` 的 `warn`（全文件零使用）；
+  ② `resolve_old_site_photos` 的 `warn`（体内零使用）；③ `_resolve_old_site_groups` 的
+  `pause`（体内零使用）—— 调用点与测试同步（love 1 处、morning 5 处）。
+- **`pause` 那条的结论与扫描相反**：注释（「调用方的 pause 是 Commons 的节流，不套在
+  Wayback 上」）**是对的** —— 真问题是死参数 `pause` 被一路传进 Wayback 枚举；48pedia 的
+  `_resolve_file_evidence` **确实**在睡（保留 `pause`）。修掉死参数 + 在调用点补一句
+  「pause 只给 _resolve_file_evidence」。
+- **保留**：`resolve_former_photos` 的 `warn`（`:1397` 真被调用）；只修它的 docstring
+  （「取不到就 warn」→「进缺图名单；不再逐人 warn —— 报告只打一份」）。
+- **验证**：Python **343** 全绿；`npm run check` 绿（318 JS + 343 Python + 棘轮 1<2）。
+- **如实说明**：本批**不做变异** —— 死参数与文档没有可证伪的行为面（加回死参数不会让
+  任何测试红）；承重的是 `npm test` 与两轴审查，不为凑数造假变异。
+- 下次基点：本提交。

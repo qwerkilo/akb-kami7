@@ -616,7 +616,7 @@ class ScanBudgetTests(unittest.TestCase):
         with mock.patch.object(mm, "_old_site_candidates", fake_candidates), mock.patch.object(
             mm, "_pick_old_site_group", fake_pick
         ):
-            mm._resolve_old_site_groups(members, {}, {}, lambda u: "", 0, 900)
+            mm._resolve_old_site_groups(members, {}, {}, lambda u: "", 900)
         # モー娘。 3 人 → 45；OCHA 1 人 → 30
         self.assertEqual(budgets, [45, 30])
 
@@ -1521,7 +1521,7 @@ class PhotoReasonTests(unittest.TestCase):
         with mock.patch.object(mm, "_old_site_candidates", fake_candidates), mock.patch.object(
             mm, "_group_budget", lambda missing, g: 2
         ):
-            mm._resolve_old_site_groups(members, {}, urls, fake_fetch, 0, 900, notes)
+            mm._resolve_old_site_groups(members, {}, urls, fake_fetch, 900, notes)
         self.assertEqual(notes.get("m1"), "旧站预算内未扫完")
 
     def test_resolve_fills_notes_and_prints_no_summary(self):
@@ -1572,7 +1572,7 @@ class PhotoReasonTests(unittest.TestCase):
         ):
             # limit=1：只够抓 1 个快照 → 团被全局上限截断
             mm._resolve_old_site_groups(
-                members, {}, urls, lambda u: "<html>x</html>", 0, 1, notes
+                members, {}, urls, lambda u: "<html>x</html>", 1, notes
             )
         self.assertEqual(notes.get(members[0]["file"]), "旧站被全局上限截断")
 
@@ -1588,7 +1588,7 @@ class PhotoReasonTests(unittest.TestCase):
         with mock.patch.object(mm, "_old_site_candidates", fake_candidates):
             # limit=0：循环开头就 break → 该团压根没轮到
             mm._resolve_old_site_groups(
-                members, {}, urls, lambda u: "<html>x</html>", 0, 0, notes
+                members, {}, urls, lambda u: "<html>x</html>", 0, notes
             )
         self.assertEqual(notes.get(members[0]["file"]), "旧站未扫到（全局上限）")
 
@@ -1603,7 +1603,7 @@ class PhotoReasonTests(unittest.TestCase):
         ):
             with self.assertRaises(KeyError):
                 mm._resolve_old_site_groups(
-                    members, {}, {}, lambda u: "<html>x</html>", 0, 900, {}
+                    members, {}, {}, lambda u: "<html>x</html>", 900, {}
                 )
 
     def test_query_failure_is_not_downgraded_by_a_later_empty_result(self):

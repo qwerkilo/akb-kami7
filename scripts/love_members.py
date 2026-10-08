@@ -330,7 +330,7 @@ def _resolve_member_photo(m, photos, fetch, urls, notes):
         notes.setdefault(m["file"], reason)
 
 
-def load(fetch, warn=print, skip_photo=None, notes=None):
+def load(fetch, skip_photo=None, notes=None):
     """抓取三个官网 + Wikipedia 并装配；返回 (members, urls)。
 
     `notes`（工单 01 / ADR-0024）：照片解析没找到的原因（本模块的

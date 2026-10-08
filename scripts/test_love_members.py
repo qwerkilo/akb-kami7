@@ -542,7 +542,7 @@ class LoadTests(unittest.TestCase):
             love_members.load(load_fetcher(fail_detail="profile_sakurai_momo"))
 
     def test_load_survives_archive_failures(self):
-        members, urls = love_members.load(load_fetcher(fail_cdx=True), warn=lambda _: None)
+        members, urls = love_members.load(load_fetcher(fail_cdx=True))
         self.assertEqual(len(members), 5)
         self.assertIn("love:=LOVE:大谷 映美里", urls)
 
