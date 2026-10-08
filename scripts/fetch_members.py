@@ -878,6 +878,17 @@ def member_files(members):
     return sorted({m["file"] for m in members if m["file"]})
 
 
+def image_query_files(members, skip):
+    """48pedia imageinfo 要查哪些文件（性能调研 #5：只查还需要照片的）。
+
+    48G 侧缺图时逐个人查即可；全站现有 1338 个文件里绝大多数成员早就有照片，
+    每轮全查要 26–80s（27 批）却零消费。`skip` 用 `skip_photo` —— 它由
+    `photo_skip_for` 按「站内照片」推出，`--refresh-photos` 时是空集（全量重解析）。
+    """
+    skip = skip or set()
+    return [f for f in member_files(members) if f not in skip]
+
+
 def resolve_missing(members, urls):
     return [m["name"] for m in members if m["file"] and m["file"] not in urls]
 
@@ -1033,7 +1044,7 @@ def main(
     n_files = len(member_files(members))
     n_batches = (n_files + IMAGE_BATCH - 1) // IMAGE_BATCH
     with progress.stage("48pedia 图片 URL", total=n_batches):
-        urls = image_urls(member_files(members), api_fn, photo_notes)
+        urls = image_urls(image_query_files(members, skip_photo), api_fn, photo_notes)
     urls.update(love_urls)
     urls.update(morning_urls)
     report_missing_info(resolve_missing(members, urls))

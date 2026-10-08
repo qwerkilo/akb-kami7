@@ -2056,5 +2056,22 @@ class PermanentDownloadTests(unittest.TestCase):
         self.assertIsNone(path)
 
 
+class ImageQueryFileFilterTests(unittest.TestCase):
+    """性能调研 #5：48pedia 只查还需要照片的文件（缺图者每轮仍会被查）。"""
+
+    def _member(self, fid, f):
+        return {"id": fid, "name": "X", "file": f}
+
+    def test_skips_members_the_pipeline_already_skips(self):
+        ms = [self._member("m1", "a.jpg"), self._member("m2", "b.jpg")]
+        self.assertEqual(
+            fetch_members.image_query_files(ms, {"a.jpg"}), ["b.jpg"]
+        )
+
+    def test_empty_skip_queries_everything(self):
+        ms = [self._member("m1", "a.jpg")]
+        self.assertEqual(fetch_members.image_query_files(ms, set()), ["a.jpg"])
+
+
 if __name__ == "__main__":
     unittest.main()
