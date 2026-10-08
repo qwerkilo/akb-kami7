@@ -475,7 +475,8 @@ def download(args, orig_dir=ORIG, fetch=get):
             try:
                 data = fetch(url)
             except Exception as e:
-                if attempt == 2:
+                # 永久错误（404/410）不重试：死快照每轮都会白烧（性能调研 #1）。
+                if getattr(e, "code", None) in (404, 410) or attempt == 2:
                     print(f"  下载失败，跳过 {mid}: {type(e).__name__} {e}", file=sys.stderr)
                     return mid, None
                 time.sleep(5 * (attempt + 1))

@@ -1,3 +1,4 @@
+import urllib.error
 import unittest
 from unittest import mock
 
@@ -90,6 +91,22 @@ class GzipPayloadTests(unittest.TestCase):
 
         out = wiki.get("https://x", opener=Opener())
         self.assertEqual(out, b"\x1f\x8bnot really gzip")
+
+
+class NoRetryOnPermanentTests(unittest.TestCase):
+    """`get` 对 404/410 不重试（同上）。"""
+
+    def test_get_does_not_retry_on_404(self):
+        calls = []
+
+        class Opener:
+            def open(self, req, timeout=None):
+                calls.append(req.full_url)
+                raise urllib.error.HTTPError(req.full_url, 404, "Not Found", None, None)
+
+        with self.assertRaises(urllib.error.HTTPError):
+            wiki.get("http://x/dead.jpg", opener=Opener())
+        self.assertEqual(len(calls), 1)
 
 
 if __name__ == "__main__":

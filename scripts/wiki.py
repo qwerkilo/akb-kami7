@@ -43,6 +43,10 @@ def get(url, retries=4, data=None, opener=None):
             with opener.open(req, timeout=40) as r:
                 return maybe_gunzip(r.read())
         except Exception as e:
+            # 404/410 是**永久**错误：重试只是白烧（性能调研 #1 实测：两个死 URL
+            # 每轮 3×4 次请求 + 约 183s sleep）。
+            if getattr(e, "code", None) in (404, 410):
+                raise
             if i == retries - 1:
                 raise
             time.sleep(2 * (i + 1))

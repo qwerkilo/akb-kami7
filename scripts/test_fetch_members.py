@@ -1,3 +1,4 @@
+import urllib.error
 import io
 import json
 import os
@@ -2035,6 +2036,24 @@ class SinglePhotoReportTests(unittest.TestCase):
                 members, {"m1": "下载失败"}, {"f1": "源里没有"}
             )
         self.assertIn("X：源里没有", buf.getvalue())
+
+
+class PermanentDownloadTests(unittest.TestCase):
+    """404/410 是**永久**错误：不重试（性能调研 #1：两个死 URL 每轮白烧 4–5 分钟）。"""
+
+    def test_download_does_not_retry_on_404(self):
+        calls = []
+
+        def fetch(url):
+            calls.append(url)
+            raise urllib.error.HTTPError(url, 404, "Not Found", None, None)
+
+        with tempfile.TemporaryDirectory() as td:
+            mid, path = fetch_members.download(
+                ("mid1", "http://x/dead.jpg"), orig_dir=td, fetch=fetch
+            )
+        self.assertEqual(calls, ["http://x/dead.jpg"])
+        self.assertIsNone(path)
 
 
 if __name__ == "__main__":
