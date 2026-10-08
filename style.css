@@ -2032,6 +2032,29 @@ main {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
+
+/* ---- 宽屏（>560px）：语言/外观直接显示在页头 ----
+   工单 04 把语言/皮肤收进「更多」浮层时，把整个入口在宽屏也藏了（.more-btn 只在
+   ≤560px 显示、而 seg 只在该浮层里）—— 宽屏访客没有任何语言切换入口（探针实测：
+   3 个按钮在 DOM、可见 0）。这里让浮层在宽屏改回内联常显，「更多」按钮继续只服务
+   窄屏；hidden 属性必须显式覆盖 —— 作者样式的 display 会盖掉它（计算样式探针能看见）。 */
+@media (min-width: 561px) {
+  .more-menu {
+    position: static;
+    padding: 0;
+    background: none;
+    border: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  /* 全局有一条 `[hidden] { display: none !important }`（:157，作者 display 会盖掉 UA
+     的 [hidden]，所以钉了 !important）—— 这里要比它更高优先级：同 important 时
+     特异性（0,2,0 > 0,1,0）决定胜负，宽屏要无视 JS 的折叠状态常显。 */
+  .more-menu[hidden] {
+    display: flex !important;
+  }
+}
 @media (max-width: 560px) {
   /* 名册网格在窄屏收 4~6px（行距 12 → 8、上内边距 14 → 8）：英文界面下
      第一张卡原本比中文多 2px，正好卡在「首屏见脸」判据（≤400）的边界上外。 */

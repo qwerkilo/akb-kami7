@@ -183,7 +183,7 @@ function isExpectedResourceNoise(m) {
 
 runSuite({
   name: "e2e",
-  expect: 245, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 247, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1876,6 +1876,46 @@ runSuite({
         );
         await ctx2.close();
       }
+    }
+
+    // ---- 桌面宽度：语言切换必须可达 ----
+    // 桌面宽度此前从不在 E2E 覆盖内 —— 工单 04 把语言/皮肤收进「更多」浮层时
+    // 连 >560px 的入口一起藏了（.more-btn 只在 ≤560px 显示，而 seg 只在该浮层里），
+    // 没有任何套件会红。这条守住「宽屏有入口、点了真的切」。
+    block("桌面：语言切换可达");
+    {
+      const ctxD = await browser.newContext({
+        viewport: { width: 1280, height: 800 },
+        locale: "zh-CN",
+      });
+      const pd = await ctxD.newPage();
+      await pd.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
+      await pd.waitForTimeout(800);
+      const reach = await pd.evaluate(() => {
+        const btns = [...document.querySelectorAll("[data-lang]")];
+        const visible = btns.filter((b) => b.getClientRects().length > 0);
+        if (!visible.length) return { visible: 0, reachable: false };
+        const b = visible[0];
+        const q = b.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          q.left + q.width / 2,
+          q.top + q.height / 2
+        );
+        return {
+          visible: visible.length,
+          reachable: !!(hit && (hit === b || b.contains(hit))),
+        };
+      });
+      check(
+        "桌面 1280px：语言按钮可见且可点",
+        reach.reachable,
+        JSON.stringify(reach)
+      );
+      await pd.click('.seg-lang [data-lang="en"]');
+      await pd.waitForTimeout(300);
+      const langNow = await pd.evaluate(() => document.documentElement.lang);
+      check("桌面：点 EN 真的切换语言", langNow === "en", `lang=${langNow}`);
+      await ctxD.close();
     }
   },
 });

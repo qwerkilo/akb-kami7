@@ -1622,3 +1622,25 @@
   **语言切换不可达**（`.more-btn` 只在 ≤560px 显示，而 seg-lang 只在该浮层里）—— 真 bug，
   桌面宽度 E2E 从未覆盖是漏网根因 ② 「一排几个头像」**不存在该控件** —— 功能请求，走功能链。
 - 下次基点：本提交。
+
+## 第七十三轮 · 2026-10-08 · 桌面语言切换不可达（用户报告，diagnosing-bugs）
+
+- 基点：`c9c6dc5`
+- 范围：`c9c6dc5..HEAD` —— 用户报告的「PC 版没有切换语言按钮」。
+- **回路（Phase 1）**：`/tmp/opencode/probe-desktop-controls.cjs`（1280px 下语言按钮
+  可见性 + `elementFromPoint` 可达 + 退出码）—— 修复前 `langVisible: 0, moreDisplay: none`、
+  退出码 1（红）。
+- **根因（两层）**：① `.more-btn` 默认 `display:none`、只在 ≤560px 显示，而 `.seg-lang/.seg-skin`
+  只存在于该浮层内（工单 04 的回归）→ 宽屏无入口；② 修第一层时又撞上
+  `[hidden] { display: none !important }`（:157 的全局钉子）—— `.more-menu` 带 `hidden` 属性，
+  普通 `display:flex` 赢不了，必须同 important 下靠**特异性**（0,2,0 > 0,1,0）。
+  两层都是计算样式探针（不是元素属性）看出来的。
+- **修复**：`@media (min-width: 561px)` 里把 `.more-menu` 改回页头内联常显
+  （`position:static` + `.more-menu[hidden] { display:flex !important }`）——「更多」按钮
+  继续只服务窄屏；DOM 一份、无 JS 改动。
+- **回归测试**：主套件加「桌面 1280px」块 2 条 check（可见且可点 / 点 EN 真的切语言）——
+  **桌面宽度第一次进 E2E**（此前从不在覆盖内，正是漏网根因）；expect 245 → 247。
+- **验证**：红（245/247）→ 修 → 绿（**247/247**）；`npm run e2e:all` **5/5**
+  （247/54/42/73/145）；`npm run check` exit=0（**318 JS + 343 Python** + 棘轮无新增）。
+- **同报告第二项**：「一排几个头像」**不存在该控件** —— 是功能请求（handoff 已记），走功能链。
+- 下次基点：本提交。
