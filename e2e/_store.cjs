@@ -10,7 +10,11 @@ const core = require("../core.js");
 
 /** 偏好键（lang/skin/series/posterStyle/coach/duelIntro）——给读取/删除用。 */
 function prefKey(name) {
-  return core.PREF_KEYS[name];
+  const k = core.PREF_KEYS[name];
+  // 未知名字会让种子写进**字面键** "undefined"（静默失效：应用回落默认、套件照样绿）
+  // —— 出声（第七轮扫描的 Worth：pref 种子没有正面防线）。
+  if (typeof k !== "string") throw new Error(`未知的偏好键：${name}`);
+  return k;
 }
 
 /** 按系列存档键。 */

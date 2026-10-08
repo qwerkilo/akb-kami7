@@ -98,7 +98,9 @@ function flagValue(argv, flag) {
   // 支持 `--flag value` 与 `--flag=value` 两种写法 —— 此前只认前者，
   // `--only=e2e` / `--max-parallel=2` 会被**静默忽略**（后者还静默撤掉低内存保护）。
   const i = argv.indexOf(flag);
-  if (i >= 0) return argv[i + 1];
+  // 注意「带标志但缺值」：返回 null 而不是 undefined（否则调用方会当成「没传」、
+  // 静默忽略 —— 自检的 `parseArgs(["--max-parallel"])` 正是这条）。
+  if (i >= 0) return argv[i + 1] === undefined ? null : argv[i + 1];
   const pre = argv.find((a) => a.startsWith(flag + "="));
   return pre === undefined ? undefined : pre.slice(flag.length + 1);
 }

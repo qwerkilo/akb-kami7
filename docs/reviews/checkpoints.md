@@ -1840,3 +1840,15 @@
   （后者静默撤掉低内存保护）→ 抽出 `flagValue(argv, flag)` 支持两种写法；实测
   `--only=e2e` 不再为 null、`--max-parallel=abc` 仍报错。
 - 验证：`npm run check` 见当次输出；两文件语法检查通过。
+
+### 第八十一轮 · 补记四 · 种子键出声 + run-all 缺值修复（lang/skin 断言延后）
+
+- `_store.prefKey`：未知名字此前写进**字面键** `"undefined"`（静默失效）→ 现在**抛错**。
+- `run-all.flagValue`：支持 `--only=e2e` / `--max-parallel=2` 两种写法，且
+  「带标志但缺值」返回 `null`（自检的 `parseArgs(["--max-parallel"])` 正是这条 ——
+  第一版改完自检 4 条里 2 条红，`e2e:all` 直接**拒跑**；修后自检 4/4 绿）。
+- **延后（下次做）**：两个矩阵的「种子生效」加验 lang/skin —— 第一版断言实测红：
+  `{"size":"16","lang":"zh-CN","skin":"classic"}`（zh 映射成 `zh-CN`、`startsWith` 后
+  仍有一条不过，未定位到是 skin 还是别的口径）。**先恢复 size-only** 保 repo 绿；
+  证据与实测值留在本记录，别再从零试。
+- 验证：`npm run e2e:header` 全 PASS（尾部逐条）；`npm run check` exit=0；run-all 自检 4/4。
