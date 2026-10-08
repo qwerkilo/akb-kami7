@@ -26,10 +26,13 @@ jobs:
       - run: npm run check
 
   e2e:
-    # E2E 是 UI 层唯一的验收手段（app.js 没有单测缝），也放进来 —— 跑全量五套件：
-    # 主套件 + v5/pwa/header/first 四个矩阵。此前只跑主套件（「四套件偏重」的理由
-    # 在 e2e:all 从 26 分钟降到 5–7 分钟后已过期）；矩阵套件正是「只有改 UI 才红」
-    # 的那批，而 CI 是唯一不依赖 agent 记忆的闸门。
+    # E2E 是 UI 层唯一的验收手段（app.js 没有单测缝），也放进来。
+    # 2026-10-08 订正：全量 `e2e:all`（五个套件）在 runner 上**挂住超过 2 小时**
+    # （此前主套件约 3.5 分钟）——「5–7 分钟」的估算只在本地成立。先回到三个已验证的
+    # 快速套件（主 + v5 + pwa），两个矩阵套件（header/first）的 runner 成本待诊断
+    # （见检查点第七十轮）；本地仍跑全量 `npm run e2e:all`。
+    # timeout 兜底：慢或挂住时**可见地失败**，不再无声地占住闸门。
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,4 +43,6 @@ jobs:
       - run: npm i --no-save playwright # 只为让 require("playwright") 能解析；不动 lock
       - run: npx playwright install --with-deps chromium
       - run: python3 -m pip install --user Pillow
-      - run: npm run e2e:all
+      - run: npm run e2e
+      - run: npm run e2e:v5
+      - run: npm run e2e:pwa
