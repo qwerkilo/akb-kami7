@@ -765,9 +765,15 @@ test("照片回退链：原因在链里产生，不再有 errors 中转（工单
   // 原因的唯一定义点：常量在这里定义，链只用常量
   assert.match(chain, /^QUERY_FAILED = "查询失败"$/m, "QUERY_FAILED 常量");
   assert.match(chain, /^SOURCE_EMPTY = "源里没有"$/m, "SOURCE_EMPTY 常量");
+  // 引号/括号无关：摘掉两条常量定义行后，链里不许再出现原因**字面量**。
+  // 此前只查 `return None, "` —— `return (None, "查询失败")` 或单引号即可绕过
+  // （第七轮扫描）；已知边界：`"查询" + "失败"` 拼出来的仍抓不到。
+  const withoutDefs = chain
+    .replace(/^QUERY_FAILED = "查询失败"$/m, "")
+    .replace(/^SOURCE_EMPTY = "源里没有"$/m, "");
   assert.ok(
-    !/return None, "/.test(chain),
-    "链的落空必须返回常量（不许写死原因串）"
+    !/查询失败|源里没有/.test(withoutDefs),
+    "链的落空必须返回常量（不许写死原因串，任何引号/括号形态都不行）"
   );
 });
 
@@ -776,9 +782,12 @@ test("照片原因串只有一个产生点：loader 不许写原因字面量（�
     const src = stripCommentsAndDocs(
       fs.readFileSync(path.join(__dirname, "..", "scripts", f), "utf8")
     );
+    // 引号无关：剥注释/docstring 后查**裸词** —— `'查询失败'`、`(None, "查询失败")`
+    // 这类形态此前都能绕过（第七轮扫描；单/双引号均可）。已知边界同链守卫。
+    const text = stripCommentsAndDocs(src);
     for (const reason of ["查询失败", "源里没有"]) {
       assert.ok(
-        !src.includes(`"${reason}"`),
+        !text.includes(reason),
         `${f} 不许写「${reason}」字面量 —— 用 photo_chain 的常量（原因只有一个产生点）`
       );
     }
