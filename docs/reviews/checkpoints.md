@@ -2045,3 +2045,14 @@
   背景**（`inDialog:false`）变成 8 步**全在 `button#pf-close`**（`inDialog:true`）；
   `escapeCloses:true`、`activeAfterClose:SPAN`（还焦点）保持。
 - 验证：`npm run e2e` 249/249。
+
+### 第八十二轮 · 补记十 · L10（部分）：对决进度对读屏播报
+
+- 口径（UX 代理）：对决页无 aria-live —— 换人/进度对读屏静默（全局仅 toast 有）。
+- 修：`index.html` 的 `<p class="duel-progress">` 加 `aria-live="polite"` —— 每轮的
+  「N / M」进度变化会被播报（纯属性、无视觉变化）。
+- **未做（如实）**：换人时**选手姓名**的播报没做（需要再选一个会随换人更新的文本节点，
+  或另建 visually-hidden 的 live region）—— 留给下一轮。
+- 验证：`npm run e2e` 见当次输出。
+- 低 6 条进度：L10 部分 ✅；L7（窄屏筛选指示）/ L8（title 只鼠标 + 对比度）/ L9（方向键）/
+  L11（骨架屏）/ L12（触控 <44px：清空 46×22、档位 35×30、关闭 32×32、保存 38 高）待做。
