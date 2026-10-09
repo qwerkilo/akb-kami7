@@ -469,7 +469,8 @@ main {
 .filter-trigger::-webkit-details-marker {
   display: none;
 }
-.filter-panel[open] .filter-trigger {
+.filter-panel[open] .filter-trigger,
+.filter-trigger[data-active] {
   border-color: var(--pink);
 }
 .filter-sum {

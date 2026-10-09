@@ -704,6 +704,16 @@
         "aria-label",
         `${t("filter_label")} · ${t("filter_sum", n)}`
       );
+    // 窄屏把 .filter-sum 藏了（它挤档位段），于是「筛选生效了」在视觉上没有指示 ——
+    // 给触发按钮挂 data-active，用边框变色提示（零宽度增量：border 本就在）。
+    if (btn) {
+      const seg = document.querySelector(
+        '.seg-filter [aria-pressed="true"], .seg-filter [aria-checked="true"]'
+      );
+      const f = seg && seg.dataset.filter;
+      if (f && f !== "all") btn.setAttribute("data-active", "");
+      else btn.removeAttribute("data-active");
+    }
   }
 
   function paintTitle() {
