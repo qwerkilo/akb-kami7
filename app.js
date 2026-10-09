@@ -1551,7 +1551,11 @@
       $("#coach").hidden = true;
     },
     "resume-go": () => navigate("resume"),
-    "resume-drop": () => navigate("drop"),
+    "resume-drop": () => {
+      // 同「重新选人」：放弃会作废对决进度（此前 0 确认）。
+      if (!window.confirm(t("drop_confirm"))) return;
+      navigate("drop");
+    },
     "intro-go": closeIntro,
     "intro-skip": closeIntro,
   });

@@ -2018,3 +2018,10 @@
   处理器（不在 app.js 的 grep 命中里，疑在事件委托/`data-act` 路径）—— 留给下一轮；
   **M6**（划掉/留两态可及名相同）也未动。
 - 验证：i18n 17/17；`npm run e2e` 249/249。
+
+### 第八十二轮 · 补记七 · M5 收口：放弃对决也加确认
+
+- `resume-drop`（index.html:263 的「放弃」，处理器在 app.js 的 data-act 分发表）此前
+  一键 `navigate("drop")`、0 确认 → 同「重新选人」加 `window.confirm(t("drop_confirm"))`，
+  新键 ×3 语言。M5 至此**两个按钮都收口**。
+- 验证：i18n 17/17；npm run e2e 249/249。
