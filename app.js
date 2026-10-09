@@ -1888,3 +1888,7 @@
   navigate("boot");
   initPWA();
 })();
+
+// L11：boot 占位与相位切换解耦 —— 模块加载后的下一帧就把它摘掉（相位在 init 里
+// 已同步渲染过；之后离开挑人页/回挑人页都与占位无关）。
+requestAnimationFrame(() => document.getElementById("boot")?.remove());

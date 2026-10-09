@@ -2130,3 +2130,17 @@
   （复用 `var(--line)`/`var(--radius)` 令牌，别引入刻度外数值）；③ app.js 首帧后
   `document.getElementById("boot")?.remove()`；④ 探针：拖住 `members.js` 2s，
   t≈1s 断言 `#boot` 可见、渲染后不存在。
+
+### 第八十二轮 · 补记十七 · L11 实现完成但**探针两次未证实**（如实）
+
+- 实现（三处）：index.html 加 `#boot` 占位（body 首子节点，三个灰块）、style.css 加
+  `#boot` 样式（几何属性 + `--line/--radius` 令牌，避开刻度棘轮盯的字号/间距）、
+  app.js 末尾 `requestAnimationFrame(() => …remove())`。
+- **探针两次都读到 `#boot` 不存在**（第一次只拖 members.js、第二次拖**全部** .js 3s，
+  t≈1s 时 `present:false`）——而文件里 `id="boot"` 确在（`grep -c` 已验）。
+- 存疑原因（下轮先查这三条，别重写）：
+  ① 8790 端口是**历轮遗留的服务器**在服务（工具的 pkill 模式几次没杀干净），
+     新 server 绑定失败被 `>/dev/null` 吞掉 —— 用 `curl -s localhost:8790/ | grep boot` 直接判；
+  ② 探针里 `waitUntil:"commit"` + 路由延迟对**首文档**不生效的顺序问题；
+  ③ `requestAnimationFrame` 在 `document.hidden` 时可能被推迟 —— 与本症状不符，列作排除项。
+- 行为验证：`npm run e2e` 见当次输出（若绿，说明移除时机不影响任何流程）。

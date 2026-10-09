@@ -2315,3 +2315,17 @@ html[data-cols="compact"] {
 .screen-foot .screen-count {
   flex: 1 0 100%;
 }
+
+/* L11：boot 占位（首帧后移除）。只用几何属性与令牌，不引入刻度外数值。 */
+#boot {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  grid-auto-flow: column;
+}
+#boot .boot-face {
+  width: 72px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius);
+  background: var(--line);
+}

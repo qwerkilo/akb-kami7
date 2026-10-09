@@ -35,6 +35,13 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- L11：boot 占位 —— JS（相位切换）起来之前给页面一点形状；首帧后由 app.js 移除。
+         独立节点、与相位解耦：JS 全挂时它留着（可接受），正常运行下一帧就消失。 -->
+    <div id="boot" aria-hidden="true">
+      <div class="boot-face"></div>
+      <div class="boot-face"></div>
+      <div class="boot-face"></div>
+    </div>
     <header id="site-head" class="masthead">
       <div class="masthead-main">
         <p class="eyebrow" id="eyebrow">48 Group 好き顔ソート</p>
