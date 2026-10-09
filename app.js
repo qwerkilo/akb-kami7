@@ -990,10 +990,12 @@
     if (profileId) return closeProfile();
   });
 
-  // 皮肤段控件的左右方向键。返回 true = 已处理（焦点在段内按钮上）。
-  function skinArrowKey(e) {
+  // 段控件（radiogroup）的左右方向键：任何 .seg 都适用（L9 前只有皮肤段有）。
+  // 触发走 next.click() —— 各 seg 的点击分派（皮肤/大小/筛选/语言）各自现成，
+  // 不在这里列举（列举过一次，写死 switchSkin 时新 seg 误切皮肤）。
+  function segArrowKey(e) {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return false;
-    const group = e.target.closest?.(".seg-skin");
+    const group = e.target.closest?.(".seg");
     if (!group) return false;
     const items = [...group.querySelectorAll("button")];
     const idx = items.indexOf(e.target);
@@ -1004,9 +1006,7 @@
         (idx + (e.key === "ArrowRight" ? 1 : items.length - 1)) % items.length
       ];
     next.focus();
-    // 分派按所在 seg 走：此前写死 switchSkin —— 新 seg 的键盘导航会误切皮肤
-    if (next.dataset.cols) setCols(next.dataset.cols);
-    else switchSkin(next.dataset.skin);
+    next.click();
     return true;
   }
 
@@ -1022,7 +1022,7 @@
   }
 
   document.addEventListener("keydown", (e) => {
-    if (skinArrowKey(e)) return;
+    if (segArrowKey(e)) return;
     duelArrowKey(e);
   });
 
