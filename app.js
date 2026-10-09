@@ -551,6 +551,16 @@
   /* ---------------- 简介（原型 C 杂志编辑） ---------------- */
   let profileId = null;
 
+  // 浮层打开时把页面其余部分设为 inert：Tab 不会再走到背景（M4 的圈禁，
+  // 用平台能力而不是手搓 tabindex 队列）。只对 #profile 生效，pwa-sheet 走它自己的。
+  function setPageInert(on) {
+    for (const el of document.body.children) {
+      if (el.id === "profile" || el.tagName === "SCRIPT") continue;
+      if (on) el.setAttribute("inert", "");
+      else el.removeAttribute("inert");
+    }
+  }
+
   let profileOpener = null;
 
   function openProfile(id) {
@@ -568,6 +578,7 @@
       .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
       .join("");
     $("#profile").hidden = false;
+    setPageInert(true);
     profileOpener = document.activeElement;
     $("#pf-close")?.focus();
   }
@@ -575,6 +586,7 @@
   function closeProfile() {
     profileId = null;
     $("#profile").hidden = true;
+    setPageInert(false);
     // 焦点还给真正的触发者（pwa-sheet 同款；不还的话键盘用户会落回页面开头）
     if (profileOpener && profileOpener.isConnected) profileOpener.focus();
     profileOpener = null;
@@ -939,7 +951,28 @@
     toast(t("duel_saved"));
   });
 
+  // Tab 圈禁：inert 挡住背景之后，剩下的缺口是「最后一个可聚焦元素按 Tab 会
+  // 跳到浏览器 UI、再回来时落在 body」——这里把 Tab/Shift+Tab 兜回浮层内。
+  function profileTrap(e) {
+    if (e.key !== "Tab" || !profileId) return;
+    const el = $("#profile");
+    const items = [
+      ...el.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      ),
+    ].filter((x) => !x.disabled && x.offsetParent !== null);
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    const inside = el.contains(document.activeElement);
+    if (e.shiftKey ? !inside || document.activeElement === first : !inside || document.activeElement === last) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    }
+  }
+
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") return profileTrap(e);
     if (e.key !== "Escape") return;
     if (moreOpen()) return setMore(false);
     if (sheetOpen) return closeSheet();

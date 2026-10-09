@@ -2034,3 +2034,14 @@
   （`screen_cut`/`screen_keep`）。
 - 探针实测：`划掉 板野友美` / `留 板野友美`（en：`Keep 板野友美`）——两态可区分。
 - 验证：i18n 17/17；npm run e2e 249/249。
+
+### 第八十二轮 · 补记九 · M4 收口：inert + Tab 兜回
+
+- 上一轮的「部分修复」（初始焦点 + 还焦点）补完两件：
+  ① `setPageInert(true/false)`：打开 `#profile` 时把 `document.body` 的其余子元素设为
+  `inert`（背景不可聚焦）；② `profileTrap`：Tab/Shift+Tab 在首/尾或焦点逃出浮层时兜回
+  浮层内（inert 之后剩下的缺口是「Tab 到浏览器 UI 再回来落在 body」）。
+- 探针实测（修前 → 修后）：`focusEscapesDialog` **true → false**；tabPath 从 8 步**全在
+  背景**（`inDialog:false`）变成 8 步**全在 `button#pf-close`**（`inDialog:true`）；
+  `escapeCloses:true`、`activeAfterClose:SPAN`（还焦点）保持。
+- 验证：`npm run e2e` 249/249。
