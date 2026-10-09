@@ -1471,7 +1471,7 @@
         <button class="mark" data-cut="${esc(id)}" aria-pressed="${cut ? "true" : "false"}"
           ${off ? "disabled" : ""}
           title="${off ? esc(t("screen_locked")) : ""}"
-          aria-label="${esc((cut ? t("screen_keep") : t("screen_cut")) + " " + m.name)}">${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
+          aria-label="${esc((off ? t("screen_locked") : cut ? t("screen_keep") : t("screen_cut")) + " " + m.name)}">${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
       </li>`;
     });
     $("#screen-list").innerHTML = rows.join("");
