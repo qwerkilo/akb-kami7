@@ -2257,3 +2257,14 @@
   prettier 会红在那些提交上，现已回绿）。
 - 验证：`npm run e2e` **250/250**、`npm run e2e:v5` **54/54**、`e2e:all` 5/5（含本无标题批的
   行模板改动后的行为一致）。
+
+### 第八十二轮 · 补记二十七 · 第八轮扫描 1+2 落地（restart dialog + lint:undef 补 sw）
+
+- **1**：`e2e.cjs` 点 `#restart-btn` 前接住 dialog + 新断言「确认后真的回到挑人页」
+  （expect 250→251）—— 此路径自 M5 起被 dismiss 掉、断言全绿掩盖 ✗。**变异被杀**：
+  不接 dialog → 新断言红（`FAIL 重新选人：确认后真的回到挑人页` · 250/251 ✓ 已还原）。
+- **2**：`lint:undef` 清单补 `sw.js` / `sw-cache-rules.js` + `--global importScripts`
+  —— `sw.js` 此前是全仓唯一既无静态检查也无测试执行的文件 ✓。补后 lint 全绿 ✓。
+- 记账：第一次「check && commit」链路 **被 prettier 拦住**（e2e.cjs 需格式化 ✓）→
+  `format:write` 后复跑全绿再提交 ✓ —— **这次闸门按设计工作**（与 `3cfddb9` 的红闸门相反 ✓）。
+- 验证：`npm run e2e` **251/251** ✓；`npm run check` exit 0 ✓。

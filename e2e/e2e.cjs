@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 250, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 251, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1294,8 +1294,16 @@ runSuite({
         loveResultTitle.trim() === "我的等爱 推し 7" && lovePosterOk,
         `${loveResultTitle.trim()} poster=${lovePosterOk}`
       );
+      // M5 起「重新选人」带 window.confirm：不接住 dialog，Playwright 默认 dismiss
+      // → navigate("restart") 根本没发生、后续断言照样全绿（第八轮扫描抓到：
+      // 与 v5 点「放弃」同一事故类，v5 修了、这里漏了）。
+      page.once("dialog", (d) => d.accept());
       await page.click("#restart-btn");
       await page.waitForTimeout(300);
+      check(
+        "重新选人：确认后真的回到挑人页",
+        await page.isVisible("#phase-pick")
+      );
       await page.click('.seg-series [data-series="48g"]');
       await page.waitForTimeout(400);
       const backBrand = await page.textContent("#brand");
