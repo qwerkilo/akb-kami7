@@ -1845,6 +1845,10 @@ html[data-cols="compact"] {
   font-size: 13px;
   font-weight: 700;
 }
+.screen-row .mark .lock {
+  margin-inline-end: 4px;
+  font-size: 11px;
+}
 .screen-row.locked .mark {
   opacity: 0.4;
 }
