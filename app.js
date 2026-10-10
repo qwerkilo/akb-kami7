@@ -412,10 +412,15 @@
     m.hay = CORE.haystack(m, FOLD);
   });
 
+  // 宽命中（单个 "a" 曾命中 1000+）会把 467KB 的 innerHTML 一次重建 → 冻结 ~1s。
+  // 只渲染前 N 张，其余用一行诚实提示（再输入一个字即可缩小）。
+  const SEARCH_RENDER_CAP = 80;
   function renderSearch(view) {
     const hits = view.hits;
+    const shown = hits.slice(0, SEARCH_RENDER_CAP);
+    const more = hits.length - shown.length;
     roster.innerHTML = hits.length
-      ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${hits.map((m) => cardHTML(m, true)).join("")}</div>`
+      ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${shown.map((m) => cardHTML(m, true)).join("")}</div>${more > 0 ? `<p class="hint">${t("search_more", more)}</p>` : ""}`
       : `<p class="empty">${t("empty_search", esc(snap.query))}</p><p class="hint">${t("empty_search_hint")}</p>`;
     rosterEntered();
   }

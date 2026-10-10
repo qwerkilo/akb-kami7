@@ -701,6 +701,7 @@
       picked: (n) => `已选 ${n}`,
       empty_filter: "这个范围里没有成员。",
       found: (n) => `找到 ${n} 位`,
+      search_more: (n) => `还有 ${n} 位，再输入一个字缩小范围`,
       empty_search: (q) =>
         `没有找到“${q}”。可换用汉字、假名或昵称再试，或切换到“全部”。`,
       active: "现役",
@@ -892,6 +893,7 @@
       picked: (n) => `${n} picked`,
       empty_filter: "No members in this filter.",
       found: (n) => `${n} found`,
+      search_more: (n) => `${n} more — type another letter to narrow down`,
       empty_search: (q) =>
         `No results for “${q}”. Try kanji, kana, or a nickname, or switch to All.`,
       active: "Active",
@@ -1087,6 +1089,7 @@
       picked: (n) => `選択中 ${n}`,
       empty_filter: "この範囲にはメンバーがいません。",
       found: (n) => `${n}人見つかりました`,
+      search_more: (n) => `他に ${n} 名。もう一文字入力すると絞り込めます`,
       empty_search: (q) =>
         `「${q}」は見つかりませんでした。漢字・かな・ニックネームで試すか、「すべて」に切り替えてください。`,
       active: "現役",

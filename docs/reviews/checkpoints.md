@@ -2211,3 +2211,14 @@
   套件原先在 `fonts.ready` 后立刻数 face → 量到 0（2 条红是同一时序，不是产品坏）。
   `measureFonts` 先等「link 应用 + faces>0」（上限 60s）再 `fonts.ready` ✓。
 - 验证：`npm run e2e` **250/250**、`npm run e2e:pwa` **42/42**。
+
+### 第八十二轮 · 补记二十四 · 搜索 #3 收口（渲染上限 + 诚实提示；防抖原有）
+
+- **B 防抖本来就有**（输入 120ms `setTimeout`）✓ —— 本次只做 A。
+- **A**：`renderSearch` 只渲染前 **80** 张（`SEARCH_RENDER_CAP`），其余给一行提示
+  `search_more`（三语）。探针实测（390px，输入 "a"）：命中 **1089** → 渲染 **80** 张 ✓、
+  提示「**1009 more — type another letter to narrow down**」✓（1089−80=1009 ✓）。
+- i18n 三语键 `search_more` 已加（zh/en/ja），`test/i18n.test.js` 绿 ✓。
+- 验证：`npm run e2e` **250/250**（含守恒 ✓）。**如实记一笔**：其中一次运行曾报
+  `251/251`（守恒不符）——当时刚有一个探针异常退出、留下 Chromium 进程 ✗；紧接着复跑
+  `250/250 / exit=0` ✓。若再出现，按「残留进程 + 计数漂移」排查。
