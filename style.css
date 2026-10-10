@@ -855,6 +855,16 @@ html[data-cols="compact"] {
   background: var(--card);
   box-shadow: var(--shadow);
 }
+/* L12：清空是唯一连 AA（24px）都不到的触控目标（22px 高）→ 命中区撑到 44，
+   视觉尺寸不变（::after 覆盖层不参与布局；横向 57 已 ≥44，不扩、避免盖住旁边的提示文字）。 */
+#clear-btn {
+  position: relative;
+}
+#clear-btn::after {
+  content: "";
+  position: absolute;
+  inset: -11px 0;
+}
 .primary {
   background: var(--peach);
   color: var(--on-primary);
