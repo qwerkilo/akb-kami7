@@ -2144,3 +2144,17 @@
   ② 探针里 `waitUntil:"commit"` + 路由延迟对**首文档**不生效的顺序问题；
   ③ `requestAnimationFrame` 在 `document.hidden` 时可能被推迟 —— 与本症状不符，列作排除项。
 - 行为验证：`npm run e2e` 见当次输出（若绿，说明移除时机不影响任何流程）。
+
+### 第八十二轮 · 补记十八 · L11 探针之谜的突破线索（测量方法本身可疑）
+
+- 决定性新事实：在「拖住全部 .js 3s」的探针里，t≈1.2s 时 **`document.body` 是 null**
+  （evaluate 抛 `Cannot read properties of null`）—— 也就是**那一时刻 body 根本还没解析**，
+  所以前面几次「`#boot` 不存在」的读数**测的是解析前的状态**，不能证明占位不可见。
+- 与代码事实对齐：index.html 的脚本是**body 末尾的 7 个经典同步脚本**（667–673，
+  core→app），不是 module/defer；解析器到它们才阻塞，body（37 行起）应当早已解析 ——
+  因此「body 为 null」更像是**探针环境**的问题：我自己起的 `python3 -m http.server`
+  **是单线程版**（本仓 AGENTS.md 明确要求用 `e2e/serve.py` 的 ThreadingHTTPServer，
+  否则并发请求会互相排队、load 事件迟迟不触发），叠加 `route` 延迟后的时序不可信。
+- **下一轮的正确做法**：L11 的验证改用仓内 `e2e/serve.py`（线程版）+ 与 `_wait.cjs`
+  同款的等待方式；先断言 `document.readyState` 与 `document.body` 非空，再查 `#boot`。
+  在换掉服务器之前，不再基于旧读数做结论。
