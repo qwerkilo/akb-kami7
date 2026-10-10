@@ -137,6 +137,23 @@ runSuite({
     // 而离线侧量的是已应用的网络字体——两者差十几像素，断言变成量时序而不是量字体。
     const measureFonts = () =>
       page.evaluate(async () => {
+        // #2 起字体样式表是「media=print → onload 翻 all」的非阻塞加载：先等它真的
+        // 应用（@font-face 注册出来）再等 fonts.ready，否则量到的是「CSS 还没生效」
+        // 的时序（faces=0），而不是字体本身。上限 60s。
+        const link = document.querySelector(
+          'link[href*="fonts.googleapis.com/css2"]'
+        );
+        if (link) {
+          await new Promise((res) => {
+            let n = 0;
+            const tick = () => {
+              if (link.media !== "print" && document.fonts.size > 0) return res();
+              if (++n > 600) return res();
+              setTimeout(tick, 100);
+            };
+            tick();
+          });
+        }
         await document.fonts.ready;
         return {
           faces: document.fonts.size,

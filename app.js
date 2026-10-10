@@ -1790,13 +1790,52 @@
         const css = await (
           await fetch(link.href, { credentials: "omit" })
         ).text();
-        const urls = Array.from(
-          new Set(
-            Array.from(css.matchAll(/url\((https:\/\/[^)]+\.woff2)\)/g)).map(
-              (m) => m[1]
+        // #4：只预热「unicode-range 覆盖当前页可见字符」的子集。此前把 CSS 里
+        // 全部子集都拉下来（~500 个文件 / 5.7MB），绝大多数字形当前页面用不到。
+        const codes = new Set(
+          Array.from(
+            document.querySelectorAll(
+              "body *:not(script):not(style):not(noscript)"
             )
           )
+            .filter((el) => el.childElementCount === 0)
+            .flatMap((el) => Array.from(el.textContent || ""))
+            .map((ch) => ch.codePointAt(0))
         );
+        const urls = [];
+        for (const block of css.split("@font-face").slice(1)) {
+          const cut = block.indexOf("}");
+          if (cut < 0) continue;
+          const face = block.slice(0, cut);
+          const mUrl = face.match(/url\((https:\/\/[^)]+\.woff2)\)/);
+          if (!mUrl) continue;
+          const mRange = face.match(/unicode-range:\s*([^;]+)/i);
+          if (!mRange) {
+            urls.push(mUrl[1]);
+            continue;
+          }
+          const ranges = mRange[1]
+            .split(",")
+            .map((t) => {
+              const p = t.trim().match(/U\+([0-9a-f?]+)(?:-([0-9a-f]+))?/i);
+              if (!p) return null;
+              const lo = parseInt(p[1].replace(/\?/g, "0"), 16);
+              const hi = p[2]
+                ? parseInt(p[2], 16)
+                : p[1].includes("?")
+                  ? parseInt(p[1].replace(/\?/g, "f"), 16)
+                  : lo;
+              return [lo, hi];
+            })
+            .filter(Boolean);
+          if (
+            ranges.length === 0 ||
+            Array.from(codes).some((c) =>
+              ranges.some(([lo, hi]) => c >= lo && c <= hi)
+            )
+          )
+            urls.push(mUrl[1]);
+        }
         // 分批并发：逐个 await 要十几秒，期间用户断网就只预热了一半（实测会）。
         // 页面被切走/隐藏就停：否则导航会中断这批请求并刷一串资源错误。
         for (let i = 0; i < urls.length; i += 16) {
