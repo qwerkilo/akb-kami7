@@ -895,6 +895,14 @@
     $("#undo-btn").disabled = !snap.duel.canUndo;
     fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
     fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
+    // 换人对读屏播报（L10 尾巴）：进度有 aria-live，选手姓名此前没有出口。
+    const live = $("#duel-live");
+    if (live) {
+      live.textContent = snap.duel.pair
+        .map((id) => BY_ID.get(id)?.name || "")
+        .filter(Boolean)
+        .join(" vs ");
+    }
     duel50 = CORE.milestone(snap.duel.percent, duel50).shown;
     renderSteps();
   }

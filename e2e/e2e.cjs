@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 249, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 250, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -528,6 +528,21 @@ runSuite({
           // resort 会重开对决 → maybeIntro() 又弹说明卡，遮罩会挡住答题
           await dismissIntro(page);
           pairs.add(await firstPair());
+          // L10：换人时的姓名播报（visually-hidden 的 role=status）——
+          // 只验一次（该块会多次重进对决，pairs.size===1 即首轮）
+          if (pairs.size === 1) {
+            check(
+              "对决页：选手姓名有 live region",
+              await page.evaluate(() => {
+                const el = document.getElementById("duel-live");
+                return (
+                  !!el &&
+                  el.textContent.trim().length > 0 &&
+                  el.classList.contains("visually-hidden")
+                );
+              })
+            );
+          }
           if (k === 0) {
             check(
               "重新排序把题数清零（从第 1 题重答）",

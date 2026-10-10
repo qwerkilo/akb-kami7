@@ -2170,3 +2170,13 @@
   （本轮用 `e2e/serve.py` 线程版复测）。**教训**：验证「boot 期可见性」要用 abort/断网
   构造 pre-JS 稳态，不要用「延迟 + 竞态窗口」。
 - 验证结果：**L11 完成**（占位可见 506px + 首帧移除 + `npm run e2e` 249/249）。
+
+### 第八十二轮 · 补记二十 · L10 收口：选手姓名 live region（进 E2E 数守恒）
+
+- 实现：index.html 加 `#duel-live`（`class="visually-hidden" role="status"`），
+  `renderDuel` 里同步「A vs B」——换人即播报（进度那条此前已有 aria-live）。
+- **验证进主套件**：对决块加 check「对决页：选手姓名有 live region」（存在 + 非空 +
+  visually-hidden）→ `e2e` 249 → **250/250** ✓。
+- 记账：第一版 check 被此块的循环跑了 6 次（255/255、数守恒报 249≠255）→ 用
+  `pairs.size === 1` 收敛到首轮一次；attempt 期间探针自己点选没走通（选卡 class 猜错，
+  0 picked）——**没靠探针下结论**，最终以套件内的真断言收口。
