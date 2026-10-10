@@ -1471,6 +1471,17 @@
   }
 
   /* ---------------- screening (清单筛选；ADR-0019) ---------------- */
+  // L8：锁标单独成函数（内联的三元会把 renderScreen 的行模板推过复杂度基线）
+  // 可及名的动作 + 原因（拆出来让行模板的圈复杂度留在基线内）
+  function markLabel(off, cut) {
+    if (off) return t("screen_locked");
+    return cut ? t("screen_keep") : t("screen_cut");
+  }
+
+  function lockMark(off) {
+    return off ? '<span class="lock" aria-hidden="true">🔒</span>' : "";
+  }
+
   function renderScreen() {
     sync();
     const sc = snap.screening;
@@ -1498,7 +1509,7 @@
         <button class="mark" data-cut="${esc(id)}" aria-pressed="${cut ? "true" : "false"}"
           ${off ? "disabled" : ""}
           title="${off ? esc(t("screen_locked")) : ""}"
-          aria-label="${esc((off ? t("screen_locked") : cut ? t("screen_keep") : t("screen_cut")) + " " + m.name)}">${off ? '<span class="lock" aria-hidden="true">🔒</span>' : ""}${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
+          aria-label="${esc(markLabel(off, cut) + " " + m.name)}">${lockMark(off)}${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
       </li>`;
     });
     $("#screen-list").innerHTML = rows.join("");
@@ -1787,6 +1798,51 @@
       });
     });
   }
+  // #4 的辅助（拆开是为了各自的圈复杂度 ≤10）：可见字符码点、区间解析、覆盖判定、取 URL
+  function fontCodePoints(root) {
+    const out = new Set();
+    const els = root.querySelectorAll(
+      "body *:not(script):not(style):not(noscript)"
+    );
+    for (const el of els) {
+      if (el.childElementCount) continue;
+      for (const ch of el.textContent || "") out.add(ch.codePointAt(0));
+    }
+    return out;
+  }
+
+  function fontRange(t) {
+    const p = t.trim().match(/U\+([0-9a-f?]+)(?:-([0-9a-f]+))?/i);
+    if (!p) return null;
+    const lo = parseInt(p[1].replace(/\?/g, "0"), 16);
+    if (p[2]) return [lo, parseInt(p[2], 16)];
+    if (p[1].includes("?")) return [lo, parseInt(p[1].replace(/\?/g, "f"), 16)];
+    return [lo, lo];
+  }
+
+  function faceCovers(face, codes) {
+    const m = face.match(/unicode-range:\s*([^;]+)/i);
+    if (!m) return true;
+    const ranges = m[1].split(",").map(fontRange).filter(Boolean);
+    if (!ranges.length) return true;
+    for (const c of codes) {
+      for (const [lo, hi] of ranges) if (c >= lo && c <= hi) return true;
+    }
+    return false;
+  }
+
+  function warmUrls(css, codes) {
+    const urls = [];
+    for (const block of css.split("@font-face").slice(1)) {
+      const cut = block.indexOf("}");
+      if (cut < 0) continue;
+      const face = block.slice(0, cut);
+      const mUrl = face.match(/url\((https:\/\/[^)]+\.woff2)\)/);
+      if (mUrl && faceCovers(face, codes)) urls.push(mUrl[1]);
+    }
+    return urls;
+  }
+
   async function warmFonts() {
     if (!navigator.onLine) return;
     const links = [
@@ -1801,50 +1857,7 @@
         ).text();
         // #4：只预热「unicode-range 覆盖当前页可见字符」的子集。此前把 CSS 里
         // 全部子集都拉下来（~500 个文件 / 5.7MB），绝大多数字形当前页面用不到。
-        const codes = new Set(
-          Array.from(
-            document.querySelectorAll(
-              "body *:not(script):not(style):not(noscript)"
-            )
-          )
-            .filter((el) => el.childElementCount === 0)
-            .flatMap((el) => Array.from(el.textContent || ""))
-            .map((ch) => ch.codePointAt(0))
-        );
-        const urls = [];
-        for (const block of css.split("@font-face").slice(1)) {
-          const cut = block.indexOf("}");
-          if (cut < 0) continue;
-          const face = block.slice(0, cut);
-          const mUrl = face.match(/url\((https:\/\/[^)]+\.woff2)\)/);
-          if (!mUrl) continue;
-          const mRange = face.match(/unicode-range:\s*([^;]+)/i);
-          if (!mRange) {
-            urls.push(mUrl[1]);
-            continue;
-          }
-          const ranges = mRange[1]
-            .split(",")
-            .map((t) => {
-              const p = t.trim().match(/U\+([0-9a-f?]+)(?:-([0-9a-f]+))?/i);
-              if (!p) return null;
-              const lo = parseInt(p[1].replace(/\?/g, "0"), 16);
-              const hi = p[2]
-                ? parseInt(p[2], 16)
-                : p[1].includes("?")
-                  ? parseInt(p[1].replace(/\?/g, "f"), 16)
-                  : lo;
-              return [lo, hi];
-            })
-            .filter(Boolean);
-          if (
-            ranges.length === 0 ||
-            Array.from(codes).some((c) =>
-              ranges.some(([lo, hi]) => c >= lo && c <= hi)
-            )
-          )
-            urls.push(mUrl[1]);
-        }
+        const urls = warmUrls(css, fontCodePoints(document));
         // 分批并发：逐个 await 要十几秒，期间用户断网就只预热了一半（实测会）。
         // 页面被切走/隐藏就停：否则导航会中断这批请求并刷一串资源错误。
         for (let i = 0; i < urls.length; i += 16) {
