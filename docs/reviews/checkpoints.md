@@ -2268,3 +2268,11 @@
 - 记账：第一次「check && commit」链路 **被 prettier 拦住**（e2e.cjs 需格式化 ✓）→
   `format:write` 后复跑全绿再提交 ✓ —— **这次闸门按设计工作**（与 `3cfddb9` 的红闸门相反 ✓）。
 - 验证：`npm run e2e` **251/251** ✓；`npm run check` exit 0 ✓。
+
+### 第八十二轮 · 补记二十八 · 第八轮扫描 3 落地（筛选摘要随投影刷新）
+
+- `renderPick` 在 search 分支前补 `paintFilterSum()` —— 搜索 / 换团 / 换期生只走这里，
+  此前摘要与触发按钮 aria 停在旧数（名册 7 张、`#filter-sum` 仍 1134 ✗）。
+- 新 E2E 断言：搜索「宮澤」后 `.search-hint` 与 `#filter-sum` 的数字一致（expect 251→252）。
+- **变异被杀**：去掉调用 → 新断言红（已还原）。
+- 验证：`npm run e2e` **252/252** ✓；`npm run check` exit 0 ✓。

@@ -371,6 +371,9 @@
   function renderRoster() {
     sync();
     const view = rosterView();
+    // 投影一变就重画摘要：搜索 / 换团 / 换期生只走这里，此前摘要停在旧数
+    // （第八轮扫描抓到：名册 7 张、#filter-sum 仍显示 1134）。
+    paintFilterSum();
     if (view.mode === "search") return renderSearch(view);
 
     const twoLevel = view.mode === "tree";

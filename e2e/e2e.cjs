@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 251, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 252, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -624,6 +624,18 @@ runSuite({
       await openFilterPanel(page);
       await page.fill("#search", "宮澤");
       await page.waitForTimeout(350);
+      check(
+        "搜索后筛选摘要同步（不停在旧数）",
+        await page.evaluate(() => {
+          const n = (
+            document.querySelector(".search-hint")?.textContent || ""
+          ).match(/\d+/)?.[0];
+          const m = (
+            document.querySelector("#filter-sum")?.textContent || ""
+          ).match(/\d+/)?.[0];
+          return !!n && n === m;
+        })
+      );
       await page.click('.card:has-text("宮澤佐江")');
       await openFilterPanel(page);
       await page.fill("#search", "前田敦子");
