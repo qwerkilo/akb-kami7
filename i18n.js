@@ -811,10 +811,8 @@
       cols_std: "Medium",
       cols_compact: "Small",
       clear_pick: "Clear",
-      reselect_confirm:
-        "Start over? The current duel progress will be lost.",
-      drop_confirm:
-        "Drop this duel? The current progress will be lost.",
+      reselect_confirm: "Start over? The current duel progress will be lost.",
+      drop_confirm: "Drop this duel? The current progress will be lost.",
       clear_confirm:
         "Clear all picks? This series' screening and duel progress will be discarded.",
       need: (n) => `${n} more`,

@@ -226,6 +226,9 @@ runSuite({
       // 05b 放弃
       await goToPick(page);
       await page.waitForTimeout(250);
+      // M5 起「放弃」带 window.confirm：不接住 dialog，Playwright 默认 dismiss
+      // → 点击被取消（本批只跑了主套件，v5 因此静默红了两周目才发现）。
+      page.once("dialog", (d) => d.accept());
       await page.click('#resume-card [data-act="resume-drop"]');
       await page.waitForTimeout(200);
       check("放弃后续玩卡消失", await page.isHidden("#resume-card"));

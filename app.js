@@ -988,7 +988,11 @@
     const first = items[0];
     const last = items[items.length - 1];
     const inside = el.contains(document.activeElement);
-    if (e.shiftKey ? !inside || document.activeElement === first : !inside || document.activeElement === last) {
+    if (
+      e.shiftKey
+        ? !inside || document.activeElement === first
+        : !inside || document.activeElement === last
+    ) {
       e.preventDefault();
       (e.shiftKey ? last : first).focus();
     }

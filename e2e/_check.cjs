@@ -79,12 +79,14 @@ function createChecker({
         );
       }
     }
-    if (mismatch) {
-      print(
-        `check 数守恒：${name} 声明 ${expect} 实得 ${total}（删/漏了检查？）`
-      );
-    }
-    print(summaryLine(name, passed, total));
+    // 数守恒不符时**收尾行本身**要带判定：独立警告行在收尾行之前，
+    // `| tail -1`（第 82 轮实测）看到的仍是「通过」→ 管道能骗过眼睛。
+    print(
+      summaryLine(name, passed, total) +
+        (mismatch
+          ? ` ⚠ 数守恒不符（声明 ${expect} 实得 ${total}，删/漏了检查？）`
+          : "")
+    );
     exitCode = failed.length || mismatch ? 1 : 0;
     return exitCode;
   };

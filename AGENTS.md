@@ -42,7 +42,7 @@
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
 - **套件生命周期**（起服务 / 就绪 / 起浏览器 / 清理 / 退出码）唯一出处是 `e2e/_suite.cjs` 的 `runSuite`：套件只提供 `body({ browser, base, checker })`，不许手写 `spawn(serve.py)` 或 `process.exit`；共享的页面操作（筛选/更多浮层/回挑人页等五个）唯一出处是 `e2e/_ui.cjs`；E2E 的存储种子（键与载荷）唯一出处是 `e2e/_store.cjs`（键从 `core.PREF_KEYS` 派生 —— 手写键名时产品一改就静默失效）（守卫都在 `test/e2e-source.test.js`）。
-- **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（页头矩阵：语言 × 档位 × 系列 × 在线/离线）/ `:first`（首屏矩阵：皮肤 × 语言 × 320–560px）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑。
+- **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（页头矩阵：语言 × 档位 × 系列 × 在线/离线）/ `:first`（首屏矩阵：皮肤 × 语言 × 320–560px）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑 **`npm run e2e:all`**（五套件；只跑主套件会漏 —— M5 的 confirm 曾让 v5 静默红：它点「放弃」被 dialog 挡下，2026-10-10 才被发现）。
 - 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
 - 缝④ 的夹具 id 前缀：`a1–a40` = 48g、`s1–s40` = 坂道、`l1–l40` = 等爱。写错前缀时 `toggleSelect` 静默返回 false，测试会以「筛不出东西」的方式假绿。
 - 断言要挑**有分辨力**的那一个：同一条测试里有的断言在错误路径上也会通过（曾有一条「complete」假绿、只有「已划人数」抓住）。
@@ -75,7 +75,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 ## 常用命令
 
-- 本地预览（仓库根目录）：`python3 -m http.server`，用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
+- 本地预览（仓库根目录）：**`npm run serve`**（= `e2e/serve.py` 线程版，端口 8000；探针也用它），用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
 - **提交闸门 = `npm run check`**（`prettier --check .` + `npm run lint:undef` + `npm test` + `npm run complexity`）。格式化、未定义标识符（`no-undef`，抓过 e2e-v5 的 `errs`）与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。
 - 格式化写回：全仓 `npm run format:write`；只处理**已暂存**文件用
   `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
@@ -154,7 +154,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 - 不支持符号链接和可执行位：`npm install` 必须加 `--bin-links=false --ignore-scripts`；husky 钩子无法执行（git 会跳过），所以提交前手动跑 lint-staged 与 `graph:sync`。
 - 当前 Node v20.19.2：lint-staged 固定在 `^16`，不要升级到 v17（需要 Node ≥22）。
 - **跑浏览器套件之前先跑 `node scripts/preflight.mjs`**：它报可用内存并列出历轮遗留的静态服务器，不足就退出 1。本机可用内存掉到 3GB 以下时单次页面导航要 30 秒（正常 ~1 秒），症状是「goto 超时」，看起来像产品坏了 —— 本项目已经因此白烧过两成回合。
-- **内存是 E2E 的实际瓶颈**：本机 15GB 总量，可用常驻掉到 3GB 以下时单次页面导航要 **30 秒**（正常 ~1 秒），全量 E2E 必然超时。跑之前先 `free -m`，并清掉历轮遗留的静态服务器（`ps aux | grep http.server`；**别用宽泛的 `pkill http`，会误杀用户自己的预览**）。预算不足时把重矩阵拆成独立脚本分开跑。
+- **内存是 E2E 的实际瓶颈**：本机 15GB 总量，可用常驻掉到 3GB 以下时单次页面导航要 **30 秒**（正常 ~1 秒），全量 E2E 必然超时。跑之前先 `free -m`，并清掉历轮遗留的静态服务器（`ps aux | grep http.server`；**别用宽泛的 `pkill http`，会误杀用户自己的预览**，**也别用会被自身命令行匹配的模式** —— `pkill -f 'chromium.*headless'` 会命中自己 `bash -c` 的命令行文本、把自己杀掉（实测「Killed by SIGTERM」）；先 `pgrep` 看命中或锚定完整命令行）。探针脚本要 `try/finally` 关浏览器并释放端口：异常退出跳过清理会留 Chromium，随后套件出现计数漂移。预算不足时把重矩阵拆成独立脚本分开跑。
 - **别跑无版本号的 `npx playwright …`**：它会把 npx 缓存里的 playwright 重装/换版，与已装 chromium 失配后 E2E 直接 0/1（2026-10-08 实际发生过一次）；要跑就用带版本的 `npx playwright@<与已装浏览器配套的版本> …`。`e2e/_playwright.cjs` 现在按「chromium 可执行文件存在」挑缓存、挑不到会警告。
 - 网络：`github.com` 资源一律走 `https://gh-proxy.com/` 前缀；纯信息查询先 websearch。`gh` CLI 未安装，API 走 `https://gh-proxy.com/https://api.github.com/...`（列目录比猜 raw 路径可靠）。
 - **调研外部源（Wikipedia/Commons 等）要节流（≥3s）**：429 会被当成「源里没有/页面不存在」——本批因此把 9 个**有表格**的团误判成「散文段落、要新写解析器」，那个错误结论还进了 spec 草稿。结论里要注明「是否可能被限流影响」。

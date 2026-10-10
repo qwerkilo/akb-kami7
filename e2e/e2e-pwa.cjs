@@ -147,7 +147,8 @@ runSuite({
           await new Promise((res) => {
             let n = 0;
             const tick = () => {
-              if (link.media !== "print" && document.fonts.size > 0) return res();
+              if (link.media !== "print" && document.fonts.size > 0)
+                return res();
               if (++n > 600) return res();
               setTimeout(tick, 100);
             };

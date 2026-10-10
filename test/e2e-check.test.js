@@ -45,8 +45,8 @@ test("数守恒：声明 X 实得 Y → 也算失败（多了/少了都红）", 
   fewer.check("b", true);
   assert.equal(fewer.done(), 1, "少了要红");
   assert.ok(
-    lines.some((l) => l.includes("check 数守恒：s 声明 3 实得 2")),
-    "要打印守恒失败：" + lines.join(" / ")
+    lines.at(-1).includes("⚠ 数守恒不符（声明 3 实得 2"),
+    "收尾行本身要带判定：" + lines.join(" / ")
   );
 
   const { lines: l2, print: p2 } = makePrinter();
@@ -59,7 +59,10 @@ test("数守恒：声明 X 实得 Y → 也算失败（多了/少了都红）", 
   more.check("a", true);
   more.check("b", true);
   assert.equal(more.done(), 1, "多了也要红");
-  assert.ok(l2.some((l) => l.includes("声明 1 实得 2")));
+  assert.ok(
+    l2.at(-1).includes("声明 1 实得 2"),
+    "收尾行本身要带判定：" + l2.join(" / ")
+  );
 });
 
 test("失败列表与失败日志都出声（日志写失败也不崩）", () => {
