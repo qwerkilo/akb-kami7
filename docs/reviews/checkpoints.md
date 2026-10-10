@@ -2158,3 +2158,15 @@
 - **下一轮的正确做法**：L11 的验证改用仓内 `e2e/serve.py`（线程版）+ 与 `_wait.cjs`
   同款的等待方式；先断言 `document.readyState` 与 `document.body` 非空，再查 `#boot`。
   在换掉服务器之前，不再基于旧读数做结论。
+
+### 第八十二轮 · 补记十九 · L11 **验证通过**（abort 探针）
+
+- 决定性探针改法：把全部 `.js` **abort**（不是延迟）—— JS 永不运行，占位若存在就必然留着，
+  是最干净的 pre-JS 状态。实测：`readyState=interactive`、`bodyChildren=19`、
+  **`#boot` 存在、高 506px（≈60vh）、3 个灰块** ✓；正常路径下（补记十七的
+  `removedAfterBoot: true`）首帧后被移除 ✓ —— **两个方向都验到了**。
+- 谜团归因：之前 `seen:false` 的读数来自「路由延迟 + `waitUntil:"commit"`」的探针时序
+  （那一刻 body 尚未解析，测的是解析前状态），与产品代码无关；单线程服务器也一并排除
+  （本轮用 `e2e/serve.py` 线程版复测）。**教训**：验证「boot 期可见性」要用 abort/断网
+  构造 pre-JS 稳态，不要用「延迟 + 竞态窗口」。
+- 验证结果：**L11 完成**（占位可见 506px + 首帧移除 + `npm run e2e` 249/249）。
