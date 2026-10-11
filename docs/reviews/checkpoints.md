@@ -2317,3 +2317,18 @@
   `npm run check` exit 0 ✓。提交 `57eee75`。
 - 口径记录：这也是「提交闸门」第二次在 hooks 死掉的本机**真实拦下**一个会静默失效的缺陷
   （前一次是 `errs` 未定义）。
+
+### 第八十二轮 · 补记三十三 · 小项批收口（L8 文案 / 注释指路 / 死代码 / 字体壳守卫 / 去重）
+
+- **L8 文案**：`noQuota`（未划但本轮名额用尽）不再复用「已定」——`core.markReasonKey(locked, noQuota, cut)`
+  四选一 + 新键 `screen_quota` ×3（zh「本轮名额已用完」/ en "Round quota used up" / ja）✓；
+  `markTitle`（触屏可见的 title）与 `markLabel`（可及名）共用同一分派 ✓；死键守卫改为
+  **从 core.js 的 markReasonKey 源码推导**（与 SERIES_KEYS 同法，不放行整个前缀）✓。
+- **注释指路化**（不写现值）：style.css 的两处 160ms/400ms、app.js 的两处 400ms、
+  `--card-min 120/92/72` 两处 → 全部改成「读数见 playOnce / style-artifact.test.js」式指针 ✓。
+- **死代码 ×3**：`#phase-duel .versus` 半段选择器删 ✓；`.seg-filter [aria-pressed="true"]` 永假分支
+  改为 `aria-checked`（L7 机制本来就写 checked ✓）；`swReg` 写而不读 → 删声明与赋值 ✓。
+- **字体壳守卫**（pwa-artifact）：两条 href 必须同 URL + 主链接必须 `media="print"`+onload ✓
+  —— **3 个变异全杀**（对调原因键 / noscript href 漂移 / 去掉 media=print）✓。
+- **去重**：`test/style-artifact.test.js` 逐字节重复的对决 160ms 测试删掉第二份 ✓。
+- 验证：`npm run e2e` 见下、`npm run check` 见下。

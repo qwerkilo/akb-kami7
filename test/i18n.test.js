@@ -204,6 +204,12 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
   for (const row of Object.values(core.SERIES_KEYS)) {
     for (const v of Object.values(row)) refs.add(v);
   }
+  // core.markReasonKey 的返回键是裸字符串（不是 t("…")），静态 grep 看不到 ——
+  // 与 SERIES_KEYS 同样**从源码推导**，而不是把 screen_ 前缀整个放行。
+  const coreSrc = fs.readFileSync(path.join(root, "core.js"), "utf8");
+  const fn = coreSrc.slice(coreSrc.indexOf("function markReasonKey"));
+  for (const m of fn.slice(0, 400).matchAll(/return "(screen_[a-z]+)"/g))
+    refs.add(m[1]);
   const unreferenced = Object.keys(I18N.zh).filter(
     (k) => !refs.has(k) && !dynamic.test(k)
   );

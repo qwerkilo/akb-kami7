@@ -89,10 +89,10 @@
 }
 
 /* 进场 stagger：--i 由 cardHTML 按下标写入，最多 8 档（再往后用户等得没耐心）。
-   18ms × 8 + 160ms ≈ 304ms，在 --dur-slow（320ms）之内。 */
+   总窗口 = --dur-fast + 8 × --stagger-step + 余量（读数与守卫见 playOnce 与 style-artifact.test.js）。 */
 /* 进场 stagger 挂在 .roster.enter 上（不是 .card 上）：只有**进入挑人步**这一
    次才播，之后搜索/筛选/切档位引起的重渲不再整表淡入 —— 效率区不该每次按键
-   都有装饰。.enter 由 show("pick") 加、动画结束或 400ms 兜底摘掉。 */
+   都有装饰。.enter 由 show("pick") 加、由 playOnce 在动画结束（带兜底窗口）时摘掉。 */
 .roster.enter .card {
   animation: cardIn var(--dur-fast) var(--ease) both;
   animation-delay: calc(min(var(--i, 0), 8) * var(--stagger-step));
@@ -610,7 +610,7 @@ html[data-cols="compact"] {
 }
 .gen-body {
   display: grid;
-  /* 卡宽由「卡片大小档位」控制（大/中/小 = 120/92/72）—— 列数是结果：
+  /* 卡宽由「卡片大小档位」控制（三档令牌见 .seg-cols 段）—— 列数是结果：
      auto-fill 下卡小了每排自然多几张，窄屏也不会被压扁。 */
   grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 92px), 1fr));
   gap: 12px 10px;
@@ -1961,7 +1961,6 @@ html[data-cols="compact"] {
   display: flex;
   align-items: center;
 }
-#phase-duel .versus,
 #phase-duel .duel .or {
   align-self: center;
 }

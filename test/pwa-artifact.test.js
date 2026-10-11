@@ -105,3 +105,29 @@ test("sw.js 可编译，且在 install 期就 skipWaiting（页面只决定何�
     "sw.js 仍有那条没人发的 skip-waiting 死协议（本项目不依赖它）"
   );
 });
+
+test("壳：字体样式表非阻塞 + noscript 兜底与主链接同 URL（#2 的三条静默方向）", () => {
+  const html = fs.readFileSync(
+    path.join(__dirname, "..", "index.html"),
+    "utf8"
+  );
+  const hrefs = [
+    ...html.matchAll(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/g),
+  ].map((m) => m[1]);
+  assert.equal(hrefs.length, 2, "主链接 + noscript 兜底各一份");
+  assert.equal(
+    hrefs[0],
+    hrefs[1],
+    "两份必须同 URL（漂移 → 无 JS 用户拿另一套字体）"
+  );
+  assert.match(
+    html,
+    /media="print"[\s\S]{0,60}onload="this\.media\s*=\s*'all'"/,
+    "主链接必须非阻塞（#2）"
+  );
+  assert.match(
+    html,
+    /<noscript>[\s\S]{0,400}fonts\.googleapis\.com[\s\S]{0,400}<\/noscript>/,
+    "noscript 兜底要在"
+  );
+});

@@ -1277,6 +1277,14 @@
     return false;
   }
 
+  // 筛选行按钮的「动作 + 原因」键名（锁定 / 本轮名额用尽 / 划掉 / 保留 —— 四选一）。
+  // 前两者曾被折叠成同一句文案：未划但名额用尽的行会听到「这一轮已定」，是假陈述。
+  function markReasonKey(locked, noQuota, cut) {
+    if (locked) return "screen_locked";
+    if (noQuota) return "screen_quota";
+    return cut ? "screen_keep" : "screen_cut";
+  }
+
   function warmUrls(css, codes) {
     const urls = [];
     for (const block of css.split("@font-face").slice(1)) {
@@ -1343,6 +1351,7 @@
     fontRange,
     faceCovers,
     warmUrls,
+    markReasonKey,
     profileRows,
   };
 });

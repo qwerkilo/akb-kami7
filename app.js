@@ -236,7 +236,7 @@
     // （ADR-0020：效率区「一屏做完一步、不加装饰」）。
     //
     // 这里只置标志，**由渲染本身决定要不要加类**：我第一版在 show() 里加类并
-    // 用 400ms 兜底摘类，冷缓存下名册渲染晚于 400ms → 卡片在窗口之后创建 →
+    // 兜底摘类（时长由 playOnce 从 CSS 读出，不写现值）——冷缓存下名册渲染更晚 → 卡片在窗口之后创建 →
     // 根本没有动画（实测两次进入一次没播）。
     rosterEntering = phase === "pick";
     $("#roster")?.classList.remove("enter");
@@ -396,7 +396,7 @@
 
   // 进场 stagger 的开关：卡片**已经存在**之后才加 .roster.enter，
   // 所以卡片一插入就是动画的起点（CSS 里 .roster.enter .card 才有 animation）。
-  // 400ms 后摘掉（比最坏错开 144ms + 单卡 120ms 宽裕），摘掉后重渲不再有动画。
+  // 动画结束或兜底窗口后摘掉（窗口由 playOnce 从 CSS 读出，不写现值），摘掉后重渲不再有动画。
   function rosterEntered() {
     const el = $("#roster");
     const wanted = rosterEntering;
@@ -716,7 +716,7 @@
     // 给触发按钮挂 data-active，用边框变色提示（零宽度增量：border 本就在）。
     if (btn) {
       const seg = document.querySelector(
-        '.seg-filter [aria-pressed="true"], .seg-filter [aria-checked="true"]'
+        '.seg-filter [aria-checked="true"], .seg-filter [aria-checked="true"]'
       );
       const f = seg && seg.dataset.filter;
       if (f && f !== "all") btn.setAttribute("data-active", "");
@@ -1324,7 +1324,7 @@
     paintSeg(".seg-skin", "skin", snap.skin);
   }
 
-  // 名册卡片大小档位（大/中/小 → --card-min 120/92/72）：外观偏好，不进 session
+  // 名册卡片大小档位（三档令牌在 style.css 的 .seg-cols 段）：外观偏好，不进 session
   // （对局状态）；键名走 PREF_KEYS（守卫禁止字面量）。默认「中」= 不留属性。
   function readCols() {
     try {
@@ -1475,10 +1475,15 @@
 
   /* ---------------- screening (清单筛选；ADR-0019) ---------------- */
   // L8：锁标单独成函数（内联的三元会把 renderScreen 的行模板推过复杂度基线）
-  // 可及名的动作 + 原因（拆出来让行模板的圈复杂度留在基线内）
-  function markLabel(off, cut) {
-    if (off) return t("screen_locked");
-    return cut ? t("screen_keep") : t("screen_cut");
+  // 可及名的动作 + 原因（键名选择在 core.js，本函数只管取文案）
+  function markLabel(locked, noQuota, cut) {
+    return t(CORE.markReasonKey(locked, noQuota, cut));
+  }
+
+  // 触屏可见的原因（title 只服务鼠标）：锁定与名额用尽各有各的说法
+  function markTitle(locked, noQuota) {
+    if (!locked && !noQuota) return "";
+    return t(CORE.markReasonKey(locked, noQuota, false));
   }
 
   function lockMark(off) {
@@ -1511,8 +1516,8 @@
         <span class="who"><b>${esc(m.name)}</b><s>${esc(fullMeta(m))}</s></span>
         <button class="mark" data-cut="${esc(id)}" aria-pressed="${cut ? "true" : "false"}"
           ${off ? "disabled" : ""}
-          title="${off ? esc(t("screen_locked")) : ""}"
-          aria-label="${esc(markLabel(off, cut) + " " + m.name)}">${lockMark(off)}${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
+          title="${esc(markTitle(locked, noQuota))}"
+          aria-label="${esc(markLabel(locked, noQuota, cut) + " " + m.name)}">${lockMark(off)}${cut ? esc(t("screen_keep")) : esc(t("screen_cut"))}</button>
       </li>`;
     });
     $("#screen-list").innerHTML = rows.join("");
@@ -1664,7 +1669,6 @@
 
   /* ---------------- PWA（可安装 / 离线 / 更新，见 docs/adr/0016-pwa.md） ---------------- */
   let installEvent = null; // beforeinstallprompt 捕获到的安装事件
-  let swReg = null;
 
   const swOK = "serviceWorker" in navigator;
   // 平台原语 + 一处显式排除：file:// 在浏览器里 isSecureContext 也是 true，
@@ -1797,7 +1801,6 @@
     location.reload();
   }
   function watchUpdate(reg) {
-    swReg = reg;
     if (reg.waiting && navigator.serviceWorker.controller) showUpdateBanner();
     reg.addEventListener("updatefound", () => {
       const w = reg.installing;

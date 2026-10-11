@@ -1094,22 +1094,6 @@ test("对决：撤回在「答案未落盘」的窗口里必须给出反馈（�
   );
 });
 
-test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是决策，不是裸字面量）", () => {
-  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  const i18n = fs.readFileSync(path.join(__dirname, "..", "i18n.js"), "utf8");
-  assert.match(app, /const PICK_CONFIRM_MS = \d+;/, "延迟要有具名常量");
-  assert.doesNotMatch(
-    app,
-    /\}, \d+\);\s*\n  \}\s*\n\s*function undo/,
-    "不许再有裸的 setTimeout 毫秒字面量"
-  );
-  assert.equal(
-    (i18n.match(/duel_undo_pending:/g) || []).length,
-    3,
-    "三语都要有这个键（i18n 守卫另外查孤儿键与三语互异）"
-  );
-});
-
 test("折叠段：类名前缀只从 sectionHTML 一处产出（架构扫描候选 6）", () => {
   const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   // sectionHTML 是唯一的模板：level 只决定前缀与 data 属性名

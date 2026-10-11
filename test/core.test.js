@@ -2883,3 +2883,10 @@ test("字体子集选择：范围解析 / 覆盖判定 / 取 URL", () => {
     "没有 unicode-range 的照常预热"
   );
 });
+
+test("筛选行的原因键：锁定 / 名额用尽 / 划掉 / 保留 四选一", () => {
+  assert.equal(core.markReasonKey(true, false, true), "screen_locked");
+  assert.equal(core.markReasonKey(false, true, false), "screen_quota");
+  assert.equal(core.markReasonKey(false, false, true), "screen_keep");
+  assert.equal(core.markReasonKey(false, false, false), "screen_cut");
+});
