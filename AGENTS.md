@@ -76,7 +76,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 ## 常用命令
 
 - 本地预览（仓库根目录）：**`npm run serve`**（= `e2e/serve.py` 线程版，端口 8000；探针也用它），用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
-- **提交闸门 = `npm run check`**（`prettier --check .` + `npm run lint:undef` + `npm test` + `npm run complexity`）。格式化、未定义标识符（`no-undef`，抓过 e2e-v5 的 `errs`）与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。
+- **提交闸门 = `npm run check`**（`prettier --check .` + `npm run lint:undef` + `npm test` + `npm run complexity`）。格式化、未定义标识符（`no-undef`，抓过 e2e-v5 的 `errs`）与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。 **push 也放在同一条链里**：闸门拦下后，下一条 `git push` 仍会打印 `Everything up-to-date`（它只说明没东西可推，不代表已提交）—— 2026-10-11 因此误报过一次「已推送」✗。**判定别用管道**：`cmd | tail` 的退出码是 `tail` 的，会吃掉闸门的红 —— 要看输出就重定向到日志再看文件。
 - 格式化写回：全仓 `npm run format:write`；只处理**已暂存**文件用
   `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。**顺序有陷阱**：lint-staged 只处理**已暂存**的文件，先跑 `graph:sync` 再 `git add` 会让它变成 no-op（本项目踩过两次）。
@@ -152,7 +152,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 ## 环境限制（/mnt/sdcard 是 Android FUSE 挂载）
 
 - 不支持符号链接和可执行位：`npm install` 必须加 `--bin-links=false --ignore-scripts`；husky 钩子无法执行（git 会跳过），所以提交前手动跑 lint-staged 与 `graph:sync`。
-- 当前 Node v20.19.2：lint-staged 固定在 `^16`，不要升级到 v17（需要 Node ≥22）。
+- 当前 Node **v24.21.0**（2026-10-11 环境升级；此前 v20）：lint-staged 仍固定 `^16` 不动 —— 升 v17 不是必要，别顺手升。
 - **跑浏览器套件之前先跑 `node scripts/preflight.mjs`**：它报可用内存并列出历轮遗留的静态服务器，不足就退出 1。本机可用内存掉到 3GB 以下时单次页面导航要 30 秒（正常 ~1 秒），症状是「goto 超时」，看起来像产品坏了 —— 本项目已经因此白烧过两成回合。
 - **内存是 E2E 的实际瓶颈**：本机 15GB 总量，可用常驻掉到 3GB 以下时单次页面导航要 **30 秒**（正常 ~1 秒），全量 E2E 必然超时。跑之前先 `free -m`，并清掉历轮遗留的静态服务器（`ps aux | grep http.server`；**别用宽泛的 `pkill http`，会误杀用户自己的预览**，**也别用会被自身命令行匹配的模式** —— `pkill -f 'chromium.*headless'` 会命中自己 `bash -c` 的命令行文本、把自己杀掉（实测「Killed by SIGTERM」）；先 `pgrep` 看命中或锚定完整命令行）。探针脚本要 `try/finally` 关浏览器并释放端口：异常退出跳过清理会留 Chromium，随后套件出现计数漂移。预算不足时把重矩阵拆成独立脚本分开跑。
 - **别跑无版本号的 `npx playwright …`**：它会把 npx 缓存里的 playwright 重装/换版，与已装 chromium 失配后 E2E 直接 0/1（2026-10-08 实际发生过一次）；要跑就用带版本的 `npx playwright@<与已装浏览器配套的版本> …`。`e2e/_playwright.cjs` 现在按「chromium 可执行文件存在」挑缓存、挑不到会警告。

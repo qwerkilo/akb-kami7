@@ -291,6 +291,10 @@ runSuite({
       await page.click('#steps [data-step="result"]');
       await page.waitForTimeout(300);
       check("③ 进入结果页", await page.isVisible("#phase-result"));
+      // scan-4 起，从结果页点 ① 会带确认（abandon 进行中的对决）——不接住 dialog 就被
+      // 默认 dismiss、点击等于没点；随后的 openFilterPanel 在结果页找不到可见的
+      // .filter-trigger → 卡满 120s（bisect 定位到 scan-4）。
+      page.once("dialog", (d) => d.accept());
       await goToPick(page);
       await page.waitForTimeout(300);
 

@@ -2332,3 +2332,19 @@
   —— **3 个变异全杀**（对调原因键 / noscript href 漂移 / 去掉 media=print）✓。
 - **去重**：`test/style-artifact.test.js` 逐字节重复的对决 160ms 测试删掉第二份 ✓。
 - 验证：`npm run e2e` 见下、`npm run check` 见下。
+
+### 第八十二轮 · 补记三十四 · /retro（链条纪律）+ e2e:all 抓出 scan-4 的真回归（bisect 定位）
+
+- **R1**：仓库 AGENTS 提交闸门补两条 —— **push 放进同一条 `&&` 链**（闸门拦下后下一条
+  `git push` 会打印 `Everything up-to-date`，误报过「已推送」✗）；**判定别用管道**（`cmd | tail`
+  的退出码是 tail 的，吃掉过闸门的红 ✗）。全局 AGENTS 加同一行通用规则 ✓。
+- **R2**：全量 `e2e:all` 立刻抓到 **v5 真回归** ✗：`46/47 ⚠ 数守恒不符（声明 54 实得 47）`，
+  卡在 `.filter-trigger` 的 120s 超时。**`git bisect run` 定位 first-bad = `7c92ffd`（scan-4）**：
+  结果页调 `goToPick`（① 步骤）现在带 abandon 确认 → 被 Playwright 默认 dismiss → 卡在结果页
+  → 后面的 `openFilterPanel` 找不到可见的 `.filter-trigger` → 满超时。
+- 处置：v5 在结果页那次 `goToPick` 前接住 dialog（其余四处 goToPick 都是 pick/duel 相位、无确认 ✓）。
+  **如实记账**：第一次修错了位置（打在同一文件 screen 相位的 ① 点击上）—— 那是**悬空 handler** ✗，
+  它拖到「放弃」那一步抢 dialog（`Cannot accept dialog which is already handled`）✗；去掉后
+  打在真元凶上 ✓。修复后 **v5 54/54** ✓。教训：新的 `window.confirm` 落地时，把 E2E 里所有
+  会路过的调用点 grep 一遍（这次只跑了主套件，v5 红了一整天 ✗）。
+- 另记：环境 Node 已升到 **v24.21.0**（AGENTS 已同步 ✓）。
