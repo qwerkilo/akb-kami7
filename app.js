@@ -1636,7 +1636,15 @@
 
   document.addEventListener("click", (e) => {
     const step = e.target.closest("#steps [data-step]");
-    if (step && !step.disabled) return navigate(step.dataset.step);
+    if (step && !step.disabled) {
+      // ① 在非 pick 相位会 abandon 掉进行中的对决（core.nav 的 pick 规则）——与
+      // 「重新选人」是同一条销毁路径，复用同一句确认（M5 只盖了按钮，这条漏了；
+      // 第八轮扫描抓到：结果页点 ① 海报与全部答案直接消失、零确认）。
+      const out = CORE.nav(navCtx(), step.dataset.step);
+      if (out.effect === "abandon" && !window.confirm(t("reselect_confirm")))
+        return;
+      return navigate(step.dataset.step);
+    }
     const act = e.target.closest("[data-act]");
     if (act) {
       const fn = CLICK_ACTIONS[act.dataset.act];

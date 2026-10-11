@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 252, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 253, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1305,6 +1305,15 @@ runSuite({
         "等爱：完成对决生成海报（我的等爱 推し 7）",
         loveResultTitle.trim() === "我的等爱 推し 7" && lovePosterOk,
         `${loveResultTitle.trim()} poster=${lovePosterOk}`
+      );
+      // ①「挑人」在结果页会作废对决（core.nav 的 abandon 路径）——取消确认后必须仍留在
+      // 结果页；没有确认的话这次点击会直接离开 → 红。
+      page.once("dialog", (d) => d.dismiss());
+      await page.click('#steps [data-step="pick"]');
+      await page.waitForTimeout(250);
+      check(
+        "结果页点 ①：取消确认后仍在结果页",
+        await page.isVisible("#phase-result")
       );
       // M5 起「重新选人」带 window.confirm：不接住 dialog，Playwright 默认 dismiss
       // → navigate("restart") 根本没发生、后续断言照样全绿（第八轮扫描抓到：

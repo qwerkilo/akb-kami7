@@ -2276,3 +2276,12 @@
 - 新 E2E 断言：搜索「宮澤」后 `.search-hint` 与 `#filter-sum` 的数字一致（expect 251→252）。
 - **变异被杀**：去掉调用 → 新断言红（已还原）。
 - 验证：`npm run e2e` **252/252** ✓；`npm run check` exit 0 ✓。
+
+### 第八十二轮 · 补记二十九 · 第八轮扫描 4 落地（① 步骤确认）+ 报告入仓
+
+- `#steps [data-step]` 委托：当 `CORE.nav` 判定 `effect === "abandon"`（① 在非 pick 相位
+  作废进行中的对决）时复用 `reselect_confirm`（用户选 A）——M5 的第三条销毁路径补齐。
+- 新 E2E 断言：「结果页点 ①：取消确认后仍在结果页」（expect 252→253）。
+  **变异被杀**：去掉确认守卫 → 断言红（已还原）。
+- 两份扫描报告入仓：`.scratch/scan8/{a,b}.md`（防 /tmp 丢失；未深核候选逐条在此）。
+- 验证：`npm run e2e` **253/253** ✓；`npm run check` exit 0 ✓。
