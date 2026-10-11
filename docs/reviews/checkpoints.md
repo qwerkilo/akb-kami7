@@ -2307,3 +2307,13 @@
 - 记账：首次跑测试 1 条红 —— 测试文件里绑定名是 `core`（小写），我新测试写成了 `CORE` ✗ →
   订正后 119/119。
 - 验证：`npm run e2e` **255/255**（253→255）✓。
+
+### 第八十二轮 · 补记三十二 · 补记三十一的后续（fontCodePoints 事故 + lint 立功）
+
+- 把三助手切去 core.js 时，**把 `fontCodePoints`（DOM 依赖、本应留在 app.js）也一起切掉了** ✗
+  —— `warmFonts` 里引用未定义 → 浏览器端 TypeError，而该调用在 `try/catch (_) {}` 里
+  **静默吞掉**（E2E 抓不到 ✗）→ **`lint:undef` 闸门抓住**（`app.js:1826 error no-undef` ✓✓）。
+- 修复后：`npm run e2e:pwa` **42/42**（warmFonts/离线字体链路正常 ✓）、`npm run e2e` **255/255**、
+  `npm run check` exit 0 ✓。提交 `57eee75`。
+- 口径记录：这也是「提交闸门」第二次在 hooks 死掉的本机**真实拦下**一个会静默失效的缺陷
+  （前一次是 `errs` 未定义）。
