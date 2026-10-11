@@ -1256,6 +1256,39 @@
     ];
   }
 
+  // ---- 字体子集选择（#4：预热只拉当前页用得上的 unicode-range 子集）----
+  function fontRange(t) {
+    const p = t.trim().match(/U\+([0-9a-f?]+)(?:-([0-9a-f]+))?/i);
+    if (!p) return null;
+    const lo = parseInt(p[1].replace(/\?/g, "0"), 16);
+    if (p[2]) return [lo, parseInt(p[2], 16)];
+    if (p[1].includes("?")) return [lo, parseInt(p[1].replace(/\?/g, "f"), 16)];
+    return [lo, lo];
+  }
+
+  function faceCovers(face, codes) {
+    const m = face.match(/unicode-range:\s*([^;]+)/i);
+    if (!m) return true;
+    const ranges = m[1].split(",").map(fontRange).filter(Boolean);
+    if (!ranges.length) return true;
+    for (const c of codes) {
+      for (const [lo, hi] of ranges) if (c >= lo && c <= hi) return true;
+    }
+    return false;
+  }
+
+  function warmUrls(css, codes) {
+    const urls = [];
+    for (const block of css.split("@font-face").slice(1)) {
+      const cut = block.indexOf("}");
+      if (cut < 0) continue;
+      const face = block.slice(0, cut);
+      const mUrl = face.match(/url\((https:\/\/[^)]+\.woff2)\)/);
+      if (mUrl && faceCovers(face, codes)) urls.push(mUrl[1]);
+    }
+    return urls;
+  }
+
   return {
     SERIES_KEYS,
     normalizeName,
@@ -1307,6 +1340,9 @@
     fullMeta,
     posterSub,
     names,
+    fontRange,
+    faceCovers,
+    warmUrls,
     profileRows,
   };
 });

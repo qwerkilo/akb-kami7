@@ -2865,3 +2865,21 @@ test("names() 的四个系列每个字段都非空（缺一个字段就会静默
     }
   }
 });
+
+test("字体子集选择：范围解析 / 覆盖判定 / 取 URL", () => {
+  assert.deepEqual(core.fontRange("U+30-39"), [0x30, 0x39]);
+  assert.deepEqual(core.fontRange("U+4??"), [0x400, 0x4ff]);
+  assert.equal(core.fontRange("junk"), null);
+  const css = [
+    "@font-face{src:url(https://x/a.woff2);unicode-range:U+30-39;}",
+    "@font-face{src:url(https://x/b.woff2);unicode-range:U+0400-04FF;}",
+    "@font-face{src:url(https://x/c.woff2);}",
+  ].join("");
+  const urls = core.warmUrls(css, new Set([0x31]));
+  assert.ok(urls.includes("https://x/a.woff2"), "覆盖到的子集要预热");
+  assert.ok(!urls.includes("https://x/b.woff2"), "覆盖不到的不预热");
+  assert.ok(
+    urls.includes("https://x/c.woff2"),
+    "没有 unicode-range 的照常预热"
+  );
+});

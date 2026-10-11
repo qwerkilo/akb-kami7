@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 253, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 255, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -644,6 +644,20 @@ runSuite({
       await openFilterPanel(page);
       await page.fill("#search", "");
       await page.waitForTimeout(350);
+      // 搜索上限：宽命中（"a" 曾 1089 条）只渲染前 80 张 + 一行「还有 N 位」
+      await page.fill("#search", "a");
+      await page.waitForTimeout(350);
+      check(
+        "搜索宽命中：只渲染 80 张 + 提示还有更多",
+        await page.evaluate(() => {
+          const cards = document.querySelectorAll(".gen-body .card").length;
+          const hint =
+            document.querySelector(".gen-body + .hint")?.textContent || "";
+          return cards === 80 && /还有|more|他に/.test(hint);
+        })
+      );
+      await page.fill("#search", "");
+      await page.waitForTimeout(350);
       const unsel = page.locator(
         '.grp[data-group="AKB48"] .card[aria-pressed="false"]'
       );
@@ -837,6 +851,20 @@ runSuite({
         hard: true,
       });
       for (const [name, ok] of await checkSecondRound(page)) check(name, ok);
+      check(
+        "第二轮：锁定行带 🔒（原因不只藏在 title 里）",
+        await page.evaluate(() => {
+          const row = document.querySelector(".screen-row.locked");
+          if (!row) return false;
+          const btn = row.querySelector(".mark");
+          return (
+            !!btn &&
+            btn.disabled &&
+            !!btn.querySelector(".lock") &&
+            (btn.getAttribute("aria-label") || "").length > 0
+          );
+        })
+      );
 
       // -- v2 对决：40 档（划一轮后 138 题）+ 进度 + 续玩
       block("v2 对决");

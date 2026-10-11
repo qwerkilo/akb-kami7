@@ -2295,3 +2295,15 @@
 - **lizard 自检**：临时 fixture（3 个 if = CCN 4）跑不通就 exit 2 拒绝出结论（此前 Python 侧
   解析失效会静默少一批、全绿）。**变异被杀**：期望值 4→5 → 自检红、exit 2（已还原）。
 - 头注释写明「跑绿收紧 / 跑红不动」的口径。验证：`npm run check` exit 0 ✓。
+
+### 第八十二轮 · 补记三十一 · 零守卫三处补缝
+
+- **warmFonts 三助手 → core.js 纯函数**（`fontRange`/`faceCovers`/`warmUrls`；`fontCodePoints`
+  留 app.js —— 它才碰 DOM）→ **缝② 单测**（范围解析含 `U+4??` 通配、覆盖判定、取 URL；
+  无 `unicode-range` 的照常预热）。**两个变异全被杀**（`return false→true` / 无 range 不预热）。
+- **`SEARCH_RENDER_CAP`**：E2E「搜索宽命中：只渲染 80 张 + 提示还有更多」（填 "a" ✓）。
+- **`lockMark`/`markLabel`**：E2E「第二轮：锁定行带 🔒」（`disabled` + `.lock` + 非空 aria-label）——
+  markLabel 的**确切文案**没有被直接断言（弱覆盖，如实记）。
+- 记账：首次跑测试 1 条红 —— 测试文件里绑定名是 `core`（小写），我新测试写成了 `CORE` ✗ →
+  订正后 119/119。
+- 验证：`npm run e2e` **255/255**（253→255）✓。
