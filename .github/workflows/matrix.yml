@@ -1,0 +1,27 @@
+name: matrix
+
+# 矩阵套件（页头 73 态 / 首屏 145 态）在 GitHub runner 上比本地慢 10–20×，
+# 放进 push 闸门会拖住每次提交（2026-10-08 实测 >2h），所以单独每晚跑 + 手工可触发。
+# 失败 = job 红；不阻塞 push，也不自动开 issue。
+on:
+  schedule:
+    - cron: "0 18 * * *" # 北京 02:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm i --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e:header
+      - run: npm run e2e:first

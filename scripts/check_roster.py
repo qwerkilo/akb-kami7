@@ -38,12 +38,26 @@ for (const s of sections) {
   out[s.group] = [
     ...new Set(
       view.nodes.flatMap((n) =>
-        n.sections.flatMap((sec) => sec.members.map((m) => m.name))
+        n.sections.flatMap((sec) =>
+          sec.members.map((m) => m.name + "\\u0000" + (m.kana || ""))
+        )
       )
     ),
   ];
 }
-process.stdout.write(JSON.stringify(out));
+process.stdout.write(
+  JSON.stringify(
+    Object.fromEntries(
+      Object.entries(out).map(([g, rows]) => [
+        g,
+        rows.map((row) => {
+          const [name, kana] = row.split("\\u0000");
+          return { name, kana };
+        }),
+      ])
+    )
+  )
+);
 """
 
 
@@ -63,11 +77,32 @@ def _gap_line(missing, extra):
     return out + ("；多: " + "、".join(extra) if extra else "")
 
 
+def _name_sets(got):
+    """视图成员的汉字名 / 假名两个集合（kana 可能为空）。"""
+    return {m["name"] for m in got}, {m["kana"] for m in got if m["kana"]}
+
+
+def _gaps(upstream, got):
+    """缺 / 多两组名字（双向都允许「汉字或 kana」命中，见 _compare_group 的说明）。"""
+    names, kanas = _name_sets(got)
+    missing = sorted(n for n in upstream if n not in names and n not in kanas)
+    extra = sorted(
+        m["name"]
+        for m in got
+        if m["name"] not in upstream and (not m["kana"] or m["kana"] not in upstream)
+    )
+    return missing, extra
+
+
 def _compare_group(group, upstream, site):
-    """一个团的名字集合比对。True=一致，False=有缺口。"""
-    got = set(site.get(group, []))
-    missing = sorted(n for n in upstream if n not in got)
-    extra = sorted(n for n in got if n not in upstream)
+    """一个团的名字集合比对。True=一致，False=有缺口。
+
+    上游偶尔换表：ja.wikipedia 的 モーニング娘。 表现用**假名**列，而视图是汉字名
+    （2026-10-27 实测：同一批 51 人全被误报「缺 + 多」）。视图成员带 `kana`，
+    所以双向都用「汉字或假名命中」判等；两套上游（ja.wikipedia / 48pedia）通用。
+    """
+    got = site.get(group, [])
+    missing, extra = _gaps(upstream, got)
     if missing or extra:
         print(
             "  ✗ {}: 上游 {} / 视图 {}{}".format(

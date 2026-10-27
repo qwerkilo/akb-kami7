@@ -1567,12 +1567,34 @@ class CheckRosterSmokeTests(unittest.TestCase):
             check_roster.mm, "parse_wiki_members", return_value=parsed
         ):
             self.assertFalse(
-                check_roster.check_group("G", cfg, {"G": {"a"}}, lambda u: ""),
+                check_roster.check_group(
+                    "G", cfg, {"G": [{"name": "a", "kana": ""}]}, lambda u: ""
+                ),
                 "视图缺 b，必须报缺口",
             )
             self.assertTrue(
-                check_roster.check_group("G", cfg, {"G": {"a", "b"}}, lambda u: ""),
+                check_roster.check_group(
+                    "G",
+                    cfg,
+                    {"G": [{"name": "a", "kana": ""}, {"name": "b", "kana": ""}]},
+                    lambda u: "",
+                ),
                 "完全一致时返回 True",
+            )
+
+    def test_check_group_matches_kana_upstream(self):
+        """上游换成假名列、视图仍是汉字名：靠 kana 判等，不许误报缺口。"""
+        parsed = [{"name": "あ"}]
+        with mock.patch.object(
+            check_roster.mm.ja_wiki, "wiki_wikitext", return_value=""
+        ), mock.patch.object(
+            check_roster.mm, "parse_wiki_members", return_value=parsed
+        ):
+            self.assertTrue(
+                check_roster.check_group(
+                    "G", {"page": "X"}, {"G": [{"name": "阿", "kana": "あ"}]}, lambda u: ""
+                ),
+                "上游 あ / 视图 阿（kana=あ）要判一致",
             )
 
     def test_check_group_upstream_failure_is_not_a_gap(self):
@@ -1594,11 +1616,16 @@ class CheckRosterSmokeTests(unittest.TestCase):
         rows = [{"group": "G", "name": "a"}, {"group": "G", "name": "b"}]
         with mock.patch.object(check_roster.fetch_members, "SOURCES", (("G", "p", ""),)):
             self.assertEqual(
-                check_roster.check_48pedia({"G": {"a", "b"}}, load_rows=lambda: rows),
+                check_roster.check_48pedia(
+                    {"G": [{"name": "a", "kana": ""}, {"name": "b", "kana": ""}]},
+                    load_rows=lambda: rows,
+                ),
                 [True],
             )
             self.assertEqual(
-                check_roster.check_48pedia({"G": {"a"}}, load_rows=lambda: rows),
+                check_roster.check_48pedia(
+                    {"G": [{"name": "a", "kana": ""}]}, load_rows=lambda: rows
+                ),
                 [False],
                 "视图缺 b（转籍者缺席旧团名册就是这条）",
             )

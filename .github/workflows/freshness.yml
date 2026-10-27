@@ -1,0 +1,29 @@
+name: freshness
+
+# 数据养护（只读）：每周核对一次「名册视图 vs 上游」是否漂移。
+# 不自动改产物、不提交 —— 发现变化只让 job 红，由人决定是否跑 fetch_members.py。
+# 48pedia / ja.wikipedia 的可达性在 runner 上未知；首次定时跑就是它的真实检验。
+on:
+  schedule:
+    - cron: "0 18 * * 1" # 每周一 18:00 UTC（北京周二 02:00）
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  roster:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # check_roster 通过 node 读 members.js 的视图投影，并 import fetch_members（用到 Pillow）
+      - run: python3 -m pip install --user Pillow
+      # wiki.py 的 AKB_PROXY 默认指向本机 127.0.0.1:7897；runner 上没有这个代理，
+      # 必须显式置空走直连（空串 = direct，见 scripts/wiki.py）。
+      - run: python3 scripts/check_roster.py
+        env:
+          AKB_PROXY: ""

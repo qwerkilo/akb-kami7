@@ -1,6 +1,6 @@
 # 03 CI 矩阵套件每晚跑（独立 workflow）
 
-- **Status**: ready
+- **Status**: done
 - **Blocked by**: 无
 - **对应决策**: Q8 = A
 
@@ -19,3 +19,9 @@
 ## 风险（如实记）
 
 - 矩阵套件在 runner 上比本地慢 10–20×；首次定时跑的真实时长以 Actions 为准。
+
+## Comments
+
+2026-10-27：落地 `.github/workflows/matrix.yml`（schedule 每日 18:00 UTC + workflow_dispatch，
+timeout 60，header/first 两步分开）。YAML 本地解析通过；两条命令本地实测 **header 73/73**、
+**first 145/145** ✓。CI 首次定时跑的真实时长以 Actions 为准。
