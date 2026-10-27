@@ -149,8 +149,8 @@ CRAP > 6（仅 fetch_members.py；core.js 最大仅 mergeSort 5.0）：
 
 - 每次提交前：`npm test` + `npm run graph:sync` + `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`。
 - 数据重跑后：产物不变量测试 + `--no-dl` 幂等核对。
-- UI 改动后：E2E 冒烟（`/tmp/opencode/e2e.cjs` + `e2e-v5.cjs`；脚本不入仓，计数以 `docs/reviews/checkpoints.md` 最新一轮为准；Playwright 在 npx 缓存）。
-- 每次 code review 后：追加 `docs/reviews/checkpoints.md`。
+- UI 改动后：E2E 冒烟 `npm run e2e`（主套件；全面验收用 `npm run e2e:all`）。计数基线见 `docs/reviews/checkpoints.md` 索引与当前批次；Playwright 在 npx 缓存。
+- 每次 code review 后：追加 `docs/reviews/checkpoints/` 的当前批次文件，并更新索引的「下次基点」。
 
 ## 复检：2026-09-26（同日晚）
 

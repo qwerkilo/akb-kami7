@@ -165,7 +165,10 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 ## Code Review 检查点
 
-- 每次 review 结束后，向 `docs/reviews/checkpoints.md` 追加一条记录（格式见该文件）：日期、本次基点、审查范围、结论、遗留问题、下次基点（**本批最后一个提交**的 SHA —— `git rev-parse HEAD` 在推送前后同值，不必等推送再补一个「填基点」提交）。
+- 每次 review 结束后，向 `docs/reviews/checkpoints/` 的**当前批次文件**追加一条记录（格式见
+  `docs/reviews/checkpoints.md` 索引）：日期、本次基点、审查范围、结论、遗留问题、下次基点
+  （**本批最后一个提交**的 SHA —— `git rev-parse HEAD` 在推送前后同值，不必等推送再补一个「填基点」提交）。
+  索引只维护活信息（下次基点 / 批次日录 / 未收口清单），历史不重写。
 - 下次 review 从上次记录的基点开始，不重复审查已经通过的部分。
 - **两轴审查要核 `docs/reviews/review-rules.md` 的六条硬性检查项**（新工具退化路径 / 性能 A/B / 测试开关保存恢复 / 等待失败出声 / 长跑后台 / 视觉同条件 A/B）。
 - 质检基线在 `docs/reviews/qa-baseline.md`；口径「CCN > 10 才列修」由 `npm run complexity` 的趋势棘轮守（只拦新增/变高，2026-10-04 接进闸门）；CRAP 与覆盖率仍靠手动跑（lizard 不输出 CRAP，本仓无覆盖率工具链）。
