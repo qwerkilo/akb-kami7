@@ -5,12 +5,48 @@ const path = require("node:path");
 const vm = require("node:vm");
 const core = require("../core.js");
 
-function loadGroups() {
-  const src = fs.readFileSync(path.join(__dirname, "..", "members.js"), "utf8");
+function loadScript(file, name) {
+  const src = fs.readFileSync(path.join(__dirname, "..", file), "utf8");
   const sandbox = { window: {} };
   vm.runInNewContext(src, sandbox);
-  return sandbox.window.AKB_GROUPS;
+  return sandbox.window[name];
 }
+
+function loadRawGroups() {
+  return loadScript("members.js", "AKB_GROUPS");
+}
+
+// 简介已拆到 bios.js：测试按消费方的视角合并，既有 bio 断言保持原样。
+function loadGroups() {
+  const groups = loadRawGroups();
+  const bios = loadScript("bios.js", "AKB_BIOS");
+  for (const sec of groups)
+    for (const m of sec.members) m.bio = bios[m.id] || {};
+  return groups;
+}
+
+test("members.js 不再内嵌 bio（首屏字节拆到 bios.js）", () => {
+  const withBio = loadRawGroups()
+    .flatMap((sec) => sec.members)
+    .filter((m) => "bio" in m);
+  assert.equal(withBio.length, 0, "members.js 里还有 bio 键 —— 首屏会白解析它");
+});
+
+test("bios.js 覆盖每一位成员（拆分不丢数据）", () => {
+  const ids = [
+    ...new Set(
+      loadRawGroups()
+        .flatMap((sec) => sec.members)
+        .map((m) => m.id)
+    ),
+  ].sort();
+  const bios = loadScript("bios.js", "AKB_BIOS");
+  assert.deepEqual(
+    Object.keys(bios).sort(),
+    ids,
+    "bios.js 的键必须与成员 id 集合相等"
+  );
+});
 
 // 团体清单 = **规格**（顺序 / 人数快照 / 系列）。加团只改这一张表；
 // 三张派生视图保持既有消费点不变。人数快照随上游变，改数据时一起改。

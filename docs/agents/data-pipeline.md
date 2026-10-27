@@ -1,6 +1,6 @@
 # 数据与图片生成
 
-`members.js`、`img/full`（长边 ≤720×960 等比 WebP，不放大原图）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成：
+`members.js`（首屏数据，**不含 bio**）、`bios.js`（id → 简介，首屏后空闲预取、SW 壳缓存）、`img/full`（长边 ≤720×960 等比 WebP，不放大原图）、`img/thumb`（240 宽 WebP）都由 `scripts/fetch_members.py` 生成：
 
 - **48G / 坂道**：48pedia 的 11 个来源页（`SOURCES`）；跨团按姓名+假名去重归口，跨系列兼任由 keeper+`groups` 合并（全部隶属，元素 {group,current}；2026-10-07 前叫 extras）；bio 取表内 `生年月日`/`出身地`。
 - **等爱三团**：`scripts/love_members.py` 抓官网（列表+详情：血型/星座/身长/趣味/特技/罗马字）+ 日文 Wikipedia（假名/生年月日/出身地/元成员/毕业日）；毕业成员照片走回退链 **Web Archive 列表快照 → 图片快照 → Wikipedia/Commons → 沿用站内已有照片（无则占位）**；`main` 的 `love_loader` 可注入（测试离线）。
@@ -14,7 +14,7 @@
   - **「为什么没有照片」是一份报告**（ADR-0024）：管线把解析阶段的原因（loader 写进 `notes`，按 `file`）与下载/压缩阶段的失败（`failures`，按 `id`）合并，打**一份**逐人原因表 —— 覆盖集合 == 缺图名单是**结构性**的（同一份 `missing` 驱动两段）。原因取值：查询失败 / 源里没有 / 旧站预算内未扫完 / 旧站被全局上限截断 / 旧站未扫到 / 下载失败 / 源图过小 / 文件不是图。
   - ⚠️ **Commons 要节流**（`resolve_former_photos(pause=1.5)`）：连打几十次会回 429。ADR-0024 后失败会记成「查询失败」（不再与「源里没有」混同），但不节流仍会把**限流**变成大量「查询失败」——节流是覆盖率问题，不是可读性问题。真实缺口名单逐人写进 `.scratch/helloproject-all/issues/03-pipeline.md`（数字让那份记录与产物测试钉，不在这里写第二份）；缺图与原因由管线的**一份报告**给出（ADR-0024）。
 - **共用装配契约**：`scripts/roster.py`（`sort_members` / `project` / `section` / `ymd`）定义组内排序（现役优先 → 假名、空则姓名）、成员投影（基础字段恒在，可选字段仅真值带上）、分段形状 `{group, series, label, members}` 与统一日期格式 `ymd`（`YYYY.MM.DD`，缺月日只给年份）；两个数据源只提供各自的分组逻辑与可选字段集。
-- `simplified.js`（OpenCC 离线生成，缺依赖时跳过）与 `members.js` 同批产出；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
+- `simplified.js`（OpenCC 离线生成，缺依赖时跳过）与 `members.js` / `bios.js` 同批产出；原图缓存在 `scripts/_orig/`（已 gitignore），脚本会删除未被引用的图片文件。
 - **`img` 标志的真值来源是站内文件**：`img/full/<id>.webp` 与 `img/thumb/<id>.webp` 都在且非空才为 `true`（渲染器只读这两个文件）。上游 URL 解析失败/压缩失败不会让仓库里已有的头像消失；因此脚本报告的 `with image` 是**仓库状态**，不是本轮解析成功数。上游波动导致的失败会以 warning 打出（等爱：逐个点名；其他：结尾汇总「N 位成员没有照片」）。
 - 重跑：`cd scripts && python3 fetch_members.py`。**数据阶段是并发的**（`fetch_pool`：按主机限流 —— 官网/维基 3 并发·0.2s，48pedia 2 并发·0.5s；错误按输入顺序重抛，解析顺序不变）；阶段行与心跳（每 ~10s：已完成/总数 · 速率 · 上次成功 Xs 前）打在 stderr。**默认是增量跑**（ADR-0023）：已有站内照片的成员**不解析照片**（数据照常抓），缺图者每轮仍尝试；`--refresh-photos` 才全量重解析（源变好、要换更清晰的照片时用它）；`--no-dl` 只用缓存，`--force` 强制重新下载 + 重新压缩。旧站扫描的每团预算按**抓取次数**算并随缺图人数缩放（公式的唯一出处是 `_group_budget`，由 `test_budget_scales_with_missing_count` 钉住）—— 按 URL 记账会让实际抓取三倍于预算（实测：12 个缺图者散在 5 个团时，扫描跑到全局上限 900 次、增量跑 37 分钟没跑完）。48pedia 偶发 SSL/WAF/521 失败，重试即可（管线边缘已带 8 次重试；单团抓取失败会被 loader 的 empty 策略变成「该团 0 人」再由门③中止 —— 所以重试要够）；**三道中止门都存在**——① 等爱抓取失败 → 中止不写入；② 早安抓取失败 → 中止不写入（理由相同：绝不「一个系列失败就只写其余系列」）；③ 名册相对盘上 `members.js` 塌了（总数 < 基线 60%，或某团掉到基线一半以下，或某团一个成员都没解析到）→ 中止不写入。
 

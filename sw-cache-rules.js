@@ -22,6 +22,7 @@
     "poster.js",
     "i18n.js",
     "members.js",
+    "bios.js",
     "simplified.js",
     "app.js",
     "sw-cache-rules.js",

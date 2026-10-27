@@ -12,11 +12,7 @@ window.AKB_GROUPS = [
     "nick": "ともちん",
     "status": "former",
     "end": "2013.08.27",
-    "img": true,
-    "bio": {
-     "birth": "1991.07.03",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mae7a58749f",
@@ -25,11 +21,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっき～",
     "status": "former",
     "end": "2006.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1984.12.06",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m851d800f25",
@@ -38,11 +30,7 @@ window.AKB_GROUPS = [
     "nick": "おーいぇ",
     "status": "former",
     "end": "2008.11.23",
-    "img": true,
-    "bio": {
-     "birth": "1989.06.15",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m01a4b0ab84",
@@ -51,11 +39,7 @@ window.AKB_GROUPS = [
     "nick": "まいまい",
     "status": "former",
     "end": "2009.04.26",
-    "img": true,
-    "bio": {
-     "birth": "1987.09.11",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m629d582c1f",
@@ -64,11 +48,7 @@ window.AKB_GROUPS = [
     "nick": "あゆ姉",
     "status": "former",
     "end": "2007.01.25",
-    "img": true,
-    "bio": {
-     "birth": "1985.07.20",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m0711cee99f",
@@ -77,11 +57,7 @@ window.AKB_GROUPS = [
     "nick": "のぞフィス",
     "status": "former",
     "end": "2009.02.27",
-    "img": true,
-    "bio": {
-     "birth": "1987.08.23",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mc4a5044789",
@@ -90,11 +66,7 @@ window.AKB_GROUPS = [
     "nick": "こじはる",
     "status": "former",
     "end": "2017.04.19",
-    "img": true,
-    "bio": {
-     "birth": "1988.04.19",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m00d0603716",
@@ -103,11 +75,7 @@ window.AKB_GROUPS = [
     "nick": "たかみな",
     "status": "former",
     "end": "2016.04.08",
-    "img": true,
-    "bio": {
-     "birth": "1991.04.08",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m7b733904fe",
@@ -116,11 +84,7 @@ window.AKB_GROUPS = [
     "nick": "りなてぃん",
     "status": "former",
     "end": "2008.11.23",
-    "img": true,
-    "bio": {
-     "birth": "1988.06.26",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "m4084cb80e5",
@@ -129,11 +93,7 @@ window.AKB_GROUPS = [
     "nick": "りさ",
     "status": "former",
     "end": "2008.11.23",
-    "img": true,
-    "bio": {
-     "birth": "1991.03.01",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mf9c80c0c58",
@@ -143,10 +103,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.02.05",
     "img": true,
-    "bio": {
-     "birth": "1992.05.28",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -156,11 +112,7 @@ window.AKB_GROUPS = [
     "nick": "ちるちる",
     "status": "former",
     "end": "2007.06.26",
-    "img": true,
-    "bio": {
-     "birth": "1985.11.19",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m3dbe559b39",
@@ -169,11 +121,7 @@ window.AKB_GROUPS = [
     "nick": "あっちゃん",
     "status": "former",
     "end": "2012.08.27",
-    "img": true,
-    "bio": {
-     "birth": "1991.07.10",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "ma1168427d4",
@@ -182,11 +130,7 @@ window.AKB_GROUPS = [
     "nick": "かやの",
     "status": "former",
     "end": "2007.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1994.02.10",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m42ba0d1ac2",
@@ -195,11 +139,7 @@ window.AKB_GROUPS = [
     "nick": "みいちゃん",
     "status": "former",
     "end": "2021.05.29",
-    "img": true,
-    "bio": {
-     "birth": "1992.11.15",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m80ee1bb11c",
@@ -208,11 +148,7 @@ window.AKB_GROUPS = [
     "nick": "しほ",
     "status": "former",
     "end": "2007.10.02",
-    "img": true,
-    "bio": {
-     "birth": "1987.10.25",
-     "from": "兵庫県"
-    }
+    "img": true
    }
   ]
  },
@@ -228,11 +164,7 @@ window.AKB_GROUPS = [
     "nick": "まりこ",
     "status": "former",
     "end": "2013.07.22",
-    "img": true,
-    "bio": {
-     "birth": "1986.03.11",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -248,11 +180,7 @@ window.AKB_GROUPS = [
     "nick": "さやか",
     "status": "former",
     "end": "2013.08.28",
-    "img": true,
-    "bio": {
-     "birth": "1988.07.26",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m0575758675",
@@ -261,11 +189,7 @@ window.AKB_GROUPS = [
     "nick": "ゆう",
     "status": "former",
     "end": "2007.06.22",
-    "img": true,
-    "bio": {
-     "birth": "1985.04.17",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m1e209eeb08",
@@ -275,10 +199,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.06.17",
     "img": true,
-    "bio": {
-     "birth": "1986.02.07",
-     "from": "埼玉県"
-    },
     "leave": "脱退"
    },
    {
@@ -288,11 +208,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうこ",
     "status": "former",
     "end": "2014.06.09",
-    "img": true,
-    "bio": {
-     "birth": "1988.10.17",
-     "from": "栃木県"
-    }
+    "img": true
    },
    {
     "id": "m3fbeb80273",
@@ -301,11 +217,7 @@ window.AKB_GROUPS = [
     "nick": "まぁちゃん",
     "status": "former",
     "end": "2011.06.19",
-    "img": true,
-    "bio": {
-     "birth": "1995.11.22",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m6b9d2533f4",
@@ -314,11 +226,7 @@ window.AKB_GROUPS = [
     "nick": "えれぴょん",
     "status": "former",
     "end": "2010.09.27",
-    "img": true,
-    "bio": {
-     "birth": "1993.11.26",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m57ee3bc3fd",
@@ -327,11 +235,7 @@ window.AKB_GROUPS = [
     "nick": "とも～み",
     "status": "former",
     "end": "2013.05.03",
-    "img": true,
-    "bio": {
-     "birth": "1991.11.16",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mea9d9a2a69",
@@ -340,11 +244,7 @@ window.AKB_GROUPS = [
     "nick": "かな",
     "status": "former",
     "end": "2016.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1991.05.17",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m4ce5969b03",
@@ -353,11 +253,7 @@ window.AKB_GROUPS = [
     "nick": "Nなっち",
     "status": "former",
     "end": "2012.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1990.07.01",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "mcbe5818e22",
@@ -366,11 +262,7 @@ window.AKB_GROUPS = [
     "nick": "あやな",
     "status": "former",
     "end": "2007.06.22",
-    "img": true,
-    "bio": {
-     "birth": "1988.07.21",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m67970e17a9",
@@ -379,11 +271,7 @@ window.AKB_GROUPS = [
     "nick": "かおりん",
     "status": "former",
     "end": "2009.04.26",
-    "img": true,
-    "bio": {
-     "birth": "1992.12.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "md91bac4669",
@@ -393,10 +281,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.12.17",
     "img": true,
-    "bio": {
-     "birth": "1991.08.03",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -406,11 +290,7 @@ window.AKB_GROUPS = [
     "nick": "なっつみぃ",
     "status": "former",
     "end": "2013.07.07",
-    "img": true,
-    "bio": {
-     "birth": "1990.06.19",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -427,10 +307,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.12.19",
     "img": true,
-    "bio": {
-     "birth": "1992.08.10",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -440,11 +316,7 @@ window.AKB_GROUPS = [
     "nick": "なるぽん",
     "status": "former",
     "end": "2008.09.29",
-    "img": true,
-    "bio": {
-     "birth": "1991.12.18",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "md8741be2d9",
@@ -454,10 +326,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.12.19",
     "img": true,
-    "bio": {
-     "birth": "1989.02.07",
-     "from": "神奈川県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -468,10 +336,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.04.30",
     "img": true,
-    "bio": {
-     "birth": "1991.07.15",
-     "from": "鹿児島県"
-    },
     "groups": [
      {
       "group": "AKB48",
@@ -494,11 +358,7 @@ window.AKB_GROUPS = [
     "nick": "はーちゃん",
     "status": "former",
     "end": "2014.09.29",
-    "img": true,
-    "bio": {
-     "birth": "1990.05.10",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "ma96468ddfa",
@@ -507,11 +367,7 @@ window.AKB_GROUPS = [
     "nick": "みきポム",
     "status": "former",
     "end": "2009.04.18",
-    "img": true,
-    "bio": {
-     "birth": "1991.06.22",
-     "from": "栃木県"
-    }
+    "img": true
    },
    {
     "id": "m6da0b87563",
@@ -521,10 +377,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.12.19",
     "img": true,
-    "bio": {
-     "birth": "1990.03.18",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -534,11 +386,7 @@ window.AKB_GROUPS = [
     "nick": "たなみん",
     "status": "former",
     "end": "2017.07.23",
-    "img": true,
-    "bio": {
-     "birth": "1992.12.02",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "m67a16eafe6",
@@ -548,10 +396,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.10.31",
     "img": true,
-    "bio": {
-     "birth": "1992.02.10",
-     "from": "東京都"
-    },
     "leave": "移籍"
    },
    {
@@ -561,11 +405,7 @@ window.AKB_GROUPS = [
     "nick": "なかやん",
     "status": "former",
     "end": "2013.03.06",
-    "img": true,
-    "bio": {
-     "birth": "1991.10.15",
-     "from": "岩手県"
-    }
+    "img": true
    },
    {
     "id": "m83c8b17758",
@@ -574,11 +414,7 @@ window.AKB_GROUPS = [
     "nick": "ぐっさん",
     "status": "former",
     "end": "2009.02.01",
-    "img": true,
-    "bio": {
-     "birth": "1993.04.15",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mab822e8756",
@@ -588,10 +424,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.12.19",
     "img": true,
-    "bio": {
-     "birth": "1990.04.28",
-     "from": "千葉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -602,10 +434,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.12.19",
     "img": true,
-    "bio": {
-     "birth": "1993.07.14",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -615,11 +443,7 @@ window.AKB_GROUPS = [
     "nick": "まつゆき",
     "status": "former",
     "end": "2009.02.01",
-    "img": true,
-    "bio": {
-     "birth": "1987.10.07",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m794d3abef9",
@@ -629,10 +453,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.02.05",
     "img": true,
-    "bio": {
-     "birth": "1991.06.06",
-     "from": "埼玉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -642,11 +462,7 @@ window.AKB_GROUPS = [
     "nick": "まゆゆ",
     "status": "former",
     "end": "2017.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.03.26",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -663,10 +479,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.11.15",
     "img": true,
-    "bio": {
-     "birth": "1990.04.30",
-     "from": "埼玉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -676,11 +488,7 @@ window.AKB_GROUPS = [
     "nick": "うりゃ",
     "status": "former",
     "end": "2009.04.26",
-    "img": true,
-    "bio": {
-     "birth": "1992.08.24",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m136074e49f",
@@ -689,11 +497,7 @@ window.AKB_GROUPS = [
     "nick": "しいちゃん",
     "status": "former",
     "end": "2021.12.29",
-    "img": true,
-    "bio": {
-     "birth": "1991.12.28",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m2fbcaf3557",
@@ -703,10 +507,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.11.15",
     "img": true,
-    "bio": {
-     "birth": "1989.12.22",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -716,11 +516,7 @@ window.AKB_GROUPS = [
     "nick": "もっちぃ",
     "status": "former",
     "end": "2015.08.17",
-    "img": true,
-    "bio": {
-     "birth": "1989.09.11",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m851b321e89",
@@ -730,10 +526,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.11.15",
     "img": true,
-    "bio": {
-     "birth": "1993.05.22",
-     "from": "千葉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -743,11 +535,7 @@ window.AKB_GROUPS = [
     "nick": "あみな",
     "status": "former",
     "end": "2014.06.29",
-    "img": true,
-    "bio": {
-     "birth": "1990.10.16",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m03f612264a",
@@ -756,11 +544,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.01.18",
-    "img": true,
-    "bio": {
-     "birth": "1992.12.18",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m9909eff11a",
@@ -769,11 +553,7 @@ window.AKB_GROUPS = [
     "nick": "ちぃちゃん",
     "status": "former",
     "end": "2017.04.24",
-    "img": true,
-    "bio": {
-     "birth": "1990.10.08",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mff65dab2be",
@@ -782,11 +562,7 @@ window.AKB_GROUPS = [
     "nick": "なるる",
     "status": "former",
     "end": "2009.05.24",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.13",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m9d64a7e6c6",
@@ -796,10 +572,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.11.15",
     "img": true,
-    "bio": {
-     "birth": "1984.09.01",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -810,10 +582,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.11.15",
     "img": true,
-    "bio": {
-     "birth": "1991.01.18",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -830,11 +598,7 @@ window.AKB_GROUPS = [
     "nick": "ありゃま",
     "status": "former",
     "end": "2009.01.18",
-    "img": true,
-    "bio": {
-     "birth": "1991.02.18",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m4ded9e73aa",
@@ -843,11 +607,7 @@ window.AKB_GROUPS = [
     "nick": "はるきゃん",
     "status": "former",
     "end": "2016.06.05",
-    "img": true,
-    "bio": {
-     "birth": "1993.12.02",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mda0db6fd48",
@@ -856,11 +616,7 @@ window.AKB_GROUPS = [
     "nick": "内田さんウッチー",
     "status": "former",
     "end": "2015.10.25",
-    "img": true,
-    "bio": {
-     "birth": "1993.12.27",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mfeb9540951",
@@ -870,10 +626,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.04.16",
     "img": true,
-    "bio": {
-     "birth": "1993.04.23",
-     "from": "東京都"
-    },
     "leave": "移籍"
    },
    {
@@ -883,11 +635,7 @@ window.AKB_GROUPS = [
     "nick": "まゆとみー",
     "status": "former",
     "end": "2009.01.18",
-    "img": true,
-    "bio": {
-     "birth": "1993.01.25",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m47708b1847",
@@ -896,11 +644,7 @@ window.AKB_GROUPS = [
     "nick": "ともちゃん",
     "status": "former",
     "end": "2013.07.07",
-    "img": true,
-    "bio": {
-     "birth": "1993.06.18",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m5fb7c5e4c8",
@@ -909,11 +653,7 @@ window.AKB_GROUPS = [
     "nick": "もえの",
     "status": "former",
     "end": "2013.04.28",
-    "img": true,
-    "bio": {
-     "birth": "1992.07.22",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m60ff6a0678",
@@ -922,11 +662,7 @@ window.AKB_GROUPS = [
     "nick": "ありりんありさ",
     "status": "former",
     "end": "2009.01.19",
-    "img": true,
-    "bio": {
-     "birth": "1991.02.11",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m230459a204",
@@ -935,11 +671,7 @@ window.AKB_GROUPS = [
     "nick": "みゃお",
     "status": "former",
     "end": "2022.04.15",
-    "img": true,
-    "bio": {
-     "birth": "1993.07.30",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma14e7d357c",
@@ -949,10 +681,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.12.08",
     "img": true,
-    "bio": {
-     "birth": "1988.07.28",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -970,10 +698,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2008.08.31",
     "img": true,
-    "bio": {
-     "birth": "1990.04.29",
-     "from": "茨城県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -983,11 +707,7 @@ window.AKB_GROUPS = [
     "nick": "あきちゃ",
     "status": "former",
     "end": "2016.05.01",
-    "img": true,
-    "bio": {
-     "birth": "1991.10.03",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m4514d1c790",
@@ -997,10 +717,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2008.07.31",
     "img": true,
-    "bio": {
-     "birth": "1992.05.14",
-     "from": "神奈川県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -1010,11 +726,7 @@ window.AKB_GROUPS = [
     "nick": "みちゃ",
     "status": "former",
     "end": "2014.09.23",
-    "img": true,
-    "bio": {
-     "birth": "1991.04.20",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -1030,11 +742,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.01.16",
-    "img": true,
-    "bio": {
-     "birth": "1991.05.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "meef41be845",
@@ -1043,11 +751,7 @@ window.AKB_GROUPS = [
     "nick": "わさみん",
     "status": "former",
     "end": "2016.05.21",
-    "img": true,
-    "bio": {
-     "birth": "1995.01.30",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m7bb85ae686",
@@ -1056,11 +760,7 @@ window.AKB_GROUPS = [
     "nick": "みーたん",
     "status": "former",
     "end": "2009.06.09",
-    "img": true,
-    "bio": {
-     "birth": "1991.11.30",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m2ade342b50",
@@ -1069,11 +769,7 @@ window.AKB_GROUPS = [
     "nick": "あやりん",
     "status": "former",
     "end": "2014.09.23",
-    "img": true,
-    "bio": {
-     "birth": "1993.06.30",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mb550bb0e13",
@@ -1082,11 +778,7 @@ window.AKB_GROUPS = [
     "nick": "こもりん",
     "status": "former",
     "end": "2013.07.07",
-    "img": true,
-    "bio": {
-     "birth": "1994.07.19",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "me64b4bb3ba",
@@ -1095,11 +787,7 @@ window.AKB_GROUPS = [
     "nick": "まりやんぬ",
     "status": "former",
     "end": "2017.06.10",
-    "img": true,
-    "bio": {
-     "birth": "1991.04.29",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m3e0203991a",
@@ -1108,11 +796,7 @@ window.AKB_GROUPS = [
     "nick": "あやのん",
     "status": "former",
     "end": "2009.07.18",
-    "img": true,
-    "bio": {
-     "birth": "1993.05.31",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc503dcc2ec",
@@ -1121,11 +805,7 @@ window.AKB_GROUPS = [
     "nick": "あーみん",
     "status": "former",
     "end": "2016.08.29",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.01",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma2c60241ac",
@@ -1134,11 +814,7 @@ window.AKB_GROUPS = [
     "nick": "さきこ",
     "status": "former",
     "end": "2015.08.09",
-    "img": true,
-    "bio": {
-     "birth": "1990.12.10",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -1154,11 +830,7 @@ window.AKB_GROUPS = [
     "nick": "まりん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1991.07.28",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "m02fda111e0",
@@ -1167,11 +839,7 @@ window.AKB_GROUPS = [
     "nick": "あやめろ",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1991.06.24",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mcb93c85742",
@@ -1180,11 +848,7 @@ window.AKB_GROUPS = [
     "nick": "あやにゃん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1991.02.06",
-     "from": "山梨県"
-    }
+    "img": true
    },
    {
     "id": "mc08c112be7",
@@ -1193,11 +857,7 @@ window.AKB_GROUPS = [
     "nick": "ゆりはむ",
     "status": "former",
     "end": "2010.02.01",
-    "img": true,
-    "bio": {
-     "birth": "1994.04.30",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m564151051c",
@@ -1206,11 +866,7 @@ window.AKB_GROUPS = [
     "nick": "あさぽん",
     "status": "former",
     "end": "2010.07.06",
-    "img": true,
-    "bio": {
-     "birth": "1995.05.17",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m9139bd7fb1",
@@ -1219,11 +875,7 @@ window.AKB_GROUPS = [
     "nick": "ぐーたん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1994.04.29",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "me92faca060",
@@ -1241,11 +893,7 @@ window.AKB_GROUPS = [
     "nick": "こみたん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.13",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "maffee3f9d7",
@@ -1254,11 +902,7 @@ window.AKB_GROUPS = [
     "nick": "りっちゃん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.06",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc5ae97faad",
@@ -1267,11 +911,7 @@ window.AKB_GROUPS = [
     "nick": "ゆりりん",
     "status": "former",
     "end": "2010.10.05",
-    "img": true,
-    "bio": {
-     "birth": "1992.01.22",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m63ad331e13",
@@ -1280,11 +920,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m0dbb2362bd",
@@ -1293,11 +929,7 @@ window.AKB_GROUPS = [
     "nick": "まみょん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1994.03.17",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m2dde861dda",
@@ -1306,11 +938,7 @@ window.AKB_GROUPS = [
     "nick": "にこるん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.28",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m636f6fbc7e",
@@ -1319,11 +947,7 @@ window.AKB_GROUPS = [
     "nick": "さとみん",
     "status": "former",
     "end": "2009.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1988.06.05",
-     "from": "千葉県"
-    }
+    "img": true
    }
   ]
  },
@@ -1339,11 +963,7 @@ window.AKB_GROUPS = [
     "nick": "あっきー",
     "status": "former",
     "end": "2010.06.20",
-    "img": true,
-    "bio": {
-     "birth": "1993.09.24",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mb17208bf96",
@@ -1352,11 +972,7 @@ window.AKB_GROUPS = [
     "nick": "あやぽん",
     "status": "former",
     "end": "2010.01.06",
-    "img": true,
-    "bio": {
-     "birth": "1993.06.21",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mddb8ff6333",
@@ -1365,11 +981,7 @@ window.AKB_GROUPS = [
     "nick": "ももちん",
     "status": "former",
     "end": "2010.06.20",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.28",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m71929abeb5",
@@ -1378,11 +990,7 @@ window.AKB_GROUPS = [
     "nick": "ぱるる",
     "status": "former",
     "end": "2016.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.03.30",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "ma0b03d2869",
@@ -1391,11 +999,7 @@ window.AKB_GROUPS = [
     "nick": "はるぅしまだ",
     "status": "former",
     "end": "2017.11.13",
-    "img": true,
-    "bio": {
-     "birth": "1992.12.16",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "md0e3e19c28",
@@ -1404,11 +1008,7 @@ window.AKB_GROUPS = [
     "nick": "えりりん",
     "status": "former",
     "end": "2010.06.20",
-    "img": true,
-    "bio": {
-     "birth": "1992.12.25",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m53ed8d2508",
@@ -1417,11 +1017,7 @@ window.AKB_GROUPS = [
     "nick": "みゆみゆ",
     "status": "former",
     "end": "2019.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "md453e821a9",
@@ -1430,11 +1026,7 @@ window.AKB_GROUPS = [
     "nick": "こまり",
     "status": "former",
     "end": "2017.03.30",
-    "img": true,
-    "bio": {
-     "birth": "1993.12.16",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mf610a9d23d",
@@ -1443,11 +1035,7 @@ window.AKB_GROUPS = [
     "nick": "まりやまりやぎ",
     "status": "former",
     "end": "2016.05.01",
-    "img": true,
-    "bio": {
-     "birth": "1994.03.10",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m2a0e9380c3",
@@ -1456,11 +1044,7 @@ window.AKB_GROUPS = [
     "nick": "おさら",
     "status": "former",
     "end": "2010.06.20",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc24236693a",
@@ -1470,10 +1054,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2011.09.02",
     "img": true,
-    "bio": {
-     "birth": "1994.03.21",
-     "from": "千葉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -1484,10 +1064,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.12.09",
     "img": true,
-    "bio": {
-     "birth": "1992.12.08",
-     "from": "京都府"
-    },
     "groups": [
      {
       "group": "AKB48",
@@ -1514,10 +1090,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.11.30",
     "img": true,
-    "bio": {
-     "birth": "1995.11.29",
-     "from": "神奈川県"
-    },
     "leave": "移籍"
    },
    {
@@ -1528,10 +1100,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.07.01",
     "img": true,
-    "bio": {
-     "birth": "1995.11.26",
-     "from": "埼玉県"
-    },
     "leave": "移籍"
    },
    {
@@ -1541,11 +1109,7 @@ window.AKB_GROUPS = [
     "nick": "あんにん",
     "status": "former",
     "end": "2022.03.17",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.03",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m1c08e1a879",
@@ -1554,11 +1118,7 @@ window.AKB_GROUPS = [
     "nick": "ひとみん",
     "status": "former",
     "end": "2010.10.05",
-    "img": true,
-    "bio": {
-     "birth": "1996.03.19",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mad8531a160",
@@ -1567,11 +1127,7 @@ window.AKB_GROUPS = [
     "nick": "れなっち",
     "status": "former",
     "end": "2022.02.20",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.10",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "ma5547b6c7b",
@@ -1580,11 +1136,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうきりんゆうちゃん",
     "status": "former",
     "end": "2011.02.20",
-    "img": true,
-    "bio": {
-     "birth": "1993.05.01",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "mc62a16e7d4",
@@ -1593,11 +1145,7 @@ window.AKB_GROUPS = [
     "nick": "まりんちゃん",
     "status": "former",
     "end": "2015.08.09",
-    "img": true,
-    "bio": {
-     "birth": "1996.02.24",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m410762c0d4",
@@ -1606,11 +1154,7 @@ window.AKB_GROUPS = [
     "nick": "しおりん",
     "status": "former",
     "end": "2013.09.23",
-    "img": true,
-    "bio": {
-     "birth": "1992.07.25",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m523558022e",
@@ -1619,11 +1163,7 @@ window.AKB_GROUPS = [
     "nick": "なぁな",
     "status": "former",
     "end": "2019.01.07",
-    "img": true,
-    "bio": {
-     "birth": "1996.12.28",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -1639,11 +1179,7 @@ window.AKB_GROUPS = [
     "nick": "さらちゃん",
     "status": "former",
     "end": "2011.06.19",
-    "img": true,
-    "bio": {
-     "birth": "1995.02.15",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mffda5749e9",
@@ -1652,11 +1188,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2010.10.27",
-    "img": true,
-    "bio": {
-     "birth": "1992.05.28",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m802e210927",
@@ -1665,11 +1197,7 @@ window.AKB_GROUPS = [
     "nick": "りっちゃん",
     "status": "former",
     "end": "2015.08.04",
-    "img": true,
-    "bio": {
-     "birth": "1995.02.12",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m880591860f",
@@ -1678,11 +1206,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2010.12.03",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.21",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m07d084d9cf",
@@ -1691,11 +1215,7 @@ window.AKB_GROUPS = [
     "nick": "なっつん",
     "status": "former",
     "end": "2018.08.12",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.08",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mb35e096795",
@@ -1704,11 +1224,7 @@ window.AKB_GROUPS = [
     "nick": "しほりん",
     "status": "former",
     "end": "2015.05.30",
-    "img": true,
-    "bio": {
-     "birth": "1994.02.17",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "md3649b33ef",
@@ -1717,11 +1233,7 @@ window.AKB_GROUPS = [
     "nick": "さきぴ",
     "status": "former",
     "end": "2010.10.23",
-    "img": true,
-    "bio": {
-     "birth": "1993.09.08",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m40c6260a37",
@@ -1730,11 +1242,7 @@ window.AKB_GROUPS = [
     "nick": "わかにゃん",
     "status": "former",
     "end": "2016.02.14",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.07",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m91e539f60f",
@@ -1743,11 +1251,7 @@ window.AKB_GROUPS = [
     "nick": "あーや",
     "status": "former",
     "end": "2015.05.30",
-    "img": true,
-    "bio": {
-     "birth": "1996.03.24",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m08e705f80f",
@@ -1756,11 +1260,7 @@ window.AKB_GROUPS = [
     "nick": "なうちぃ",
     "status": "former",
     "end": "2011.06.19",
-    "img": true,
-    "bio": {
-     "birth": "1994.01.19",
-     "from": "神奈川県"
-    }
+    "img": true
    }
   ]
  },
@@ -1776,11 +1276,7 @@ window.AKB_GROUPS = [
     "nick": "カレン",
     "status": "former",
     "end": "2016.05.21",
-    "img": true,
-    "bio": {
-     "birth": "1998.05.13",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "m691d0a08fb",
@@ -1789,11 +1285,7 @@ window.AKB_GROUPS = [
     "nick": "みゆぽん",
     "status": "former",
     "end": "2023.08.21",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.03",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m61860394c7",
@@ -1802,11 +1294,7 @@ window.AKB_GROUPS = [
     "nick": "ゆかるん",
     "status": "former",
     "end": "2024.02.23",
-    "img": true,
-    "bio": {
-     "birth": "1995.08.28",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m6bf25d30ee",
@@ -1815,11 +1303,7 @@ window.AKB_GROUPS = [
     "nick": "りかちゃん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.01.10",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m05516a7331",
@@ -1828,11 +1312,7 @@ window.AKB_GROUPS = [
     "nick": "じゅり",
     "status": "former",
     "end": "2019.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1997.10.03",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "mdfa81761ee",
@@ -1841,11 +1321,7 @@ window.AKB_GROUPS = [
     "nick": "たのちゃん",
     "status": "former",
     "end": "2018.08.12",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.07",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc16064f18d",
@@ -1854,11 +1330,7 @@ window.AKB_GROUPS = [
     "nick": "ひらりー",
     "status": "former",
     "end": "2016.08.24",
-    "img": true,
-    "bio": {
-     "birth": "1998.07.16",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m79663226b1",
@@ -1867,11 +1339,7 @@ window.AKB_GROUPS = [
     "nick": "とむ",
     "status": "former",
     "end": "2023.03.08",
-    "img": true,
-    "bio": {
-     "birth": "1994.11.25",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m369c2328fd",
@@ -1880,11 +1348,7 @@ window.AKB_GROUPS = [
     "nick": "えれちゃん",
     "status": "former",
     "end": "2012.10.06",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.15",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -1901,10 +1365,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.05.08",
     "img": true,
-    "bio": {
-     "birth": "1995.02.11",
-     "from": "埼玉県"
-    },
     "leave": "プロフィール削除"
    }
   ]
@@ -1921,11 +1381,7 @@ window.AKB_GROUPS = [
     "nick": "さっほー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1994.10.04",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m4ccde91ced",
@@ -1934,11 +1390,7 @@ window.AKB_GROUPS = [
     "nick": "もえちゃん",
     "status": "former",
     "end": "2017.03.21",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.06",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m0b1c433c03",
@@ -1947,11 +1399,7 @@ window.AKB_GROUPS = [
     "nick": "あめちゃん",
     "status": "former",
     "end": "2012.08.05",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.29",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma02405f9e4",
@@ -1960,11 +1408,7 @@ window.AKB_GROUPS = [
     "nick": "うめたん",
     "status": "former",
     "end": "2017.03.22",
-    "img": true,
-    "bio": {
-     "birth": "1999.03.20",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m45d221568d",
@@ -1973,11 +1417,7 @@ window.AKB_GROUPS = [
     "nick": "りょーちゃん",
     "status": "former",
     "end": "2017.06.08",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.21",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m944e4a64ec",
@@ -1986,11 +1426,7 @@ window.AKB_GROUPS = [
     "nick": "あやか",
     "status": "former",
     "end": "2017.06.22",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.06",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m5cbf2874a0",
@@ -1999,11 +1435,7 @@ window.AKB_GROUPS = [
     "nick": "しおりーぬ",
     "status": "former",
     "end": "2012.08.05",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.01",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mc0bfbc76de",
@@ -2012,11 +1444,7 @@ window.AKB_GROUPS = [
     "nick": "さっきー",
     "status": "former",
     "end": "2023.09.05",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.05",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mfb9e430213",
@@ -2025,11 +1453,7 @@ window.AKB_GROUPS = [
     "nick": "あやなん",
     "status": "former",
     "end": "2024.02.10",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.08",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m7791abaa76",
@@ -2038,11 +1462,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーりん",
     "status": "former",
     "end": "2014.12.27",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.24",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m4fa1f82b5f",
@@ -2051,11 +1471,7 @@ window.AKB_GROUPS = [
     "nick": "はせはる",
     "status": "former",
     "end": "2012.08.05",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.01",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "m950bf00303",
@@ -2065,10 +1481,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.10.24",
     "img": true,
-    "bio": {
-     "birth": "1993.04.26",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -2078,11 +1490,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいりー",
     "status": "former",
     "end": "2025.06.15",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.15",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m53dbbf233d",
@@ -2091,11 +1499,7 @@ window.AKB_GROUPS = [
     "nick": "もぎちゃん",
     "status": "former",
     "end": "2024.01.19",
-    "img": true,
-    "bio": {
-     "birth": "1997.02.16",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "md5230e8c4c",
@@ -2104,11 +1508,7 @@ window.AKB_GROUPS = [
     "nick": "さくら",
     "status": "former",
     "end": "2012.08.05",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.14",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m61e35aaad4",
@@ -2117,11 +1517,7 @@ window.AKB_GROUPS = [
     "nick": "ねねちゃん",
     "status": "former",
     "end": "2012.08.05",
-    "img": true,
-    "bio": {
-     "birth": "1998.01.30",
-     "from": "福島県"
-    }
+    "img": true
    }
   ]
  },
@@ -2137,11 +1533,7 @@ window.AKB_GROUPS = [
     "nick": "なっきー",
     "status": "former",
     "end": "2016.02.21",
-    "img": true,
-    "bio": {
-     "birth": "1995.09.25",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m35d91e4bac",
@@ -2151,10 +1543,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.04.02",
     "img": true,
-    "bio": {
-     "birth": "1997.11.07",
-     "from": "神奈川県"
-    },
     "groups": [
      {
       "group": "AKB48",
@@ -2173,11 +1561,7 @@ window.AKB_GROUPS = [
     "nick": "こじまこ",
     "status": "former",
     "end": "2019.05.12",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.30",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m72e82c9d42",
@@ -2186,11 +1570,7 @@ window.AKB_GROUPS = [
     "nick": "みきちゃん",
     "status": "former",
     "end": "2017.03.27",
-    "img": true,
-    "bio": {
-     "birth": "1999.04.04",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m3f5818963c",
@@ -2199,11 +1579,7 @@ window.AKB_GROUPS = [
     "nick": "ひかり",
     "status": "former",
     "end": "2015.08.09",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.17",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mb37e43c270",
@@ -2212,11 +1588,7 @@ window.AKB_GROUPS = [
     "nick": "みつき",
     "status": "former",
     "end": "2015.08.09",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.05",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -2232,11 +1604,7 @@ window.AKB_GROUPS = [
     "nick": "せいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.08.01",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m2b8133cab8",
@@ -2245,11 +1613,7 @@ window.AKB_GROUPS = [
     "nick": "みやび",
     "status": "former",
     "end": "2018.01.22",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.29",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m6ac406a688",
@@ -2258,11 +1622,7 @@ window.AKB_GROUPS = [
     "nick": "まなみ",
     "status": "former",
     "end": "2023.08.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.26",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mfe28e32b86",
@@ -2271,11 +1631,7 @@ window.AKB_GROUPS = [
     "nick": "りおりおりん",
     "status": "former",
     "end": "2018.12.03",
-    "img": true,
-    "bio": {
-     "birth": "2001.03.01",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m4c50be2cbc",
@@ -2284,11 +1640,7 @@ window.AKB_GROUPS = [
     "nick": "なーにゃ",
     "status": "former",
     "end": "2017.03.18",
-    "img": true,
-    "bio": {
-     "birth": "1999.09.15",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m77bcf92052",
@@ -2297,11 +1649,7 @@ window.AKB_GROUPS = [
     "nick": "こみはる",
     "status": "former",
     "end": "2025.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.12",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m8a08d6e601",
@@ -2310,11 +1658,7 @@ window.AKB_GROUPS = [
     "nick": "きぃちゃん",
     "status": "former",
     "end": "2023.09.17",
-    "img": true,
-    "bio": {
-     "birth": "2000.08.11",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m19312e4df4",
@@ -2323,11 +1667,7 @@ window.AKB_GROUPS = [
     "nick": "まきちゃん",
     "status": "former",
     "end": "2020.12.11",
-    "img": true,
-    "bio": {
-     "birth": "2001.10.19",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "md6d8c2e992",
@@ -2336,11 +1676,7 @@ window.AKB_GROUPS = [
     "nick": "おめぐ",
     "status": "former",
     "end": "2024.05.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "macc7bd7194",
@@ -2349,11 +1685,7 @@ window.AKB_GROUPS = [
     "nick": "みずき",
     "status": "former",
     "end": "2015.08.09",
-    "img": true,
-    "bio": {
-     "birth": "1996.10.05",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m90c2f1fba9",
@@ -2362,11 +1694,7 @@ window.AKB_GROUPS = [
     "nick": "みーおん",
     "status": "former",
     "end": "2026.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.01.29",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mc65720ca04",
@@ -2375,11 +1703,7 @@ window.AKB_GROUPS = [
     "nick": "あみちゃん",
     "status": "former",
     "end": "2023.10.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.10.03",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -2395,11 +1719,7 @@ window.AKB_GROUPS = [
     "nick": "はーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.02.28",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m7e6646935d",
@@ -2408,11 +1728,7 @@ window.AKB_GROUPS = [
     "nick": "あやみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.11.02",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m3f376ef3f5",
@@ -2421,11 +1737,7 @@ window.AKB_GROUPS = [
     "nick": "おりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.07.22",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m27b7b8b37f",
@@ -2434,11 +1746,7 @@ window.AKB_GROUPS = [
     "nick": "ずっきー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.09.20",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m4d155730a5",
@@ -2447,11 +1755,7 @@ window.AKB_GROUPS = [
     "nick": "ずんちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.08.11",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "meb690ce23d",
@@ -2460,11 +1764,7 @@ window.AKB_GROUPS = [
     "nick": "なーみん",
     "status": "former",
     "end": "2024.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.05.20",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m398025cbbd",
@@ -2473,11 +1773,7 @@ window.AKB_GROUPS = [
     "nick": "かおり",
     "status": "former",
     "end": "2022.12.27",
-    "img": true,
-    "bio": {
-     "birth": "1997.10.31",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "mb98cf0744b",
@@ -2487,10 +1783,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.11.25",
     "img": true,
-    "bio": {
-     "birth": "1998.10.16",
-     "from": "山口県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -2500,11 +1792,7 @@ window.AKB_GROUPS = [
     "nick": "さとみな",
     "status": "former",
     "end": "2024.07.01",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.03",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m0897533d4e",
@@ -2513,11 +1801,7 @@ window.AKB_GROUPS = [
     "nick": "なぎゅ",
     "status": "former",
     "end": "2018.11.04",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.29",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "mb99053e0ee",
@@ -2526,11 +1810,7 @@ window.AKB_GROUPS = [
     "nick": "くるるん",
     "status": "former",
     "end": "2026.05.15",
-    "img": true,
-    "bio": {
-     "birth": "2004.09.02",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8eb55525b6",
@@ -2539,11 +1819,7 @@ window.AKB_GROUPS = [
     "nick": "まなか",
     "status": "former",
     "end": "2026.06.22",
-    "img": true,
-    "bio": {
-     "birth": "2003.12.12",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m5469c671b0",
@@ -2552,11 +1828,7 @@ window.AKB_GROUPS = [
     "nick": "たっちゃん",
     "status": "former",
     "end": "2019.04.07",
-    "img": true,
-    "bio": {
-     "birth": "2004.07.14",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "maa73a3f344",
@@ -2566,10 +1838,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.03.31",
     "img": true,
-    "bio": {
-     "birth": "2003.09.17",
-     "from": "神奈川県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -2580,10 +1848,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.05.11",
     "img": true,
-    "bio": {
-     "birth": "2004.08.02",
-     "from": "千葉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -2593,11 +1857,7 @@ window.AKB_GROUPS = [
     "nick": "まいちゃん",
     "status": "former",
     "end": "2021.10.01",
-    "img": true,
-    "bio": {
-     "birth": "2002.09.06",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8f43eea7c6",
@@ -2606,11 +1866,7 @@ window.AKB_GROUPS = [
     "nick": "あやか",
     "status": "former",
     "end": "2021.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.12.18",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m81b300f50b",
@@ -2619,11 +1875,7 @@ window.AKB_GROUPS = [
     "nick": "さきぽん",
     "status": "former",
     "end": "2023.09.14",
-    "img": true,
-    "bio": {
-     "birth": "2003.12.20",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mb68ae4a0b9",
@@ -2632,11 +1884,7 @@ window.AKB_GROUPS = [
     "nick": "かなぶん",
     "status": "former",
     "end": "2022.03.25",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.11",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -2652,11 +1900,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.03.27",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mae2455da9a",
@@ -2665,11 +1909,7 @@ window.AKB_GROUPS = [
     "nick": "あいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.06.24",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m68a9bcd768",
@@ -2678,11 +1918,7 @@ window.AKB_GROUPS = [
     "nick": "えりちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.04.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m8ed36471c9",
@@ -2691,11 +1927,7 @@ window.AKB_GROUPS = [
     "nick": "のんちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.01.25",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mee08b3cf44",
@@ -2704,11 +1936,7 @@ window.AKB_GROUPS = [
     "nick": "ゆき",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.09.03",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m03e8a353c4",
@@ -2717,11 +1945,7 @@ window.AKB_GROUPS = [
     "nick": "ほてちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.12.01",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m2d71c3a4b3",
@@ -2730,11 +1954,7 @@ window.AKB_GROUPS = [
     "nick": "まゆうちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.03.01",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m1bc228eee7",
@@ -2743,11 +1963,7 @@ window.AKB_GROUPS = [
     "nick": "みずみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.11.12",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m0caa1f90e0",
@@ -2756,11 +1972,7 @@ window.AKB_GROUPS = [
     "nick": "そらら",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.05.13",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m12ecd653c7",
@@ -2769,11 +1981,7 @@ window.AKB_GROUPS = [
     "nick": "こっこ",
     "status": "former",
     "end": "2024.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2007.02.12",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m955e8710ae",
@@ -2783,10 +1991,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.08.28",
     "img": true,
-    "bio": {
-     "birth": "2001.08.08",
-     "from": "神奈川県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -2803,11 +2007,7 @@ window.AKB_GROUPS = [
     "nick": "ゆなちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.12.12",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "md00833b3cc",
@@ -2816,11 +2016,7 @@ window.AKB_GROUPS = [
     "nick": "さえちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.05",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mcc757b6219",
@@ -2829,11 +2025,7 @@ window.AKB_GROUPS = [
     "nick": "かすみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.06.15",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "m2777d608ff",
@@ -2842,11 +2034,7 @@ window.AKB_GROUPS = [
     "nick": "ちゃんひな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.02.02",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m7620bbe8c0",
@@ -2855,11 +2043,7 @@ window.AKB_GROUPS = [
     "nick": "ゆめみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.02.05",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m64754b10a3",
@@ -2868,11 +2052,7 @@ window.AKB_GROUPS = [
     "nick": "こひ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.03.03",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "mcb63ed344b",
@@ -2881,11 +2061,7 @@ window.AKB_GROUPS = [
     "nick": "あづ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.03.22",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m208a4d50e5",
@@ -2894,11 +2070,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.03.08",
-     "from": "長崎県"
-    }
+    "img": true
    }
   ]
  },
@@ -2914,11 +2086,7 @@ window.AKB_GROUPS = [
     "nick": "いともも",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.12.06",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m4c92a69891",
@@ -2927,11 +2095,7 @@ window.AKB_GROUPS = [
     "nick": "カイリ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.01.27",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mb9a2d02f83",
@@ -2940,11 +2104,7 @@ window.AKB_GROUPS = [
     "nick": "かわゆい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.06.18",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m996b982826",
@@ -2953,11 +2113,7 @@ window.AKB_GROUPS = [
     "nick": "さりい",
     "status": "former",
     "end": "2026.05.31",
-    "img": true,
-    "bio": {
-     "birth": "2010.09.10",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m4d248b8745",
@@ -2966,11 +2122,7 @@ window.AKB_GROUPS = [
     "nick": "めいめい",
     "status": "former",
     "end": "2026.06.23",
-    "img": true,
-    "bio": {
-     "birth": "2005.06.05",
-     "from": "神奈川県"
-    }
+    "img": true
    }
   ]
  },
@@ -2986,11 +2138,7 @@ window.AKB_GROUPS = [
     "nick": "さーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.05.16",
-     "from": "福島県"
-    }
+    "img": true
    },
    {
     "id": "m771f0f18f9",
@@ -2999,11 +2147,7 @@ window.AKB_GROUPS = [
     "nick": "こさき",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.02.23",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m75afcf0782",
@@ -3012,11 +2156,7 @@ window.AKB_GROUPS = [
     "nick": "まるちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.07.11",
-     "from": "新潟県"
-    }
+    "img": true
    }
   ]
  },
@@ -3032,11 +2172,7 @@ window.AKB_GROUPS = [
     "nick": "まーたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.06.25",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m733cb99255",
@@ -3045,11 +2181,7 @@ window.AKB_GROUPS = [
     "nick": "さゆりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.12.09",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m8929e0ae47",
@@ -3058,11 +2190,7 @@ window.AKB_GROUPS = [
     "nick": "えまちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.05.25",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m03c28cbe77",
@@ -3071,11 +2199,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーゆ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.06.24",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m1346102927",
@@ -3084,11 +2208,7 @@ window.AKB_GROUPS = [
     "nick": "きこちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.07.12",
-     "from": "秋田県"
-    }
+    "img": true
    }
   ]
  },
@@ -3104,11 +2224,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.06.15",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m914bbcfc64",
@@ -3117,11 +2233,7 @@ window.AKB_GROUPS = [
     "nick": "はせもも",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.12.14",
-     "from": "福島県"
-    }
+    "img": true
    },
    {
     "id": "m053c7191e8",
@@ -3130,11 +2242,7 @@ window.AKB_GROUPS = [
     "nick": "いず",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.11.17",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mbfc38c7796",
@@ -3143,11 +2251,7 @@ window.AKB_GROUPS = [
     "nick": "りのあ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.12.13",
-     "from": "愛媛県"
-    }
+    "img": true
    }
   ]
  },
@@ -3163,11 +2267,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいゆい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.12.26",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mf2496e22b5",
@@ -3176,11 +2276,7 @@ window.AKB_GROUPS = [
     "nick": "ゆりな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.03.14",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "md02117a315",
@@ -3189,11 +2285,7 @@ window.AKB_GROUPS = [
     "nick": "なる",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.11.08",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "m37b17cbad0",
@@ -3202,11 +2294,7 @@ window.AKB_GROUPS = [
     "nick": "ひゆか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.10.07",
-     "from": "福井県"
-    }
+    "img": true
    },
    {
     "id": "m0a9fa0ff14",
@@ -3215,11 +2303,7 @@ window.AKB_GROUPS = [
     "nick": "みう",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.04.03",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "m5c851365d1",
@@ -3228,11 +2312,7 @@ window.AKB_GROUPS = [
     "nick": "あやねちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1997.12.30",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m1394a1e881",
@@ -3241,11 +2321,7 @@ window.AKB_GROUPS = [
     "nick": "れみたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.10.01",
-     "from": "鳥取県"
-    }
+    "img": true
    },
    {
     "id": "m24bea589ba",
@@ -3254,11 +2330,7 @@ window.AKB_GROUPS = [
     "nick": "せりちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.03.27",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m36ee03d1c4",
@@ -3267,11 +2339,7 @@ window.AKB_GROUPS = [
     "nick": "はるpyon",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.05.25",
-     "from": "富山県"
-    }
+    "img": true
    },
    {
     "id": "m05d4027597",
@@ -3280,11 +2348,7 @@ window.AKB_GROUPS = [
     "nick": "めい",
     "status": "former",
     "end": "2017.08.20",
-    "img": true,
-    "bio": {
-     "birth": "2001.02.09",
-     "from": "島根県"
-    }
+    "img": true
    },
    {
     "id": "mab1356c4af",
@@ -3293,11 +2357,7 @@ window.AKB_GROUPS = [
     "nick": "きらら",
     "status": "former",
     "end": "2019.08.12",
-    "img": true,
-    "bio": {
-     "birth": "2004.05.19",
-     "from": "福島県"
-    }
+    "img": true
    },
    {
     "id": "m2f0c475cf6",
@@ -3306,11 +2366,7 @@ window.AKB_GROUPS = [
     "nick": "みゆこ",
     "status": "former",
     "end": "2020.09.24",
-    "img": true,
-    "bio": {
-     "birth": "2001.09.19",
-     "from": "岩手県"
-    }
+    "img": true
    },
    {
     "id": "md3b35fed86",
@@ -3319,11 +2375,7 @@ window.AKB_GROUPS = [
     "nick": "もえたん",
     "status": "former",
     "end": "2016.04.03",
-    "img": true,
-    "bio": {
-     "birth": "2000.04.24",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "mb6b9f83daf",
@@ -3332,11 +2384,7 @@ window.AKB_GROUPS = [
     "nick": "そらのん",
     "status": "former",
     "end": "2023.10.14",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.15",
-     "from": "宮崎県"
-    }
+    "img": true
    },
    {
     "id": "m3078df3afe",
@@ -3345,11 +2393,7 @@ window.AKB_GROUPS = [
     "nick": "はっつ",
     "status": "former",
     "end": "2023.07.30",
-    "img": true,
-    "bio": {
-     "birth": "2002.07.08",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m438668b569",
@@ -3358,11 +2402,7 @@ window.AKB_GROUPS = [
     "nick": "なお",
     "status": "former",
     "end": "2019.12.20",
-    "img": true,
-    "bio": {
-     "birth": "1994.12.05",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "mfc69884078",
@@ -3371,11 +2411,7 @@ window.AKB_GROUPS = [
     "nick": "おおにし",
     "status": "former",
     "end": "2024.02.15",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.20",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m5e42dcf5c4",
@@ -3384,11 +2420,7 @@ window.AKB_GROUPS = [
     "nick": "べりん",
     "status": "former",
     "end": "2024.04.04",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.07",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "m3ee04b03bc",
@@ -3397,11 +2429,7 @@ window.AKB_GROUPS = [
     "nick": "ひーな",
     "status": "former",
     "end": "2023.09.08",
-    "img": true,
-    "bio": {
-     "birth": "2003.11.18",
-     "from": "島根県"
-    }
+    "img": true
    },
    {
     "id": "m7b6b10659e",
@@ -3410,11 +2438,7 @@ window.AKB_GROUPS = [
     "nick": "ちっぴ",
     "status": "former",
     "end": "2014.06.18",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.10",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m38106da988",
@@ -3423,11 +2447,7 @@ window.AKB_GROUPS = [
     "nick": "のんのん",
     "status": "former",
     "end": "2022.03.24",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.09",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m0613120e2e",
@@ -3436,11 +2456,7 @@ window.AKB_GROUPS = [
     "nick": "おだえり",
     "status": "former",
     "end": "2024.04.23",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.25",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m85387ace90",
@@ -3449,11 +2465,7 @@ window.AKB_GROUPS = [
     "nick": "おみづき",
     "status": "former",
     "end": "2021.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.05.22",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "mf861d05b9f",
@@ -3462,11 +2474,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっきーなゆきな",
     "status": "former",
     "end": "2021.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.22",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m0c74e00a42",
@@ -3475,11 +2483,7 @@ window.AKB_GROUPS = [
     "nick": "みっさー",
     "status": "former",
     "end": "2023.08.11",
-    "img": true,
-    "bio": {
-     "birth": "2002.04.03",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "m6500046903",
@@ -3488,11 +2492,7 @@ window.AKB_GROUPS = [
     "nick": "れなな",
     "status": "former",
     "end": "2016.10.08",
-    "img": true,
-    "bio": {
-     "birth": "1996.04.07",
-     "from": "石川県"
-    }
+    "img": true
    },
    {
     "id": "mdac51527b8",
@@ -3501,11 +2501,7 @@ window.AKB_GROUPS = [
     "nick": "もえりん",
     "status": "former",
     "end": "2016.10.08",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.25",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m5c6ce69f8d",
@@ -3514,11 +2510,7 @@ window.AKB_GROUPS = [
     "nick": "なぎ",
     "status": "former",
     "end": "2023.08.05",
-    "img": true,
-    "bio": {
-     "birth": "2000.12.23",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m4d9e7a1bb3",
@@ -3527,11 +2519,7 @@ window.AKB_GROUPS = [
     "nick": "あかりん",
     "status": "former",
     "end": "2021.03.29",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.09",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "mc65a4a0cd7",
@@ -3540,11 +2528,7 @@ window.AKB_GROUPS = [
     "nick": "しおりん",
     "status": "former",
     "end": "2019.06.08",
-    "img": true,
-    "bio": {
-     "birth": "1998.02.03",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m4cee194e6d",
@@ -3553,11 +2537,7 @@ window.AKB_GROUPS = [
     "nick": "ななみん",
     "status": "former",
     "end": "2019.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.19",
-     "from": "岩手県"
-    }
+    "img": true
    },
    {
     "id": "meb8147961d",
@@ -3566,11 +2546,7 @@ window.AKB_GROUPS = [
     "nick": "かりんりん",
     "status": "former",
     "end": "2020.09.24",
-    "img": true,
-    "bio": {
-     "birth": "2005.03.27",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "mc30917a537",
@@ -3579,11 +2555,7 @@ window.AKB_GROUPS = [
     "nick": "まりあ",
     "status": "former",
     "end": "2023.08.01",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.29",
-     "from": "群馬県"
-    }
+    "img": true
    },
    {
     "id": "mfda2d034d6",
@@ -3592,11 +2564,7 @@ window.AKB_GROUPS = [
     "nick": "かりん",
     "status": "former",
     "end": "2018.08.10",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.28",
-     "from": "鹿児島県"
-    }
+    "img": true
    },
    {
     "id": "m768c157e61",
@@ -3605,11 +2573,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうかりん",
     "status": "former",
     "end": "2021.09.28",
-    "img": true,
-    "bio": {
-     "birth": "2000.08.15",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m08d57aac10",
@@ -3618,11 +2582,7 @@ window.AKB_GROUPS = [
     "nick": "かおるんば",
     "status": "former",
     "end": "2023.08.29",
-    "img": true,
-    "bio": {
-     "birth": "2000.11.29",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "m293d22a9ee",
@@ -3631,11 +2591,7 @@ window.AKB_GROUPS = [
     "nick": "たかさやさやりん",
     "status": "former",
     "end": "2023.08.17",
-    "img": true,
-    "bio": {
-     "birth": "2001.11.22",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m7122cce6fe",
@@ -3644,11 +2600,7 @@ window.AKB_GROUPS = [
     "nick": "ゆぅりぃちゃんたーに",
     "status": "former",
     "end": "2017.06.24",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.19",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m629571bc91",
@@ -3657,11 +2609,7 @@ window.AKB_GROUPS = [
     "nick": "ひじりん",
     "status": "former",
     "end": "2019.05.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.12.26",
-     "from": "秋田県"
-    }
+    "img": true
    },
    {
     "id": "m2777daebcc",
@@ -3670,11 +2618,7 @@ window.AKB_GROUPS = [
     "nick": "くれにゃん",
     "status": "former",
     "end": "2019.02.02",
-    "img": true,
-    "bio": {
-     "birth": "2000.05.11",
-     "from": "福井県"
-    }
+    "img": true
    },
    {
     "id": "m23ff4761e5",
@@ -3683,11 +2627,7 @@ window.AKB_GROUPS = [
     "nick": "みさっきー",
     "status": "former",
     "end": "2019.10.22",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.28",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m42587308e7",
@@ -3696,11 +2636,7 @@ window.AKB_GROUPS = [
     "nick": "いくみん",
     "status": "former",
     "end": "2019.05.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.08.20",
-     "from": "鳥取県"
-    }
+    "img": true
    },
    {
     "id": "mc878b2d8bd",
@@ -3709,11 +2645,7 @@ window.AKB_GROUPS = [
     "nick": "りる",
     "status": "former",
     "end": "2020.09.24",
-    "img": true,
-    "bio": {
-     "birth": "2003.02.14",
-     "from": "秋田県"
-    }
+    "img": true
    },
    {
     "id": "m98b52e46e2",
@@ -3722,11 +2654,7 @@ window.AKB_GROUPS = [
     "nick": "ひなのん",
     "status": "former",
     "end": "2019.05.05",
-    "img": true,
-    "bio": {
-     "birth": "2004.02.15",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m1d8c251a56",
@@ -3735,11 +2663,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうな",
     "status": "former",
     "end": "2023.05.31",
-    "img": true,
-    "bio": {
-     "birth": "2001.03.30",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m7820e4b38f",
@@ -3748,11 +2672,7 @@ window.AKB_GROUPS = [
     "nick": "はまちゃん",
     "status": "former",
     "end": "2023.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.08.20",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "maac0617920",
@@ -3761,11 +2681,7 @@ window.AKB_GROUPS = [
     "nick": "Riona",
     "status": "former",
     "end": "2017.07.02",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.28",
-     "from": "徳島県"
-    }
+    "img": true
    },
    {
     "id": "m37f712372d",
@@ -3774,11 +2690,7 @@ window.AKB_GROUPS = [
     "nick": "つっちゃん",
     "status": "former",
     "end": "2018.04.20",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.12",
-     "from": "山形県"
-    }
+    "img": true
    },
    {
     "id": "m1e8cf7cab5",
@@ -3787,11 +2699,7 @@ window.AKB_GROUPS = [
     "nick": "ゆき",
     "status": "former",
     "end": "2021.10.24",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.24",
-     "from": "徳島県"
-    }
+    "img": true
    },
    {
     "id": "m36c062c28e",
@@ -3800,11 +2708,7 @@ window.AKB_GROUPS = [
     "nick": "ひだあや",
     "status": "former",
     "end": "2023.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.07.29",
-     "from": "山梨県"
-    }
+    "img": true
    },
    {
     "id": "m2029e2a3be",
@@ -3813,11 +2717,7 @@ window.AKB_GROUPS = [
     "nick": "こっちゃん",
     "status": "former",
     "end": "2019.05.20",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.19",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m4804e7bc80",
@@ -3826,11 +2726,7 @@ window.AKB_GROUPS = [
     "nick": "ひか",
     "status": "former",
     "end": "2023.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2003.01.29",
-     "from": "石川県"
-    }
+    "img": true
    },
    {
     "id": "m72e7be7927",
@@ -3839,11 +2735,7 @@ window.AKB_GROUPS = [
     "nick": "なっちゃん",
     "status": "former",
     "end": "2018.03.04",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.09",
-     "from": "高知県"
-    }
+    "img": true
    },
    {
     "id": "m2a37684636",
@@ -3852,11 +2744,7 @@ window.AKB_GROUPS = [
     "nick": "ぺな",
     "status": "former",
     "end": "2017.05.13",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.02",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "m5cb77069ff",
@@ -3865,11 +2753,7 @@ window.AKB_GROUPS = [
     "nick": "とめちゃんふくとめ",
     "status": "former",
     "end": "2022.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.22",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m29d2e2789c",
@@ -3878,11 +2762,7 @@ window.AKB_GROUPS = [
     "nick": "れいちゃん",
     "status": "former",
     "end": "2023.05.17",
-    "img": true,
-    "bio": {
-     "birth": "2005.01.18",
-     "from": "鹿児島県"
-    }
+    "img": true
    },
    {
     "id": "ma3a321d90b",
@@ -3891,11 +2771,7 @@ window.AKB_GROUPS = [
     "nick": "ナチュ",
     "status": "former",
     "end": "2016.04.03",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.25",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mcbfff63300",
@@ -3904,11 +2780,7 @@ window.AKB_GROUPS = [
     "nick": "ひぃちゃん",
     "status": "former",
     "end": "2024.01.28",
-    "img": true,
-    "bio": {
-     "birth": "2001.10.06",
-     "from": "栃木県"
-    }
+    "img": true
    },
    {
     "id": "md865dbf7b1",
@@ -3917,11 +2789,7 @@ window.AKB_GROUPS = [
     "nick": "みっつん",
     "status": "former",
     "end": "2021.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2004.02.07",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m07dd79f5b0",
@@ -3930,11 +2798,7 @@ window.AKB_GROUPS = [
     "nick": "まっちゃん",
     "status": "former",
     "end": "2022.12.24",
-    "img": true,
-    "bio": {
-     "birth": "2005.11.25",
-     "from": "山形県"
-    }
+    "img": true
    },
    {
     "id": "m8ee958912f",
@@ -3943,11 +2807,7 @@ window.AKB_GROUPS = [
     "nick": "らんりー",
     "status": "former",
     "end": "2021.07.28",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.30",
-     "from": "沖縄県"
-    }
+    "img": true
    },
    {
     "id": "mdfcf70eb5d",
@@ -3956,11 +2816,7 @@ window.AKB_GROUPS = [
     "nick": "かすみん",
     "status": "former",
     "end": "2018.02.18",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.28",
-     "from": "福島県"
-    }
+    "img": true
    },
    {
     "id": "ma8668afc92",
@@ -3970,10 +2826,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.01.26",
     "img": true,
-    "bio": {
-     "birth": "1998.02.28",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -3983,11 +2835,7 @@ window.AKB_GROUPS = [
     "nick": "もか",
     "status": "former",
     "end": "2018.11.04",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.28",
-     "from": "宮崎県"
-    }
+    "img": true
    },
    {
     "id": "ma5514cad70",
@@ -3996,11 +2844,7 @@ window.AKB_GROUPS = [
     "nick": "きょうか",
     "status": "former",
     "end": "2023.12.26",
-    "img": true,
-    "bio": {
-     "birth": "2002.11.03",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "m228973ad5c",
@@ -4009,11 +2853,7 @@ window.AKB_GROUPS = [
     "nick": "山田",
     "status": "former",
     "end": "2019.06.22",
-    "img": true,
-    "bio": {
-     "birth": "1999.02.09",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mdc7dd8a9a7",
@@ -4022,11 +2862,7 @@ window.AKB_GROUPS = [
     "nick": "あいぽん",
     "status": "former",
     "end": "2016.05.07",
-    "img": true,
-    "bio": {
-     "birth": "1995.08.31",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m0abb909ec0",
@@ -4035,11 +2871,7 @@ window.AKB_GROUPS = [
     "nick": "るか",
     "status": "former",
     "end": "2020.06.28",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.10",
-     "from": "和歌山県"
-    }
+    "img": true
    },
    {
     "id": "m97a685dd7a",
@@ -4048,11 +2880,7 @@ window.AKB_GROUPS = [
     "nick": "ゆり",
     "status": "former",
     "end": "2019.05.18",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.23",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m4da7d3fd8b",
@@ -4061,11 +2889,7 @@ window.AKB_GROUPS = [
     "nick": "ヨコちゃん",
     "status": "former",
     "end": "2021.11.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.02.22",
-     "from": "青森県"
-    }
+    "img": true
    },
    {
     "id": "m8525db821b",
@@ -4074,11 +2898,7 @@ window.AKB_GROUPS = [
     "nick": "ななせ",
     "status": "former",
     "end": "2023.08.24",
-    "img": true,
-    "bio": {
-     "birth": "1998.07.21",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m947093ecce",
@@ -4087,11 +2907,7 @@ window.AKB_GROUPS = [
     "nick": "かれん",
     "status": "former",
     "end": "2023.10.01",
-    "img": true,
-    "bio": {
-     "birth": "2002.08.27",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m23652ed514",
@@ -4100,11 +2916,7 @@ window.AKB_GROUPS = [
     "nick": "みゆゆん",
     "status": "former",
     "end": "2017.01.29",
-    "img": true,
-    "bio": {
-     "birth": "2001.02.16",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "mc610a251ee",
@@ -4113,11 +2925,7 @@ window.AKB_GROUPS = [
     "nick": "りっせん",
     "status": "former",
     "end": "2021.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1999.03.18",
-     "from": "高知県"
-    }
+    "img": true
    }
   ]
  },
@@ -4133,11 +2941,7 @@ window.AKB_GROUPS = [
     "nick": "さやや",
     "status": "former",
     "end": "2020.08.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.31",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m4c18c5adcc",
@@ -4146,11 +2950,7 @@ window.AKB_GROUPS = [
     "nick": "もえきゅん",
     "status": "former",
     "end": "2019.08.13",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb63ec1f618",
@@ -4159,11 +2959,7 @@ window.AKB_GROUPS = [
     "nick": "ひなな",
     "status": "former",
     "end": "2024.02.25",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.19",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m0556a0cd38",
@@ -4172,11 +2968,7 @@ window.AKB_GROUPS = [
     "nick": "かよよん",
     "status": "former",
     "end": "2022.02.27",
-    "img": true,
-    "bio": {
-     "birth": "1997.02.13",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "ma137b68bb2",
@@ -4185,11 +2977,7 @@ window.AKB_GROUPS = [
     "nick": "れなりんにっすぃー",
     "status": "former",
     "end": "2015.12.23",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.14",
-     "from": "青森県"
-    }
+    "img": true
    },
    {
     "id": "m1995c4d64f",
@@ -4198,11 +2986,7 @@ window.AKB_GROUPS = [
     "nick": "あえりん",
     "status": "former",
     "end": "2017.06.05",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.17",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -4218,11 +3002,7 @@ window.AKB_GROUPS = [
     "nick": "えりい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.10.27",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "me83953715f",
@@ -4231,11 +3011,7 @@ window.AKB_GROUPS = [
     "nick": "さとぴー",
     "status": "former",
     "end": "2022.03.28",
-    "img": true,
-    "bio": {
-     "birth": "2003.11.20",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m57c7f27296",
@@ -4244,11 +3020,7 @@ window.AKB_GROUPS = [
     "nick": "きらりん",
     "status": "former",
     "end": "2017.04.11",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.14",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8211748c25",
@@ -4257,11 +3029,7 @@ window.AKB_GROUPS = [
     "nick": "れい",
     "status": "former",
     "end": "2022.03.30",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.25",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m7fd10d121d",
@@ -4270,11 +3038,7 @@ window.AKB_GROUPS = [
     "nick": "なお",
     "status": "former",
     "end": "2017.08.13",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.10",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "md120e9f609",
@@ -4283,11 +3047,7 @@ window.AKB_GROUPS = [
     "nick": "ひーわたん",
     "status": "former",
     "end": "2019.11.28",
-    "img": true,
-    "bio": {
-     "birth": "2000.04.30",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m8842552071",
@@ -4296,11 +3056,7 @@ window.AKB_GROUPS = [
     "nick": "あゆ",
     "status": "former",
     "end": "2023.10.28",
-    "img": true,
-    "bio": {
-     "birth": "2002.02.03",
-     "from": "千葉県"
-    }
+    "img": true
    }
   ]
  },
@@ -4316,11 +3072,7 @@ window.AKB_GROUPS = [
     "nick": "せなたん",
     "status": "former",
     "end": "2023.08.07",
-    "img": true,
-    "bio": {
-     "birth": "2002.02.22",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m042d895d17",
@@ -4329,11 +3081,7 @@ window.AKB_GROUPS = [
     "nick": "ちゃけ",
     "status": "former",
     "end": "2024.01.21",
-    "img": true,
-    "bio": {
-     "birth": "1999.06.27",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m1f9f0db40e",
@@ -4342,11 +3090,7 @@ window.AKB_GROUPS = [
     "nick": "まほぴょん",
     "status": "former",
     "end": "2026.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.05",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "m33ceaac8d3",
@@ -4355,11 +3099,7 @@ window.AKB_GROUPS = [
     "nick": "おかりな",
     "status": "former",
     "end": "2023.10.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.27",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mb69551eff4",
@@ -4369,10 +3109,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.28",
     "img": true,
-    "bio": {
-     "birth": "2000.10.31",
-     "from": "静岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -4383,10 +3119,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.10.20",
     "img": true,
-    "bio": {
-     "birth": "2003.08.20",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -4396,11 +3128,7 @@ window.AKB_GROUPS = [
     "nick": "くららみゆう",
     "status": "former",
     "end": "2022.03.23",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.21",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "md832d2445a",
@@ -4409,11 +3137,7 @@ window.AKB_GROUPS = [
     "nick": "らんちゃんらんたん",
     "status": "former",
     "end": "2023.05.21",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.07",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "md374ff1e25",
@@ -4422,11 +3146,7 @@ window.AKB_GROUPS = [
     "nick": "はーたん",
     "status": "former",
     "end": "2024.01.10",
-    "img": true,
-    "bio": {
-     "birth": "2004.05.24",
-     "from": "栃木県"
-    }
+    "img": true
    },
    {
     "id": "m5919976d23",
@@ -4436,10 +3156,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.11.27",
     "img": true,
-    "bio": {
-     "birth": "2001.07.22",
-     "from": "北海道"
-    },
     "leave": "活動辞退"
    },
    {
@@ -4450,10 +3166,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.11.30",
     "img": true,
-    "bio": {
-     "birth": "2005.11.03",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -4463,11 +3175,7 @@ window.AKB_GROUPS = [
     "nick": "きょうかきょん多田先輩",
     "status": "former",
     "end": "2023.09.10",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.19",
-     "from": "福井県"
-    }
+    "img": true
    },
    {
     "id": "m94f141d642",
@@ -4476,11 +3184,7 @@ window.AKB_GROUPS = [
     "nick": "めぐみん",
     "status": "former",
     "end": "2023.03.22",
-    "img": true,
-    "bio": {
-     "birth": "2004.03.22",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "me8e1c8a1bf",
@@ -4490,10 +3194,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.08.22",
     "img": true,
-    "bio": {
-     "birth": "2001.10.12",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -4503,11 +3203,7 @@ window.AKB_GROUPS = [
     "nick": "なづなん古川",
     "status": "former",
     "end": "2022.03.21",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.21",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m2497883f96",
@@ -4516,11 +3212,7 @@ window.AKB_GROUPS = [
     "nick": "そらちゃん",
     "status": "former",
     "end": "2021.05.27",
-    "img": true,
-    "bio": {
-     "birth": "1999.02.26",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "m4d05d322be",
@@ -4529,11 +3221,7 @@ window.AKB_GROUPS = [
     "nick": "もえちゃんふくちゃんもんたもえかはぎもえもえにゃ",
     "status": "former",
     "end": "2020.02.04",
-    "img": true,
-    "bio": {
-     "birth": "2002.07.05",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m863c3c49cf",
@@ -4542,11 +3230,7 @@ window.AKB_GROUPS = [
     "nick": "ゆず",
     "status": "former",
     "end": "2023.12.29",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.29",
-     "from": "千葉県"
-    }
+    "img": true
    }
   ]
  },
@@ -4563,10 +3247,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.12.24",
     "img": true,
-    "bio": {
-     "birth": "1994.04.11",
-     "from": "大阪府"
-    },
     "groups": [
      {
       "group": "AKB48",
@@ -4586,10 +3266,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.09.30",
     "img": true,
-    "bio": {
-     "birth": "1996.02.11",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "AKB48",
@@ -4609,10 +3285,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.08.28",
     "img": true,
-    "bio": {
-     "birth": "1995.05.12",
-     "from": "福岡県"
-    },
     "groups": [
      {
       "group": "AKB48",
@@ -4632,10 +3304,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.05.06",
     "img": true,
-    "bio": {
-     "birth": "1998.05.06",
-     "from": "東京都"
-    },
     "note": "JKT48 1期"
    },
    {
@@ -4646,9 +3314,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.10.15",
     "img": true,
-    "bio": {
-     "birth": "2000.11.19"
-    },
     "leave": "留学終了",
     "note": "JKT48 3期"
    },
@@ -4660,9 +3325,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.10.15",
     "img": true,
-    "bio": {
-     "birth": "2002.07.09"
-    },
     "leave": "留学終了",
     "note": "BNK48 1期"
    }
@@ -4681,10 +3343,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.08.10",
     "img": true,
-    "bio": {
-     "birth": "1993.10.23",
-     "from": "千葉県"
-    },
     "leave": "契約満了",
     "note": "ぱるる選抜"
    },
@@ -4696,10 +3354,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.09.01",
     "img": true,
-    "bio": {
-     "birth": "1976.07.16",
-     "from": "奈良県"
-    },
     "note": "大人AKB48"
    },
    {
@@ -4710,10 +3364,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.08.10",
     "img": true,
-    "bio": {
-     "birth": "1995.08.21",
-     "from": "千葉県"
-    },
     "leave": "契約満了",
     "note": "ぱるる選抜"
    },
@@ -4725,9 +3375,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.02.20",
     "img": true,
-    "bio": {
-     "birth": "1996.12.21"
-    },
     "note": "台湾研究生"
    }
   ]
@@ -4744,11 +3391,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1989.03.25",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m0b9049cc4d",
@@ -4757,11 +3400,7 @@ window.AKB_GROUPS = [
     "nick": "まさにゃ",
     "status": "former",
     "end": "2017.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1990.11.06",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mc4eb333d4e",
@@ -4770,11 +3409,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1994.12.24",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m1c0a82e5da",
@@ -4783,11 +3418,7 @@ window.AKB_GROUPS = [
     "nick": "はるか",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1987.11.24",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "mb508c33a6f",
@@ -4796,11 +3427,7 @@ window.AKB_GROUPS = [
     "nick": "みぃ",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1992.02.19",
-     "from": "高知県"
-    }
+    "img": true
    },
    {
     "id": "ma658125d25",
@@ -4809,11 +3436,7 @@ window.AKB_GROUPS = [
     "nick": "せぇ～ら",
     "status": "former",
     "end": "2014.02.27",
-    "img": true,
-    "bio": {
-     "birth": "1992.04.30",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "mbfd6ca093a",
@@ -4822,11 +3445,7 @@ window.AKB_GROUPS = [
     "nick": "姉さん",
     "status": "former",
     "end": "2015.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1986.06.24",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m6c7424e84d",
@@ -4836,10 +3455,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2009.07.31",
     "img": true,
-    "bio": {
-     "birth": "1990.10.18",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -4849,11 +3464,7 @@ window.AKB_GROUPS = [
     "nick": "りなっち",
     "status": "former",
     "end": "2010.05.08",
-    "img": true,
-    "bio": {
-     "birth": "1992.08.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb7a9c0b419",
@@ -4862,11 +3473,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2008.11.24",
-    "img": true,
-    "bio": {
-     "birth": "1993.07.31",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m00047ce72c",
@@ -4875,11 +3482,7 @@ window.AKB_GROUPS = [
     "nick": "つっきーな",
     "status": "former",
     "end": "2009.08.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.06",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb6e4cc30d8",
@@ -4888,11 +3491,7 @@ window.AKB_GROUPS = [
     "nick": "しーたん",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1990.07.19",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m574312ba30",
@@ -4902,10 +3501,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.04.29",
     "img": true,
-    "bio": {
-     "birth": "1988.03.14",
-     "from": "三重県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -4924,11 +3519,7 @@ window.AKB_GROUPS = [
     "nick": "メアリーリッキー",
     "status": "former",
     "end": "2012.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1989.08.07",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "md9bb29a361",
@@ -4937,11 +3528,7 @@ window.AKB_GROUPS = [
     "nick": "かなかな",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1991.11.14",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m0dbabd2d96",
@@ -4950,11 +3537,7 @@ window.AKB_GROUPS = [
     "nick": "あいか",
     "status": "former",
     "end": "2009.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.11",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2267bb69ab",
@@ -4964,10 +3547,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.04.30",
     "img": true,
-    "bio": {
-     "birth": "1997.03.08",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -4987,10 +3566,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.08.31",
     "img": true,
-    "bio": {
-     "birth": "1991.07.27",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -5009,11 +3584,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいみん",
     "status": "former",
     "end": "2011.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1988.07.25",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m3a4e4ae80c",
@@ -5022,11 +3593,7 @@ window.AKB_GROUPS = [
     "nick": "さゆ",
     "status": "former",
     "end": "2010.05.08",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.03",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2013fb004e",
@@ -5035,11 +3602,7 @@ window.AKB_GROUPS = [
     "nick": "くーみん",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1994.06.13",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "ma0ffb308d7",
@@ -5048,11 +3611,7 @@ window.AKB_GROUPS = [
     "nick": "もえもえ",
     "status": "former",
     "end": "2009.12.25",
-    "img": true,
-    "bio": {
-     "birth": "1992.10.27",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -5068,11 +3627,7 @@ window.AKB_GROUPS = [
     "nick": "リリ",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1996.07.03",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "me553db68e5",
@@ -5081,11 +3636,7 @@ window.AKB_GROUPS = [
     "nick": "りぃちゃん",
     "status": "former",
     "end": "2015.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1993.07.17",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mfd30f6d5d2",
@@ -5094,11 +3645,7 @@ window.AKB_GROUPS = [
     "nick": "いぐっち",
     "status": "former",
     "end": "2014.04.29",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.29",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m63dbf0d545",
@@ -5108,10 +3655,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.05.31",
     "img": true,
-    "bio": {
-     "birth": "1996.05.27",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -5130,11 +3673,7 @@ window.AKB_GROUPS = [
     "nick": "きょん",
     "status": "former",
     "end": "2016.01.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.08.08",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m97225f9532",
@@ -5143,11 +3682,7 @@ window.AKB_GROUPS = [
     "nick": "ゆりりん",
     "status": "former",
     "end": "2009.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1987.05.15",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m7d55dda73b",
@@ -5156,11 +3691,7 @@ window.AKB_GROUPS = [
     "nick": "みこってぃ",
     "status": "former",
     "end": "2019.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.11.14",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m21cabc8ddc",
@@ -5169,11 +3700,7 @@ window.AKB_GROUPS = [
     "nick": "ふーか",
     "status": "former",
     "end": "2009.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.02",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb53bdc83d9",
@@ -5182,11 +3709,7 @@ window.AKB_GROUPS = [
     "nick": "もこ",
     "status": "former",
     "end": "2014.09.29",
-    "img": true,
-    "bio": {
-     "birth": "1987.04.28",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "me94c555a9e",
@@ -5195,11 +3718,7 @@ window.AKB_GROUPS = [
     "nick": "るみるみ",
     "status": "former",
     "end": "2016.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.09",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "me8ca407f46",
@@ -5208,11 +3727,7 @@ window.AKB_GROUPS = [
     "nick": "ももにゃ",
     "status": "former",
     "end": "2014.04.29",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.16",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3f3ec47be7",
@@ -5221,11 +3736,7 @@ window.AKB_GROUPS = [
     "nick": "まきこちゃんまきちゃん",
     "status": "former",
     "end": "2024.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.06.28",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "maa2f4e366f",
@@ -5235,10 +3746,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2009.05.25",
     "img": true,
-    "bio": {
-     "birth": "1992.09.09",
-     "from": "埼玉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -5249,10 +3756,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.04.30",
     "img": true,
-    "bio": {
-     "birth": "1991.11.29",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -5271,11 +3774,7 @@ window.AKB_GROUPS = [
     "nick": "あゆ",
     "status": "former",
     "end": "2009.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1989.02.05",
-     "from": "福井県"
-    }
+    "img": true
    },
    {
     "id": "mf9ab03576f",
@@ -5284,11 +3783,7 @@ window.AKB_GROUPS = [
     "nick": "バンビ",
     "status": "former",
     "end": "2009.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.21",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mecfd0d6940",
@@ -5297,11 +3792,7 @@ window.AKB_GROUPS = [
     "nick": "あいりん",
     "status": "former",
     "end": "2015.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.12.13",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m47dfbcf84a",
@@ -5311,10 +3802,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2009.11.29",
     "img": true,
-    "bio": {
-     "birth": "1986.02.25",
-     "from": "兵庫県"
-    },
     "leave": "移籍"
    },
    {
@@ -5324,11 +3811,7 @@ window.AKB_GROUPS = [
     "nick": "まつりな",
     "status": "former",
     "end": "2014.04.29",
-    "img": true,
-    "bio": {
-     "birth": "1993.09.03",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m5288c1d435",
@@ -5337,11 +3820,7 @@ window.AKB_GROUPS = [
     "nick": "はるるん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.04.27",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mca733654f6",
@@ -5350,11 +3829,7 @@ window.AKB_GROUPS = [
     "nick": "まなつ",
     "status": "former",
     "end": "2014.03.23",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.10",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb51b0d1679",
@@ -5363,11 +3838,7 @@ window.AKB_GROUPS = [
     "nick": "れいかつん",
     "status": "former",
     "end": "2014.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.28",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m8975e4aa87",
@@ -5376,11 +3847,7 @@ window.AKB_GROUPS = [
     "nick": "ともにゃん",
     "status": "former",
     "end": "2012.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.04.23",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mda70c78a53",
@@ -5390,10 +3857,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2009.04.25",
     "img": true,
-    "bio": {
-     "birth": "1990.01.25",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -5410,11 +3873,7 @@ window.AKB_GROUPS = [
     "nick": "いまで",
     "status": "former",
     "end": "2012.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1993.06.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m0fb41c5e69",
@@ -5423,11 +3882,7 @@ window.AKB_GROUPS = [
     "nick": "かすす",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1994.06.29",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m82e4203473",
@@ -5436,11 +3891,7 @@ window.AKB_GROUPS = [
     "nick": "しおりん",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1992.09.15",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mfcfcd51eba",
@@ -5449,11 +3900,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっこ",
     "status": "former",
     "end": "2014.11.27",
-    "img": true,
-    "bio": {
-     "birth": "1993.12.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m08fd0a0f01",
@@ -5462,11 +3909,7 @@ window.AKB_GROUPS = [
     "nick": "りさちゃん",
     "status": "former",
     "end": "2017.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.29",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2c951c7a7d",
@@ -5475,11 +3918,7 @@ window.AKB_GROUPS = [
     "nick": "あかりん",
     "status": "former",
     "end": "2022.11.01",
-    "img": true,
-    "bio": {
-     "birth": "1991.10.31",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3ae13e8549",
@@ -5488,11 +3927,7 @@ window.AKB_GROUPS = [
     "nick": "しゃわこ",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1988.09.14",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "me7da83dd94",
@@ -5501,11 +3936,7 @@ window.AKB_GROUPS = [
     "nick": "あちゅ",
     "status": "former",
     "end": "2010.05.08",
-    "img": true,
-    "bio": {
-     "birth": "1993.01.18",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m201001be88",
@@ -5514,11 +3945,7 @@ window.AKB_GROUPS = [
     "nick": "かおたん",
     "status": "former",
     "end": "2019.05.02",
-    "img": true,
-    "bio": {
-     "birth": "1990.01.17",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m9f497dfaa1",
@@ -5527,11 +3954,7 @@ window.AKB_GROUPS = [
     "nick": "みきてぃ",
     "status": "former",
     "end": "2017.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1992.06.29",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "m985d576da1",
@@ -5541,10 +3964,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2009.12.09",
     "img": true,
-    "bio": {
-     "birth": "1993.05.18",
-     "from": "大阪府"
-    },
     "leave": "契約解除"
    },
    {
@@ -5554,11 +3973,7 @@ window.AKB_GROUPS = [
     "nick": "えり",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.26",
-     "from": "岐阜県"
-    }
+    "img": true
    }
   ]
  },
@@ -5574,11 +3989,7 @@ window.AKB_GROUPS = [
     "nick": "わんちゃん",
     "status": "former",
     "end": "2018.07.01",
-    "img": true,
-    "bio": {
-     "birth": "1994.03.19",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m16192e077c",
@@ -5587,11 +3998,7 @@ window.AKB_GROUPS = [
     "nick": "うめちゃん",
     "status": "former",
     "end": "2016.02.29",
-    "img": true,
-    "bio": {
-     "birth": "1992.07.17",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mde97546107",
@@ -5600,11 +4007,7 @@ window.AKB_GROUPS = [
     "nick": "きんちゃん",
     "status": "former",
     "end": "2014.04.29",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.13",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mf846385bf9",
@@ -5614,10 +4017,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.12.01",
     "img": true,
-    "bio": {
-     "birth": "1997.08.11",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -5636,11 +4035,7 @@ window.AKB_GROUPS = [
     "nick": "こあみ",
     "status": "former",
     "end": "2015.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1993.01.12",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m21ec4de36c",
@@ -5649,11 +4044,7 @@ window.AKB_GROUPS = [
     "nick": "えみりん",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1994.04.14",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "me3de4c0953",
@@ -5662,11 +4053,7 @@ window.AKB_GROUPS = [
     "nick": "めいめい",
     "status": "former",
     "end": "2017.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.12.13",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m12ce3ff933",
@@ -5675,11 +4062,7 @@ window.AKB_GROUPS = [
     "nick": "あやちゃん",
     "status": "former",
     "end": "2016.08.31",
-    "img": true,
-    "bio": {
-     "birth": "1993.04.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m31e7ac9543",
@@ -5688,11 +4071,7 @@ window.AKB_GROUPS = [
     "nick": "ゆまな",
     "status": "former",
     "end": "2019.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.23",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mefa5498577",
@@ -5701,11 +4080,7 @@ window.AKB_GROUPS = [
     "nick": "まいまい",
     "status": "former",
     "end": "2017.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.31",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "mbae9a6d4bc",
@@ -5714,11 +4089,7 @@ window.AKB_GROUPS = [
     "nick": "りかちゃんぴよす",
     "status": "former",
     "end": "2023.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.11.08",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m8ff5092a2c",
@@ -5727,11 +4098,7 @@ window.AKB_GROUPS = [
     "nick": "中村くん",
     "status": "former",
     "end": "2011.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.04",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m433f9b3aa7",
@@ -5740,11 +4107,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2011.02.23",
-    "img": true,
-    "bio": {
-     "birth": "1994.01.31",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m7780806b09",
@@ -5753,11 +4116,7 @@ window.AKB_GROUPS = [
     "nick": "はらみな",
     "status": "former",
     "end": "2013.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.24",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m7f6ab16f4b",
@@ -5766,11 +4125,7 @@ window.AKB_GROUPS = [
     "nick": "ほのぱんまん",
     "status": "former",
     "end": "2014.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.09.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m089fe7f68d",
@@ -5779,11 +4134,7 @@ window.AKB_GROUPS = [
     "nick": "ゆかぴ",
     "status": "former",
     "end": "2016.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.03.12",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -5799,11 +4150,7 @@ window.AKB_GROUPS = [
     "nick": "なる",
     "status": "former",
     "end": "2018.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.04.14",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mea9d48458a",
@@ -5812,11 +4159,7 @@ window.AKB_GROUPS = [
     "nick": "つうつうちゃん",
     "status": "former",
     "end": "2015.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1994.05.10",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "mfec66cec04",
@@ -5825,11 +4168,7 @@ window.AKB_GROUPS = [
     "nick": "えごちゃん",
     "status": "former",
     "end": "2023.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.03.29",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m7bb3be8394",
@@ -5838,11 +4177,7 @@ window.AKB_GROUPS = [
     "nick": "ありたん",
     "status": "former",
     "end": "2014.07.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.04.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m41ddba7ad0",
@@ -5851,11 +4186,7 @@ window.AKB_GROUPS = [
     "nick": "おぎりー",
     "status": "former",
     "end": "2015.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.28",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m36fbbbb525",
@@ -5864,11 +4195,7 @@ window.AKB_GROUPS = [
     "nick": "なんなん",
     "status": "former",
     "end": "2014.02.23",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.11",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "md9c76db499",
@@ -5877,11 +4204,7 @@ window.AKB_GROUPS = [
     "nick": "ぺんぺん",
     "status": "former",
     "end": "2013.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1994.02.21",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mf48d1b1b67",
@@ -5891,10 +4214,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.06.01",
     "img": true,
-    "bio": {
-     "birth": "1992.10.01",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -5905,10 +4224,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.05.06",
     "img": true,
-    "bio": {
-     "birth": "1995.09.21",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -5918,11 +4233,7 @@ window.AKB_GROUPS = [
     "nick": "はるたむ",
     "status": "former",
     "end": "2017.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.14",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mbd7c543a96",
@@ -5932,10 +4243,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.09.30",
     "img": true,
-    "bio": {
-     "birth": "1996.09.15",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -5954,11 +4261,7 @@ window.AKB_GROUPS = [
     "nick": "あみ",
     "status": "former",
     "end": "2016.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.09",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m7513ff0137",
@@ -5967,11 +4270,7 @@ window.AKB_GROUPS = [
     "nick": "みずほ",
     "status": "former",
     "end": "2015.01.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.25",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -5987,11 +4286,7 @@ window.AKB_GROUPS = [
     "nick": "れおな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1998.12.03",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "ma9daaad492",
@@ -6000,11 +4295,7 @@ window.AKB_GROUPS = [
     "nick": "なっきぃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1996.08.29",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m02955280ab",
@@ -6013,11 +4304,7 @@ window.AKB_GROUPS = [
     "nick": "くまちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1997.08.10",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m4fb2db2fc4",
@@ -6026,11 +4313,7 @@ window.AKB_GROUPS = [
     "nick": "おしりん",
     "status": "former",
     "end": "2024.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1996.04.22",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m6a3eb40c2e",
@@ -6039,11 +4322,7 @@ window.AKB_GROUPS = [
     "nick": "アズマリオン",
     "status": "former",
     "end": "2017.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.13",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m313ea867fc",
@@ -6053,10 +4332,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.05.09",
     "img": true,
-    "bio": {
-     "birth": "1997.11.04",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6067,10 +4342,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.04.29",
     "img": true,
-    "bio": {
-     "birth": "1998.06.16",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6081,10 +4352,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.09.30",
     "img": true,
-    "bio": {
-     "birth": "1998.10.09",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -6103,11 +4370,7 @@ window.AKB_GROUPS = [
     "nick": "るかてぃん",
     "status": "former",
     "end": "2024.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.05.25",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "mfd7ed8825c",
@@ -6117,10 +4380,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.11.22",
     "img": true,
-    "bio": {
-     "birth": "1998.01.12",
-     "from": "岐阜県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6131,10 +4390,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.07.29",
     "img": true,
-    "bio": {
-     "birth": "1996.05.31",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6144,11 +4399,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっぴー",
     "status": "former",
     "end": "2015.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1996.09.03",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m671ce1fdd0",
@@ -6158,10 +4409,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.05.31",
     "img": true,
-    "bio": {
-     "birth": "1999.07.06",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6171,11 +4418,7 @@ window.AKB_GROUPS = [
     "nick": "さきぽん",
     "status": "former",
     "end": "2021.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.11.24",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m0ca0a1d42b",
@@ -6184,11 +4427,7 @@ window.AKB_GROUPS = [
     "nick": "ゆめち",
     "status": "former",
     "end": "2017.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.17",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mec6f436f40",
@@ -6197,11 +4436,7 @@ window.AKB_GROUPS = [
     "nick": "ゆづき",
     "status": "former",
     "end": "2023.10.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m4b42b1ab65",
@@ -6211,10 +4446,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.03.11",
     "img": true,
-    "bio": {
-     "birth": "1995.08.18",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6225,10 +4456,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.02.23",
     "img": true,
-    "bio": {
-     "birth": "1996.11.30",
-     "from": "岐阜県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6238,11 +4465,7 @@ window.AKB_GROUPS = [
     "nick": "じゅな",
     "status": "former",
     "end": "2019.01.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.05.25",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m803eeea6e7",
@@ -6252,10 +4475,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.03.22",
     "img": true,
-    "bio": {
-     "birth": "1995.09.17",
-     "from": "三重県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -6272,11 +4491,7 @@ window.AKB_GROUPS = [
     "nick": "ほのの",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.10.22",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2564a314ab",
@@ -6285,11 +4500,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうかたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.11.10",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mf9fbfab054",
@@ -6298,11 +4509,7 @@ window.AKB_GROUPS = [
     "nick": "あやめろ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.08.17",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m43fedffd00",
@@ -6311,11 +4518,7 @@ window.AKB_GROUPS = [
     "nick": "ゆなな",
     "status": "former",
     "end": "2019.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2001.12.18",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mf57da96d21",
@@ -6324,11 +4527,7 @@ window.AKB_GROUPS = [
     "nick": "なるぴー",
     "status": "former",
     "end": "2021.01.20",
-    "img": true,
-    "bio": {
-     "birth": "2003.03.13",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "md85af23fe0",
@@ -6337,11 +4536,7 @@ window.AKB_GROUPS = [
     "nick": "なるちん",
     "status": "former",
     "end": "2016.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.11.27",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb42cb03d1c",
@@ -6350,11 +4545,7 @@ window.AKB_GROUPS = [
     "nick": "らら",
     "status": "former",
     "end": "2019.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.07.23",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m8127125ec5",
@@ -6363,11 +4554,7 @@ window.AKB_GROUPS = [
     "nick": "おーちゃん",
     "status": "former",
     "end": "2025.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2002.02.26",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m110df4c966",
@@ -6376,11 +4563,7 @@ window.AKB_GROUPS = [
     "nick": "あいあい",
     "status": "former",
     "end": "2021.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.05",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m67e2f82972",
@@ -6389,11 +4572,7 @@ window.AKB_GROUPS = [
     "nick": "はたごん社長",
     "status": "former",
     "end": "2024.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.18",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m7ccd5d0698",
@@ -6403,10 +4582,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.11.30",
     "img": true,
-    "bio": {
-     "birth": "1996.05.16",
-     "from": "奈良県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6416,11 +4591,7 @@ window.AKB_GROUPS = [
     "nick": "かのちゃん",
     "status": "former",
     "end": "2021.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.09.06",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m842197fb04",
@@ -6429,11 +4600,7 @@ window.AKB_GROUPS = [
     "nick": "まっち",
     "status": "former",
     "end": "2018.11.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.11.06",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m730048f8b5",
@@ -6442,11 +4609,7 @@ window.AKB_GROUPS = [
     "nick": "じゅんちゃん",
     "status": "former",
     "end": "2016.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.08",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3728284f1a",
@@ -6455,11 +4618,7 @@ window.AKB_GROUPS = [
     "nick": "あいな",
     "status": "former",
     "end": "2018.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.02.28",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -6475,11 +4634,7 @@ window.AKB_GROUPS = [
     "nick": "ゆづぽ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.10.11",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "md414618e15",
@@ -6488,11 +4643,7 @@ window.AKB_GROUPS = [
     "nick": "るーちゃんおるー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.06.12",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "mb01b9b3818",
@@ -6501,11 +4652,7 @@ window.AKB_GROUPS = [
     "nick": "よこにゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.01.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m3f14fb2ada",
@@ -6514,11 +4661,7 @@ window.AKB_GROUPS = [
     "nick": "あみちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.06.28",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m8c7acb8abe",
@@ -6527,11 +4670,7 @@ window.AKB_GROUPS = [
     "nick": "まりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.02.02",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m32a2b9270d",
@@ -6540,11 +4679,7 @@ window.AKB_GROUPS = [
     "nick": "さとかほかほりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1997.05.16",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2b51a056b8",
@@ -6553,11 +4688,7 @@ window.AKB_GROUPS = [
     "nick": "みよまる",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.02.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m4aed6e2a6c",
@@ -6567,10 +4698,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.07.31",
     "img": true,
-    "bio": {
-     "birth": "2002.03.19",
-     "from": "静岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6581,10 +4708,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.06.26",
     "img": true,
-    "bio": {
-     "birth": "2001.05.05",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6594,11 +4717,7 @@ window.AKB_GROUPS = [
     "nick": "りんか",
     "status": "former",
     "end": "2020.11.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.10.29",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m68b9f82b6a",
@@ -6607,11 +4726,7 @@ window.AKB_GROUPS = [
     "nick": "みぃぽぽ",
     "status": "former",
     "end": "2019.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.11.13",
-     "from": "徳島県"
-    }
+    "img": true
    },
    {
     "id": "m5544db0877",
@@ -6621,10 +4736,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.04.12",
     "img": true,
-    "bio": {
-     "birth": "1999.03.20",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6635,10 +4746,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.01.16",
     "img": true,
-    "bio": {
-     "birth": "1997.12.28",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6648,11 +4755,7 @@ window.AKB_GROUPS = [
     "nick": "こはちゃん",
     "status": "former",
     "end": "2019.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.30",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "md1a1c79327",
@@ -6661,11 +4764,7 @@ window.AKB_GROUPS = [
     "nick": "いずりん",
     "status": "former",
     "end": "2026.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.03.15",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m07066ce67d",
@@ -6674,11 +4773,7 @@ window.AKB_GROUPS = [
     "nick": "のの",
     "status": "former",
     "end": "2019.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.07",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m0d538c5b8c",
@@ -6687,11 +4782,7 @@ window.AKB_GROUPS = [
     "nick": "ねがい",
     "status": "former",
     "end": "2022.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2003.01.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mc17e35b5e5",
@@ -6700,11 +4791,7 @@ window.AKB_GROUPS = [
     "nick": "りこりん",
     "status": "former",
     "end": "2018.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.11.24",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m2bcd166014",
@@ -6713,11 +4800,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきな矢作ちゃん",
     "status": "former",
     "end": "2018.11.10",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.13",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -6733,11 +4816,7 @@ window.AKB_GROUPS = [
     "nick": "きみちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.01.21",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m2a72515392",
@@ -6746,11 +4825,7 @@ window.AKB_GROUPS = [
     "nick": "ひめたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.01.09",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m407c0f6c96",
@@ -6759,11 +4834,7 @@ window.AKB_GROUPS = [
     "nick": "さあや",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.05.13",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m9620f03990",
@@ -6772,11 +4843,7 @@ window.AKB_GROUPS = [
     "nick": "えなたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.01.09",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mbabebac123",
@@ -6785,11 +4852,7 @@ window.AKB_GROUPS = [
     "nick": "ここな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.12.28",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m7a8287fe4d",
@@ -6798,11 +4861,7 @@ window.AKB_GROUPS = [
     "nick": "なかちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.06.11",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mf6eed0b7ac",
@@ -6811,11 +4870,7 @@ window.AKB_GROUPS = [
     "nick": "ひなの",
     "status": "former",
     "end": "2026.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.11.02",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m944018358d",
@@ -6825,10 +4880,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.01.04",
     "img": true,
-    "bio": {
-     "birth": "2002.08.07",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6838,11 +4889,7 @@ window.AKB_GROUPS = [
     "nick": "かえにゃんちゃんぽん池田",
     "status": "former",
     "end": "2026.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.07.05",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m1a531b8742",
@@ -6851,11 +4898,7 @@ window.AKB_GROUPS = [
     "nick": "きゃのんてぃ",
     "status": "former",
     "end": "2021.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.12.19",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m429426849a",
@@ -6865,10 +4908,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.09.30",
     "img": true,
-    "bio": {
-     "birth": "2004.05.24",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6879,10 +4918,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.05.13",
     "img": true,
-    "bio": {
-     "birth": "1998.03.11",
-     "from": "神奈川県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6892,11 +4927,7 @@ window.AKB_GROUPS = [
     "nick": "あーーや",
     "status": "former",
     "end": "2025.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.08.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m75231b4928",
@@ -6905,11 +4936,7 @@ window.AKB_GROUPS = [
     "nick": "みはるん",
     "status": "former",
     "end": "2024.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2002.12.17",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m40c72a20cd",
@@ -6918,11 +4945,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっち",
     "status": "former",
     "end": "2020.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.09.28",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m964e640ad4",
@@ -6932,9 +4955,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.30",
     "img": true,
-    "bio": {
-     "birth": "2003.11.04"
-    },
     "leave": "活動辞退"
    },
    {
@@ -6944,11 +4964,7 @@ window.AKB_GROUPS = [
     "nick": "なーやん",
     "status": "former",
     "end": "2024.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2001.02.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mcfc271e3e4",
@@ -6957,11 +4973,7 @@ window.AKB_GROUPS = [
     "nick": "みっちゃん",
     "status": "former",
     "end": "2023.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.02",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m17a086338c",
@@ -6970,11 +4982,7 @@ window.AKB_GROUPS = [
     "nick": "ももたん",
     "status": "former",
     "end": "2023.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2006.09.05",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3477706ba0",
@@ -6983,11 +4991,7 @@ window.AKB_GROUPS = [
     "nick": "ふゆっぴ",
     "status": "former",
     "end": "2025.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.03",
-     "from": "広島県"
-    }
+    "img": true
    }
   ]
  },
@@ -7003,11 +5007,7 @@ window.AKB_GROUPS = [
     "nick": "あおきりかりあん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.09.02",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m6ee6aab861",
@@ -7016,11 +5016,7 @@ window.AKB_GROUPS = [
     "nick": "みきみきちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.08.11",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m7dfdd9ed10",
@@ -7029,11 +5025,7 @@ window.AKB_GROUPS = [
     "nick": "みおたんみおちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.03.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "ma30c6499ec",
@@ -7042,11 +5034,7 @@ window.AKB_GROUPS = [
     "nick": "はやか",
     "status": "former",
     "end": "2022.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2001.09.19",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mc3e10743d7",
@@ -7055,11 +5043,7 @@ window.AKB_GROUPS = [
     "nick": "みぃちゃん",
     "status": "former",
     "end": "2023.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.12.02",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m96d32f22fc",
@@ -7068,11 +5052,7 @@ window.AKB_GROUPS = [
     "nick": "かとゆい",
     "status": "former",
     "end": "2020.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.17",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "md468f3baa2",
@@ -7081,11 +5061,7 @@ window.AKB_GROUPS = [
     "nick": "りかぴ",
     "status": "former",
     "end": "2020.10.20",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.14",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb652273381",
@@ -7094,11 +5070,7 @@ window.AKB_GROUPS = [
     "nick": "みくるん",
     "status": "former",
     "end": "2025.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m686aa221b6",
@@ -7107,11 +5079,7 @@ window.AKB_GROUPS = [
     "nick": "かのんさんちゃん",
     "status": "former",
     "end": "2025.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2004.05.12",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "maa917c85c1",
@@ -7120,11 +5088,7 @@ window.AKB_GROUPS = [
     "nick": "あなん",
     "status": "former",
     "end": "2023.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2006.07.22",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "me9668c7ffb",
@@ -7133,11 +5097,7 @@ window.AKB_GROUPS = [
     "nick": "みれいみれたんみれいたん",
     "status": "former",
     "end": "2024.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2009.03.10",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -7153,11 +5113,7 @@ window.AKB_GROUPS = [
     "nick": "あずあず",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.09.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb93572aac0",
@@ -7166,11 +5122,7 @@ window.AKB_GROUPS = [
     "nick": "きょっぴー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.06.03",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m1dade722a8",
@@ -7179,11 +5131,7 @@ window.AKB_GROUPS = [
     "nick": "りぃちゃんりいたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.09.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mfbc78935fa",
@@ -7192,11 +5140,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうね",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.11.23",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mfe4a9fddfa",
@@ -7205,11 +5149,7 @@ window.AKB_GROUPS = [
     "nick": "くるみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.03",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "mb4185cb8bd",
@@ -7218,11 +5158,7 @@ window.AKB_GROUPS = [
     "nick": "さっくぅ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.09.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m29180af227",
@@ -7232,10 +5168,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.04.30",
     "img": true,
-    "bio": {
-     "birth": "2008.11.07",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -7252,11 +5184,7 @@ window.AKB_GROUPS = [
     "nick": "ここみんにじにじ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.12.08",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m5dfd0e89cd",
@@ -7265,11 +5193,7 @@ window.AKB_GROUPS = [
     "nick": "ここは",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.02.20",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "md6e68eb8f0",
@@ -7278,11 +5202,7 @@ window.AKB_GROUPS = [
     "nick": "ゆあにゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.01.31",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb64c0251be",
@@ -7291,11 +5211,7 @@ window.AKB_GROUPS = [
     "nick": "はななん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.09.13",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m65c6c43c4d",
@@ -7304,11 +5220,7 @@ window.AKB_GROUPS = [
     "nick": "さや",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.07.04",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m6450854a4d",
@@ -7317,11 +5229,7 @@ window.AKB_GROUPS = [
     "nick": "みーちゃんみやびーむ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.11.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mc321f2ee7a",
@@ -7330,11 +5238,7 @@ window.AKB_GROUPS = [
     "nick": "みゆみいたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.04.15",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m1329c915ef",
@@ -7343,11 +5247,7 @@ window.AKB_GROUPS = [
     "nick": "こっちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.10.26",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m89dac2e17c",
@@ -7357,10 +5257,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.06.30",
     "img": true,
-    "bio": {
-     "birth": "2005.09.12",
-     "from": "兵庫県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -7371,10 +5267,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.11.30",
     "img": true,
-    "bio": {
-     "birth": "2010.05.27",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -7384,11 +5276,7 @@ window.AKB_GROUPS = [
     "nick": "さーたん",
     "status": "former",
     "end": "2025.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2006.10.31",
-     "from": "千葉県"
-    }
+    "img": true
    }
   ]
  },
@@ -7404,11 +5292,7 @@ window.AKB_GROUPS = [
     "nick": "まなえ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.12.16",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m3ec40e740f",
@@ -7417,11 +5301,7 @@ window.AKB_GROUPS = [
     "nick": "しょうこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.15",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "ma87a2000ae",
@@ -7430,11 +5310,7 @@ window.AKB_GROUPS = [
     "nick": "れいくぼっち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.11.23",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m4dd2178689",
@@ -7443,11 +5319,7 @@ window.AKB_GROUPS = [
     "nick": "さなちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.11.27",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2a97d12e96",
@@ -7456,11 +5328,7 @@ window.AKB_GROUPS = [
     "nick": "つーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.02.25",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "mcead26c6a6",
@@ -7469,11 +5337,7 @@ window.AKB_GROUPS = [
     "nick": "みーこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.11.25",
-     "from": "鳥取県"
-    }
+    "img": true
    },
    {
     "id": "m266604dda6",
@@ -7482,11 +5346,7 @@ window.AKB_GROUPS = [
     "nick": "のんたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.10.19",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb473efec25",
@@ -7495,11 +5355,7 @@ window.AKB_GROUPS = [
     "nick": "あめちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.06.24",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m5328d9ef67",
@@ -7508,11 +5364,7 @@ window.AKB_GROUPS = [
     "nick": "まゆまゆ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.18",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m6dbf4b5c82",
@@ -7521,11 +5373,7 @@ window.AKB_GROUPS = [
     "nick": "はるる",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.02.04",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mb292083dd3",
@@ -7534,11 +5382,7 @@ window.AKB_GROUPS = [
     "nick": "りんか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.10",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "m6742152006",
@@ -7547,11 +5391,7 @@ window.AKB_GROUPS = [
     "nick": "しーたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.11.08",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb3afba78c3",
@@ -7561,10 +5401,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2026.09.30",
     "img": true,
-    "bio": {
-     "birth": "2003.11.07",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -7574,11 +5410,7 @@ window.AKB_GROUPS = [
     "nick": "こはたん",
     "status": "former",
     "end": "2026.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2006.01.07",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -7594,11 +5426,7 @@ window.AKB_GROUPS = [
     "nick": "ゆらゆら",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.07.04",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m91322b4ada",
@@ -7607,11 +5435,7 @@ window.AKB_GROUPS = [
     "nick": "ありたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.08.25",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2ac8a3e03e",
@@ -7620,11 +5444,7 @@ window.AKB_GROUPS = [
     "nick": "まりぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.12.17",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m8716f1ca21",
@@ -7633,11 +5453,7 @@ window.AKB_GROUPS = [
     "nick": "ふうかちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.01.17",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2b4c774aca",
@@ -7646,11 +5462,7 @@ window.AKB_GROUPS = [
     "nick": "なぎち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.09.09",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -7666,11 +5478,7 @@ window.AKB_GROUPS = [
     "nick": "ちかこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.11.19",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mcdb33cc720",
@@ -7679,11 +5487,7 @@ window.AKB_GROUPS = [
     "nick": "ゆき",
     "status": "former",
     "end": "2025.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.05.07",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "maa0a57926f",
@@ -7692,11 +5496,7 @@ window.AKB_GROUPS = [
     "nick": "くみちゃん",
     "status": "former",
     "end": "2016.02.29",
-    "img": true,
-    "bio": {
-     "birth": "1995.08.04",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mcc7aabf7a3",
@@ -7705,11 +5505,7 @@ window.AKB_GROUPS = [
     "nick": "神門ちゃん",
     "status": "former",
     "end": "2015.11.19",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.29",
-     "from": "島根県"
-    }
+    "img": true
    },
    {
     "id": "mf367d2b8b7",
@@ -7718,11 +5514,7 @@ window.AKB_GROUPS = [
     "nick": "さりー",
     "status": "former",
     "end": "2021.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1993.01.18",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m950c8dfb64",
@@ -7731,11 +5523,7 @@ window.AKB_GROUPS = [
     "nick": "なっち",
     "status": "former",
     "end": "2018.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.08.29",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m27b454a84f",
@@ -7744,11 +5532,7 @@ window.AKB_GROUPS = [
     "nick": "さーなん",
     "status": "former",
     "end": "2018.01.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.11.15",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m14194f5a6b",
@@ -7757,11 +5541,7 @@ window.AKB_GROUPS = [
     "nick": "どんちゃん",
     "status": "former",
     "end": "2024.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.04.23",
-     "from": "栃木県"
-    }
+    "img": true
    }
   ]
  },
@@ -7777,11 +5557,7 @@ window.AKB_GROUPS = [
     "nick": "れなひゅーひゅーちゃん",
     "status": "former",
     "end": "2018.12.28",
-    "img": true,
-    "bio": {
-     "birth": "2002.02.15",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mf2a5c3c2f1",
@@ -7790,11 +5566,7 @@ window.AKB_GROUPS = [
     "nick": "あゆか",
     "status": "former",
     "end": "2025.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2004.01.27",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mb37aa186ca",
@@ -7803,11 +5575,7 @@ window.AKB_GROUPS = [
     "nick": "こっちゃん",
     "status": "former",
     "end": "2021.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.12.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "me9de984b4f",
@@ -7816,11 +5584,7 @@ window.AKB_GROUPS = [
     "nick": "まーやん",
     "status": "former",
     "end": "2025.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.10",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "m15313921c7",
@@ -7829,11 +5593,7 @@ window.AKB_GROUPS = [
     "nick": "あいりたん",
     "status": "former",
     "end": "2024.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2002.09.21",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -7849,11 +5609,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうゆ",
     "status": "former",
     "end": "2024.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.07.29",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m6cc83eb8a6",
@@ -7863,10 +5619,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.06.26",
     "img": true,
-    "bio": {
-     "birth": "2004.11.19",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -7876,11 +5628,7 @@ window.AKB_GROUPS = [
     "nick": "らぶりん",
     "status": "former",
     "end": "2025.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2001.03.24",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m2a2ea461c1",
@@ -7889,11 +5637,7 @@ window.AKB_GROUPS = [
     "nick": "西ちゃん",
     "status": "former",
     "end": "2021.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.16",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m23595a15e9",
@@ -7902,11 +5646,7 @@ window.AKB_GROUPS = [
     "nick": "しいちゃん",
     "status": "former",
     "end": "2021.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.22",
-     "from": "愛知県"
-    }
+    "img": true
    }
   ]
  },
@@ -7923,10 +5663,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.05.21",
     "img": true,
-    "bio": {
-     "birth": "1992.04.03",
-     "from": "神奈川県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -7946,10 +5682,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.12.31",
     "img": true,
-    "bio": {
-     "birth": "1993.11.20",
-     "from": "埼玉県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -7969,10 +5701,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.03.31",
     "img": true,
-    "bio": {
-     "birth": "1996.01.05",
-     "from": "福岡県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -7992,10 +5720,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.03.31",
     "img": true,
-    "bio": {
-     "birth": "1989.01.24",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -8015,10 +5739,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.03.31",
     "img": true,
-    "bio": {
-     "birth": "1990.08.13",
-     "from": "東京都"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -8038,10 +5758,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.11.30",
     "img": true,
-    "bio": {
-     "birth": "1994.12.08",
-     "from": "千葉県"
-    },
     "groups": [
      {
       "group": "SKE48",
@@ -8067,11 +5783,7 @@ window.AKB_GROUPS = [
     "nick": "りおな",
     "status": "former",
     "end": "2012.10.28",
-    "img": true,
-    "bio": {
-     "birth": "1996.12.31",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m0a0ae1d61e",
@@ -8080,11 +5792,7 @@ window.AKB_GROUPS = [
     "nick": "あーぽん",
     "status": "former",
     "end": "2018.09.06",
-    "img": true,
-    "bio": {
-     "birth": "1995.10.11",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m1118713981",
@@ -8093,11 +5801,7 @@ window.AKB_GROUPS = [
     "nick": "かなきちかなきっちゃん",
     "status": "former",
     "end": "2016.02.29",
-    "img": true,
-    "bio": {
-     "birth": "1996.10.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m91c3e68a67",
@@ -8106,11 +5810,7 @@ window.AKB_GROUPS = [
     "nick": "れなぴょん",
     "status": "former",
     "end": "2019.10.30",
-    "img": true,
-    "bio": {
-     "birth": "1995.09.16",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m6ac41c2730",
@@ -8119,11 +5819,7 @@ window.AKB_GROUPS = [
     "nick": "りかにゃんりか",
     "status": "former",
     "end": "2016.10.15",
-    "img": true,
-    "bio": {
-     "birth": "1994.06.04",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m071b6870a1",
@@ -8132,11 +5828,7 @@ window.AKB_GROUPS = [
     "nick": "はるな",
     "status": "former",
     "end": "2016.10.23",
-    "img": true,
-    "bio": {
-     "birth": "1998.06.09",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mfa20ef551b",
@@ -8145,11 +5837,7 @@ window.AKB_GROUPS = [
     "nick": "木下",
     "status": "former",
     "end": "2017.09.27",
-    "img": true,
-    "bio": {
-     "birth": "1997.02.06",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m0b301c1439",
@@ -8159,10 +5847,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.02.04",
     "img": true,
-    "bio": {
-     "birth": "1994.08.24",
-     "from": "京都府"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -8181,11 +5865,7 @@ window.AKB_GROUPS = [
     "nick": "ありぃ",
     "status": "former",
     "end": "2014.03.02",
-    "img": true,
-    "bio": {
-     "birth": "1995.04.28",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mf489027928",
@@ -8194,11 +5874,7 @@ window.AKB_GROUPS = [
     "nick": "りぃちゃん",
     "status": "former",
     "end": "2016.01.27",
-    "img": true,
-    "bio": {
-     "birth": "1997.02.23",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "me8201183f0",
@@ -8207,11 +5883,7 @@ window.AKB_GROUPS = [
     "nick": "かんちる",
     "status": "former",
     "end": "2013.04.12",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.22",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "me6fb3762c8",
@@ -8221,10 +5893,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.08.31",
     "img": true,
-    "bio": {
-     "birth": "1997.10.14",
-     "from": "大阪府"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -8243,11 +5911,7 @@ window.AKB_GROUPS = [
     "nick": "けいっち",
     "status": "former",
     "end": "2017.04.18",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.18",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "m8921f2cf8d",
@@ -8256,11 +5920,7 @@ window.AKB_GROUPS = [
     "nick": "みづき",
     "status": "former",
     "end": "2012.04.28",
-    "img": true,
-    "bio": {
-     "birth": "1997.08.19",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mb4eccb62f6",
@@ -8269,11 +5929,7 @@ window.AKB_GROUPS = [
     "nick": "あやにゃん",
     "status": "former",
     "end": "2012.12.22",
-    "img": true,
-    "bio": {
-     "birth": "1994.11.08",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "md9d7bbbbb7",
@@ -8282,11 +5938,7 @@ window.AKB_GROUPS = [
     "nick": "あいにゃん",
     "status": "former",
     "end": "2013.07.01",
-    "img": true,
-    "bio": {
-     "birth": "1993.03.25",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m861ba728a2",
@@ -8295,11 +5947,7 @@ window.AKB_GROUPS = [
     "nick": "しおきち",
     "status": "former",
     "end": "2012.10.28",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.18",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m79189b3c1a",
@@ -8308,11 +5956,7 @@ window.AKB_GROUPS = [
     "nick": "あーにゃん",
     "status": "former",
     "end": "2011.07.10",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.23",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mf5c3b1395d",
@@ -8322,10 +5966,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2010.11.05",
     "img": true,
-    "bio": {
-     "birth": "1994.10.17",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -8335,11 +5975,7 @@ window.AKB_GROUPS = [
     "nick": "なつみん",
     "status": "former",
     "end": "2015.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.09.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m638446c565",
@@ -8348,11 +5984,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっぴ",
     "status": "former",
     "end": "2017.04.28",
-    "img": true,
-    "bio": {
-     "birth": "1993.10.17",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m02c1acd061",
@@ -8362,10 +5994,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.04.03",
     "img": true,
-    "bio": {
-     "birth": "1992.04.03",
-     "from": "大阪府"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -8385,10 +6013,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.11.04",
     "img": true,
-    "bio": {
-     "birth": "1993.07.14",
-     "from": "大阪府"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -8407,11 +6031,7 @@ window.AKB_GROUPS = [
     "nick": "アカリン",
     "status": "former",
     "end": "2020.12.21",
-    "img": true,
-    "bio": {
-     "birth": "1996.08.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mc7423da6e7",
@@ -8421,10 +6041,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.08.09",
     "img": true,
-    "bio": {
-     "birth": "1993.09.19",
-     "from": "奈良県"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -8454,11 +6070,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきつん",
     "status": "former",
     "end": "2021.02.21",
-    "img": true,
-    "bio": {
-     "birth": "1996.02.17",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mf8031a311d",
@@ -8467,11 +6079,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうみん",
     "status": "former",
     "end": "2024.12.29",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.12",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "md0843feb03",
@@ -8480,11 +6088,7 @@ window.AKB_GROUPS = [
     "nick": "みぃーき",
     "status": "former",
     "end": "2024.10.11",
-    "img": true,
-    "bio": {
-     "birth": "1996.10.23",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m9c1abba635",
@@ -8493,11 +6097,7 @@ window.AKB_GROUPS = [
     "nick": "りこぴん",
     "status": "former",
     "end": "2012.01.15",
-    "img": true,
-    "bio": {
-     "birth": "1996.12.11",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "mb3f70dbf2e",
@@ -8506,11 +6106,7 @@ window.AKB_GROUPS = [
     "nick": "りさぽよ",
     "status": "former",
     "end": "2012.02.18",
-    "img": true,
-    "bio": {
-     "birth": "1995.10.28",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "md73c2db78f",
@@ -8519,11 +6115,7 @@ window.AKB_GROUPS = [
     "nick": "なる",
     "status": "former",
     "end": "2019.12.02",
-    "img": true,
-    "bio": {
-     "birth": "1998.03.30",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m4d34ab179a",
@@ -8532,11 +6124,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうゆう",
     "status": "former",
     "end": "2012.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1997.08.05",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb47e22bca7",
@@ -8545,11 +6133,7 @@ window.AKB_GROUPS = [
     "nick": "そらい",
     "status": "former",
     "end": "2012.12.21",
-    "img": true,
-    "bio": {
-     "birth": "1998.07.04",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mf99fde1dd9",
@@ -8558,11 +6142,7 @@ window.AKB_GROUPS = [
     "nick": "しまれな",
     "status": "former",
     "end": "2014.04.07",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.05",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m97ea98bb86",
@@ -8571,11 +6151,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいぽん",
     "status": "former",
     "end": "2015.07.18",
-    "img": true,
-    "bio": {
-     "birth": "1993.12.06",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m04e8bd6a3e",
@@ -8584,11 +6160,7 @@ window.AKB_GROUPS = [
     "nick": "ねっち",
     "status": "former",
     "end": "2012.01.15",
-    "img": true,
-    "bio": {
-     "birth": "1994.05.10",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m74d63bafeb",
@@ -8597,11 +6169,7 @@ window.AKB_GROUPS = [
     "nick": "あいり",
     "status": "former",
     "end": "2019.12.25",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.05",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m9f8c6e21e5",
@@ -8610,11 +6178,7 @@ window.AKB_GROUPS = [
     "nick": "ひろりん",
     "status": "former",
     "end": "2014.03.15",
-    "img": true,
-    "bio": {
-     "birth": "1994.11.19",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mfa13a0fc90",
@@ -8623,11 +6187,7 @@ window.AKB_GROUPS = [
     "nick": "るりりん",
     "status": "former",
     "end": "2020.10.15",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.27",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m3f43a66590",
@@ -8636,11 +6196,7 @@ window.AKB_GROUPS = [
     "nick": "モカ",
     "status": "former",
     "end": "2019.02.24",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.11",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m6e3f1c6698",
@@ -8650,10 +6206,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.10.03",
     "img": true,
-    "bio": {
-     "birth": "1997.11.25",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -8663,11 +6215,7 @@ window.AKB_GROUPS = [
     "nick": "まおきゅん",
     "status": "former",
     "end": "2019.02.24",
-    "img": true,
-    "bio": {
-     "birth": "1995.09.09",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "me9b56e8272",
@@ -8676,11 +6224,7 @@ window.AKB_GROUPS = [
     "nick": "あやちゃん",
     "status": "former",
     "end": "2015.03.22",
-    "img": true,
-    "bio": {
-     "birth": "1993.06.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m7d4ea829fd",
@@ -8689,11 +6233,7 @@ window.AKB_GROUPS = [
     "nick": "さえぴぃ",
     "status": "former",
     "end": "2020.12.23",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.30",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m9d465977d5",
@@ -8703,10 +6243,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.04.10",
     "img": true,
-    "bio": {
-     "birth": "1997.02.24",
-     "from": "大阪府"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -8725,11 +6261,7 @@ window.AKB_GROUPS = [
     "nick": "ひとみん",
     "status": "former",
     "end": "2013.05.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.08",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m2f924b4fc6",
@@ -8738,11 +6270,7 @@ window.AKB_GROUPS = [
     "nick": "ケイラ",
     "status": "former",
     "end": "2014.07.02",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.18",
-     "from": "大阪府"
-    }
+    "img": true
    }
   ]
  },
@@ -8759,10 +6287,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.04.16",
     "img": true,
-    "bio": {
-     "birth": "1997.01.29",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -8772,11 +6296,7 @@ window.AKB_GROUPS = [
     "nick": "こころん",
     "status": "former",
     "end": "2012.04.28",
-    "img": true,
-    "bio": {
-     "birth": "1998.02.19",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m456d83766c",
@@ -8785,11 +6305,7 @@ window.AKB_GROUPS = [
     "nick": "あんちゅ",
     "status": "former",
     "end": "2021.09.17",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.11",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mad7ea00d18",
@@ -8798,11 +6314,7 @@ window.AKB_GROUPS = [
     "nick": "あんたん",
     "status": "former",
     "end": "2020.12.27",
-    "img": true,
-    "bio": {
-     "birth": "1995.01.20",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m97712c8bc5",
@@ -8811,11 +6323,7 @@ window.AKB_GROUPS = [
     "nick": "みーれ",
     "status": "former",
     "end": "2016.10.02",
-    "img": true,
-    "bio": {
-     "birth": "1999.02.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m3fafe4ed76",
@@ -8824,11 +6332,7 @@ window.AKB_GROUPS = [
     "nick": "まこぽん",
     "status": "former",
     "end": "2014.03.02",
-    "img": true,
-    "bio": {
-     "birth": "1999.01.11",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m610eedc679",
@@ -8837,11 +6341,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーり",
     "status": "former",
     "end": "2019.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.01",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "mc1287380fb",
@@ -8850,11 +6350,7 @@ window.AKB_GROUPS = [
     "nick": "うーか",
     "status": "former",
     "end": "2023.08.01",
-    "img": true,
-    "bio": {
-     "birth": "1997.08.01",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m84ac83ebcf",
@@ -8863,11 +6359,7 @@ window.AKB_GROUPS = [
     "nick": "えみち",
     "status": "former",
     "end": "2017.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.07.13",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m8cb28a62cd",
@@ -8876,11 +6368,7 @@ window.AKB_GROUPS = [
     "nick": "このみん",
     "status": "former",
     "end": "2019.01.28",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m52c97c9489",
@@ -8889,11 +6377,7 @@ window.AKB_GROUPS = [
     "nick": "りなっち",
     "status": "former",
     "end": "2019.10.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.01.29",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mad526bf785",
@@ -8902,11 +6386,7 @@ window.AKB_GROUPS = [
     "nick": "はーこ",
     "status": "former",
     "end": "2016.12.24",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.05",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mdb71078513",
@@ -8915,11 +6395,7 @@ window.AKB_GROUPS = [
     "nick": "さきぴ",
     "status": "former",
     "end": "2015.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1994.06.18",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m21b554dfad",
@@ -8928,11 +6404,7 @@ window.AKB_GROUPS = [
     "nick": "りっぴー",
     "status": "former",
     "end": "2014.04.20",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mfd681986ae",
@@ -8941,11 +6413,7 @@ window.AKB_GROUPS = [
     "nick": "ななみん",
     "status": "former",
     "end": "2012.07.07",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.26",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m0a5853de54",
@@ -8955,10 +6423,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.12.06",
     "img": true,
-    "bio": {
-     "birth": "1997.11.11",
-     "from": "京都府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -8968,11 +6432,7 @@ window.AKB_GROUPS = [
     "nick": "たかりこ",
     "status": "former",
     "end": "2014.07.19",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m8111f6a8f4",
@@ -8982,10 +6442,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.10.11",
     "img": true,
-    "bio": {
-     "birth": "1998.09.21",
-     "from": "兵庫県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -8995,11 +6451,7 @@ window.AKB_GROUPS = [
     "nick": "りこりん",
     "status": "former",
     "end": "2013.03.15",
-    "img": true,
-    "bio": {
-     "birth": "1997.10.11",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mdf3fc8b3ad",
@@ -9008,11 +6460,7 @@ window.AKB_GROUPS = [
     "nick": "ありりん",
     "status": "former",
     "end": "2015.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.07.20",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mc4f2f34730",
@@ -9021,11 +6469,7 @@ window.AKB_GROUPS = [
     "nick": "むろかな",
     "status": "former",
     "end": "2015.06.21",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.20",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m5cbbf65cf2",
@@ -9034,11 +6478,7 @@ window.AKB_GROUPS = [
     "nick": "しゅう",
     "status": "former",
     "end": "2017.04.19",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.02",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m0f3cc0dddd",
@@ -9047,11 +6487,7 @@ window.AKB_GROUPS = [
     "nick": "ちゅば",
     "status": "former",
     "end": "2015.03.15",
-    "img": true,
-    "bio": {
-     "birth": "2000.06.06",
-     "from": "大阪府"
-    }
+    "img": true
    }
   ]
  },
@@ -9067,11 +6503,7 @@ window.AKB_GROUPS = [
     "nick": "なっつ",
     "status": "former",
     "end": "2020.06.28",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.17",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m95abd4a8d8",
@@ -9081,10 +6513,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.06.27",
     "img": true,
-    "bio": {
-     "birth": "1995.09.12",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9094,11 +6522,7 @@ window.AKB_GROUPS = [
     "nick": "まいち",
     "status": "former",
     "end": "2019.10.13",
-    "img": true,
-    "bio": {
-     "birth": "1994.10.04",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mf1d95a2a9d",
@@ -9108,10 +6532,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.10.10",
     "img": true,
-    "bio": {
-     "birth": "1999.05.29",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9121,11 +6541,7 @@ window.AKB_GROUPS = [
     "nick": "ちっひー",
     "status": "former",
     "end": "2025.12.26",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.17",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "maee3c0e1b5",
@@ -9135,10 +6551,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.12.27",
     "img": true,
-    "bio": {
-     "birth": "1996.08.25",
-     "from": "大阪府"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -9157,11 +6569,7 @@ window.AKB_GROUPS = [
     "nick": "ももりん",
     "status": "former",
     "end": "2014.03.15",
-    "img": true,
-    "bio": {
-     "birth": "2001.02.08",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m03dd3720f5",
@@ -9171,10 +6579,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.02.21",
     "img": true,
-    "bio": {
-     "birth": "1995.05.26",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9184,11 +6588,7 @@ window.AKB_GROUPS = [
     "nick": "てるみー",
     "status": "former",
     "end": "2015.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.18",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mfd7cff054b",
@@ -9197,11 +6597,7 @@ window.AKB_GROUPS = [
     "nick": "れいな",
     "status": "former",
     "end": "2018.05.02",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.24",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m02ab514393",
@@ -9210,11 +6606,7 @@ window.AKB_GROUPS = [
     "nick": "あいか",
     "status": "former",
     "end": "2016.04.11",
-    "img": true,
-    "bio": {
-     "birth": "1998.01.12",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "meb71c3abed",
@@ -9224,10 +6616,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.02.21",
     "img": true,
-    "bio": {
-     "birth": "1998.01.04",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9237,11 +6625,7 @@ window.AKB_GROUPS = [
     "nick": "ちほ",
     "status": "former",
     "end": "2016.10.23",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.21",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m2237373ed3",
@@ -9250,11 +6634,7 @@ window.AKB_GROUPS = [
     "nick": "めぐみん",
     "status": "former",
     "end": "2017.12.24",
-    "img": true,
-    "bio": {
-     "birth": "1995.06.26",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "ma6338280f4",
@@ -9263,11 +6643,7 @@ window.AKB_GROUPS = [
     "nick": "あやてぃん",
     "status": "former",
     "end": "2020.10.06",
-    "img": true,
-    "bio": {
-     "birth": "1995.05.29",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m8ff3f0e2df",
@@ -9276,11 +6652,7 @@ window.AKB_GROUPS = [
     "nick": "やまりな",
     "status": "former",
     "end": "2020.01.29",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.10",
-     "from": "京都府"
-    }
+    "img": true
    }
   ]
  },
@@ -9296,11 +6668,7 @@ window.AKB_GROUPS = [
     "nick": "ジョー",
     "status": "former",
     "end": "2019.05.11",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.27",
-     "from": "兵庫県"
-    }
+    "img": true
    }
   ]
  },
@@ -9316,11 +6684,7 @@ window.AKB_GROUPS = [
     "nick": "ももるん",
     "status": "former",
     "end": "2019.04.14",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.02",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "md9a54f4060",
@@ -9329,11 +6693,7 @@ window.AKB_GROUPS = [
     "nick": "ココナ",
     "status": "former",
     "end": "2022.04.04",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.07",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "md47c425add",
@@ -9342,11 +6702,7 @@ window.AKB_GROUPS = [
     "nick": "こじりん",
     "status": "former",
     "end": "2025.11.20",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.16",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "md658e8e3c2",
@@ -9355,11 +6711,7 @@ window.AKB_GROUPS = [
     "nick": "りかてぃー",
     "status": "former",
     "end": "2021.06.15",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.15",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m3ce503c04e",
@@ -9368,11 +6720,7 @@ window.AKB_GROUPS = [
     "nick": "れーちゃん",
     "status": "former",
     "end": "2025.04.10",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.28",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "m8e3ee1516b",
@@ -9381,11 +6729,7 @@ window.AKB_GROUPS = [
     "nick": "みおん",
     "status": "former",
     "end": "2022.07.04",
-    "img": true,
-    "bio": {
-     "birth": "2002.11.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m83f980cb04",
@@ -9394,11 +6738,7 @@ window.AKB_GROUPS = [
     "nick": "しおり",
     "status": "former",
     "end": "2026.03.09",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.21",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "ma5ffd407ae",
@@ -9407,11 +6747,7 @@ window.AKB_GROUPS = [
     "nick": "みらい",
     "status": "former",
     "end": "2018.03.27",
-    "img": true,
-    "bio": {
-     "birth": "2004.05.13",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m40858ff6d4",
@@ -9420,11 +6756,7 @@ window.AKB_GROUPS = [
     "nick": "すず",
     "status": "former",
     "end": "2020.12.22",
-    "img": true,
-    "bio": {
-     "birth": "2001.12.11",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m45b40d7e7e",
@@ -9433,11 +6765,7 @@ window.AKB_GROUPS = [
     "nick": "あーやん",
     "status": "former",
     "end": "2021.03.19",
-    "img": true,
-    "bio": {
-     "birth": "2002.08.06",
-     "from": "兵庫県"
-    }
+    "img": true
    }
   ]
  },
@@ -9453,11 +6781,7 @@ window.AKB_GROUPS = [
     "nick": "しんしん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1998.08.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "medce3a606c",
@@ -9466,11 +6790,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいちゃん",
     "status": "former",
     "end": "2019.09.24",
-    "img": true,
-    "bio": {
-     "birth": "2004.11.30",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m270fbb8e0a",
@@ -9479,11 +6799,7 @@ window.AKB_GROUPS = [
     "nick": "れなたん",
     "status": "former",
     "end": "2023.01.29",
-    "img": true,
-    "bio": {
-     "birth": "2005.12.22",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb334d28eab",
@@ -9492,11 +6808,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうか",
     "status": "former",
     "end": "2021.05.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.06.24",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mc9a4e638c3",
@@ -9505,11 +6817,7 @@ window.AKB_GROUPS = [
     "nick": "まなてぃー",
     "status": "former",
     "end": "2021.06.11",
-    "img": true,
-    "bio": {
-     "birth": "2005.07.04",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb32c6788c5",
@@ -9518,11 +6826,7 @@ window.AKB_GROUPS = [
     "nick": "りなちー",
     "status": "former",
     "end": "2020.06.29",
-    "img": true,
-    "bio": {
-     "birth": "2001.04.20",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m2c754b9e5c",
@@ -9531,11 +6835,7 @@ window.AKB_GROUPS = [
     "nick": "はるちゃん",
     "status": "former",
     "end": "2023.12.29",
-    "img": true,
-    "bio": {
-     "birth": "2002.06.30",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m33ce324628",
@@ -9545,10 +6845,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.12.12",
     "img": true,
-    "bio": {
-     "birth": "1999.12.29",
-     "from": "北海道"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9558,11 +6854,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいな",
     "status": "former",
     "end": "2025.04.28",
-    "img": true,
-    "bio": {
-     "birth": "2001.06.22",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m0948c1c5d3",
@@ -9571,11 +6863,7 @@ window.AKB_GROUPS = [
     "nick": "ひなちょ",
     "status": "former",
     "end": "2021.09.20",
-    "img": true,
-    "bio": {
-     "birth": "2001.04.12",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "me4edc03947",
@@ -9584,11 +6872,7 @@ window.AKB_GROUPS = [
     "nick": "かれんたん",
     "status": "former",
     "end": "2024.11.07",
-    "img": true,
-    "bio": {
-     "birth": "2001.03.15",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m474016519e",
@@ -9597,11 +6881,7 @@ window.AKB_GROUPS = [
     "nick": "ももか",
     "status": "former",
     "end": "2020.06.28",
-    "img": true,
-    "bio": {
-     "birth": "2003.02.10",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m2892726b7c",
@@ -9610,11 +6890,7 @@ window.AKB_GROUPS = [
     "nick": "ゆりあ",
     "status": "former",
     "end": "2021.08.21",
-    "img": true,
-    "bio": {
-     "birth": "2005.05.16",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "mcaf5c553f8",
@@ -9624,10 +6900,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.05.23",
     "img": true,
-    "bio": {
-     "birth": "2000.12.12",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -9644,11 +6916,7 @@ window.AKB_GROUPS = [
     "nick": "まいてぃー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.11.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m3eeb652100",
@@ -9657,11 +6925,7 @@ window.AKB_GROUPS = [
     "nick": "もっちゃん",
     "status": "former",
     "end": "2024.01.12",
-    "img": true,
-    "bio": {
-     "birth": "2004.02.06",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8a96807ba3",
@@ -9670,11 +6934,7 @@ window.AKB_GROUPS = [
     "nick": "こはたん",
     "status": "former",
     "end": "2022.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.06",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mdc47c466ce",
@@ -9683,11 +6943,7 @@ window.AKB_GROUPS = [
     "nick": "じおん",
     "status": "former",
     "end": "2025.03.14",
-    "img": true,
-    "bio": {
-     "birth": "2007.09.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mca0756664b",
@@ -9697,10 +6953,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.10.28",
     "img": true,
-    "bio": {
-     "birth": "2004.09.19",
-     "from": "鳥取県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9710,11 +6962,7 @@ window.AKB_GROUPS = [
     "nick": "あいぴ",
     "status": "former",
     "end": "2024.11.28",
-    "img": true,
-    "bio": {
-     "birth": "2002.04.30",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mbffca44713",
@@ -9723,11 +6971,7 @@ window.AKB_GROUPS = [
     "nick": "わかニャン",
     "status": "former",
     "end": "2025.04.21",
-    "img": true,
-    "bio": {
-     "birth": "2003.07.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m5cb5eb4e32",
@@ -9736,11 +6980,7 @@ window.AKB_GROUPS = [
     "nick": "ゆななん",
     "status": "former",
     "end": "2024.06.15",
-    "img": true,
-    "bio": {
-     "birth": "2002.09.19",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m86778948ec",
@@ -9749,11 +6989,7 @@ window.AKB_GROUPS = [
     "nick": "アンジュ",
     "status": "former",
     "end": "2025.08.12",
-    "img": true,
-    "bio": {
-     "birth": "2002.06.10",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m2f898e7ef4",
@@ -9762,11 +6998,7 @@ window.AKB_GROUPS = [
     "nick": "みさき",
     "status": "former",
     "end": "2025.09.29",
-    "img": true,
-    "bio": {
-     "birth": "2008.01.13",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m6061e7d1c2",
@@ -9775,11 +7007,7 @@ window.AKB_GROUPS = [
     "nick": "みゅう",
     "status": "former",
     "end": "2025.11.26",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.29",
-     "from": "兵庫県"
-    }
+    "img": true
    }
   ]
  },
@@ -9795,11 +7023,7 @@ window.AKB_GROUPS = [
     "nick": "しよみん",
     "status": "former",
     "end": "2023.08.08",
-    "img": true,
-    "bio": {
-     "birth": "2000.05.16",
-     "from": "大韓民国"
-    }
+    "img": true
    }
   ]
  },
@@ -9815,11 +7039,7 @@ window.AKB_GROUPS = [
     "nick": "ほの",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.12.16",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m8801a10a71",
@@ -9828,11 +7048,7 @@ window.AKB_GROUPS = [
     "nick": "さくちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.04.07",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "maf78b57566",
@@ -9841,11 +7057,7 @@ window.AKB_GROUPS = [
     "nick": "まこち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.08.02",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mc5fd795313",
@@ -9854,11 +7066,7 @@ window.AKB_GROUPS = [
     "nick": "さかたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.11.08",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb6b83c4770",
@@ -9867,11 +7075,7 @@ window.AKB_GROUPS = [
     "nick": "あやぴょん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.03.25",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m674d9dd651",
@@ -9880,11 +7084,7 @@ window.AKB_GROUPS = [
     "nick": "やよい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.03.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "ma9b70615a4",
@@ -9893,11 +7093,7 @@ window.AKB_GROUPS = [
     "nick": "あみ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.05.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m14ae816ff3",
@@ -9906,11 +7102,7 @@ window.AKB_GROUPS = [
     "nick": "さくら",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.06.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m7dec1274c1",
@@ -9919,11 +7111,7 @@ window.AKB_GROUPS = [
     "nick": "みっひー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.05.22",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mf857eaf82d",
@@ -9932,11 +7120,7 @@ window.AKB_GROUPS = [
     "nick": "リサ",
     "status": "former",
     "end": "2026.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2008.12.24",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m5acb604bc6",
@@ -9946,10 +7130,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.05.12",
     "img": true,
-    "bio": {
-     "birth": "2003.10.31",
-     "from": "大分県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -9959,11 +7139,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきの",
     "status": "former",
     "end": "2026.03.27",
-    "img": true,
-    "bio": {
-     "birth": "2007.11.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m6e1e65050c",
@@ -9972,11 +7148,7 @@ window.AKB_GROUPS = [
     "nick": "みおち",
     "status": "former",
     "end": "2025.03.06",
-    "img": true,
-    "bio": {
-     "birth": "2001.04.04",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m11e34b2b4b",
@@ -9985,11 +7157,7 @@ window.AKB_GROUPS = [
     "nick": "ぴかるん",
     "status": "former",
     "end": "2024.04.26",
-    "img": true,
-    "bio": {
-     "birth": "2006.05.23",
-     "from": "三重県"
-    }
+    "img": true
    }
   ]
  },
@@ -10005,11 +7173,7 @@ window.AKB_GROUPS = [
     "nick": "ゆかたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.07.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m3e0f7171ad",
@@ -10018,11 +7182,7 @@ window.AKB_GROUPS = [
     "nick": "てんな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.05",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m498d5f595e",
@@ -10031,11 +7191,7 @@ window.AKB_GROUPS = [
     "nick": "こよりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.05.23",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m64fc487044",
@@ -10044,11 +7200,7 @@ window.AKB_GROUPS = [
     "nick": "あやみ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.11.03",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m3473e36fcf",
@@ -10057,11 +7209,7 @@ window.AKB_GROUPS = [
     "nick": "みそら",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.08.24",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m597f5c5863",
@@ -10070,11 +7218,7 @@ window.AKB_GROUPS = [
     "nick": "りおぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.11.08",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "mde40da39d3",
@@ -10083,11 +7227,7 @@ window.AKB_GROUPS = [
     "nick": "ほのぴー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.03.10",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m2b33e4cd9c",
@@ -10096,11 +7236,7 @@ window.AKB_GROUPS = [
     "nick": "あみたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.07.01",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m8027694a28",
@@ -10109,11 +7245,7 @@ window.AKB_GROUPS = [
     "nick": "わかたん",
     "status": "former",
     "end": "2026.03.26",
-    "img": true,
-    "bio": {
-     "birth": "2004.01.06",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mf8076cf9e8",
@@ -10122,11 +7254,7 @@ window.AKB_GROUPS = [
     "nick": "れーお",
     "status": "former",
     "end": "2024.09.13",
-    "img": true,
-    "bio": {
-     "birth": "2006.03.01",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m861fcf8cee",
@@ -10135,11 +7263,7 @@ window.AKB_GROUPS = [
     "nick": "さゆき",
     "status": "former",
     "end": "2025.10.28",
-    "img": true,
-    "bio": {
-     "birth": "2007.01.29",
-     "from": "富山県"
-    }
+    "img": true
    },
    {
     "id": "m865505cdbd",
@@ -10148,11 +7272,7 @@ window.AKB_GROUPS = [
     "nick": "にしゆま",
     "status": "former",
     "end": "2026.07.06",
-    "img": true,
-    "bio": {
-     "birth": "2006.03.25",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mbb38a221af",
@@ -10161,11 +7281,7 @@ window.AKB_GROUPS = [
     "nick": "まなみん",
     "status": "former",
     "end": "2024.11.12",
-    "img": true,
-    "bio": {
-     "birth": "2005.08.06",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m953852e8e9",
@@ -10175,10 +7291,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2026.09.26",
     "img": true,
-    "bio": {
-     "birth": "2006.03.29",
-     "from": "兵庫県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -10188,11 +7300,7 @@ window.AKB_GROUPS = [
     "nick": "れーにゃ",
     "status": "former",
     "end": "2026.02.25",
-    "img": true,
-    "bio": {
-     "birth": "2008.04.01",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mfd0c12465e",
@@ -10201,11 +7309,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきのん",
     "status": "former",
     "end": "2024.11.20",
-    "img": true,
-    "bio": {
-     "birth": "2006.12.16",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m7eba4a9f38",
@@ -10214,11 +7318,7 @@ window.AKB_GROUPS = [
     "nick": "よしみん",
     "status": "former",
     "end": "2026.10.04",
-    "img": true,
-    "bio": {
-     "birth": "2007.10.18",
-     "from": "兵庫県"
-    }
+    "img": true
    }
   ]
  },
@@ -10234,11 +7334,7 @@ window.AKB_GROUPS = [
     "nick": "ちひるん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.05.24",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mdf23d5ed62",
@@ -10247,11 +7343,7 @@ window.AKB_GROUPS = [
     "nick": "あいしゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.06.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m5915f470f1",
@@ -10260,11 +7352,7 @@ window.AKB_GROUPS = [
     "nick": "いろはん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.10.25",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m179461dd05",
@@ -10273,11 +7361,7 @@ window.AKB_GROUPS = [
     "nick": "あさにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.10.27",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "m98446e7715",
@@ -10286,11 +7370,7 @@ window.AKB_GROUPS = [
     "nick": "ことっち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.04.20",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m4f2e789f47",
@@ -10299,11 +7379,7 @@ window.AKB_GROUPS = [
     "nick": "きょーか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.09.13",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m8d203a9535",
@@ -10312,11 +7388,7 @@ window.AKB_GROUPS = [
     "nick": "みーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.12.09",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m706ad1c10b",
@@ -10325,11 +7397,7 @@ window.AKB_GROUPS = [
     "nick": "ともちゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.01.02",
-     "from": "和歌山県"
-    }
+    "img": true
    },
    {
     "id": "m7541eccb58",
@@ -10338,11 +7406,7 @@ window.AKB_GROUPS = [
     "nick": "くるみ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.10.31",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m2ac0dafcc8",
@@ -10351,11 +7415,7 @@ window.AKB_GROUPS = [
     "nick": "さえぽん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.12.29",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m4c091c78c0",
@@ -10364,11 +7424,7 @@ window.AKB_GROUPS = [
     "nick": "こののん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.04.19",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "medeb03f017",
@@ -10377,11 +7433,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.03.05",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m35dac5fd09",
@@ -10390,11 +7442,7 @@ window.AKB_GROUPS = [
     "nick": "みおちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.27",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb45c2ed7ee",
@@ -10403,11 +7451,7 @@ window.AKB_GROUPS = [
     "nick": "なみゆか",
     "status": "former",
     "end": "2025.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2007.04.25",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m15f2dc9674",
@@ -10416,11 +7460,7 @@ window.AKB_GROUPS = [
     "nick": "ふうたん",
     "status": "former",
     "end": "2025.09.17",
-    "img": true,
-    "bio": {
-     "birth": "2006.08.02",
-     "from": "兵庫県"
-    }
+    "img": true
    }
   ]
  },
@@ -10436,11 +7476,7 @@ window.AKB_GROUPS = [
     "nick": "そらりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.04.15",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m6954e854a7",
@@ -10449,11 +7485,7 @@ window.AKB_GROUPS = [
     "nick": "せーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.11.10",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m07fe78f113",
@@ -10462,11 +7494,7 @@ window.AKB_GROUPS = [
     "nick": "ひまり",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.08.02",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "meb9c9b9b47",
@@ -10475,11 +7503,7 @@ window.AKB_GROUPS = [
     "nick": "ぜんちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.12.09",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mbb753925c7",
@@ -10488,11 +7512,7 @@ window.AKB_GROUPS = [
     "nick": "じゅなちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.10.07",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "me2e10ced94",
@@ -10501,11 +7521,7 @@ window.AKB_GROUPS = [
     "nick": "れいれい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.11.01",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m861c3127ea",
@@ -10514,11 +7530,7 @@ window.AKB_GROUPS = [
     "nick": "しのちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.11.15",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mc7f0ad79ef",
@@ -10527,11 +7539,7 @@ window.AKB_GROUPS = [
     "nick": "みーにゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.11.27",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m39108830f2",
@@ -10540,11 +7548,7 @@ window.AKB_GROUPS = [
     "nick": "ことみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.09.26",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb272fdf86c",
@@ -10553,11 +7557,7 @@ window.AKB_GROUPS = [
     "nick": "ひーにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.05.20",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "meae1a69346",
@@ -10566,11 +7566,7 @@ window.AKB_GROUPS = [
     "nick": "こってぃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.09.29",
-     "from": "大阪府"
-    }
+    "img": true
    }
   ]
  },
@@ -10586,11 +7582,7 @@ window.AKB_GROUPS = [
     "nick": "いそちゃん",
     "status": "former",
     "end": "2019.09.12",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.09",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "mfaec229614",
@@ -10599,11 +7591,7 @@ window.AKB_GROUPS = [
     "nick": "りりぽん",
     "status": "former",
     "end": "2017.08.30",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m08c452449b",
@@ -10612,11 +7600,7 @@ window.AKB_GROUPS = [
     "nick": "さららん",
     "status": "former",
     "end": "2019.10.16",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.06",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb70efe2fbe",
@@ -10625,11 +7609,7 @@ window.AKB_GROUPS = [
     "nick": "ここちゃん",
     "status": "former",
     "end": "2019.08.19",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.06",
-     "from": "滋賀県"
-    }
+    "img": true
    }
   ]
  },
@@ -10645,11 +7625,7 @@ window.AKB_GROUPS = [
     "nick": "えーりん",
     "status": "former",
     "end": "2018.08.20",
-    "img": true,
-    "bio": {
-     "birth": "2003.11.21",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mf2f2e5531d",
@@ -10658,11 +7634,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいちゃん",
     "status": "former",
     "end": "2016.05.03",
-    "img": true,
-    "bio": {
-     "birth": "1998.01.04",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mfd2b682ead",
@@ -10671,11 +7643,7 @@ window.AKB_GROUPS = [
     "nick": "なーみ",
     "status": "former",
     "end": "2017.06.22",
-    "img": true,
-    "bio": {
-     "birth": "2003.07.29",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb3c5773cb4",
@@ -10684,11 +7652,7 @@ window.AKB_GROUPS = [
     "nick": "しおん",
     "status": "former",
     "end": "2023.11.05",
-    "img": true,
-    "bio": {
-     "birth": "1996.05.29",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "ma357110924",
@@ -10697,11 +7661,7 @@ window.AKB_GROUPS = [
     "nick": "ゆず",
     "status": "former",
     "end": "2023.06.12",
-    "img": true,
-    "bio": {
-     "birth": "2003.01.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mde69bcc6bc",
@@ -10710,11 +7670,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきちゃん",
     "status": "former",
     "end": "2017.07.07",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.04",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m7ede88b37e",
@@ -10723,11 +7679,7 @@ window.AKB_GROUPS = [
     "nick": "ももね",
     "status": "former",
     "end": "2021.12.29",
-    "img": true,
-    "bio": {
-     "birth": "2001.06.08",
-     "from": "大阪府"
-    }
+    "img": true
    }
   ]
  },
@@ -10743,11 +7695,7 @@ window.AKB_GROUPS = [
     "nick": "あーのん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.11.22",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m3e23577529",
@@ -10756,11 +7704,7 @@ window.AKB_GROUPS = [
     "nick": "けいと",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.12.15",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mc92d1dd17e",
@@ -10769,11 +7713,7 @@ window.AKB_GROUPS = [
     "nick": "わかぽん",
     "status": "former",
     "end": "2026.08.04",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.18",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb54cb51ca7",
@@ -10782,11 +7722,7 @@ window.AKB_GROUPS = [
     "nick": "あいちゃ",
     "status": "former",
     "end": "2019.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.29",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mbfb78b49d9",
@@ -10795,11 +7731,7 @@ window.AKB_GROUPS = [
     "nick": "りいちゃん",
     "status": "former",
     "end": "2020.02.02",
-    "img": true,
-    "bio": {
-     "birth": "2003.03.12",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m2abe86e6ab",
@@ -10808,11 +7740,7 @@ window.AKB_GROUPS = [
     "nick": "ななほ",
     "status": "former",
     "end": "2021.11.30",
-    "img": true,
-    "bio": {
-     "birth": "2002.05.18",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m69cdda0497",
@@ -10821,11 +7749,7 @@ window.AKB_GROUPS = [
     "nick": "なみみ",
     "status": "former",
     "end": "2021.02.23",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.21",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8583d06521",
@@ -10834,11 +7758,7 @@ window.AKB_GROUPS = [
     "nick": "あみまる",
     "status": "former",
     "end": "2020.01.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.03.15",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m9ab2bb9454",
@@ -10847,11 +7767,7 @@ window.AKB_GROUPS = [
     "nick": "ことちゃん",
     "status": "former",
     "end": "2022.02.06",
-    "img": true,
-    "bio": {
-     "birth": "2000.12.18",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "mde03b5a1ce",
@@ -10860,11 +7776,7 @@ window.AKB_GROUPS = [
     "nick": "みぃちゃん",
     "status": "former",
     "end": "2023.06.29",
-    "img": true,
-    "bio": {
-     "birth": "2002.12.10",
-     "from": "奈良県"
-    }
+    "img": true
    },
    {
     "id": "m1b02a22863",
@@ -10873,11 +7785,7 @@ window.AKB_GROUPS = [
     "nick": "れいこ",
     "status": "former",
     "end": "2024.02.19",
-    "img": true,
-    "bio": {
-     "birth": "2000.09.26",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m8a270fa92f",
@@ -10886,11 +7794,7 @@ window.AKB_GROUPS = [
     "nick": "まりりん",
     "status": "former",
     "end": "2020.09.14",
-    "img": true,
-    "bio": {
-     "birth": "1999.05.12",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m8488ade895",
@@ -10899,11 +7803,7 @@ window.AKB_GROUPS = [
     "nick": "はあさ",
     "status": "former",
     "end": "2022.07.08",
-    "img": true,
-    "bio": {
-     "birth": "2001.04.02",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "med59a2ecf9",
@@ -10912,11 +7812,7 @@ window.AKB_GROUPS = [
     "nick": "あみるん",
     "status": "former",
     "end": "2022.04.13",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.21",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mad782ce8c3",
@@ -10925,11 +7821,7 @@ window.AKB_GROUPS = [
     "nick": "みかにゃん",
     "status": "former",
     "end": "2025.08.27",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.11",
-     "from": "山口県"
-    }
+    "img": true
    }
   ]
  },
@@ -10946,10 +7838,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.05.01",
     "img": true,
-    "bio": {
-     "birth": "1994.02.12",
-     "from": "埼玉県"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -10969,10 +7857,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.03.31",
     "img": true,
-    "bio": {
-     "birth": "1989.01.03",
-     "from": "福岡県"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -10992,10 +7876,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.05.27",
     "img": true,
-    "bio": {
-     "birth": "1994.02.01",
-     "from": "千葉県"
-    },
     "groups": [
      {
       "group": "NMB48",
@@ -11022,10 +7902,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.12.03",
     "img": true,
-    "bio": {
-     "birth": "1999.02.04",
-     "from": "大阪府"
-    },
     "leave": "活動辞退",
     "note": "ポスト山田菜々"
    }
@@ -11043,11 +7919,7 @@ window.AKB_GROUPS = [
     "nick": "ちひろんちーちゃん",
     "status": "former",
     "end": "2016.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.27",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "md06d36e8d9",
@@ -11056,11 +7928,7 @@ window.AKB_GROUPS = [
     "nick": "きょうか",
     "status": "former",
     "end": "2014.02.23",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.17",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mec4b6dc866",
@@ -11069,11 +7937,7 @@ window.AKB_GROUPS = [
     "nick": "みなみなぞう",
     "status": "former",
     "end": "2022.04.04",
-    "img": true,
-    "bio": {
-     "birth": "1997.03.05",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m6655de8a3f",
@@ -11082,11 +7946,7 @@ window.AKB_GROUPS = [
     "nick": "なお",
     "status": "former",
     "end": "2019.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.08.12",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "md8244f010f",
@@ -11096,10 +7956,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.08.18",
     "img": true,
-    "bio": {
-     "birth": "1997.09.09",
-     "from": "大分県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -11109,11 +7965,7 @@ window.AKB_GROUPS = [
     "nick": "せりーぬ",
     "status": "former",
     "end": "2022.04.03",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.17",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m1ddbc69337",
@@ -11123,10 +7975,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.09",
     "img": true,
-    "bio": {
-     "birth": "1996.09.19",
-     "from": "福岡県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -11146,10 +7994,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.08.18",
     "img": true,
-    "bio": {
-     "birth": "1997.12.02",
-     "from": "山口県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -11159,11 +8003,7 @@ window.AKB_GROUPS = [
     "nick": "しなもん",
     "status": "former",
     "end": "2022.12.10",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.02",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "ma3667de47f",
@@ -11173,10 +8013,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.08.18",
     "img": true,
-    "bio": {
-     "birth": "1994.05.20",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -11187,10 +8023,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.01.11",
     "img": true,
-    "bio": {
-     "birth": "2000.08.10",
-     "from": "福岡県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -11210,10 +8042,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.08.18",
     "img": true,
-    "bio": {
-     "birth": "1999.03.14",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -11224,10 +8052,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.08.18",
     "img": true,
-    "bio": {
-     "birth": "1996.03.23",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -11237,11 +8061,7 @@ window.AKB_GROUPS = [
     "nick": "まいこむ",
     "status": "former",
     "end": "2020.02.22",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.05",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m6b37083999",
@@ -11250,11 +8070,7 @@ window.AKB_GROUPS = [
     "nick": "なつ",
     "status": "former",
     "end": "2022.09.04",
-    "img": true,
-    "bio": {
-     "birth": "1996.08.08",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mb259d958cc",
@@ -11264,10 +8080,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.06.19",
     "img": true,
-    "bio": {
-     "birth": "1998.03.19",
-     "from": "鹿児島県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -11287,10 +8099,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.12.27",
     "img": true,
-    "bio": {
-     "birth": "1998.07.29",
-     "from": "山口県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -11309,11 +8117,7 @@ window.AKB_GROUPS = [
     "nick": "あおい",
     "status": "former",
     "end": "2023.07.23",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.31",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m1a3e48bcf3",
@@ -11322,11 +8126,7 @@ window.AKB_GROUPS = [
     "nick": "まどか",
     "status": "former",
     "end": "2021.05.29",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.26",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m37a6c5a74d",
@@ -11335,11 +8135,7 @@ window.AKB_GROUPS = [
     "nick": "わかちゃん",
     "status": "former",
     "end": "2017.02.05",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.26",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -11355,11 +8151,7 @@ window.AKB_GROUPS = [
     "nick": "ゆかちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.10.24",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "maedb528cc1",
@@ -11368,11 +8160,7 @@ window.AKB_GROUPS = [
     "nick": "まいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1996.09.21",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mb0b84ca684",
@@ -11381,11 +8169,7 @@ window.AKB_GROUPS = [
     "nick": "らいら",
     "status": "former",
     "end": "2016.02.29",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.31",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "m992b2d188b",
@@ -11394,11 +8178,7 @@ window.AKB_GROUPS = [
     "nick": "ゆりや",
     "status": "former",
     "end": "2017.06.12",
-    "img": true,
-    "bio": {
-     "birth": "1999.06.15",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m067de5a3d3",
@@ -11407,11 +8187,7 @@ window.AKB_GROUPS = [
     "nick": "しの",
     "status": "former",
     "end": "2019.06.21",
-    "img": true,
-    "bio": {
-     "birth": "2000.04.01",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m81c1357665",
@@ -11420,11 +8196,7 @@ window.AKB_GROUPS = [
     "nick": "ましろ",
     "status": "former",
     "end": "2018.03.21",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.31",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "me92bbd3f85",
@@ -11433,11 +8205,7 @@ window.AKB_GROUPS = [
     "nick": "はるたん",
     "status": "former",
     "end": "2022.02.26",
-    "img": true,
-    "bio": {
-     "birth": "1999.09.20",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m258c7821d4",
@@ -11446,11 +8214,7 @@ window.AKB_GROUPS = [
     "nick": "ちぃず",
     "status": "former",
     "end": "2016.01.10",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.15",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m77efffa9c3",
@@ -11459,11 +8223,7 @@ window.AKB_GROUPS = [
     "nick": "おかぱん",
     "status": "former",
     "end": "2016.03.22",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.26",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m2aca1468f8",
@@ -11472,11 +8232,7 @@ window.AKB_GROUPS = [
     "nick": "なおぽん",
     "status": "former",
     "end": "2017.05.08",
-    "img": true,
-    "bio": {
-     "birth": "1996.04.04",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m89c9ddf630",
@@ -11485,11 +8241,7 @@ window.AKB_GROUPS = [
     "nick": "まなみん",
     "status": "former",
     "end": "2015.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1995.10.17",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mffab62adb3",
@@ -11498,11 +8250,7 @@ window.AKB_GROUPS = [
     "nick": "じーな",
     "status": "former",
     "end": "2022.09.04",
-    "img": true,
-    "bio": {
-     "birth": "1998.01.24",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "md44f443c03",
@@ -11511,11 +8259,7 @@ window.AKB_GROUPS = [
     "nick": "ぴーちゃん",
     "status": "former",
     "end": "2019.06.17",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.21",
-     "from": "宮崎県"
-    }
+    "img": true
    },
    {
     "id": "m7699a3c0d4",
@@ -11524,11 +8268,7 @@ window.AKB_GROUPS = [
     "nick": "いーちゃん",
     "status": "former",
     "end": "2015.10.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.27",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m07a948edea",
@@ -11537,11 +8277,7 @@ window.AKB_GROUPS = [
     "nick": "りこぴ",
     "status": "former",
     "end": "2022.12.05",
-    "img": true,
-    "bio": {
-     "birth": "1994.07.26",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m7f373f6732",
@@ -11550,11 +8286,7 @@ window.AKB_GROUPS = [
     "nick": "める",
     "status": "former",
     "end": "2022.04.03",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.07",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mafea1d91ce",
@@ -11563,11 +8295,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうたん",
     "status": "former",
     "end": "2018.02.27",
-    "img": true,
-    "bio": {
-     "birth": "2000.06.07",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m04c13bba53",
@@ -11576,11 +8304,7 @@ window.AKB_GROUPS = [
     "nick": "あすかトミヨシ",
     "status": "former",
     "end": "2019.03.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.20",
-     "from": "宮崎県"
-    }
+    "img": true
    },
    {
     "id": "m7019a2a212",
@@ -11590,10 +8314,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.01.15",
     "img": true,
-    "bio": {
-     "birth": "1998.05.17",
-     "from": "福岡県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -11612,11 +8332,7 @@ window.AKB_GROUPS = [
     "nick": "まりり",
     "status": "former",
     "end": "2018.04.19",
-    "img": true,
-    "bio": {
-     "birth": "1995.03.24",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -11632,11 +8348,7 @@ window.AKB_GROUPS = [
     "nick": "さえちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1996.06.20",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m92249562e5",
@@ -11645,11 +8357,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.07.06",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mbe3f703a10",
@@ -11658,11 +8366,7 @@ window.AKB_GROUPS = [
     "nick": "みるん",
     "status": "former",
     "end": "2024.12.27",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.28",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m41985ea1e6",
@@ -11671,11 +8375,7 @@ window.AKB_GROUPS = [
     "nick": "えれたん",
     "status": "former",
     "end": "2025.04.27",
-    "img": true,
-    "bio": {
-     "birth": "2000.09.12",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m823e1d4cc2",
@@ -11684,11 +8384,7 @@ window.AKB_GROUPS = [
     "nick": "みくりん",
     "status": "former",
     "end": "2023.12.29",
-    "img": true,
-    "bio": {
-     "birth": "2001.09.12",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "mb7e915ec57",
@@ -11697,11 +8393,7 @@ window.AKB_GROUPS = [
     "nick": "つっつん",
     "status": "former",
     "end": "2017.05.29",
-    "img": true,
-    "bio": {
-     "birth": "2000.02.22",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "m667d024e2d",
@@ -11710,11 +8402,7 @@ window.AKB_GROUPS = [
     "nick": "はづき",
     "status": "former",
     "end": "2022.12.17",
-    "img": true,
-    "bio": {
-     "birth": "1999.01.17",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m032ade677c",
@@ -11724,10 +8412,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.04.01",
     "img": true,
-    "bio": {
-     "birth": "2001.06.18",
-     "from": "東京都"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -11746,11 +8430,7 @@ window.AKB_GROUPS = [
     "nick": "エミリー",
     "status": "former",
     "end": "2024.07.21",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.19",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -11766,11 +8446,7 @@ window.AKB_GROUPS = [
     "nick": "あきちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.10.25",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mf28de56799",
@@ -11779,11 +8455,7 @@ window.AKB_GROUPS = [
     "nick": "なっぴ",
     "status": "former",
     "end": "2023.10.05",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.09",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m3320f74c91",
@@ -11792,11 +8464,7 @@ window.AKB_GROUPS = [
     "nick": "おだちゃん",
     "status": "former",
     "end": "2023.08.08",
-    "img": true,
-    "bio": {
-     "birth": "1999.02.09",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m8c89a925b1",
@@ -11806,10 +8474,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.07.21",
     "img": true,
-    "bio": {
-     "birth": "1998.08.11",
-     "from": "福岡県"
-    },
     "leave": "合格取消"
    },
    {
@@ -11819,11 +8483,7 @@ window.AKB_GROUPS = [
     "nick": "おいもちゃん",
     "status": "former",
     "end": "2024.05.11",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.25",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m622324c60b",
@@ -11832,11 +8492,7 @@ window.AKB_GROUPS = [
     "nick": "りおちゃん",
     "status": "former",
     "end": "2021.12.20",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.11",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mcaed529adf",
@@ -11845,11 +8501,7 @@ window.AKB_GROUPS = [
     "nick": "もかちゃん",
     "status": "former",
     "end": "2023.10.20",
-    "img": true,
-    "bio": {
-     "birth": "2003.02.25",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m89fc587bfd",
@@ -11858,11 +8510,7 @@ window.AKB_GROUPS = [
     "nick": "ねねちゃん",
     "status": "former",
     "end": "2026.03.08",
-    "img": true,
-    "bio": {
-     "birth": "2000.09.27",
-     "from": "宮崎県"
-    }
+    "img": true
    },
    {
     "id": "m0bb271b905",
@@ -11871,11 +8519,7 @@ window.AKB_GROUPS = [
     "nick": "あまねん",
     "status": "former",
     "end": "2020.03.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.26",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "ma98c8d05ab",
@@ -11884,11 +8528,7 @@ window.AKB_GROUPS = [
     "nick": "ひなた",
     "status": "former",
     "end": "2022.06.27",
-    "img": true,
-    "bio": {
-     "birth": "2000.12.11",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m529ebe5b28",
@@ -11897,11 +8537,7 @@ window.AKB_GROUPS = [
     "nick": "その",
     "status": "former",
     "end": "2022.12.26",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.30",
-     "from": "佐賀県"
-    }
+    "img": true
    }
   ]
  },
@@ -11917,11 +8553,7 @@ window.AKB_GROUPS = [
     "nick": "いぶき",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.07.22",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m42bd933218",
@@ -11930,11 +8562,7 @@ window.AKB_GROUPS = [
     "nick": "あいちー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.02.13",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mcae3df54f9",
@@ -11943,11 +8571,7 @@ window.AKB_GROUPS = [
     "nick": "くりなちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.12.30",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "ma48b292fb5",
@@ -11956,11 +8580,7 @@ window.AKB_GROUPS = [
     "nick": "くるたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.02.22",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m14e109bde2",
@@ -11969,11 +8589,7 @@ window.AKB_GROUPS = [
     "nick": "いおり",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.08.31",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "m7222d2d542",
@@ -11982,11 +8598,7 @@ window.AKB_GROUPS = [
     "nick": "さーな",
     "status": "former",
     "end": "2021.03.22",
-    "img": true,
-    "bio": {
-     "birth": "2002.06.20",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "md7c8883b9b",
@@ -11995,11 +8607,7 @@ window.AKB_GROUPS = [
     "nick": "かえで",
     "status": "former",
     "end": "2022.01.09",
-    "img": true,
-    "bio": {
-     "birth": "2001.08.22",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m52b08ec942",
@@ -12008,11 +8616,7 @@ window.AKB_GROUPS = [
     "nick": "ヒジリン",
     "status": "former",
     "end": "2025.03.22",
-    "img": true,
-    "bio": {
-     "birth": "2004.06.27",
-     "from": "沖縄県"
-    }
+    "img": true
    },
    {
     "id": "m5454509389",
@@ -12021,11 +8625,7 @@ window.AKB_GROUPS = [
     "nick": "はるちゃん",
     "status": "former",
     "end": "2020.10.12",
-    "img": true,
-    "bio": {
-     "birth": "2006.04.21",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mfd096bb1de",
@@ -12034,11 +8634,7 @@ window.AKB_GROUPS = [
     "nick": "ぴな",
     "status": "former",
     "end": "2023.07.09",
-    "img": true,
-    "bio": {
-     "birth": "2005.03.08",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mdb2ce3e4a1",
@@ -12047,11 +8643,7 @@ window.AKB_GROUPS = [
     "nick": "りのちゃん",
     "status": "former",
     "end": "2026.04.19",
-    "img": true,
-    "bio": {
-     "birth": "2002.06.10",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma29689837d",
@@ -12060,11 +8652,7 @@ window.AKB_GROUPS = [
     "nick": "みやびーむ",
     "status": "former",
     "end": "2023.08.01",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.03",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m68011f4a8f",
@@ -12073,11 +8661,7 @@ window.AKB_GROUPS = [
     "nick": "りみか",
     "status": "former",
     "end": "2022.04.03",
-    "img": true,
-    "bio": {
-     "birth": "2003.07.10",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mea2e1f25c7",
@@ -12086,11 +8670,7 @@ window.AKB_GROUPS = [
     "nick": "わかにゃん",
     "status": "former",
     "end": "2023.03.26",
-    "img": true,
-    "bio": {
-     "birth": "2003.03.30",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -12106,11 +8686,7 @@ window.AKB_GROUPS = [
     "nick": "生野ちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.08.03",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m0e582094aa",
@@ -12119,11 +8695,7 @@ window.AKB_GROUPS = [
     "nick": "ざわちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.08.14",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m4fcd1611e1",
@@ -12132,11 +8704,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.01.28",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m0ed226d27d",
@@ -12145,11 +8713,7 @@ window.AKB_GROUPS = [
     "nick": "はんちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.02.27",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "ma0a6be413c",
@@ -12158,11 +8722,7 @@ window.AKB_GROUPS = [
     "nick": "ここちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.04.24",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m7cdb49cc96",
@@ -12171,11 +8731,7 @@ window.AKB_GROUPS = [
     "nick": "りちゃき",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.04.23",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m6a3612918d",
@@ -12184,11 +8740,7 @@ window.AKB_GROUPS = [
     "nick": "ひいろ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.01.23",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "md8a635b664",
@@ -12197,11 +8749,7 @@ window.AKB_GROUPS = [
     "nick": "しぶいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.03.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc46d9e054c",
@@ -12210,11 +8758,7 @@ window.AKB_GROUPS = [
     "nick": "ここっぺ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.06.24",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "ma2b5d1d6f0",
@@ -12223,11 +8767,7 @@ window.AKB_GROUPS = [
     "nick": "かれんれん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.12.04",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m96ec00e15b",
@@ -12236,11 +8776,7 @@ window.AKB_GROUPS = [
     "nick": "ここは",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.05.25",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "ma7daf3e4f7",
@@ -12249,11 +8785,7 @@ window.AKB_GROUPS = [
     "nick": "さあや",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.01.16",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "m6988f0f7ae",
@@ -12262,11 +8794,7 @@ window.AKB_GROUPS = [
     "nick": "ひなたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.02.09",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m29ec27565c",
@@ -12275,11 +8803,7 @@ window.AKB_GROUPS = [
     "nick": "れいあ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.06.29",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m34cd320ece",
@@ -12288,11 +8812,7 @@ window.AKB_GROUPS = [
     "nick": "りんか",
     "status": "former",
     "end": "2026.06.21",
-    "img": true,
-    "bio": {
-     "birth": "2007.07.28",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m14e9399881",
@@ -12302,10 +8822,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.03.19",
     "img": true,
-    "bio": {
-     "birth": "2008.08.09",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -12316,10 +8832,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.07.01",
     "img": true,
-    "bio": {
-     "birth": "2004.05.12",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -12329,11 +8841,7 @@ window.AKB_GROUPS = [
     "nick": "ななちゃん",
     "status": "former",
     "end": "2025.01.27",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.28",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -12349,11 +8857,7 @@ window.AKB_GROUPS = [
     "nick": "ひな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.07.16",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m77abae3b26",
@@ -12362,11 +8866,7 @@ window.AKB_GROUPS = [
     "nick": "あーたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.11.27",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "md522b5e409",
@@ -12375,11 +8875,7 @@ window.AKB_GROUPS = [
     "nick": "あみゆん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.12.15",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m4b632cc349",
@@ -12388,11 +8884,7 @@ window.AKB_GROUPS = [
     "nick": "りーりたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.05.07",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "mb4f874a2a5",
@@ -12401,11 +8893,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.05.03",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m4e1bcfda0b",
@@ -12414,11 +8902,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.02.13",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m62a52784d7",
@@ -12427,11 +8911,7 @@ window.AKB_GROUPS = [
     "nick": "なっち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.12.07",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m0b8ce0397b",
@@ -12440,11 +8920,7 @@ window.AKB_GROUPS = [
     "nick": "みーな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.12.29",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m0133c732d5",
@@ -12453,11 +8929,7 @@ window.AKB_GROUPS = [
     "nick": "ららぱ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.11.06",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m3d2b6e7d47",
@@ -12466,11 +8938,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいぱん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.11.13",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m2611ab3f6b",
@@ -12479,11 +8947,7 @@ window.AKB_GROUPS = [
     "nick": "もかぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.11.22",
-     "from": "熊本県"
-    }
+    "img": true
    },
    {
     "id": "m3089b25f85",
@@ -12492,11 +8956,7 @@ window.AKB_GROUPS = [
     "nick": "まりたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.25",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mf7586eba85",
@@ -12505,11 +8965,7 @@ window.AKB_GROUPS = [
     "nick": "めいめい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.05.07",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "mc1b803cd01",
@@ -12518,11 +8974,7 @@ window.AKB_GROUPS = [
     "nick": "あやちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.06.30",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m28927386e4",
@@ -12532,10 +8984,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.08.16",
     "img": true,
-    "bio": {
-     "birth": "2009.05.01",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -12546,10 +8994,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.08.16",
     "img": true,
-    "bio": {
-     "birth": "2006.11.17",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -12566,11 +9010,7 @@ window.AKB_GROUPS = [
     "nick": "まお",
     "status": "former",
     "end": "2018.05.21",
-    "img": true,
-    "bio": {
-     "birth": "1996.09.18",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -12586,11 +9026,7 @@ window.AKB_GROUPS = [
     "nick": "まーさん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.09.14",
-     "from": "群馬県"
-    }
+    "img": true
    },
    {
     "id": "m7ccc469780",
@@ -12599,11 +9035,7 @@ window.AKB_GROUPS = [
     "nick": "はなちゃん",
     "status": "former",
     "end": "2024.09.28",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.19",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m20b7b7b6f4",
@@ -12612,11 +9044,7 @@ window.AKB_GROUPS = [
     "nick": "びびあん",
     "status": "former",
     "end": "2022.11.01",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.03",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -12632,11 +9060,7 @@ window.AKB_GROUPS = [
     "nick": "ゆえる",
     "status": "former",
     "end": "2025.03.08",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.24",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m42bf4d9a32",
@@ -12645,11 +9069,7 @@ window.AKB_GROUPS = [
     "nick": "あいみゅん",
     "status": "former",
     "end": "2022.09.09",
-    "img": true,
-    "bio": {
-     "birth": "2000.12.31",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m096b2b8cbf",
@@ -12658,11 +9078,7 @@ window.AKB_GROUPS = [
     "nick": "さやまる",
     "status": "former",
     "end": "2023.07.09",
-    "img": true,
-    "bio": {
-     "birth": "2004.05.02",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "mcbaae3cc85",
@@ -12672,10 +9088,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.12.27",
     "img": true,
-    "bio": {
-     "birth": "2002.05.13",
-     "from": "福井県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -12685,11 +9097,7 @@ window.AKB_GROUPS = [
     "nick": "あーちゃん",
     "status": "former",
     "end": "2023.03.26",
-    "img": true,
-    "bio": {
-     "birth": "2004.10.18",
-     "from": "神奈川県"
-    }
+    "img": true
    }
   ]
  },
@@ -12706,10 +9114,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.04.10",
     "img": true,
-    "bio": {
-     "birth": "1994.12.08",
-     "from": "埼玉県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -12729,10 +9133,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.04.28",
     "img": true,
-    "bio": {
-     "birth": "1992.11.21",
-     "from": "大分県"
-    },
     "groups": [
      {
       "group": "HKT48",
@@ -12762,11 +9162,7 @@ window.AKB_GROUPS = [
     "nick": "れいにゃー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.04.19",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m2aedad1880",
@@ -12775,11 +9171,7 @@ window.AKB_GROUPS = [
     "nick": "大滝ゆりあん",
     "status": "former",
     "end": "2017.10.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.04.21",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m6ae2bea864",
@@ -12788,11 +9180,7 @@ window.AKB_GROUPS = [
     "nick": "つぐみんつぐつぐ",
     "status": "former",
     "end": "2022.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.12.15",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m521ae5fc64",
@@ -12801,11 +9189,7 @@ window.AKB_GROUPS = [
     "nick": "かとみな",
     "status": "former",
     "end": "2021.01.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.01.15",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m87cd0e0476",
@@ -12814,11 +9198,7 @@ window.AKB_GROUPS = [
     "nick": "かどちゃん",
     "status": "former",
     "end": "2022.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.06.22",
-     "from": "石川県"
-    }
+    "img": true
    },
    {
     "id": "meb8acf00a9",
@@ -12827,11 +9207,7 @@ window.AKB_GROUPS = [
     "nick": "あいにゃー",
     "status": "former",
     "end": "2022.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2002.02.06",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m861d5c0c7c",
@@ -12840,11 +9216,7 @@ window.AKB_GROUPS = [
     "nick": "あんじゅ",
     "status": "former",
     "end": "2019.09.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.11.05",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m03a80fb416",
@@ -12853,11 +9225,7 @@ window.AKB_GROUPS = [
     "nick": "りったん",
     "status": "former",
     "end": "2019.05.19",
-    "img": true,
-    "bio": {
-     "birth": "2000.11.23",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m4406bfc567",
@@ -12866,11 +9234,7 @@ window.AKB_GROUPS = [
     "nick": "おかっぱ",
     "status": "former",
     "end": "2020.03.23",
-    "img": true,
-    "bio": {
-     "birth": "2001.04.23",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "mf3c1389c34",
@@ -12879,11 +9243,7 @@ window.AKB_GROUPS = [
     "nick": "まうちゃんまうまう",
     "status": "former",
     "end": "2018.10.06",
-    "img": true,
-    "bio": {
-     "birth": "2001.06.03",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "me12f7630f9",
@@ -12892,11 +9252,7 @@ window.AKB_GROUPS = [
     "nick": "アヤカニ",
     "status": "former",
     "end": "2020.10.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.20",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mcf1cd35fbe",
@@ -12905,11 +9261,7 @@ window.AKB_GROUPS = [
     "nick": "りかちゃんりか姫",
     "status": "former",
     "end": "2023.08.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.08.23",
-     "from": "富山県"
-    }
+    "img": true
    },
    {
     "id": "mc2a4a448a8",
@@ -12918,11 +9270,7 @@ window.AKB_GROUPS = [
     "nick": "あゆたろう",
     "status": "former",
     "end": "2022.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.07.28",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "mbb7dca2850",
@@ -12931,11 +9279,7 @@ window.AKB_GROUPS = [
     "nick": "みはるみはちゃん",
     "status": "former",
     "end": "2024.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.03.20",
-     "from": "青森県"
-    }
+    "img": true
    },
    {
     "id": "md828170bbb",
@@ -12944,11 +9288,7 @@ window.AKB_GROUPS = [
     "nick": "ななこニシムラナナコ",
     "status": "former",
     "end": "2022.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.08.11",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "ma994bc9b9e",
@@ -12957,11 +9297,7 @@ window.AKB_GROUPS = [
     "nick": "れなれなぽん",
     "status": "former",
     "end": "2019.05.19",
-    "img": true,
-    "bio": {
-     "birth": "2001.03.15",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m0152d20f04",
@@ -12970,11 +9306,7 @@ window.AKB_GROUPS = [
     "nick": "ひなたん",
     "status": "former",
     "end": "2024.04.13",
-    "img": true,
-    "bio": {
-     "birth": "1999.11.10",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m554c7f5a44",
@@ -12983,11 +9315,7 @@ window.AKB_GROUPS = [
     "nick": "みーずんみーずん先生",
     "status": "former",
     "end": "2017.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.11.05",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m329ac8cd0a",
@@ -12996,11 +9324,7 @@ window.AKB_GROUPS = [
     "nick": "あやにゃんあやや",
     "status": "former",
     "end": "2018.08.07",
-    "img": true,
-    "bio": {
-     "birth": "1997.11.27",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "me41d8c3d01",
@@ -13009,11 +9333,7 @@ window.AKB_GROUPS = [
     "nick": "もふちゃんもふ",
     "status": "former",
     "end": "2019.09.01",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.05",
-     "from": "秋田県"
-    }
+    "img": true
    },
    {
     "id": "m6f241c2a18",
@@ -13022,11 +9342,7 @@ window.AKB_GROUPS = [
     "nick": "まほほんまほほ",
     "status": "former",
     "end": "2019.05.19",
-    "img": true,
-    "bio": {
-     "birth": "1995.09.17",
-     "from": "青森県"
-    }
+    "img": true
    },
    {
     "id": "m49abbbadf3",
@@ -13035,11 +9351,7 @@ window.AKB_GROUPS = [
     "nick": "やまだのえピー",
     "status": "former",
     "end": "2022.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.07",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -13055,11 +9367,7 @@ window.AKB_GROUPS = [
     "nick": "ななみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.11.07",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m18baa4020a",
@@ -13068,11 +9376,7 @@ window.AKB_GROUPS = [
     "nick": "ひのちゃんみむ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.06.15",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m38e1dc9735",
@@ -13081,11 +9385,7 @@ window.AKB_GROUPS = [
     "nick": "こぱるはるるん",
     "status": "former",
     "end": "2024.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.06.26",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m936daeb8f4",
@@ -13094,11 +9394,7 @@ window.AKB_GROUPS = [
     "nick": "さあやんさあや",
     "status": "former",
     "end": "2024.02.29",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.14",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "mead2ef8cdf",
@@ -13107,11 +9403,7 @@ window.AKB_GROUPS = [
     "nick": "さらおさら",
     "status": "former",
     "end": "2021.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.07.27",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m46ef49480d",
@@ -13120,11 +9412,7 @@ window.AKB_GROUPS = [
     "nick": "ゆめたんそばべ",
     "status": "former",
     "end": "2024.02.29",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.16",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m25db7cd95b",
@@ -13134,10 +9422,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.30",
     "img": true,
-    "bio": {
-     "birth": "2003.06.01",
-     "from": "新潟県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13147,11 +9431,7 @@ window.AKB_GROUPS = [
     "nick": "てらひな",
     "status": "former",
     "end": "2022.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.03.13",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "me89ae6e40b",
@@ -13161,10 +9441,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.08.16",
     "img": true,
-    "bio": {
-     "birth": "2002.07.16",
-     "from": "新潟県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13175,10 +9451,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.03.10",
     "img": true,
-    "bio": {
-     "birth": "1999.11.29",
-     "from": "群馬県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13188,11 +9460,7 @@ window.AKB_GROUPS = [
     "nick": "なーたんまな",
     "status": "former",
     "end": "2024.01.27",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.01",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "m7fc967bd43",
@@ -13201,11 +9469,7 @@ window.AKB_GROUPS = [
     "nick": "あおちゃん",
     "status": "former",
     "end": "2023.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.08.10",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8fee77e392",
@@ -13214,11 +9478,7 @@ window.AKB_GROUPS = [
     "nick": "まっしーましもん",
     "status": "former",
     "end": "2024.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.11.08",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m73ed45d486",
@@ -13227,11 +9487,7 @@ window.AKB_GROUPS = [
     "nick": "やひこ",
     "status": "former",
     "end": "2022.10.31",
-    "img": true,
-    "bio": {
-     "birth": "2003.01.04",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m7d4a8ecd26",
@@ -13241,10 +9497,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.12",
     "img": true,
-    "bio": {
-     "birth": "2000.11.21",
-     "from": "北海道"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13255,10 +9507,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.30",
     "img": true,
-    "bio": {
-     "birth": "2001.03.09",
-     "from": "山形県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -13275,11 +9523,7 @@ window.AKB_GROUPS = [
     "nick": "べるちゃんルア氏",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.05.07",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m8ebece54ab",
@@ -13288,11 +9532,7 @@ window.AKB_GROUPS = [
     "nick": "はなえちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.09.09",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m6d48a84d3d",
@@ -13301,11 +9541,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーはゆぱ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.09.22",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "mbabc354f96",
@@ -13314,11 +9550,7 @@ window.AKB_GROUPS = [
     "nick": "すいすいなつき",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.04.27",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mc3cb5e4a12",
@@ -13327,11 +9559,7 @@ window.AKB_GROUPS = [
     "nick": "もっちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.07.17",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m7584eb6324",
@@ -13340,11 +9568,7 @@ window.AKB_GROUPS = [
     "nick": "りりのりーのん",
     "status": "former",
     "end": "2024.02.29",
-    "img": true,
-    "bio": {
-     "birth": "2004.07.15",
-     "from": "群馬県"
-    }
+    "img": true
    },
    {
     "id": "m6524637f20",
@@ -13353,11 +9577,7 @@ window.AKB_GROUPS = [
     "nick": "もとゆなゆうなポ木ちゃん",
     "status": "former",
     "end": "2026.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2003.06.17",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "me2b71fd935",
@@ -13367,10 +9587,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.04.16",
     "img": true,
-    "bio": {
-     "birth": "2003.12.04",
-     "from": "新潟県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13380,11 +9596,7 @@ window.AKB_GROUPS = [
     "nick": "りりか様りりか",
     "status": "former",
     "end": "2025.10.31",
-    "img": true,
-    "bio": {
-     "birth": "2008.09.30",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m75e21adc52",
@@ -13394,10 +9606,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.07.01",
     "img": true,
-    "bio": {
-     "birth": "2004.09.08",
-     "from": "長野県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13407,11 +9615,7 @@ window.AKB_GROUPS = [
     "nick": "すももちゃんすもちゃん",
     "status": "former",
     "end": "2024.01.31",
-    "img": true,
-    "bio": {
-     "birth": "2006.02.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m4d510e4482",
@@ -13420,11 +9624,7 @@ window.AKB_GROUPS = [
     "nick": "はるはるちゅん",
     "status": "former",
     "end": "2024.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.12.04",
-     "from": "千葉県"
-    }
+    "img": true
    }
   ]
  },
@@ -13440,11 +9640,7 @@ window.AKB_GROUPS = [
     "nick": "ななちゃんなーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.07.12",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "md8d9dff1e8",
@@ -13453,11 +9649,7 @@ window.AKB_GROUPS = [
     "nick": "あんな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.10.16",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m5ea058a2f2",
@@ -13466,11 +9658,7 @@ window.AKB_GROUPS = [
     "nick": "ひろかっぴひろか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.08.08",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m2c38242773",
@@ -13479,11 +9667,7 @@ window.AKB_GROUPS = [
     "nick": "あおちゃんあおい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.07.24",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m288b7c9040",
@@ -13492,11 +9676,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーたんゆにこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.01.21",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "mb09e5cf04b",
@@ -13505,11 +9685,7 @@ window.AKB_GROUPS = [
     "nick": "はるちゃんはるねぇ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.05.17",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m1e4e406f1c",
@@ -13518,11 +9694,7 @@ window.AKB_GROUPS = [
     "nick": "じゅっちゃんじゅな",
     "status": "former",
     "end": "2025.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2006.04.20",
-     "from": "富山県"
-    }
+    "img": true
    },
    {
     "id": "mf8f2d9b670",
@@ -13532,10 +9704,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.12.15",
     "img": true,
-    "bio": {
-     "birth": "2008.08.10",
-     "from": "新潟県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13545,11 +9713,7 @@ window.AKB_GROUPS = [
     "nick": "ももまるももちゃん",
     "status": "former",
     "end": "2026.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.28",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m93d6a1df54",
@@ -13558,11 +9722,7 @@ window.AKB_GROUPS = [
     "nick": "なぎちゃん",
     "status": "former",
     "end": "2025.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2005.07.09",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m7901c224dc",
@@ -13571,11 +9731,7 @@ window.AKB_GROUPS = [
     "nick": "原ちゃんあゆちゃん",
     "status": "former",
     "end": "2026.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2009.02.01",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "meb1d4fd100",
@@ -13584,11 +9740,7 @@ window.AKB_GROUPS = [
     "nick": "さほちゃんさほりん",
     "status": "former",
     "end": "2025.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2006.08.07",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8bbf3ae80e",
@@ -13597,11 +9749,7 @@ window.AKB_GROUPS = [
     "nick": "めりいめりちゃん",
     "status": "former",
     "end": "2025.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.04.16",
-     "from": "富山県"
-    }
+    "img": true
    }
   ]
  },
@@ -13617,11 +9765,7 @@ window.AKB_GROUPS = [
     "nick": "あざまっちゆいちゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.01.07",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mc66ec709f7",
@@ -13630,11 +9774,7 @@ window.AKB_GROUPS = [
     "nick": "ゆめゆめちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.05",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m51010c0cf2",
@@ -13643,11 +9783,7 @@ window.AKB_GROUPS = [
     "nick": "ずきちゃんかいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.06.10",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "m98c4489b1f",
@@ -13656,11 +9792,7 @@ window.AKB_GROUPS = [
     "nick": "もねねもねたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.08.05",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m38bf58ff5c",
@@ -13669,11 +9801,7 @@ window.AKB_GROUPS = [
     "nick": "ゆずか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.10.16",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m9c07f1ce58",
@@ -13682,11 +9810,7 @@ window.AKB_GROUPS = [
     "nick": "りんてぃーりんか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.09.09",
-     "from": "群馬県"
-    }
+    "img": true
    },
    {
     "id": "m2da6f88a5b",
@@ -13695,11 +9819,7 @@ window.AKB_GROUPS = [
     "nick": "あさみんあちゃみ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.07.07",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m379901ffe0",
@@ -13708,11 +9828,7 @@ window.AKB_GROUPS = [
     "nick": "ぴよたんぴよこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.08.31",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m2f8a8d4777",
@@ -13721,11 +9837,7 @@ window.AKB_GROUPS = [
     "nick": "まちゆかうかちゃん",
     "status": "former",
     "end": "2026.09.13",
-    "img": true,
-    "bio": {
-     "birth": "2006.10.06",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m0d39b7d846",
@@ -13734,11 +9846,7 @@ window.AKB_GROUPS = [
     "nick": "はるたん",
     "status": "former",
     "end": "2026.08.31",
-    "img": true,
-    "bio": {
-     "birth": "2006.02.23",
-     "from": "富山県"
-    }
+    "img": true
    },
    {
     "id": "m8ccfe8587a",
@@ -13747,11 +9855,7 @@ window.AKB_GROUPS = [
     "nick": "とっきーときね",
     "status": "former",
     "end": "2026.03.08",
-    "img": true,
-    "bio": {
-     "birth": "2008.01.09",
-     "from": "京都府"
-    }
+    "img": true
    }
   ]
  },
@@ -13767,11 +9871,7 @@ window.AKB_GROUPS = [
     "nick": "まあちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.05.24",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m1165daec47",
@@ -13780,11 +9880,7 @@ window.AKB_GROUPS = [
     "nick": "さなな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.06.17",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "md1e8558a53",
@@ -13793,11 +9889,7 @@ window.AKB_GROUPS = [
     "nick": "あやのんあーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.03.18",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m1519cbe351",
@@ -13806,11 +9898,7 @@ window.AKB_GROUPS = [
     "nick": "しゅりちゃんしゅりりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.04.03",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "mc3c7114fd8",
@@ -13819,11 +9907,7 @@ window.AKB_GROUPS = [
     "nick": "にーな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.09.09",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "macf3ed1ed5",
@@ -13832,11 +9916,7 @@ window.AKB_GROUPS = [
     "nick": "ほのかほののん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.05.26",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m8916d96809",
@@ -13845,11 +9925,7 @@ window.AKB_GROUPS = [
     "nick": "ひらっちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.09.19",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m10508dce57",
@@ -13858,11 +9934,7 @@ window.AKB_GROUPS = [
     "nick": "なほりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.07.16",
-     "from": "神奈川県"
-    }
+    "img": true
    }
   ]
  },
@@ -13878,11 +9950,7 @@ window.AKB_GROUPS = [
     "nick": "がたねぇまりちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1995.10.16",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "md5c1a80278",
@@ -13891,11 +9959,7 @@ window.AKB_GROUPS = [
     "nick": "おぎゆか",
     "status": "former",
     "end": "2021.11.08",
-    "img": true,
-    "bio": {
-     "birth": "1999.02.16",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -13911,11 +9975,7 @@ window.AKB_GROUPS = [
     "nick": "かいりかいちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.08.05",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m96c3750ac6",
@@ -13924,11 +9984,7 @@ window.AKB_GROUPS = [
     "nick": "ちかなちかなそなそ",
     "status": "former",
     "end": "2023.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.13",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "m5f092eed3c",
@@ -13938,10 +9994,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.03.31",
     "img": true,
-    "bio": {
-     "birth": "2001.07.07",
-     "from": "宮城県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -13951,11 +10003,7 @@ window.AKB_GROUPS = [
     "nick": "ゆなこツナマヨ",
     "status": "former",
     "end": "2022.09.27",
-    "img": true,
-    "bio": {
-     "birth": "2001.08.20",
-     "from": "青森県"
-    }
+    "img": true
    },
    {
     "id": "m3967094235",
@@ -13964,11 +10012,7 @@ window.AKB_GROUPS = [
     "nick": "みゆみゆみーちゃんみーたん",
     "status": "former",
     "end": "2026.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2000.11.17",
-     "from": "新潟県"
-    }
+    "img": true
    }
   ]
  },
@@ -13985,10 +10029,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.04.30",
     "img": true,
-    "bio": {
-     "birth": "1991.06.24",
-     "from": "愛知県"
-    },
     "groups": [
      {
       "group": "NGT48",
@@ -14018,11 +10058,7 @@ window.AKB_GROUPS = [
     "nick": "ここあかいここ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.11.28",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m8c13b7ac30",
@@ -14031,11 +10067,7 @@ window.AKB_GROUPS = [
     "nick": "まひちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.02.03",
-     "from": "徳島県"
-    }
+    "img": true
    },
    {
     "id": "m028d82d0f1",
@@ -14044,11 +10076,7 @@ window.AKB_GROUPS = [
     "nick": "あおい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.01.18",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "m171e0c3473",
@@ -14057,11 +10085,7 @@ window.AKB_GROUPS = [
     "nick": "ふくちゃんあかりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.03.29",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m87c8b6af62",
@@ -14070,11 +10094,7 @@ window.AKB_GROUPS = [
     "nick": "ちほちほんぬ",
     "status": "former",
     "end": "2026.06.07",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.17",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m33dd63f619",
@@ -14083,11 +10103,7 @@ window.AKB_GROUPS = [
     "nick": "みいみいちゃんみいひん",
     "status": "former",
     "end": "2024.04.06",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.11",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m9afc41afa6",
@@ -14096,11 +10112,7 @@ window.AKB_GROUPS = [
     "nick": "かのんいそがい",
     "status": "former",
     "end": "2020.05.10",
-    "img": true,
-    "bio": {
-     "birth": "2000.06.01",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3e685bfae5",
@@ -14109,11 +10121,7 @@ window.AKB_GROUPS = [
     "nick": "あゆみん",
     "status": "former",
     "end": "2019.08.11",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.21",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m7f42fd4c4c",
@@ -14122,11 +10130,7 @@ window.AKB_GROUPS = [
     "nick": "みちゅ",
     "status": "former",
     "end": "2024.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.02.19",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mcef0617a35",
@@ -14135,11 +10139,7 @@ window.AKB_GROUPS = [
     "nick": "ひなちゃん",
     "status": "former",
     "end": "2024.05.01",
-    "img": true,
-    "bio": {
-     "birth": "2003.02.21",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "m68d6760285",
@@ -14148,11 +10148,7 @@ window.AKB_GROUPS = [
     "nick": "まりーなマリーナ",
     "status": "former",
     "end": "2021.06.05",
-    "img": true,
-    "bio": {
-     "birth": "2004.02.14",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "mbd2651cda0",
@@ -14162,10 +10158,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.03.25",
     "img": true,
-    "bio": {
-     "birth": "2000.12.18",
-     "from": "愛媛県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14175,11 +10167,7 @@ window.AKB_GROUPS = [
     "nick": "ももももな",
     "status": "former",
     "end": "2019.08.11",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.26",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "me66f1ceba2",
@@ -14189,10 +10177,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.11.18",
     "img": true,
-    "bio": {
-     "birth": "2003.03.11",
-     "from": "兵庫県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14203,10 +10187,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.11.18",
     "img": true,
-    "bio": {
-     "birth": "2002.08.11",
-     "from": "愛媛県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14216,11 +10196,7 @@ window.AKB_GROUPS = [
     "nick": "CUCA（くーか）",
     "status": "former",
     "end": "2021.12.28",
-    "img": true,
-    "bio": {
-     "birth": "2002.04.28",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m8fc23f4f22",
@@ -14229,11 +10205,7 @@ window.AKB_GROUPS = [
     "nick": "はるるん",
     "status": "former",
     "end": "2019.04.13",
-    "img": true,
-    "bio": {
-     "birth": "1995.08.16",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "md71aa8d396",
@@ -14242,11 +10214,7 @@ window.AKB_GROUPS = [
     "nick": "ひーこムーニーちゃん",
     "status": "former",
     "end": "2018.07.22",
-    "img": true,
-    "bio": {
-     "birth": "2000.01.07",
-     "from": "高知県"
-    }
+    "img": true
    },
    {
     "id": "m8898528102",
@@ -14255,11 +10223,7 @@ window.AKB_GROUPS = [
     "nick": "のんちゃん",
     "status": "former",
     "end": "2020.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.05.23",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mce41e90f8f",
@@ -14268,11 +10232,7 @@ window.AKB_GROUPS = [
     "nick": "さっきー",
     "status": "former",
     "end": "2019.05.06",
-    "img": true,
-    "bio": {
-     "birth": "2001.11.14",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m39cd2c639b",
@@ -14281,11 +10241,7 @@ window.AKB_GROUPS = [
     "nick": "ゆみりん",
     "status": "former",
     "end": "2023.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.24",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "m5d628fc4c2",
@@ -14294,11 +10250,7 @@ window.AKB_GROUPS = [
     "nick": "こっここーこ",
     "status": "former",
     "end": "2021.03.21",
-    "img": true,
-    "bio": {
-     "birth": "1996.06.16",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "m84328172ed",
@@ -14307,11 +10259,7 @@ window.AKB_GROUPS = [
     "nick": "おちょちゃん",
     "status": "former",
     "end": "2018.04.15",
-    "img": true,
-    "bio": {
-     "birth": "2001.10.18",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m0922f1dbc1",
@@ -14320,11 +10268,7 @@ window.AKB_GROUPS = [
     "nick": "とろちゃん",
     "status": "former",
     "end": "2019.10.30",
-    "img": true,
-    "bio": {
-     "birth": "1999.03.24",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mf420b1193b",
@@ -14333,11 +10277,7 @@ window.AKB_GROUPS = [
     "nick": "あーちゃん",
     "status": "former",
     "end": "2020.03.10",
-    "img": true,
-    "bio": {
-     "birth": "1998.05.10",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m348f79199a",
@@ -14346,11 +10286,7 @@ window.AKB_GROUPS = [
     "nick": "ぱると",
     "status": "former",
     "end": "2019.12.08",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.18",
-     "from": "徳島県"
-    }
+    "img": true
    },
    {
     "id": "m1693f6aff0",
@@ -14359,11 +10295,7 @@ window.AKB_GROUPS = [
     "nick": "ありちゃん",
     "status": "former",
     "end": "2025.03.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.09.02",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mde2315820d",
@@ -14372,11 +10304,7 @@ window.AKB_GROUPS = [
     "nick": "かほたる",
     "status": "former",
     "end": "2019.12.12",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.01",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m5de873d851",
@@ -14385,11 +10313,7 @@ window.AKB_GROUPS = [
     "nick": "まいはっち",
     "status": "former",
     "end": "2024.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.10.04",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "m2b0b19936e",
@@ -14398,11 +10322,7 @@ window.AKB_GROUPS = [
     "nick": "ほのたん",
     "status": "former",
     "end": "2022.09.23",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.06",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mdfade0963e",
@@ -14411,11 +10331,7 @@ window.AKB_GROUPS = [
     "nick": "ふうおふうやぶこ薮下ふうちゃん",
     "status": "former",
     "end": "2021.08.08",
-    "img": true,
-    "bio": {
-     "birth": "2000.10.07",
-     "from": "大阪府"
-    }
+    "img": true
    }
   ]
  },
@@ -14431,11 +10347,7 @@ window.AKB_GROUPS = [
     "nick": "池ちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.02.08",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mad938947a7",
@@ -14444,11 +10356,7 @@ window.AKB_GROUPS = [
     "nick": "りねたん ᴖ ·̫ ᴖ ദ്ദി",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.11.05",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m8f35bd9324",
@@ -14457,11 +10365,7 @@ window.AKB_GROUPS = [
     "nick": "ぱせりぱちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1997.11.16",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m0e780be3b3",
@@ -14470,11 +10374,7 @@ window.AKB_GROUPS = [
     "nick": "ゆなゆな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.12.10",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mb41a49c2d1",
@@ -14483,11 +10383,7 @@ window.AKB_GROUPS = [
     "nick": "りこち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.03.29",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "mb3d402f93f",
@@ -14496,11 +10392,7 @@ window.AKB_GROUPS = [
     "nick": "ひめたん迫ちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.03.14",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m84ff26e20e",
@@ -14509,11 +10401,7 @@ window.AKB_GROUPS = [
     "nick": "さーやん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1998.12.04",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m024a971f52",
@@ -14522,11 +10410,7 @@ window.AKB_GROUPS = [
     "nick": "さやかりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.06.19",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "md1df1bfd76",
@@ -14535,11 +10419,7 @@ window.AKB_GROUPS = [
     "nick": "ゆきりかりかちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.06.15",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "mdec5de562f",
@@ -14548,11 +10428,7 @@ window.AKB_GROUPS = [
     "nick": "さらぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.02.19",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "macef75346e",
@@ -14561,11 +10437,7 @@ window.AKB_GROUPS = [
     "nick": "なっちゃんナヲキ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.12.12",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "m874445354d",
@@ -14575,10 +10447,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.10.30",
     "img": true,
-    "bio": {
-     "birth": "2001.10.05",
-     "from": "福岡県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14588,11 +10456,7 @@ window.AKB_GROUPS = [
     "nick": "あんP",
     "status": "former",
     "end": "2023.11.05",
-    "img": true,
-    "bio": {
-     "birth": "2002.11.04",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m221c3b90d0",
@@ -14601,11 +10465,7 @@ window.AKB_GROUPS = [
     "nick": "あいこじあいこあいこさん",
     "status": "former",
     "end": "2024.11.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.12.07",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "md684396fad",
@@ -14615,10 +10475,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.04.02",
     "img": true,
-    "bio": {
-     "birth": "2003.02.13",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14628,11 +10484,7 @@ window.AKB_GROUPS = [
     "nick": "しみさら",
     "status": "former",
     "end": "2026.07.25",
-    "img": true,
-    "bio": {
-     "birth": "2006.02.12",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m3bcaed42a5",
@@ -14641,11 +10493,7 @@ window.AKB_GROUPS = [
     "nick": "あやパンぱんちゃん",
     "status": "former",
     "end": "2024.04.29",
-    "img": true,
-    "bio": {
-     "birth": "2000.08.24",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m12dc775e8b",
@@ -14654,11 +10502,7 @@ window.AKB_GROUPS = [
     "nick": "れいかちゃんれかちゃん",
     "status": "former",
     "end": "2022.02.05",
-    "img": true,
-    "bio": {
-     "birth": "2001.06.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m381c648fbb",
@@ -14667,11 +10511,7 @@ window.AKB_GROUPS = [
     "nick": "みほりんなかみちゃん",
     "status": "former",
     "end": "2023.03.26",
-    "img": true,
-    "bio": {
-     "birth": "2002.09.03",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m1c693ce5f6",
@@ -14681,10 +10521,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.07.25",
     "img": true,
-    "bio": {
-     "birth": "2002.08.04",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14695,10 +10531,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.10.30",
     "img": true,
-    "bio": {
-     "birth": "2002.03.29",
-     "from": "広島県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14709,10 +10541,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.10.30",
     "img": true,
-    "bio": {
-     "birth": "2002.12.18",
-     "from": "大阪府"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14722,11 +10550,7 @@ window.AKB_GROUPS = [
     "nick": "りんこ",
     "status": "former",
     "end": "2023.04.29",
-    "img": true,
-    "bio": {
-     "birth": "2002.09.08",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m9e7d839330",
@@ -14735,11 +10559,7 @@ window.AKB_GROUPS = [
     "nick": "ももちゃんこもも",
     "status": "former",
     "end": "2024.04.07",
-    "img": true,
-    "bio": {
-     "birth": "2004.11.30",
-     "from": "高知県"
-    }
+    "img": true
    }
   ]
  },
@@ -14755,11 +10575,7 @@ window.AKB_GROUPS = [
     "nick": "あずみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.01.20",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m7d806f3f6f",
@@ -14768,11 +10584,7 @@ window.AKB_GROUPS = [
     "nick": "りおつん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.10.08",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m49c897c8c7",
@@ -14781,11 +10593,7 @@ window.AKB_GROUPS = [
     "nick": "くるくるゆうか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.09.24",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mb174bbbc5e",
@@ -14794,11 +10602,7 @@ window.AKB_GROUPS = [
     "nick": "のあぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.11.11",
-     "from": "広島県"
-    }
+    "img": true
    }
   ]
  },
@@ -14814,11 +10618,7 @@ window.AKB_GROUPS = [
     "nick": "りあちゅう",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.10.05",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m6e2771ca98",
@@ -14827,11 +10627,7 @@ window.AKB_GROUPS = [
     "nick": "ゆーなん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.08.07",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m086534b720",
@@ -14840,11 +10636,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいにゃんぎふちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.07.07",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "me70d11e95e",
@@ -14853,11 +10645,7 @@ window.AKB_GROUPS = [
     "nick": "いちごいちごってぃーごってぃーざわわいちご姫",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.12.27",
-     "from": "山梨県"
-    }
+    "img": true
    },
    {
     "id": "m982d498ea3",
@@ -14866,11 +10654,7 @@ window.AKB_GROUPS = [
     "nick": "ひびきひーちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.01.23",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "m2c3831de73",
@@ -14879,11 +10663,7 @@ window.AKB_GROUPS = [
     "nick": "ひーたんひめな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.06.20",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "mb973901c6b",
@@ -14892,11 +10672,7 @@ window.AKB_GROUPS = [
     "nick": "かなうちいかな",
     "status": "former",
     "end": "2025.04.20",
-    "img": true,
-    "bio": {
-     "birth": "2004.11.02",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m30d5337db4",
@@ -14906,10 +10682,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.06.30",
     "img": true,
-    "bio": {
-     "birth": "2006.04.07",
-     "from": "広島県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14920,10 +10692,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.12.08",
     "img": true,
-    "bio": {
-     "birth": "2009.08.11",
-     "from": "広島県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14933,11 +10701,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいたんゆいかりん",
     "status": "former",
     "end": "2024.10.31",
-    "img": true,
-    "bio": {
-     "birth": "2003.12.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mffb8e677aa",
@@ -14947,10 +10711,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.02.25",
     "img": true,
-    "bio": {
-     "birth": "2005.01.15",
-     "from": "山口県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14960,11 +10720,7 @@ window.AKB_GROUPS = [
     "nick": "さっちー",
     "status": "former",
     "end": "2026.04.11",
-    "img": true,
-    "bio": {
-     "birth": "2005.08.19",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "me4ab1193d0",
@@ -14974,10 +10730,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.06.14",
     "img": true,
-    "bio": {
-     "birth": "2004.09.19",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -14988,10 +10740,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.07.20",
     "img": true,
-    "bio": {
-     "birth": "2005.11.03",
-     "from": "埼玉県"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -15008,11 +10756,7 @@ window.AKB_GROUPS = [
     "nick": "はるちゃんはるっぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.01.03",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m00df37352b",
@@ -15021,11 +10765,7 @@ window.AKB_GROUPS = [
     "nick": "くーくれちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.03.28",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mf8a19db757",
@@ -15034,11 +10774,7 @@ window.AKB_GROUPS = [
     "nick": "かぶちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.04.04",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "mf4576db276",
@@ -15047,11 +10783,7 @@ window.AKB_GROUPS = [
     "nick": "ヒナピー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.10.12",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mb7f837d7e6",
@@ -15060,11 +10792,7 @@ window.AKB_GROUPS = [
     "nick": "なゆゆ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.12.08",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m81dfc425e8",
@@ -15073,11 +10801,7 @@ window.AKB_GROUPS = [
     "nick": "とわわ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.12.15",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m4ed66a041a",
@@ -15086,11 +10810,7 @@ window.AKB_GROUPS = [
     "nick": "さかあい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.09.05",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m261e2eebf4",
@@ -15099,11 +10819,7 @@ window.AKB_GROUPS = [
     "nick": "さやたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.06.02",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mee9a662f0d",
@@ -15112,11 +10828,7 @@ window.AKB_GROUPS = [
     "nick": "あこあこるん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.03.27",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "mcd2841d2a7",
@@ -15125,11 +10837,7 @@ window.AKB_GROUPS = [
     "nick": "しおりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.06.30",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m40be3ff0f1",
@@ -15138,11 +10846,7 @@ window.AKB_GROUPS = [
     "nick": "ななちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.01.27",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m72a4c3c8d5",
@@ -15151,11 +10855,7 @@ window.AKB_GROUPS = [
     "nick": "るなちるなちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.11.02",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "meda34116c6",
@@ -15164,11 +10864,7 @@ window.AKB_GROUPS = [
     "nick": "りおちー",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2012.10.26",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m831005c1af",
@@ -15177,11 +10873,7 @@ window.AKB_GROUPS = [
     "nick": "みーにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.06.19",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "m6284129b0f",
@@ -15190,11 +10882,7 @@ window.AKB_GROUPS = [
     "nick": "あむにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.08.23",
-     "from": "香川県"
-    }
+    "img": true
    },
    {
     "id": "m7013c40943",
@@ -15203,11 +10891,7 @@ window.AKB_GROUPS = [
     "nick": "まあにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.04.17",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "ma2c1034fe3",
@@ -15216,11 +10900,7 @@ window.AKB_GROUPS = [
     "nick": "うなちい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.02.11",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m0e8f6ed060",
@@ -15229,11 +10909,7 @@ window.AKB_GROUPS = [
     "nick": "よこいさん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.27",
-     "from": "静岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -15249,11 +10925,7 @@ window.AKB_GROUPS = [
     "nick": "そらは",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.08.09",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m3afd99eb06",
@@ -15262,11 +10934,7 @@ window.AKB_GROUPS = [
     "nick": "舞Q",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.04.04",
-     "from": "愛媛県"
-    }
+    "img": true
    },
    {
     "id": "m2c99a95d8f",
@@ -15275,11 +10943,7 @@ window.AKB_GROUPS = [
     "nick": "沖ちゃんおきぽ",
     "status": "former",
     "end": "2024.04.20",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.01",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m2e8a96b5d1",
@@ -15289,10 +10953,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.03.10",
     "img": true,
-    "bio": {
-     "birth": "2001.08.20",
-     "from": "岡山県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -15302,11 +10962,7 @@ window.AKB_GROUPS = [
     "nick": "ゆらりん",
     "status": "former",
     "end": "2019.08.11",
-    "img": true,
-    "bio": {
-     "birth": "1999.03.12",
-     "from": "広島県"
-    }
+    "img": true
    }
   ]
  },
@@ -15322,10 +10978,7 @@ window.AKB_GROUPS = [
     "nick": "かずちぃ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1985.02.23"
-    }
+    "img": true
    },
    {
     "id": "mf8c052408b",
@@ -15334,10 +10987,7 @@ window.AKB_GROUPS = [
     "nick": "かなにゃん",
     "status": "former",
     "end": "2011.02.10",
-    "img": true,
-    "bio": {
-     "birth": "1987.02.05"
-    }
+    "img": true
    },
    {
     "id": "m464852dcc9",
@@ -15346,10 +10996,7 @@ window.AKB_GROUPS = [
     "nick": "メグ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1987.08.13"
-    }
+    "img": true
    },
    {
     "id": "m8d6eae372e",
@@ -15358,10 +11005,7 @@ window.AKB_GROUPS = [
     "nick": "がんちゃん",
     "status": "former",
     "end": "2009.09.24",
-    "img": true,
-    "bio": {
-     "birth": "1980.12.23"
-    }
+    "img": true
    },
    {
     "id": "m6bf37d4f1b",
@@ -15370,10 +11014,7 @@ window.AKB_GROUPS = [
     "nick": "うめこ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1988.03.15"
-    }
+    "img": true
    },
    {
     "id": "m2ba60e0b41",
@@ -15383,10 +11024,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1985.10.23",
-     "from": "埼玉県"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15405,10 +11042,7 @@ window.AKB_GROUPS = [
     "nick": "みさみさ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1984.01.11"
-    }
+    "img": true
    },
    {
     "id": "mbbde5ee542",
@@ -15418,10 +11052,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1983.08.25",
-     "from": "千葉県"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15440,10 +11070,7 @@ window.AKB_GROUPS = [
     "nick": "じゅり",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1988.05.19"
-    }
+    "img": true
    },
    {
     "id": "mde48bd239e",
@@ -15452,10 +11079,7 @@ window.AKB_GROUPS = [
     "nick": "まみたん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1987.09.07"
-    }
+    "img": true
    },
    {
     "id": "mc0b7a67250",
@@ -15464,10 +11088,7 @@ window.AKB_GROUPS = [
     "nick": "まさみん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1987.04.24"
-    }
+    "img": true
    },
    {
     "id": "ma85bc9bb5f",
@@ -15477,10 +11098,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1988.04.12",
-     "from": "広島県"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15499,10 +11116,7 @@ window.AKB_GROUPS = [
     "nick": "さやねぇ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1984.04.01"
-    }
+    "img": true
    },
    {
     "id": "mc85c828af6",
@@ -15512,10 +11126,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1988.11.22",
-     "from": "静岡県"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15534,10 +11144,7 @@ window.AKB_GROUPS = [
     "nick": "せりんこ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1985.05.19"
-    }
+    "img": true
    },
    {
     "id": "m18a7418ee1",
@@ -15546,10 +11153,7 @@ window.AKB_GROUPS = [
     "nick": "まっちぃ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1986.02.25"
-    }
+    "img": true
    },
    {
     "id": "mbfec28beb9",
@@ -15558,10 +11162,7 @@ window.AKB_GROUPS = [
     "nick": "あやみん",
     "status": "former",
     "end": "2009.12.24",
-    "img": true,
-    "bio": {
-     "birth": "1976.07.12"
-    }
+    "img": true
    },
    {
     "id": "m255975ba80",
@@ -15570,10 +11171,7 @@ window.AKB_GROUPS = [
     "nick": "なちゅはむ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1984.12.23"
-    }
+    "img": true
    },
    {
     "id": "m1b32e5c483",
@@ -15582,10 +11180,7 @@ window.AKB_GROUPS = [
     "nick": "レイチェル",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1977.11.24"
-    }
+    "img": true
    },
    {
     "id": "m837dd982ae",
@@ -15595,10 +11190,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1983.10.28",
-     "from": "東京都"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15617,10 +11208,7 @@ window.AKB_GROUPS = [
     "nick": "ちゃき",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1988.11.04"
-    }
+    "img": true
    },
    {
     "id": "m782361e6ca",
@@ -15629,10 +11217,7 @@ window.AKB_GROUPS = [
     "nick": "ひろみん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1983.09.19"
-    }
+    "img": true
    },
    {
     "id": "m6a62459875",
@@ -15641,10 +11226,7 @@ window.AKB_GROUPS = [
     "nick": "ちゅちゅー",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1986.11.06"
-    }
+    "img": true
    }
   ]
  },
@@ -15660,10 +11242,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっきー",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1984.09.23"
-    }
+    "img": true
    },
    {
     "id": "m9ba5977024",
@@ -15672,10 +11251,7 @@ window.AKB_GROUPS = [
     "nick": "あーこ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.08.18"
-    }
+    "img": true
    },
    {
     "id": "mc9cdc91981",
@@ -15684,10 +11260,7 @@ window.AKB_GROUPS = [
     "nick": "まなな",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1985.04.23"
-    }
+    "img": true
    },
    {
     "id": "m85b336b4a3",
@@ -15696,10 +11269,7 @@ window.AKB_GROUPS = [
     "nick": "あいみん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.07.28"
-    }
+    "img": true
    },
    {
     "id": "m2092d8c11e",
@@ -15708,10 +11278,7 @@ window.AKB_GROUPS = [
     "nick": "きーぼう",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1986.09.09"
-    }
+    "img": true
    },
    {
     "id": "mad26ac46d0",
@@ -15720,10 +11287,7 @@ window.AKB_GROUPS = [
     "nick": "ゆいりん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1984.03.07"
-    }
+    "img": true
    },
    {
     "id": "m43a35d7ac4",
@@ -15732,10 +11296,7 @@ window.AKB_GROUPS = [
     "nick": "ばんび",
     "status": "former",
     "end": "2011.05.29",
-    "img": true,
-    "bio": {
-     "birth": "1983.09.11"
-    }
+    "img": true
    },
    {
     "id": "m0f7e54f9d2",
@@ -15744,10 +11305,7 @@ window.AKB_GROUPS = [
     "nick": "まりなる",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1987.06.06"
-    }
+    "img": true
    },
    {
     "id": "m48d4cba318",
@@ -15756,10 +11314,7 @@ window.AKB_GROUPS = [
     "nick": "なっちゃん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.08.18"
-    }
+    "img": true
    },
    {
     "id": "m2466470c5c",
@@ -15768,10 +11323,7 @@ window.AKB_GROUPS = [
     "nick": "ゆかぽ",
     "status": "former",
     "end": "2011.05.12",
-    "img": true,
-    "bio": {
-     "birth": "1989.09.11"
-    }
+    "img": true
    },
    {
     "id": "m58379b44b7",
@@ -15781,9 +11333,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1989.11.16"
-    },
     "leave": "マネジメント：ランデブー"
    },
    {
@@ -15794,9 +11343,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2010.10.16",
     "img": true,
-    "bio": {
-     "birth": "1988.09.24"
-    },
     "leave": "辞退"
    },
    {
@@ -15806,10 +11352,7 @@ window.AKB_GROUPS = [
     "nick": "ゆみんた",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.07.01"
-    }
+    "img": true
    },
    {
     "id": "m07f4b664ca",
@@ -15818,10 +11361,7 @@ window.AKB_GROUPS = [
     "nick": "みゆ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.01.23"
-    }
+    "img": true
    },
    {
     "id": "mbcd86a4293",
@@ -15830,10 +11370,7 @@ window.AKB_GROUPS = [
     "nick": "ルミルミ",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1986.06.01"
-    }
+    "img": true
    },
    {
     "id": "m14a195fa7c",
@@ -15842,10 +11379,7 @@ window.AKB_GROUPS = [
     "nick": "コニャン",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1985.03.04"
-    }
+    "img": true
    }
   ]
  },
@@ -15861,10 +11395,7 @@ window.AKB_GROUPS = [
     "nick": "ぴかちゃん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1988.01.10"
-    }
+    "img": true
    },
    {
     "id": "m3c9f643e4e",
@@ -15874,10 +11405,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1988.12.16",
-     "from": "埼玉県"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15896,10 +11423,7 @@ window.AKB_GROUPS = [
     "nick": "さえみん",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1989.07.20"
-    }
+    "img": true
    },
    {
     "id": "mb568cdd433",
@@ -15909,10 +11433,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.03.31",
     "img": true,
-    "bio": {
-     "birth": "1988.07.11",
-     "from": "埼玉県"
-    },
     "groups": [
      {
       "group": "SDN48",
@@ -15931,10 +11451,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2011.07.28",
-    "img": true,
-    "bio": {
-     "birth": "1983.05.23"
-    }
+    "img": true
    },
    {
     "id": "mcd8ac05b24",
@@ -15943,10 +11460,7 @@ window.AKB_GROUPS = [
     "nick": "シヨン",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1983.03.11"
-    }
+    "img": true
    },
    {
     "id": "m7c9d08f922",
@@ -15955,10 +11469,7 @@ window.AKB_GROUPS = [
     "nick": "miray将軍",
     "status": "former",
     "end": "2012.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1983.07.05"
-    }
+    "img": true
    }
   ]
  },
@@ -15974,11 +11485,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.02.26",
-    "img": true,
-    "bio": {
-     "birth": "1993.08.20",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mc02705424b",
@@ -15987,11 +11494,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2013.06.16",
-    "img": true,
-    "bio": {
-     "birth": "1993.05.21",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mc3fc78d42d",
@@ -16000,10 +11503,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.01.22"
-    }
+    "img": true
    },
    {
     "id": "m1a9960888b",
@@ -16013,10 +11513,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.05.06",
     "img": true,
-    "bio": {
-     "birth": "1995.12.29",
-     "from": "秋田県"
-    },
     "groups": [
      {
       "group": "乃木坂46",
@@ -16035,11 +11531,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2014.07.21",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.22",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m21f15ab0a4",
@@ -16048,11 +11540,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2014.10.19",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.12",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m0813ff8387",
@@ -16061,11 +11549,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2017.12.23",
-    "img": true,
-    "bio": {
-     "birth": "1996.02.20",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m03e89599be",
@@ -16074,11 +11558,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.04.27",
-    "img": true,
-    "bio": {
-     "birth": "1994.12.14",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mcacae41ad1",
@@ -16087,11 +11567,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2012.11.18",
-    "img": true,
-    "bio": {
-     "birth": "1990.06.12",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mcd30fafdd0",
@@ -16100,11 +11576,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2019.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1993.01.04",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "mdb0402ad27",
@@ -16113,11 +11585,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2013.11.17",
-    "img": true,
-    "bio": {
-     "birth": "1994.08.12",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m8a881f2c52",
@@ -16126,11 +11594,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.12.20",
-    "img": true,
-    "bio": {
-     "birth": "1998.03.22",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "mebe976cd6f",
@@ -16139,11 +11603,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.23",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m059f98212a",
@@ -16153,10 +11613,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.05.18",
     "img": true,
-    "bio": {
-     "birth": "1998.08.10",
-     "from": "東京都"
-    },
     "leave": "卒業"
    },
    {
@@ -16166,11 +11622,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.07.16",
-    "img": true,
-    "bio": {
-     "birth": "1997.02.17",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mc404ce24a1",
@@ -16179,11 +11631,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2019.06.30",
-    "img": true,
-    "bio": {
-     "birth": "1993.07.20",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mbcf91eaede",
@@ -16192,11 +11640,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2019.09.01",
-    "img": true,
-    "bio": {
-     "birth": "1994.05.16",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m1c82bee3c7",
@@ -16205,11 +11649,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.10.28",
-    "img": true,
-    "bio": {
-     "birth": "1992.08.20",
-     "from": "群馬県"
-    }
+    "img": true
    },
    {
     "id": "m8b8d9fc75c",
@@ -16218,11 +11658,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.11.21",
-    "img": true,
-    "bio": {
-     "birth": "1994.02.08",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m795312d34c",
@@ -16231,11 +11667,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.10.25",
-    "img": true,
-    "bio": {
-     "birth": "1994.08.06",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "maccf448853",
@@ -16244,11 +11676,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2017.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1996.04.13",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m752d6ac7fa",
@@ -16257,11 +11685,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2016.03.20",
-    "img": true,
-    "bio": {
-     "birth": "1994.05.19",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "maa0493c31b",
@@ -16271,10 +11695,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.02.24",
     "img": true,
-    "bio": {
-     "birth": "1994.05.25",
-     "from": "大阪府"
-    },
     "leave": "卒業"
    },
    {
@@ -16284,11 +11704,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.12.15",
-    "img": true,
-    "bio": {
-     "birth": "1994.10.18",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m7a99bc5555",
@@ -16297,11 +11713,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2017.02.20",
-    "img": true,
-    "bio": {
-     "birth": "1993.02.20",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "mcf4c96c476",
@@ -16310,11 +11722,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2015.04.04",
-    "img": true,
-    "bio": {
-     "birth": "1995.12.05",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "m9d6a938565",
@@ -16323,11 +11731,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.10.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.01.31",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc86e265505",
@@ -16336,11 +11740,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2016.06.16",
-    "img": true,
-    "bio": {
-     "birth": "1991.03.29",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "ma7f17ea6e0",
@@ -16349,11 +11749,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.02.12",
-    "img": true,
-    "bio": {
-     "birth": "1998.02.06",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m0ff87d2978",
@@ -16362,11 +11758,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.07.13",
-    "img": true,
-    "bio": {
-     "birth": "1992.08.27",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m871168411a",
@@ -16375,11 +11767,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2013.11.17",
-    "img": true,
-    "bio": {
-     "birth": "1993.10.29",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m23722ee626",
@@ -16389,10 +11777,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.12.15",
     "img": true,
-    "bio": {
-     "birth": "1994.12.14",
-     "from": "宮城県"
-    },
     "leave": "契約終了"
    },
    {
@@ -16403,10 +11787,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2011.09.22",
     "img": true,
-    "bio": {
-     "birth": "1998.03.31",
-     "from": "愛知県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -16417,10 +11797,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2011.09.22",
     "img": true,
-    "bio": {
-     "birth": "1996.08.18",
-     "from": "熊本県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -16431,10 +11807,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.12.04",
     "img": true,
-    "bio": {
-     "birth": "1994.06.27",
-     "from": "静岡県"
-    },
     "leave": "卒業"
    },
    {
@@ -16444,11 +11816,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.12.04",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.23",
-     "from": "広島県"
-    }
+    "img": true
    }
   ]
  },
@@ -16464,11 +11832,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2019.05.24",
-    "img": true,
-    "bio": {
-     "birth": "1993.05.26",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mdef89e9a3f",
@@ -16477,11 +11841,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.08.29",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.30",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mddc5a9b3ba",
@@ -16490,11 +11850,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1996.07.17",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m3611043f34",
@@ -16503,11 +11859,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.07.16",
-    "img": true,
-    "bio": {
-     "birth": "1997.11.26",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mc16761108a",
@@ -16516,11 +11868,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.28",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mb38f3dc344",
@@ -16529,11 +11877,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.02.10",
-    "img": true,
-    "bio": {
-     "birth": "1992.01.22",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m41b70cf72f",
@@ -16542,11 +11886,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.03.28",
-    "img": true,
-    "bio": {
-     "birth": "1999.03.05",
-     "from": "秋田県"
-    }
+    "img": true
    },
    {
     "id": "m3d0bdf9f0d",
@@ -16555,11 +11895,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.12.12",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m27ef4ccd4f",
@@ -16569,10 +11905,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.03.22",
     "img": true,
-    "bio": {
-     "birth": "1993.07.03",
-     "from": "東京都"
-    },
     "leave": "活動辞退",
     "groups": [
      {
@@ -16592,11 +11924,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.03.28",
-    "img": true,
-    "bio": {
-     "birth": "1996.10.15",
-     "from": "岐阜県"
-    }
+    "img": true
    },
    {
     "id": "m5a8d561f05",
@@ -16606,10 +11934,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.10.18",
     "img": true,
-    "bio": {
-     "birth": "1995.03.08",
-     "from": "埼玉県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -16619,11 +11943,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.07.17",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.21",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mc3898164e2",
@@ -16633,10 +11953,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.10.18",
     "img": true,
-    "bio": {
-     "birth": "1999.04.14",
-     "from": "神奈川県"
-    },
     "leave": "活動辞退"
    },
    {
@@ -16646,11 +11962,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.08.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.11.01",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -16666,11 +11978,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.10.08",
-     "from": "沖縄県"
-    }
+    "img": true
    },
    {
     "id": "mb4e489c64c",
@@ -16679,11 +11987,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.02.02",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m17e16a2ad4",
@@ -16692,11 +11996,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.05.21",
-    "img": true,
-    "bio": {
-     "birth": "1999.01.06",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m1666ee99aa",
@@ -16705,11 +12005,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.09.04",
-    "img": true,
-    "bio": {
-     "birth": "1999.09.13",
-     "from": "鹿児島県"
-    }
+    "img": true
    },
    {
     "id": "m348fba4a8e",
@@ -16718,11 +12014,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.11.27",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.14",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "m891b96ec33",
@@ -16731,11 +12023,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.07.15",
-    "img": true,
-    "bio": {
-     "birth": "2001.11.10",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mcd66b5fad0",
@@ -16744,11 +12032,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.05.06",
-    "img": true,
-    "bio": {
-     "birth": "1998.03.23",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m959026412a",
@@ -16757,11 +12041,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.06.26",
-    "img": true,
-    "bio": {
-     "birth": "2001.09.27",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mf620085a7a",
@@ -16770,11 +12050,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1999.08.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m93aeea8d67",
@@ -16783,11 +12059,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.05.12",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.26",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mb053c2f699",
@@ -16796,11 +12068,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.08.09",
-    "img": true,
-    "bio": {
-     "birth": "1995.09.06",
-     "from": "大分県"
-    }
+    "img": true
    },
    {
     "id": "m14f44b425b",
@@ -16809,11 +12077,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.02.23",
-    "img": true,
-    "bio": {
-     "birth": "2000.05.05",
-     "from": "福岡県"
-    }
+    "img": true
    }
   ]
  },
@@ -16829,11 +12093,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.10.03",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m77d4c4dab5",
@@ -16842,11 +12102,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.08.08",
-     "from": "栃木県"
-    }
+    "img": true
    },
    {
     "id": "m74b606759b",
@@ -16855,11 +12111,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.10.31",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m21f72372a6",
@@ -16868,11 +12120,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.01.19",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m04d41d7815",
@@ -16881,11 +12129,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.03.03",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m096a5890ca",
@@ -16894,11 +12138,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.01.12",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mfea1e1789f",
@@ -16907,11 +12147,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.06.08",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m0764168f5c",
@@ -16920,11 +12156,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.10.02",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mf555f01834",
@@ -16933,11 +12165,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.02.03",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "md2320ff78f",
@@ -16946,11 +12174,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.08.19",
-    "img": true,
-    "bio": {
-     "birth": "2002.11.20",
-     "from": "岡山県"
-    }
+    "img": true
    },
    {
     "id": "m318f6e8a10",
@@ -16959,10 +12183,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.06.30",
-    "img": true,
-    "bio": {
-     "birth": "2001.08.08"
-    }
+    "img": true
    },
    {
     "id": "m485135ab87",
@@ -16971,11 +12192,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.05.02",
-    "img": true,
-    "bio": {
-     "birth": "2001.08.09",
-     "from": "岩手県"
-    }
+    "img": true
    },
    {
     "id": "me2a8e59348",
@@ -16984,11 +12201,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.07.17",
-    "img": true,
-    "bio": {
-     "birth": "2003.08.01",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m9d2d55642d",
@@ -16997,11 +12210,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.08.24",
-    "img": true,
-    "bio": {
-     "birth": "2000.08.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb3b69a3cd5",
@@ -17010,11 +12219,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2004.01.03",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m106a620199",
@@ -17023,11 +12228,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.08.14",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -17043,11 +12244,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.07.29",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "me810ba36b9",
@@ -17056,11 +12253,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.05.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m78bf2c764a",
@@ -17069,11 +12262,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.05.24",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mcaed0870f3",
@@ -17082,11 +12271,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.02.17",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m53bd91d4c9",
@@ -17095,11 +12280,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.12.17",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m9bdc9d7273",
@@ -17108,11 +12289,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.06.27",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "md45c07127c",
@@ -17121,11 +12298,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.08.20",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m1cc2bfbe71",
@@ -17134,11 +12307,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.04.17",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mebe9decdf7",
@@ -17147,11 +12316,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.31",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "me470580a13",
@@ -17160,11 +12325,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.09.18",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m0338bb4e15",
@@ -17173,11 +12334,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.03.17",
-     "from": "千葉県"
-    }
+    "img": true
    }
   ]
  },
@@ -17193,11 +12350,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.09.17",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m3e3d6dd32f",
@@ -17206,11 +12359,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.12.01",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m0c2a102526",
@@ -17219,11 +12368,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.04.17",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma7701c3287",
@@ -17232,11 +12377,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.02.14",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mac0d0f78c7",
@@ -17245,11 +12386,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.01.14",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma0041e34ee",
@@ -17258,11 +12395,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.05.18",
-     "from": "山梨県"
-    }
+    "img": true
    },
    {
     "id": "m3566e039b3",
@@ -17271,11 +12404,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.07.16",
-     "from": "鹿児島県"
-    }
+    "img": true
    },
    {
     "id": "m3cf320c9b7",
@@ -17284,11 +12413,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.05.25",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "m274e4d2e28",
@@ -17297,11 +12422,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.11.01",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "mb4cd830ae8",
@@ -17310,11 +12431,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.10.05",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "medcdbfe765",
@@ -17323,11 +12440,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.01.27",
-     "from": "秋田県"
-    }
+    "img": true
    }
   ]
  },
@@ -17343,11 +12456,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.09.30",
-    "img": true,
-    "bio": {
-     "birth": "1997.05.07",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "m79e4df6345",
@@ -17356,11 +12465,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.11.04",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.30",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "me234b50b33",
@@ -17369,11 +12474,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.02.16",
-    "img": true,
-    "bio": {
-     "birth": "1997.01.04",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m7311ea0124",
@@ -17382,11 +12483,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.09.11",
-    "img": true,
-    "bio": {
-     "birth": "1997.10.07",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mcbd32bcd7d",
@@ -17395,11 +12492,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.01.23",
-    "img": true,
-    "bio": {
-     "birth": "1998.06.04",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "mae85801a24",
@@ -17408,11 +12501,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.05.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.14",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m45427128de",
@@ -17421,11 +12510,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.02.01",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.23",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m6e80d76542",
@@ -17434,11 +12519,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.01.13",
-    "img": true,
-    "bio": {
-     "birth": "1998.02.15",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "md7fd31ac50",
@@ -17447,11 +12528,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.10.13",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.16",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m7632ce6d2f",
@@ -17460,11 +12537,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.11.16",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.23",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "ma10b5ce3d4",
@@ -17473,11 +12546,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.11.09",
-    "img": true,
-    "bio": {
-     "birth": "1995.11.29",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m48f49d835f",
@@ -17487,10 +12556,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.09.30",
     "img": true,
-    "bio": {
-     "birth": "2000.10.07",
-     "from": "愛知県"
-    },
     "leave": "活動開始前辞退"
    },
    {
@@ -17500,11 +12565,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.01.23",
-    "img": true,
-    "bio": {
-     "birth": "1997.12.05",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3dcfc58c5a",
@@ -17513,11 +12574,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.03.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.23",
-     "from": "山形県"
-    }
+    "img": true
    },
    {
     "id": "md4ed8b171a",
@@ -17526,11 +12583,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.11.25",
-    "img": true,
-    "bio": {
-     "birth": "1997.07.07",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mf9a49bb570",
@@ -17540,10 +12593,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.08.20",
     "img": true,
-    "bio": {
-     "birth": "2000.05.07",
-     "from": "東京都"
-    },
     "leave": "卒業"
    },
    {
@@ -17554,10 +12603,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.11.11",
     "img": true,
-    "bio": {
-     "birth": "1998.05.02",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    },
    {
@@ -17568,10 +12613,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.01.23",
     "img": true,
-    "bio": {
-     "birth": "2001.06.25",
-     "from": "愛知県"
-    },
     "leave": "脱退"
    },
    {
@@ -17581,11 +12622,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.12.19",
-    "img": true,
-    "bio": {
-     "birth": "1997.11.12",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "m3f5a1f0020",
@@ -17594,11 +12631,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2018.12.22",
-    "img": true,
-    "bio": {
-     "birth": "2000.02.24",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m6d7f8d11c8",
@@ -17607,11 +12640,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.12.19",
-    "img": true,
-    "bio": {
-     "birth": "1995.05.16",
-     "from": "茨城県"
-    }
+    "img": true
    },
    {
     "id": "m2bdf933869",
@@ -17620,11 +12649,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.05.22",
-    "img": true,
-    "bio": {
-     "birth": "1998.07.27",
-     "from": "茨城県"
-    }
+    "img": true
    }
   ]
  },
@@ -17641,10 +12666,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.07.30",
     "img": true,
-    "bio": {
-     "birth": "1998.09.04",
-     "from": "長崎県"
-    },
     "groups": [
      {
       "group": "櫻坂46",
@@ -17670,11 +12691,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.04.17",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m4bfeb1580a",
@@ -17683,11 +12700,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.04.18",
-     "from": "鹿児島県"
-    }
+    "img": true
    },
    {
     "id": "m16ca77c587",
@@ -17696,11 +12709,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.10.12",
-     "from": "静岡県"
-    }
+    "img": true
    },
    {
     "id": "m090bb043fa",
@@ -17709,11 +12718,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.12.19",
-     "from": "三重県"
-    }
+    "img": true
    },
    {
     "id": "m4658750504",
@@ -17722,11 +12727,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1998.10.21",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "me5e031d89d",
@@ -17735,11 +12736,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.08.29",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m2dc32fca98",
@@ -17748,11 +12745,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.01.12",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m1ac412d17e",
@@ -17761,11 +12754,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.10.13",
-     "from": "宮崎県"
-    }
+    "img": true
    },
    {
     "id": "m4a5fd453a5",
@@ -17774,11 +12763,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2001.07.10",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mac5ffa98d2",
@@ -17787,11 +12772,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.01.02",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mb8ed95f5cd",
@@ -17800,11 +12781,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.09.28",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m4cfb602250",
@@ -17813,11 +12790,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.02.28",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.29",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mcafa09bc86",
@@ -17826,11 +12799,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.04.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.06.29",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m988ffb4c8c",
@@ -17839,11 +12808,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.05.31",
-    "img": true,
-    "bio": {
-     "birth": "2002.03.23",
-     "from": "滋賀県"
-    }
+    "img": true
    },
    {
     "id": "mef5946b92b",
@@ -17852,11 +12817,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2021.03.14",
-    "img": true,
-    "bio": {
-     "birth": "1998.05.05",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -17872,11 +12833,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.01.13",
-     "from": "群馬県"
-    }
+    "img": true
    },
    {
     "id": "mf0ee089fa3",
@@ -17885,11 +12842,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.01.09",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m1adc36f972",
@@ -17898,11 +12851,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.07.25",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m6ac7e52717",
@@ -17911,11 +12860,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.07.07",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "me386d0b461",
@@ -17924,11 +12869,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.04.12",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "m0b80e29e0a",
@@ -17937,11 +12878,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.02.17",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m8eadce44d0",
@@ -17950,11 +12887,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.11.08",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m264915e736",
@@ -17963,11 +12896,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.05.09",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "mbf7877994c",
@@ -17976,11 +12905,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.08.18",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m657ffdc1b3",
@@ -17989,11 +12914,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.02.15",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mf023ced6b1",
@@ -18002,11 +12923,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.01.22",
-     "from": "京都府"
-    }
+    "img": true
    }
   ]
  },
@@ -18022,11 +12939,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.12.22",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "mc544128e80",
@@ -18035,11 +12948,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.03.09",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m3eb90c5e14",
@@ -18048,11 +12957,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.01.24",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "mec1a83026e",
@@ -18061,11 +12966,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.12.01",
-     "from": "佐賀県"
-    }
+    "img": true
    },
    {
     "id": "m6e8250d16d",
@@ -18074,11 +12975,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.16",
-     "from": "長崎県"
-    }
+    "img": true
    },
    {
     "id": "me24213175a",
@@ -18087,11 +12984,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.02.06",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m42c2fa570b",
@@ -18100,11 +12993,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.01.24",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m6e6bfa91dc",
@@ -18113,11 +13002,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.09.19",
-     "from": "宮城県"
-    }
+    "img": true
    },
    {
     "id": "me9727d809f",
@@ -18126,11 +13011,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.07.20",
-     "from": "岡山県"
-    }
+    "img": true
    }
   ]
  },
@@ -18146,11 +13027,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2020.03.02",
-    "img": true,
-    "bio": {
-     "birth": "1995.11.10",
-     "from": "新潟県"
-    }
+    "img": true
    },
    {
     "id": "m6273a441c6",
@@ -18159,11 +13036,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1997.12.26",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mf6670d4996",
@@ -18172,11 +13045,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2019.08.11",
-    "img": true,
-    "bio": {
-     "birth": "2001.12.02",
-     "from": "長野県"
-    }
+    "img": true
    },
    {
     "id": "md7513db303",
@@ -18185,11 +13054,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2023.07.19",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.08",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "ma07f818212",
@@ -18198,11 +13063,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.12.25",
-    "img": true,
-    "bio": {
-     "birth": "1998.02.02",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mbc6e4e07f1",
@@ -18211,11 +13072,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.04.05",
-    "img": true,
-    "bio": {
-     "birth": "1997.09.05",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mb242b65223",
@@ -18224,11 +13081,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.04.06",
-    "img": true,
-    "bio": {
-     "birth": "1996.01.22",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m0aa7006687",
@@ -18237,11 +13090,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.04.05",
-    "img": true,
-    "bio": {
-     "birth": "1999.12.17",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "mc2f78dbdb3",
@@ -18250,11 +13099,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.05.01",
-    "img": true,
-    "bio": {
-     "birth": "1998.09.20",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m86459a1c78",
@@ -18263,11 +13108,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.07.31",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.02",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mfd32714123",
@@ -18276,11 +13117,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1998.08.23",
-     "from": "奈良県"
-    }
+    "img": true
    }
   ]
  },
@@ -18296,11 +13133,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.09.10",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m16986e0407",
@@ -18309,11 +13142,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.09.07",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m2ee17a188d",
@@ -18322,11 +13151,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.12.31",
-    "img": true,
-    "bio": {
-     "birth": "2001.07.23",
-     "from": "山口県"
-    }
+    "img": true
    },
    {
     "id": "mc92a1f4972",
@@ -18335,11 +13160,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.08.05",
-    "img": true,
-    "bio": {
-     "birth": "2001.01.18",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "me514d1fd00",
@@ -18348,11 +13169,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2025.01.29",
-    "img": true,
-    "bio": {
-     "birth": "2001.02.15",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m0aceaa9027",
@@ -18361,11 +13178,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2024.12.27",
-    "img": true,
-    "bio": {
-     "birth": "2002.09.28",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mef0e4ead8d",
@@ -18374,11 +13187,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.02.28",
-    "img": true,
-    "bio": {
-     "birth": "1999.04.27",
-     "from": "京都府"
-    }
+    "img": true
    },
    {
     "id": "m80e4ea620f",
@@ -18387,11 +13196,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.12.18",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.28",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m7c5edfa826",
@@ -18400,11 +13205,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2022.07.31",
-    "img": true,
-    "bio": {
-     "birth": "2000.02.24",
-     "from": "埼玉県"
-    }
+    "img": true
    }
   ]
  },
@@ -18420,11 +13221,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.04.12",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m1204ef48f3",
@@ -18433,11 +13230,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.09.27",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m2afda66828",
@@ -18446,11 +13239,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.02.23",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m544ea05403",
@@ -18459,11 +13248,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.08.27",
-    "img": true,
-    "bio": {
-     "birth": "2004.02.23",
-     "from": "鳥取県"
-    }
+    "img": true
    }
   ]
  },
@@ -18479,11 +13264,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.08.06",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m8d613b5647",
@@ -18492,11 +13273,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.10.03",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "ma5e9d2457d",
@@ -18505,11 +13282,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.01.15",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m417e2b75a7",
@@ -18518,11 +13291,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.02.14",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m4f425d5780",
@@ -18531,11 +13300,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.02.20",
-     "from": "広島県"
-    }
+    "img": true
    },
    {
     "id": "m46f79ec7d8",
@@ -18544,11 +13309,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.07.31",
-     "from": "鳥取県"
-    }
+    "img": true
    },
    {
     "id": "m65980323a5",
@@ -18557,11 +13318,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.04.09",
-     "from": "福井県"
-    }
+    "img": true
    },
    {
     "id": "ma411f894b8",
@@ -18570,11 +13327,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.08.07",
-     "from": "北海道"
-    }
+    "img": true
    },
    {
     "id": "mf8435f82cb",
@@ -18583,11 +13336,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.12.31",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mc3691b9972",
@@ -18596,11 +13345,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.05.20",
-     "from": "愛知県"
-    }
+    "img": true
    },
    {
     "id": "m8126a01c29",
@@ -18609,11 +13354,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.02.07",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "mc120c218b2",
@@ -18623,10 +13364,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.12.07",
     "img": true,
-    "bio": {
-     "birth": "2004.08.15",
-     "from": "東京都"
-    },
     "leave": "活動辞退"
    }
   ]
@@ -18643,11 +13380,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.12.07",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m1924916cf1",
@@ -18656,11 +13389,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.05.05",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "mf8847d629e",
@@ -18669,11 +13398,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.12.26",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m5595d59c96",
@@ -18682,11 +13407,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.01.23",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m69dc7a541b",
@@ -18695,11 +13416,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2009.03.14",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "mb6b7cfd61e",
@@ -18708,11 +13425,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.09.10",
-     "from": "福岡県"
-    }
+    "img": true
    },
    {
     "id": "m2ff816972d",
@@ -18721,11 +13434,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.12.26",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m4f49f806aa",
@@ -18734,11 +13443,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.08.01",
-     "from": "兵庫県"
-    }
+    "img": true
    },
    {
     "id": "m4fd1c4947f",
@@ -18747,11 +13452,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.03.27",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m50ac3285c6",
@@ -18760,11 +13461,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.06.08",
-     "from": "神奈川県"
-    }
+    "img": true
    }
   ]
  },
@@ -18780,17 +13477,7 @@ window.AKB_GROUPS = [
     "nick": "みりにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "O型",
-     "sign": "うお座",
-     "height": "155cm",
-     "birth": "1998.03.15",
-     "from": "東京都",
-     "hobby": "メイクやファッションを楽しむこと、ラーメン巡り",
-     "skill": "ジョッキ持ち",
-     "romaji": "OTANI EMIRI"
-    }
+    "img": true
    },
    {
     "id": "m85620333a9",
@@ -18799,17 +13486,7 @@ window.AKB_GROUPS = [
     "nick": "はなちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "みずがめ座",
-     "height": "160cm",
-     "birth": "2000.02.04",
-     "from": "埼玉県",
-     "hobby": "舞台・ミュージカル観劇 レトロ(ファッション・巡り・収集)　動物の赤ちゃんをみること！！",
-     "skill": "イラスト (#はなすと・10秒似顔絵も！) 書道",
-     "romaji": "OBA HANA"
-    }
+    "img": true
    },
    {
     "id": "m6c2299a37d",
@@ -18818,17 +13495,7 @@ window.AKB_GROUPS = [
     "nick": "りさちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "しし座",
-     "height": "160cm",
-     "birth": "1998.08.11",
-     "from": "福岡県",
-     "hobby": "人間観察、コスメを集めること、食べ歩き",
-     "skill": "フラフープ、ファンの方の名前を覚える、福岡愛を語る",
-     "romaji": "OTOSHIMA RISA"
-    }
+    "img": true
    },
    {
     "id": "me89b939290",
@@ -18837,17 +13504,7 @@ window.AKB_GROUPS = [
     "nick": "きあら",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "いて座",
-     "height": "156.2cm",
-     "birth": "2004.11.26",
-     "from": "栃木県",
-     "hobby": "ゲーム、カラオケに行く、メイク動画など見て真似する",
-     "skill": "立ちブリッチ、秒数を頭の中で測る、ドラえもんとまさおくんのモノマネ",
-     "romaji": "SAITO KIARA"
-    }
+    "img": true
    },
    {
     "id": "med8eefd971",
@@ -18856,17 +13513,7 @@ window.AKB_GROUPS = [
     "nick": "まいか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "みずがめ座",
-     "height": "157cm",
-     "birth": "2000.01.21",
-     "from": "愛知県",
-     "hobby": "寝ること",
-     "skill": "絡まったネックレス絶対解ける",
-     "romaji": "SASAKI MAIKA"
-    }
+    "img": true
    },
    {
     "id": "md852a6091b",
@@ -18875,17 +13522,7 @@ window.AKB_GROUPS = [
     "nick": "ひとみ・ひとみん・ひときち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "AB型",
-     "sign": "やぎ座",
-     "height": "163cm",
-     "birth": "2001.01.19",
-     "from": "東京都",
-     "hobby": "映画、ドラマ鑑賞",
-     "skill": "バトントワリング",
-     "romaji": "TAKAMATSU HITOMI"
-    }
+    "img": true
    },
    {
     "id": "mba2ce3cff3",
@@ -18894,17 +13531,7 @@ window.AKB_GROUPS = [
     "nick": "しょこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "O型",
-     "sign": "かに座",
-     "height": "158cm",
-     "birth": "2001.07.09",
-     "from": "神奈川県",
-     "hobby": "料理、ヘアアレンジ、横浜散策、カフェ巡り",
-     "skill": "マラソン",
-     "romaji": "TAKIWAKI SHOKO"
-    }
+    "img": true
    },
    {
     "id": "mf5acfa4254",
@@ -18913,17 +13540,7 @@ window.AKB_GROUPS = [
     "nick": "いおりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "O型",
-     "sign": "おうし座",
-     "height": "161cm",
-     "birth": "2000.04.26",
-     "from": "茨城県",
-     "hobby": "アニメ漫画ゲーム。動画鑑賞",
-     "skill": "特にない！！",
-     "romaji": "NOGUCHI IORI"
-    }
+    "img": true
    },
    {
     "id": "m68a8e13e92",
@@ -18932,17 +13549,7 @@ window.AKB_GROUPS = [
     "nick": "さなつん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "しし座",
-     "height": "158cm",
-     "birth": "1996.08.03",
-     "from": "福島県",
-     "hobby": "映画鑑賞",
-     "skill": "フラダンス、タヒチアンダンス",
-     "romaji": "MOROHASHI SANA"
-    }
+    "img": true
    },
    {
     "id": "m542ac2dfe9",
@@ -18951,17 +13558,7 @@ window.AKB_GROUPS = [
     "nick": "あんにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "いて座",
-     "height": "149.5cm",
-     "birth": "1997.11.30",
-     "from": "広島県",
-     "hobby": "スポーツ観戦（野球、サッカー、バレー）ダンス、料理",
-     "skill": "目分量料理",
-     "romaji": "YAMAMOTO ANNA"
-    }
+    "img": true
    },
    {
     "id": "m4f811f2976",
@@ -18970,13 +13567,7 @@ window.AKB_GROUPS = [
     "nick": "なーたん",
     "status": "former",
     "end": "2023.01.13",
-    "img": true,
-    "bio": {
-     "birth": "2003.07.06",
-     "from": "神奈川県",
-     "height": "151cm",
-     "blood": "AB型"
-    }
+    "img": true
    },
    {
     "id": "mcd4b9fa5ef",
@@ -18985,13 +13576,7 @@ window.AKB_GROUPS = [
     "nick": "のんの",
     "status": "former",
     "end": "2021.03.06",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.06",
-     "from": "群馬県",
-     "height": "159cm",
-     "blood": "A型"
-    }
+    "img": true
    }
   ]
  },
@@ -19007,15 +13592,7 @@ window.AKB_GROUPS = [
     "nick": "はにゃたん・おぎはな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "おうし座",
-     "height": "162.5cm",
-     "birth": "2003.05.08",
-     "from": "千葉県",
-     "romaji": "OGI HANA"
-    }
+    "img": true
    },
    {
     "id": "m50539acc13",
@@ -19024,15 +13601,7 @@ window.AKB_GROUPS = [
     "nick": "きらりん・きらこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "ふたご座",
-     "height": "148.5cm",
-     "birth": "2001.05.22",
-     "from": "栃木県",
-     "romaji": "OCHIAI KIRARI"
-    }
+    "img": true
    },
    {
     "id": "m6018ed4ce1",
@@ -19041,15 +13610,7 @@ window.AKB_GROUPS = [
     "nick": "もえこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "さそり座",
-     "height": "163.4cm",
-     "birth": "1999.10.25",
-     "from": "神奈川県",
-     "romaji": "KANISAWA MOEKO"
-    }
+    "img": true
    },
    {
     "id": "meb8c730c4e",
@@ -19058,15 +13619,7 @@ window.AKB_GROUPS = [
     "nick": "なっちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "AB型",
-     "sign": "しし座",
-     "height": "165cm",
-     "birth": "2001.07.29",
-     "from": "広島県",
-     "romaji": "KAWAGUCHI NATSUNE"
-    }
+    "img": true
    },
    {
     "id": "m760c1fee48",
@@ -19075,15 +13628,7 @@ window.AKB_GROUPS = [
     "nick": "なつみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "てんびん座",
-     "height": "163.7cm",
-     "birth": "2005.09.26",
-     "from": "東京都",
-     "romaji": "KAWANAGO NATSUMI"
-    }
+    "img": true
    },
    {
     "id": "m03abe648ac",
@@ -19092,15 +13637,7 @@ window.AKB_GROUPS = [
     "nick": "ももきゅん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "おひつじ座",
-     "height": "152.7cm",
-     "birth": "2004.04.13",
-     "from": "神奈川県",
-     "romaji": "SAKURAI MOMO"
-    }
+    "img": true
    },
    {
     "id": "m41a41baadf",
@@ -19109,15 +13646,7 @@ window.AKB_GROUPS = [
     "nick": "ひぃちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "おひつじ座",
-     "height": "159.5cm",
-     "birth": "2001.04.13",
-     "from": "東京都",
-     "romaji": "SUZUKI HITOMI"
-    }
+    "img": true
    },
    {
     "id": "m5e37f34e08",
@@ -19126,15 +13655,7 @@ window.AKB_GROUPS = [
     "nick": "さややん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "B型",
-     "sign": "てんびん座",
-     "height": "161cm",
-     "birth": "1999.10.07",
-     "from": "熊本県",
-     "romaji": "TANIZAKI SAYA"
-    }
+    "img": true
    },
    {
     "id": "m53fd117a1d",
@@ -19143,15 +13664,7 @@ window.AKB_GROUPS = [
     "nick": "ななか・なんかちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "かに座",
-     "height": "162cm",
-     "birth": "2000.07.17",
-     "from": "鹿児島県",
-     "romaji": "TOMITA NANAKA"
-    }
+    "img": true
    },
    {
     "id": "m70095d5fb9",
@@ -19160,15 +13673,7 @@ window.AKB_GROUPS = [
     "nick": "しおりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "A型",
-     "sign": "おひつじ座",
-     "height": "150.2cm",
-     "birth": "2004.04.02",
-     "from": "広島県",
-     "romaji": "NAGATA SHIORI"
-    }
+    "img": true
    },
    {
     "id": "m045cc875c2",
@@ -19177,15 +13682,7 @@ window.AKB_GROUPS = [
     "nick": "みるてん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "blood": "AB型",
-     "sign": "うお座",
-     "height": "153cm",
-     "birth": "2004.02.27",
-     "from": "栃木県",
-     "romaji": "HONDA MIYUKI"
-    }
+    "img": true
    },
    {
     "id": "m46a156a109",
@@ -19194,13 +13691,7 @@ window.AKB_GROUPS = [
     "nick": "みれい",
     "status": "former",
     "end": "2026.06.12",
-    "img": true,
-    "bio": {
-     "birth": "2000.02.05",
-     "from": "福島県",
-     "height": "161cm",
-     "blood": "O型"
-    }
+    "img": true
    }
   ]
  },
@@ -19216,16 +13707,7 @@ window.AKB_GROUPS = [
     "nick": "じゅりい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "じゅりい",
-     "blood": "O型",
-     "sign": "おとめ座",
-     "height": "161cm",
-     "birth": "2005.09.13",
-     "from": "東京都",
-     "romaji": "AIDA JURII"
-    }
+    "img": true
    },
    {
     "id": "mbea618d3a2",
@@ -19234,16 +13716,7 @@ window.AKB_GROUPS = [
     "nick": "このたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "このたん",
-     "blood": "O型",
-     "sign": "みずがめ座",
-     "height": "157cm",
-     "birth": "2007.01.21",
-     "from": "埼玉県",
-     "romaji": "AMANO KONOA"
-    }
+    "img": true
    },
    {
     "id": "m6a179f097b",
@@ -19252,16 +13725,7 @@ window.AKB_GROUPS = [
     "nick": "あゆみん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "あゆみん",
-     "blood": "A型",
-     "sign": "しし座",
-     "height": "161.5cm",
-     "birth": "2003.08.21",
-     "from": "福岡県",
-     "romaji": "ICHIHARA AYUMI"
-    }
+    "img": true
    },
    {
     "id": "mb6c9ab2b9a",
@@ -19270,16 +13734,7 @@ window.AKB_GROUPS = [
     "nick": "れのん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "れのん",
-     "blood": "B型",
-     "sign": "おうし座",
-     "height": "160cm",
-     "birth": "2005.04.26",
-     "from": "大阪府",
-     "romaji": "ESUMI RENON"
-    }
+    "img": true
    },
    {
     "id": "m6d28c625d0",
@@ -19288,16 +13743,7 @@ window.AKB_GROUPS = [
     "nick": "みっちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "みっちゃん",
-     "blood": "O型",
-     "sign": "てんびん座",
-     "height": "155cm",
-     "birth": "2004.09.27",
-     "from": "大阪府",
-     "romaji": "OSHIDA MITSUKI"
-    }
+    "img": true
    },
    {
     "id": "m5c7761a3d8",
@@ -19306,16 +13752,7 @@ window.AKB_GROUPS = [
     "nick": "あおい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "あおい",
-     "blood": "B型",
-     "sign": "しし座",
-     "height": "156cm",
-     "birth": "2005.08.06",
-     "from": "東京都",
-     "romaji": "ONISHI AOI"
-    }
+    "img": true
    },
    {
     "id": "ma2ee618e9f",
@@ -19324,15 +13761,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "あいみ",
-     "sign": "おひつじ座",
-     "height": "163cm",
-     "birth": "2003.04.09",
-     "from": "神奈川県",
-     "romaji": "OZAWA AIMI"
-    }
+    "img": true
    },
    {
     "id": "m15a93383cf",
@@ -19341,16 +13770,7 @@ window.AKB_GROUPS = [
     "nick": "まいまい",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "まいちゃん",
-     "blood": "O型",
-     "sign": "うお座",
-     "height": "160cm",
-     "birth": "2005.02.22",
-     "from": "兵庫県",
-     "romaji": "TAKAHASHI MAI"
-    }
+    "img": true
    },
    {
     "id": "m79e1e991f8",
@@ -19359,16 +13779,7 @@ window.AKB_GROUPS = [
     "nick": "りこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "りこ",
-     "blood": "B型",
-     "sign": "やぎ座",
-     "height": "155cm",
-     "birth": "2004.01.16",
-     "from": "埼玉県",
-     "romaji": "FUJISAWA RIKO"
-    }
+    "img": true
    },
    {
     "id": "mb3f706a952",
@@ -19377,16 +13788,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうか",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "ゆうか",
-     "blood": "O型",
-     "sign": "みずがめ座",
-     "height": "158.5cm",
-     "birth": "2004.02.15",
-     "from": "福岡県",
-     "romaji": "MURAYAMA YUUKA"
-    }
+    "img": true
    },
    {
     "id": "m901394de38",
@@ -19395,16 +13797,7 @@ window.AKB_GROUPS = [
     "nick": "ももちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "ももちゃん",
-     "blood": "B型",
-     "sign": "みずがめ座",
-     "height": "161cm",
-     "birth": "2006.02.02",
-     "from": "神奈川県",
-     "romaji": "YAMADA MOMOKA"
-    }
+    "img": true
    },
    {
     "id": "m9eb63f3299",
@@ -19413,16 +13806,7 @@ window.AKB_GROUPS = [
     "nick": "ありす",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "nick": "ありす",
-     "blood": "A型",
-     "sign": "てんびん座",
-     "height": "153.5cm",
-     "birth": "2006.10.21",
-     "from": "大阪府",
-     "romaji": "YAMANO ARISU"
-    }
+    "img": true
    },
    {
     "id": "m0ecffd76d7",
@@ -19431,13 +13815,7 @@ window.AKB_GROUPS = [
     "nick": "もえか",
     "status": "former",
     "end": "2023.03.29",
-    "img": true,
-    "bio": {
-     "birth": "2004.10.22",
-     "from": "神奈川県",
-     "height": "162.5cm",
-     "blood": "O型"
-    }
+    "img": true
    }
   ]
  },
@@ -19454,13 +13832,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2013.09.09",
-     "blood": "A型",
-     "from": "広島県",
-     "hobby": "冷蔵庫チェック、食べること",
-     "skill": "ダンス、愛犬の肉球の匂いを当てること"
-    },
     "generation": "18期生",
     "nick_aliases": [
      "はなのん",
@@ -19475,13 +13846,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2006.05.06",
-     "blood": "A型",
-     "from": "京都府",
-     "hobby": "映画館へ行くこと、チョコミントのスイーツを食べること、マラソン",
-     "skill": "ポップコーンのLサイズを完食できる。"
-    },
     "generation": "17期生"
    },
    {
@@ -19492,13 +13856,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2005.05.09",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "文房具集め、美味しい焼肉屋さんを見つける",
-     "skill": "水を飲む時にいい音が出ます。"
-    },
     "generation": "15期生",
     "nick_aliases": [
      "ほまちゃん"
@@ -19512,13 +13869,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "1999.03.12",
-     "blood": "A型",
-     "from": "神奈川県",
-     "hobby": "歌うこと、食べること、猫を触ること、音楽鑑賞、ライブ鑑賞、アニメ鑑賞、舞台鑑賞、バラエティ鑑賞、お笑い鑑賞、セルフジェルネイル",
-     "skill": "フラダンス、エモーショナル童謡、人と話すこと"
-    },
     "generation": "11期生",
     "nick_aliases": [
      "おださく",
@@ -19533,13 +13883,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2005.11.11",
-     "blood": "O型",
-     "from": "東京都",
-     "hobby": "アイドル鑑賞、ゲーム、ファッションコーディネート",
-     "skill": "スティッチの声マネ、指パッチン、人の長所を見つけること"
-    },
     "generation": "16期生"
    },
    {
@@ -19550,13 +13893,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2011.12.20",
-     "blood": "不明",
-     "from": "兵庫県",
-     "hobby": "お菓子作り、お菓子を食べること、釣り、ライブ鑑賞、ゲーム、すごろく、百人一首、鉄棒",
-     "skill": "ダンス、アクロバット"
-    },
     "generation": "18期生"
    },
    {
@@ -19567,13 +13903,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2013.04.12",
-     "blood": "A型",
-     "from": "神奈川県",
-     "hobby": "紙スクイーズを作ること",
-     "skill": "持ち物の持ち主あて"
-    },
     "generation": "18期生",
     "nick_aliases": [
      "すーも"
@@ -19587,13 +13916,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "1999.10.07",
-     "blood": "A型",
-     "from": "静岡県静岡市、アメリカ",
-     "hobby": "筋トレ、美容、読書、バスケ観戦、作曲、愛犬と遊ぶこと",
-     "skill": "英語、ピアノ、ドラえもんの声真似"
-    },
     "generation": "12期生",
     "nick_aliases": [
      "のなちゃん"
@@ -19607,13 +13929,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2012.04.19",
-     "blood": "Ｏ型",
-     "from": "大分県",
-     "hobby": "ガチャガチャ集め、コスメ集め",
-     "skill": "水泳、クラリネット、習字"
-    },
     "generation": "18期生",
     "nick_aliases": [
      "みゆみゆ"
@@ -19627,13 +13942,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2005.06.28",
-     "blood": "B型",
-     "from": "北海道",
-     "hobby": "アニメ鑑賞、セルフネイル、リズムゲーム",
-     "skill": "気配を消して人に近づく"
-    },
     "generation": "15期生",
     "nick_aliases": [
      "めいち",
@@ -19649,13 +13957,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.07.08",
-     "blood": "A型",
-     "from": "静岡県(浜松市生まれ静岡市育ち)",
-     "hobby": "梅、ミュージカル鑑賞",
-     "skill": "熱血エール(応援団長経験有)"
-    },
     "generation": "17期生"
    },
    {
@@ -19666,11 +13967,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2004.01.25",
     "img": true,
-    "bio": {
-     "birth": "1981.08.10",
-     "from": "北海道",
-     "blood": "A型"
-    },
     "generation": "1期生",
     "nick_aliases": [
      "なちみ"
@@ -19684,11 +13980,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.12.16",
     "img": true,
-    "bio": {
-     "birth": "1994.11.07",
-     "from": "東京都",
-     "blood": "O型"
-    },
     "generation": "10期生"
    },
    {
@@ -19699,11 +13990,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2005.01.30",
     "img": true,
-    "bio": {
-     "birth": "1981.08.08",
-     "from": "北海道",
-     "blood": "A型"
-    },
     "generation": "1期生"
    },
    {
@@ -19714,11 +14000,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.07.08",
     "img": true,
-    "bio": {
-     "birth": "1997.07.07",
-     "from": "福岡県",
-     "blood": "A型"
-    },
     "generation": "9期生",
     "nick_aliases": [
      "えり",
@@ -19733,11 +14014,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2005.05.07",
     "img": true,
-    "bio": {
-     "birth": "1985.01.19",
-     "from": "神奈川県",
-     "blood": "A型"
-    },
     "generation": "4期生",
     "nick_aliases": [
      "チャーミー"
@@ -19751,11 +14027,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2000.01.07",
     "img": false,
-    "bio": {
-     "birth": "1978.05.12",
-     "from": "北海道",
-     "blood": "A型"
-    },
     "generation": "1期生"
    },
    {
@@ -19766,11 +14037,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2024.12.06",
     "img": true,
-    "bio": {
-     "birth": "1997.01.07",
-     "from": "宮城県",
-     "blood": "O型"
-    },
     "generation": "10期生",
     "nick_aliases": [
      "あゆみん",
@@ -19785,11 +14051,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2000.05.21",
     "img": false,
-    "bio": {
-     "birth": "1983.12.31",
-     "from": "千葉県",
-     "blood": "A型"
-    },
     "generation": "2期生",
     "nick_aliases": [
      "さやりん"
@@ -19803,11 +14064,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2018.06.20",
     "img": true,
-    "bio": {
-     "birth": "1999.02.15",
-     "from": "大阪府",
-     "blood": "A型"
-    },
     "generation": "12期生"
    },
    {
@@ -19818,11 +14074,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.08.27",
     "img": true,
-    "bio": {
-     "birth": "1987.10.29",
-     "from": "新潟県",
-     "blood": "O型"
-    },
     "generation": "5期生"
    },
    {
@@ -19833,11 +14084,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.12.10",
     "img": true,
-    "bio": {
-     "birth": "1999.11.30",
-     "from": "東京都",
-     "blood": "A型"
-    },
     "generation": "13期生",
     "nick_aliases": [
      "かがちゃん",
@@ -19852,11 +14098,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2004.08.01",
     "img": true,
-    "bio": {
-     "birth": "1988.02.07",
-     "from": "奈良県",
-     "blood": "AB型"
-    },
     "generation": "4期生",
     "nick_aliases": [
      "あいぼん"
@@ -19870,11 +14111,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2010.12.15",
     "img": true,
-    "bio": {
-     "birth": "1988.12.23",
-     "from": "東京都",
-     "blood": "AB型"
-    },
     "generation": "6期生",
     "nick_aliases": [
      "えり",
@@ -19889,11 +14125,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.12.27",
     "img": true,
-    "bio": {
-     "birth": "2004.03.16",
-     "from": "東京都",
-     "blood": "O型"
-    },
     "generation": "15期生",
     "nick_aliases": [
      "莉央ちゃん"
@@ -19907,11 +14138,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2009.12.06",
     "img": true,
-    "bio": {
-     "birth": "1992.07.15",
-     "from": "新潟県",
-     "blood": "A型"
-    },
     "generation": "7期生"
    },
    {
@@ -19922,11 +14148,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.12.11",
     "img": true,
-    "bio": {
-     "birth": "1999.10.27",
-     "from": "埼玉県",
-     "blood": "A型"
-    },
     "generation": "10期生",
     "nick_aliases": [
      "ハルちゃん",
@@ -19941,11 +14162,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2006.07.23",
     "img": true,
-    "bio": {
-     "birth": "1987.05.07",
-     "from": "北海道",
-     "blood": "B型"
-    },
     "generation": "5期生",
     "nick_aliases": [
      "こんちゃん"
@@ -19959,11 +14175,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2002.09.23",
     "img": true,
-    "bio": {
-     "birth": "1985.09.23",
-     "from": "東京都",
-     "blood": "O型"
-    },
     "generation": "3期生",
     "nick_aliases": [
      "ごっつぁん",
@@ -19978,11 +14189,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2021.12.13",
     "img": true,
-    "bio": {
-     "birth": "1999.05.07",
-     "from": "北海道",
-     "blood": "A型"
-    },
     "generation": "10期生",
     "nick_aliases": [
      "まーちゃん",
@@ -19997,11 +14203,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.12.31",
     "img": true,
-    "bio": {
-     "birth": "1998.05.28",
-     "from": "広島県",
-     "blood": "AB型"
-    },
     "generation": "9期生",
     "nick_aliases": [
      "りほりほ",
@@ -20016,11 +14217,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2010.12.15",
     "img": true,
-    "bio": {
-     "birth": "1988.01.11",
-     "from": "中国 湖南省",
-     "blood": "O型"
-    },
     "generation": "8期生"
    },
    {
@@ -20031,11 +14227,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2016.05.31",
     "img": true,
-    "bio": {
-     "birth": "1998.08.05",
-     "from": "愛知県",
-     "blood": "B型"
-    },
     "generation": "9期生"
    },
    {
@@ -20046,11 +14237,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2011.09.30",
     "img": true,
-    "bio": {
-     "birth": "1986.09.14",
-     "from": "福井県",
-     "blood": "A型"
-    },
     "generation": "5期生"
    },
    {
@@ -20061,11 +14247,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2013.05.21",
     "img": true,
-    "bio": {
-     "birth": "1989.11.11",
-     "from": "福岡県",
-     "blood": "A型"
-    },
     "generation": "6期生",
     "nick_aliases": [
      "れーな",
@@ -20082,11 +14263,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2004.08.01",
     "img": true,
-    "bio": {
-     "birth": "1987.06.17",
-     "from": "東京都",
-     "blood": "O型"
-    },
     "generation": "4期生",
     "nick_aliases": [
      "のの",
@@ -20101,11 +14277,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2001.04.15",
     "img": true,
-    "bio": {
-     "birth": "1973.06.19",
-     "from": "京都府",
-     "blood": "O型"
-    },
     "generation": "1期生",
     "nick_aliases": [
      "中澤姐さん"
@@ -20119,11 +14290,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.05.18",
     "img": true,
-    "bio": {
-     "birth": "1988.10.20",
-     "from": "神奈川県",
-     "blood": "B型"
-    },
     "generation": "5期生",
     "nick_aliases": [
      "お豆ちゃん"
@@ -20137,11 +14303,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.12.05",
     "img": true,
-    "bio": {
-     "birth": "2002.03.07",
-     "from": "長野県",
-     "blood": "O型"
-    },
     "generation": "12期生",
     "nick_aliases": [
      "はがちゃん",
@@ -20156,11 +14317,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "1999.04.18",
     "img": false,
-    "bio": {
-     "birth": "1984.12.17",
-     "from": "東京都",
-     "blood": "B型"
-    },
     "generation": "1期生",
     "nick_aliases": [
      "ふくちゃん"
@@ -20174,11 +14330,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.11.29",
     "img": true,
-    "bio": {
-     "birth": "1996.10.30",
-     "from": "東京都",
-     "blood": "O型"
-    },
     "generation": "9期生",
     "nick_aliases": [
      "みず☆ポン",
@@ -20194,11 +14345,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.06.01",
     "img": true,
-    "bio": {
-     "birth": "1985.02.26",
-     "from": "北海道",
-     "blood": "A型"
-    },
     "generation": "6期生"
    },
    {
@@ -20209,11 +14355,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2026.06.24",
     "img": true,
-    "bio": {
-     "birth": "2001.02.02",
-     "from": "愛知県",
-     "blood": "A型"
-    },
     "generation": "12期生"
    },
    {
@@ -20224,11 +14365,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2014.11.26",
     "img": true,
-    "bio": {
-     "birth": "1989.07.13",
-     "from": "山口県",
-     "blood": "A型"
-    },
     "generation": "6期生",
     "nick_aliases": [
      "さゆみん",
@@ -20245,11 +14381,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2012.05.18",
     "img": true,
-    "bio": {
-     "birth": "1993.01.12",
-     "from": "滋賀県",
-     "blood": "O型"
-    },
     "generation": "8期生",
     "nick_aliases": [
      "みっつぃー"
@@ -20263,11 +14394,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.06.20",
     "img": true,
-    "bio": {
-     "birth": "2000.02.19",
-     "from": "栃木県",
-     "blood": "A型"
-    },
     "generation": "14期生",
     "nick_aliases": [
      "ちぃ",
@@ -20293,11 +14419,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2005.04.14",
     "img": true,
-    "bio": {
-     "birth": "1983.01.20",
-     "from": "神奈川県",
-     "blood": "A型"
-    },
     "generation": "2期生",
     "nick_aliases": [
      "やぐっつぁん",
@@ -20312,11 +14433,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2003.05.05",
     "img": true,
-    "bio": {
-     "birth": "1980.12.06",
-     "from": "千葉県",
-     "blood": "A型"
-    },
     "generation": "2期生",
     "nick_aliases": [
      "ケメ子"
@@ -20330,11 +14446,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.12.05",
     "img": true,
-    "bio": {
-     "birth": "2001.02.22",
-     "from": "埼玉県",
-     "blood": "O型"
-    },
     "generation": "13期生",
     "nick_aliases": [
      "よこやん",
@@ -20349,11 +14460,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2007.05.06",
     "img": true,
-    "bio": {
-     "birth": "1985.04.12",
-     "from": "埼玉県",
-     "blood": "O型"
-    },
     "generation": "4期生",
     "nick_aliases": [
      "ヨッシー",
@@ -20368,11 +14474,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2010.12.15",
     "img": true,
-    "bio": {
-     "birth": "1991.03.11",
-     "from": "中国 浙江省",
-     "blood": "B型"
-    },
     "generation": "8期生"
    }
   ]
@@ -20389,12 +14490,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.07.09",
-    "img": false,
-    "bio": {
-     "birth": "1993.06.15",
-     "from": "神奈川県",
-     "blood": "A型"
-    }
+    "img": false
    },
    {
     "id": "m4a460b72df",
@@ -20403,12 +14499,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2009.10.25",
-    "img": false,
-    "bio": {
-     "birth": "1991.05.24",
-     "from": "神奈川県",
-     "blood": "A型"
-    }
+    "img": false
    },
    {
     "id": "m4cdbe4cb9a",
@@ -20417,13 +14508,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1994.06.21",
-     "from": "埼玉県",
-     "blood": "A型",
-     "height": "152cm"
-    }
+    "img": true
    },
    {
     "id": "mc6e16cdd68",
@@ -20432,13 +14517,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1994.04.12",
-     "from": "千葉県",
-     "blood": "B型",
-     "height": "161cm"
-    }
+    "img": true
    },
    {
     "id": "ma282177684",
@@ -20447,13 +14526,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1994.02.05",
-     "from": "埼玉県",
-     "blood": "O型",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "mba7513c433",
@@ -20462,13 +14535,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1996.02.07",
-     "from": "埼玉県",
-     "blood": "AB型",
-     "height": "158cm"
-    }
+    "img": true
    },
    {
     "id": "mf67dfcd873",
@@ -20477,12 +14544,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2006.10.31",
-    "img": false,
-    "bio": {
-     "birth": "1992.06.06",
-     "from": "埼玉県",
-     "blood": "A型"
-    }
+    "img": false
    },
    {
     "id": "m1e469c008a",
@@ -20491,13 +14553,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1992.02.07",
-     "from": "埼玉県",
-     "blood": "O型",
-     "height": "166cm"
-    }
+    "img": true
    }
   ]
  },
@@ -20514,13 +14570,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2004.01.19",
-     "blood": "A型",
-     "from": "北海道",
-     "hobby": "人間観察、お菓子作り、音楽鑑賞、宝塚観劇",
-     "skill": "クラシックバレエ、ダンス"
-    },
     "nick_aliases": [
      "れらぴ"
     ]
@@ -20533,12 +14582,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2003.12.06",
-     "blood": "B型",
-     "from": "千葉県",
-     "hobby": "カエルグッズ集め"
-    },
     "nick_aliases": [
      "ケロちゃん",
      "ケロンヌ"
@@ -20552,12 +14595,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.06.05",
-     "blood": "O型",
-     "from": "埼玉県",
-     "hobby": "お菓子作り、美味しいものをたくさん食べること、写真を撮ること"
-    },
     "nick_aliases": [
      "ごっちん",
      "はなちゃん"
@@ -20570,13 +14607,7 @@ window.AKB_GROUPS = [
     "nick": "ゆっぴょん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.08.04",
-     "blood": "O型",
-     "from": "岡山県",
-     "hobby": "ゲーム、ゲーム実況動画を見ること、お笑い鑑賞、ヘアクリップ集め"
-    }
+    "img": true
    },
    {
     "id": "mca6a4e4d65",
@@ -20585,13 +14616,7 @@ window.AKB_GROUPS = [
     "nick": "しおんぬ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.02.09",
-     "blood": "O型",
-     "from": "長野県",
-     "hobby": "少女漫画、ドラマ・映画・舞台・お笑い鑑賞、パワースポット巡り、期間限定・地域限定の食べ物を食べる！"
-    }
+    "img": true
    },
    {
     "id": "m3408aadd98",
@@ -20601,12 +14626,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2010.05.13",
-     "blood": "A型",
-     "from": "福岡県",
-     "hobby": "ご飯を食べること、カラオケ、絵を描くこと"
-    },
     "nick_aliases": [
      "もち",
      "もち山もちこ"
@@ -20619,13 +14638,7 @@ window.AKB_GROUPS = [
     "nick": "りんちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.06",
-     "blood": "O型",
-     "from": "愛知県",
-     "hobby": "ドッキリをしかけること"
-    }
+    "img": true
    },
    {
     "id": "mf135b17a43",
@@ -20635,12 +14648,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2006.07.25",
-     "blood": "A型",
-     "from": "神奈川県",
-     "hobby": "いろんなジャンルの音楽鑑賞、ジブリ映画をみること"
-    },
     "nick_aliases": [
      "ぺい",
      "ぺいちゃん"
@@ -20653,13 +14660,7 @@ window.AKB_GROUPS = [
     "nick": "わかにゃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.09.01",
-     "blood": "AB型",
-     "from": "神奈川県",
-     "hobby": "料理、箸置き集め、食器集め、いろんな食パンを食べること、飲食店の一日密着動画を見ること"
-    }
+    "img": true
    },
    {
     "id": "m88e3ba156b",
@@ -20669,11 +14670,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.12.31",
     "img": true,
-    "bio": {
-     "birth": "1999.03.26",
-     "from": "神奈川県",
-     "blood": "A型"
-    },
     "nick_aliases": [
      "（まほちゃん）"
     ]
@@ -20686,11 +14682,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.10.13",
     "img": true,
-    "bio": {
-     "birth": "2003.10.21",
-     "from": "北海道",
-     "blood": "B型"
-    },
     "nick_aliases": [
      "（はち）"
     ]
@@ -20702,12 +14693,7 @@ window.AKB_GROUPS = [
     "nick": "サキチィー",
     "status": "former",
     "end": "2011.08.27",
-    "img": true,
-    "bio": {
-     "birth": "1996.11.18",
-     "from": "埼玉県",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "m327109177a",
@@ -20716,12 +14702,7 @@ window.AKB_GROUPS = [
     "nick": "かっさー",
     "status": "former",
     "end": "2021.11.15",
-    "img": true,
-    "bio": {
-     "birth": "2003.10.22",
-     "from": "神奈川県",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "m429ce3f5ca",
@@ -20730,12 +14711,7 @@ window.AKB_GROUPS = [
     "nick": "りなぷ〜",
     "status": "former",
     "end": "2019.09.25",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.06",
-     "from": "東京都",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "ma42e88eeb7",
@@ -20744,12 +14720,7 @@ window.AKB_GROUPS = [
     "nick": "かみこ",
     "status": "former",
     "end": "2025.06.18",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.24",
-     "from": "熊本県",
-     "blood": "O型"
-    }
+    "img": true
    },
    {
     "id": "m8b605ea23d",
@@ -20758,12 +14729,7 @@ window.AKB_GROUPS = [
     "nick": "かわむー",
     "status": "former",
     "end": "2024.11.28",
-    "img": true,
-    "bio": {
-     "birth": "1999.07.07",
-     "from": "高知県",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "m170893f7a5",
@@ -20772,12 +14738,7 @@ window.AKB_GROUPS = [
     "nick": "ふ〜ちゃん",
     "status": "former",
     "end": "2011.09.09",
-    "img": false,
-    "bio": {
-     "birth": "1997.11.19",
-     "from": "神奈川県",
-     "blood": "O型"
-    }
+    "img": false
    },
    {
     "id": "m60912d597b",
@@ -20786,12 +14747,7 @@ window.AKB_GROUPS = [
     "nick": "りかこ",
     "status": "former",
     "end": "2024.06.19",
-    "img": true,
-    "bio": {
-     "birth": "2001.05.28",
-     "from": "宮城県",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "mcf3009a2e3",
@@ -20801,11 +14757,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2023.06.21",
     "img": true,
-    "bio": {
-     "birth": "1997.11.23",
-     "from": "埼玉県",
-     "blood": "O型"
-    },
     "nick_aliases": [
      "（おでん）"
     ]
@@ -20817,12 +14768,7 @@ window.AKB_GROUPS = [
     "nick": "めいめい",
     "status": "former",
     "end": "2016.05.30",
-    "img": true,
-    "bio": {
-     "birth": "1998.10.30",
-     "from": "群馬県",
-     "blood": "O型"
-    }
+    "img": true
    },
    {
     "id": "me89e480128",
@@ -20831,12 +14777,7 @@ window.AKB_GROUPS = [
     "nick": "かななん",
     "status": "former",
     "end": "2019.12.10",
-    "img": true,
-    "bio": {
-     "birth": "1997.06.04",
-     "from": "大阪府",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "m4534b939f0",
@@ -20846,11 +14787,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2015.11.29",
     "img": true,
-    "bio": {
-     "birth": "1995.03.12",
-     "from": "埼玉県",
-     "blood": "A型"
-    },
     "nick_aliases": [
      "（まろ）"
     ]
@@ -20863,11 +14799,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2020.12.09",
     "img": true,
-    "bio": {
-     "birth": "2002.05.10",
-     "from": "大阪府",
-     "blood": "O型"
-    },
     "nick_aliases": [
      "ふなきち",
      "（ふなちゃん）"
@@ -20890,12 +14821,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうかりん",
     "status": "former",
     "end": "2011.12.31",
-    "img": true,
-    "bio": {
-     "birth": "1994.12.28",
-     "from": "千葉県",
-     "blood": "B型"
-    }
+    "img": true
    },
    {
     "id": "m796ca32cf4",
@@ -20904,12 +14830,7 @@ window.AKB_GROUPS = [
     "nick": "むろたん",
     "status": "former",
     "end": "2020.03.22",
-    "img": true,
-    "bio": {
-     "birth": "1998.06.12",
-     "from": "千葉県",
-     "blood": "AB型"
-    }
+    "img": true
    },
    {
     "id": "mfd50aa05ac",
@@ -20919,11 +14840,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.06.18",
     "img": true,
-    "bio": {
-     "birth": "1994.08.01",
-     "from": "群馬県",
-     "blood": "A型"
-    },
     "nick_aliases": [
      "あやちょ",
      "（わだちょ）"
@@ -20944,14 +14860,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2003.12.23",
-     "blood": "O型",
-     "from": "大阪府",
-     "hobby": "作詞、作曲、セッション",
-     "skill": "バイオリン",
-     "height": "155.1cm"
-    },
     "nick_aliases": [
      "いちか",
      "いちか氏"
@@ -20964,15 +14872,7 @@ window.AKB_GROUPS = [
     "nick": "さくらち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.02.22",
-     "blood": "B型",
-     "from": "東京都",
-     "hobby": "料理、文字を書くこと、シャチ鑑賞",
-     "skill": "美味しいご飯屋さんを見つけること",
-     "height": "163.5cm"
-    }
+    "img": true
    },
    {
     "id": "m8190c6e11d",
@@ -20982,14 +14882,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2001.07.17",
-     "blood": "O型",
-     "from": "東京都",
-     "hobby": "カメラ、編み物、お散歩",
-     "skill": "高速まばたき、ボイスパーカッション",
-     "height": "163cm"
-    },
     "groups": [
      {
       "group": "Juice=Juice",
@@ -21008,15 +14900,7 @@ window.AKB_GROUPS = [
     "nick": "りさち",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.18",
-     "blood": "A型",
-     "from": "千葉県",
-     "hobby": "愛犬と遊ぶこと",
-     "skill": "書道、ヘアアレンジ",
-     "height": "157.7cm"
-    }
+    "img": true
    },
    {
     "id": "mea6285ec42",
@@ -21025,14 +14909,7 @@ window.AKB_GROUPS = [
     "nick": "えば",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.01.30",
-     "blood": "A型",
-     "from": "京都府",
-     "hobby": "何かを作ること",
-     "height": "159cm"
-    }
+    "img": true
    },
    {
     "id": "md8a212acbd",
@@ -21042,14 +14919,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.04.26",
-     "blood": "A型",
-     "from": "北海道",
-     "hobby": "アイスを食べる・ウォーキング・メイク研究・怪談を聞くこと",
-     "skill": "バレエ、イラストを描く事",
-     "height": "168.5cm"
-    },
     "nick_aliases": [
      "あかりんご"
     ]
@@ -21062,13 +14931,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2007.12.13",
-     "blood": "AB型",
-     "from": "京都府",
-     "hobby": "読書、映画ドラマ鑑賞、1人カラオケ",
-     "height": "159.5cm"
-    },
     "nick_aliases": [
      "おみふ"
     ]
@@ -21081,13 +14943,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2004.09.28",
-     "blood": "A型",
-     "from": "北海道",
-     "hobby": "タコグッズ収集・整備、少女漫画を読むこと",
-     "height": "160.2cm"
-    },
     "nick_aliases": [
      "タコちゃん"
     ]
@@ -21100,14 +14955,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2001.05.07",
-     "blood": "A型",
-     "from": "広島県",
-     "hobby": "カラオケ、パン作り",
-     "skill": "ピアノの弾き語り",
-     "height": "164.5cm"
-    },
     "nick_aliases": [
      "るるちゃん",
      "るーちゃん"
@@ -21120,14 +14967,7 @@ window.AKB_GROUPS = [
     "nick": "にいな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.06.10",
-     "blood": "A型",
-     "from": "愛知県",
-     "hobby": "ミニチュア集め、カプセルトイをまわすこと",
-     "height": "170cm"
-    }
+    "img": true
    },
    {
     "id": "ma085477b9f",
@@ -21137,14 +14977,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2005.07.07",
-     "blood": "A型",
-     "from": "大阪府",
-     "hobby": "読書、映画、音楽鑑賞",
-     "skill": "速読",
-     "height": "162cm"
-    },
     "nick_aliases": [
      "りあてゃ"
     ]
@@ -21157,10 +14989,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2022.05.30",
     "img": true,
-    "bio": {
-     "birth": "1997.12.27",
-     "from": "北海道"
-    },
     "groups": [
      {
       "group": "Juice=Juice",
@@ -21179,11 +15007,7 @@ window.AKB_GROUPS = [
     "nick": "あーりー",
     "status": "former",
     "end": "2024.06.14",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.30",
-     "from": "大阪府"
-    }
+    "img": true
    },
    {
     "id": "m2174819111",
@@ -21192,11 +15016,7 @@ window.AKB_GROUPS = [
     "nick": "つかぽん",
     "status": "former",
     "end": "2013.07.05",
-    "img": true,
-    "bio": {
-     "birth": "1998.04.03",
-     "from": "東京都"
-    }
+    "img": true
    },
    {
     "id": "m651547180e",
@@ -21205,11 +15025,7 @@ window.AKB_GROUPS = [
     "nick": "かなとも",
     "status": "former",
     "end": "2021.11.24",
-    "img": true,
-    "bio": {
-     "birth": "1995.07.02",
-     "from": "埼玉県"
-    }
+    "img": true
    },
    {
     "id": "m31a59e2c92",
@@ -21218,11 +15034,7 @@ window.AKB_GROUPS = [
     "nick": "さゆべぇ",
     "status": "former",
     "end": "2021.02.12",
-    "img": true,
-    "bio": {
-     "birth": "1997.04.21",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "m7ea224f365",
@@ -21231,11 +15043,7 @@ window.AKB_GROUPS = [
     "nick": "ゆかにゃ",
     "status": "former",
     "end": "2019.06.17",
-    "img": true,
-    "bio": {
-     "birth": "1994.04.02",
-     "from": "石川県"
-    }
+    "img": true
    },
    {
     "id": "m73afffa731",
@@ -21244,11 +15052,7 @@ window.AKB_GROUPS = [
     "nick": "カリン",
     "status": "former",
     "end": "2020.12.10",
-    "img": true,
-    "bio": {
-     "birth": "1998.12.01",
-     "from": "千葉県"
-    }
+    "img": true
    },
    {
     "id": "mee6c974c04",
@@ -21258,10 +15062,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2019.03.11",
     "img": true,
-    "bio": {
-     "birth": "2002.01.06",
-     "from": "神奈川県"
-    },
     "groups": [
      {
       "group": "Juice=Juice",
@@ -21287,15 +15087,7 @@ window.AKB_GROUPS = [
     "nick": "まおぴん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.07.29",
-     "blood": "B型",
-     "from": "大阪府",
-     "hobby": "ダンス、映画、お花",
-     "skill": "人の素敵な所を見つける",
-     "height": "158.5cm"
-    }
+    "img": true
    },
    {
     "id": "m4054aa2119",
@@ -21305,14 +15097,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.10.20",
-     "blood": "O型",
-     "from": "神奈川県",
-     "hobby": "レッサーパンダ・動物の動画を見ること、甘いものを食べること",
-     "skill": "ゲーム",
-     "height": "153cm"
-    },
     "nick_aliases": [
      "みは",
      "れっさー"
@@ -21326,14 +15110,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2000.09.29",
-     "blood": "O型",
-     "from": "東京都",
-     "hobby": "旅行、自然に触れること、コーヒー巡り、編み物",
-     "skill": "フルートを吹くこと",
-     "height": "163cm"
-    },
     "nick_aliases": [
      "おみず"
     ]
@@ -21346,14 +15122,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2001.12.17",
-     "blood": "O型",
-     "from": "静岡県浜松市",
-     "hobby": "ピアノ、さんぽ、UFOキャッチャー",
-     "skill": "そろばん二段、まーーえむきに生きること",
-     "height": "153.2cm"
-    },
     "nick_aliases": [
      "さおぺん"
     ]
@@ -21366,12 +15134,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2003.07.30",
-     "blood": "O型",
-     "from": "山梨県",
-     "hobby": "観光地巡り、写真を撮る、寝る"
-    },
     "nick_aliases": [
      "ゆっちゃん",
      "ゆってぃ"
@@ -21384,15 +15146,7 @@ window.AKB_GROUPS = [
     "nick": "あんみぃ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.11.16",
-     "blood": "B型",
-     "from": "北海道",
-     "hobby": "野球観戦、ファッション、アニメ・ドラマ・映画鑑賞、愛犬と旅行、パワースポット巡り",
-     "skill": "料理、似顔絵を描くこと",
-     "height": "157.5cm"
-    }
+    "img": true
    },
    {
     "id": "mc4fb7fa054",
@@ -21402,14 +15156,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2010.03.23",
-     "blood": "AB型",
-     "from": "大阪府",
-     "hobby": "毎日トマトを食べること、漫画を読むこと",
-     "skill": "ソーラン節",
-     "height": "149cm"
-    },
     "nick_aliases": [
      "どいご",
      "どいぷー",
@@ -21423,13 +15169,7 @@ window.AKB_GROUPS = [
     "nick": "きんぐ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.10.15",
-     "blood": "A型",
-     "from": "神奈川県",
-     "hobby": "ハロー！プロジェクトのコンサートを観ること、かぎ針編み"
-    }
+    "img": true
    },
    {
     "id": "m31255d0476",
@@ -21438,14 +15178,7 @@ window.AKB_GROUPS = [
     "nick": "まりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.10.18",
-     "blood": "AB型",
-     "from": "長崎県",
-     "hobby": "食べること、バイオリンをひくこと",
-     "skill": "バレエ"
-    }
+    "img": true
    },
    {
     "id": "m1e21f6d586",
@@ -21454,14 +15187,7 @@ window.AKB_GROUPS = [
     "nick": "ゆうちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2010.03.12",
-     "blood": "O型",
-     "from": "愛知県",
-     "hobby": "散歩",
-     "skill": "ダンス"
-    }
+    "img": true
    },
    {
     "id": "mdd1a83a4e4",
@@ -21470,14 +15196,7 @@ window.AKB_GROUPS = [
     "nick": "るの",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.12.20",
-     "blood": "O型",
-     "from": "大阪府",
-     "hobby": "音楽鑑賞、カラオケ、アニメ・漫画をみること",
-     "height": "155cm"
-    }
+    "img": true
    },
    {
     "id": "m20ec4a7286",
@@ -21486,13 +15205,7 @@ window.AKB_GROUPS = [
     "nick": "ききちゃん",
     "status": "former",
     "end": "2023.04.02",
-    "img": true,
-    "bio": {
-     "birth": "2000.09.03",
-     "from": "千葉県",
-     "blood": "AB型",
-     "height": "153cm"
-    }
+    "img": true
    },
    {
     "id": "m698bd13f8e",
@@ -21501,13 +15214,7 @@ window.AKB_GROUPS = [
     "nick": "りさまる。",
     "status": "former",
     "end": "2020.12.28",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.05",
-     "from": "東京都",
-     "blood": "A型",
-     "height": "159cm"
-    }
+    "img": true
    },
    {
     "id": "m4642758e5a",
@@ -21516,13 +15223,7 @@ window.AKB_GROUPS = [
     "nick": "きしもん",
     "status": "former",
     "end": "2023.11.06",
-    "img": true,
-    "bio": {
-     "birth": "2000.04.01",
-     "from": "大阪府",
-     "blood": "B型",
-     "height": "166.5cm"
-    }
+    "img": true
    },
    {
     "id": "m03ad50d71a",
@@ -21531,13 +15232,7 @@ window.AKB_GROUPS = [
     "nick": "きそら",
     "status": "former",
     "end": "2024.06.10",
-    "img": true,
-    "bio": {
-     "birth": "1999.10.20",
-     "from": "愛知県",
-     "blood": "O型",
-     "height": "160.2cm"
-    }
+    "img": true
    },
    {
     "id": "mffcc3a3103",
@@ -21546,12 +15241,7 @@ window.AKB_GROUPS = [
     "nick": "ﾔｷﾞｼｵﾘ",
     "status": "former",
     "end": "2025.04.30",
-    "img": true,
-    "bio": {
-     "birth": "2003.09.19",
-     "from": "愛知県",
-     "blood": "O型"
-    }
+    "img": true
    },
    {
     "id": "ma3e576319d",
@@ -21560,13 +15250,7 @@ window.AKB_GROUPS = [
     "nick": "りこりこ",
     "status": "former",
     "end": "2023.11.06",
-    "img": true,
-    "bio": {
-     "birth": "1998.11.24",
-     "from": "千葉県",
-     "blood": "B型",
-     "height": "155cm"
-    }
+    "img": true
    }
   ]
  },
@@ -21582,14 +15266,7 @@ window.AKB_GROUPS = [
     "nick": "さやりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.08.01",
-     "blood": "O型",
-     "from": "兵庫県",
-     "hobby": "アニメ鑑賞、フィギュア集め、UFOキャッチャー、ゲーム、ベーグル作り",
-     "height": "170cm"
-    }
+    "img": true
    },
    {
     "id": "m06fe9f47a6",
@@ -21598,15 +15275,7 @@ window.AKB_GROUPS = [
     "nick": "まの",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.06.22",
-     "blood": "O型",
-     "from": "神奈川県",
-     "hobby": "オムライス屋さんとたこ焼き屋さん巡り、パン作り、野球観戦",
-     "skill": "チアダンス、新体操",
-     "height": "162cm"
-    }
+    "img": true
    },
    {
     "id": "m4e0b3103d5",
@@ -21615,14 +15284,7 @@ window.AKB_GROUPS = [
     "nick": "みいみ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.10.20",
-     "blood": "O型",
-     "from": "大阪府",
-     "hobby": "DJ、映画鑑賞、旧アメ車について調べること",
-     "height": "162cm"
-    }
+    "img": true
    },
    {
     "id": "mc1c480aaf3",
@@ -21632,14 +15294,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2004.12.22",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "今日行けるライブを探すこと、音楽をDigすること、作詞、DTM、裁判傍聴、ラジオを聴くこと、タイ(国)、公園で星を見ること",
-     "skill": "ヒューマンビートボックス、トークボックス",
-     "height": "156.5cm"
-    },
     "nick_aliases": [
      "ももひめ",
      "ひめちゃん"
@@ -21653,14 +15307,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2004.02.26",
-     "blood": "？(不明です)",
-     "from": "東京都",
-     "hobby": "ディズニー研究、ONE PIECEを読むこと、お笑い観賞、模写",
-     "skill": "けん玉、基本なんでも食べれます。",
-     "height": "164cm"
-    },
     "nick_aliases": [
      "はな"
     ]
@@ -21672,15 +15318,7 @@ window.AKB_GROUPS = [
     "nick": "ほのぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.08.16",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "洋裁",
-     "skill": "ピアノ",
-     "height": "164.8cm"
-    }
+    "img": true
    },
    {
     "id": "m407ee9bed8",
@@ -21689,15 +15327,7 @@ window.AKB_GROUPS = [
     "nick": "うーたん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.09.22",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "コスメ収集(メイク研究)、セルフネイル、テーマパーク散策、オリジナルの振付を作って遊ぶ",
-     "skill": "ダンス、振付",
-     "height": "157cm"
-    }
+    "img": true
    },
    {
     "id": "m46833306b4",
@@ -21706,15 +15336,7 @@ window.AKB_GROUPS = [
     "nick": "ゆな",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2013.03.29",
-     "blood": "不明",
-     "from": "神奈川県",
-     "hobby": "シール集め",
-     "skill": "ダンス、サッカー",
-     "height": "155cm"
-    }
+    "img": true
    },
    {
     "id": "mb3fe3a7aab",
@@ -21724,14 +15346,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2003.06.07",
-     "blood": "B型",
-     "from": "京都府",
-     "hobby": "寝ること、編み物",
-     "skill": "長時間寝られること",
-     "height": "151cm"
-    },
     "nick_aliases": [
      "にしちゃん"
     ]
@@ -21743,15 +15357,7 @@ window.AKB_GROUPS = [
     "nick": "みよちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.12.11",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "ひとり旅、踊ること、歌うこと、写真を撮ること、舞台鑑賞、ゲーム実況を見ること、断捨離",
-     "skill": "クラシックバレエ、ダンス",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "mb8e6b8f9fc",
@@ -21760,15 +15366,7 @@ window.AKB_GROUPS = [
     "nick": "こころ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.06.23",
-     "blood": "A型",
-     "from": "埼玉県",
-     "hobby": "カフェ巡り、写真を撮ること、ドラマを観ること",
-     "skill": "空手(黒帯公認2段)",
-     "height": "168cm"
-    }
+    "img": true
    }
   ]
  },
@@ -21784,14 +15382,7 @@ window.AKB_GROUPS = [
     "nick": "ももも",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2006.08.30",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "メイク、おしゃれすること",
-     "height": "163.5cm"
-    }
+    "img": true
    },
    {
     "id": "m22c4593462",
@@ -21800,15 +15391,7 @@ window.AKB_GROUPS = [
     "nick": "キュルルン",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2004.07.23",
-     "blood": "A型",
-     "from": "千葉県",
-     "hobby": "少女漫画を読むこと、辛いラーメン食べる事",
-     "skill": "アクロバット、メロメロにできるビーム出せます",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "m9e48cf9eab",
@@ -21817,15 +15400,7 @@ window.AKB_GROUPS = [
     "nick": "まどぴ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2002.10.28",
-     "blood": "O型",
-     "from": "埼玉県",
-     "hobby": "ゲームをする事、アニメ鑑賞、漫画を読む事",
-     "skill": "書道",
-     "height": "163cm"
-    }
+    "img": true
    },
    {
     "id": "m7b1642053a",
@@ -21834,15 +15409,7 @@ window.AKB_GROUPS = [
     "nick": "ろこ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.08.10",
-     "blood": "A型",
-     "from": "佐賀県",
-     "hobby": "好きなアニメの推し活",
-     "skill": "バスケットボール",
-     "height": "162cm"
-    }
+    "img": true
    },
    {
     "id": "m649f35901f",
@@ -21852,14 +15419,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2005.07.20",
-     "blood": "A型",
-     "from": "石川県加賀市",
-     "hobby": "物件探し、プロレス観戦、筋トレ",
-     "skill": "ヘアアレンジ",
-     "height": "164cm"
-    },
     "nick_aliases": [
      "なちゅめ",
      "なつめ"
@@ -21873,14 +15432,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2006.04.17",
-     "blood": "O型",
-     "from": "岡山県",
-     "hobby": "音楽を聴くこと、可愛い動物の動画を見ること",
-     "skill": "用意が早い、たくさん寝られること\nその人に似合う音楽や、もらった題名にちなんで紹介できます！",
-     "height": "156cm"
-    },
     "nick_aliases": [
      "みっちゃん"
     ]
@@ -21892,15 +15443,7 @@ window.AKB_GROUPS = [
     "nick": "るりちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2003.06.18",
-     "blood": "B型",
-     "from": "広島県",
-     "hobby": "踊る、歌う、洋服、お散歩、音楽、映画、ドラマ",
-     "skill": "ダンス構成(時間はかかります)、野球のピッチング(特訓中です、、！！)",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "mede9bba8ba",
@@ -21910,14 +15453,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2004.04.30",
-     "blood": "A型",
-     "from": "愛知県",
-     "hobby": "UFOキャッチャーをすること、回転寿司に行くこと",
-     "skill": "ほっぺたをよくのばせる",
-     "height": "158cm"
-    },
     "nick_aliases": [
      "よねきら",
      "きーちゃん"
@@ -21931,12 +15466,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2025.03.21",
     "img": true,
-    "bio": {
-     "birth": "2004.04.20",
-     "from": "北海道",
-     "blood": "A型",
-     "height": "165cm"
-    },
     "nick_aliases": [
      "かなみん",
      "石栗くん"
@@ -21949,13 +15478,7 @@ window.AKB_GROUPS = [
     "nick": "すーちゃん",
     "status": "former",
     "end": "2025.03.11",
-    "img": true,
-    "bio": {
-     "birth": "2005.06.16",
-     "from": "神奈川県",
-     "blood": "不明",
-     "height": "157cm"
-    }
+    "img": true
    }
   ]
  },
@@ -21972,13 +15495,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.02.25",
-     "blood": "AB型",
-     "from": "大阪府",
-     "hobby": "牛乳を飲む、牛乳のグッズ収集、銭太鼓",
-     "height": "145cm"
-    },
     "nick_aliases": [
      "牛乳"
     ]
@@ -21990,14 +15506,7 @@ window.AKB_GROUPS = [
     "nick": "かりん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2008.01.23",
-     "blood": "O型",
-     "from": "東京都",
-     "hobby": "サッカー観戦、クイズ、文房具集め、ギター、ラーメン、激辛料理を食べる、読書、アニメ鑑賞",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "m3ecb3ee6de",
@@ -22007,13 +15516,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2009.06.15",
-     "blood": "A型",
-     "from": "鹿児島県",
-     "hobby": "ショッピング、アイドル鑑賞",
-     "height": "147cm"
-    },
     "nick_aliases": [
      "れなちゃん"
     ]
@@ -22026,13 +15528,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.04.18",
-     "blood": "A型",
-     "from": "神奈川県",
-     "hobby": "音楽を聴くこと、アイドル鑑賞、漫画",
-     "height": "147cm"
-    },
     "nick_aliases": [
      "島川"
     ]
@@ -22044,14 +15539,7 @@ window.AKB_GROUPS = [
     "nick": "ゆめちゃん",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2011.02.04",
-     "blood": "O型",
-     "from": "埼玉県",
-     "hobby": "歌、カラオケ",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "ma920ca00c5",
@@ -22060,14 +15548,7 @@ window.AKB_GROUPS = [
     "nick": "ほのほの",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2005.10.17",
-     "blood": "B型",
-     "from": "東京都",
-     "hobby": "野球観戦、シナモロールのグッズ集め、ドラマやお笑いを見ること、折り紙、お菓子作り、ガンプラ作り",
-     "height": "151cm"
-    }
+    "img": true
    },
    {
     "id": "m59387a7f6f",
@@ -22077,14 +15558,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.02.26",
-     "blood": "A型",
-     "from": "東京都",
-     "hobby": "メイクの勉強、10歳下の妹と遊ぶこと",
-     "skill": "絵を描くこと",
-     "height": "155cm"
-    },
     "nick_aliases": [
      "ユリ"
     ]
@@ -22097,13 +15570,6 @@ window.AKB_GROUPS = [
     "status": "current",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2008.02.11",
-     "blood": "B型",
-     "from": "千葉県",
-     "hobby": "カメラ、ボウリング",
-     "height": "161cm"
-    },
     "nick_aliases": [
      "あやな"
     ]
@@ -22115,15 +15581,7 @@ window.AKB_GROUPS = [
     "nick": "ぴのぱ",
     "status": "current",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2007.07.08",
-     "blood": "AB型",
-     "from": "埼玉県",
-     "hobby": "クラゲのグッズ集め、音楽を聴くこと、寝ること",
-     "skill": "空手(黒帯初段)、ビームライフル",
-     "height": "155cm"
-    }
+    "img": true
    }
   ]
  },
@@ -22139,12 +15597,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2005.10.02",
-    "img": true,
-    "bio": {
-     "birth": "1992.11.20",
-     "from": "神奈川県",
-     "blood": "AB型"
-    }
+    "img": true
    },
    {
     "id": "m5b2cf0617b",
@@ -22153,13 +15606,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1993.08.03",
-     "from": "神奈川県",
-     "blood": "B型",
-     "height": "181cm"
-    }
+    "img": true
    },
    {
     "id": "m5377a7696f",
@@ -22168,13 +15615,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1991.11.22",
-     "from": "神奈川県",
-     "blood": "O型",
-     "height": "153cm"
-    }
+    "img": true
    },
    {
     "id": "m14f943fd73",
@@ -22183,13 +15624,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1994.04.04",
-     "from": "神奈川県",
-     "blood": "A型",
-     "height": "161cm"
-    }
+    "img": true
    },
    {
     "id": "m50e63993e8",
@@ -22198,13 +15633,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1992.07.03",
-     "from": "東京都",
-     "blood": "O型",
-     "height": "167cm"
-    }
+    "img": true
    },
    {
     "id": "mc5b9081b3f",
@@ -22213,13 +15642,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1992.05.22",
-     "from": "神奈川県",
-     "blood": "O型",
-     "height": "164cm"
-    }
+    "img": true
    },
    {
     "id": "me544575e2e",
@@ -22228,13 +15651,7 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1992.08.25",
-     "from": "埼玉県",
-     "blood": "O型",
-     "height": "160cm"
-    }
+    "img": true
    }
   ]
  },
@@ -22251,10 +15668,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2002.02.10",
-     "from": "東京都"
-    },
     "nick_aliases": [
      "（おぜこ）"
     ]
@@ -22266,11 +15679,7 @@ window.AKB_GROUPS = [
     "nick": "うたちゃん\n（うーちゃん）",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "2000.06.24",
-     "from": "神奈川県"
-    }
+    "img": true
    },
    {
     "id": "m3bca48e9e4",
@@ -22280,10 +15689,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "1992.03.06",
-     "from": "千葉県"
-    },
     "nick_aliases": [
      "（ももち先輩）",
      "（PM）"
@@ -22306,11 +15711,7 @@ window.AKB_GROUPS = [
     "nick": "やまっき\nりさちゃん",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1997.10.14",
-     "from": "東京都"
-    }
+    "img": true
    }
   ]
  },
@@ -22326,12 +15727,7 @@ window.AKB_GROUPS = [
     "nick": "れなこ",
     "status": "former",
     "end": "2017.09.06",
-    "img": true,
-    "bio": {
-     "birth": "2000.03.27",
-     "from": "栃木県",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "m83f5d3da19",
@@ -22340,12 +15736,7 @@ window.AKB_GROUPS = [
     "nick": "たぐっち",
     "status": "former",
     "end": "2017.12.06",
-    "img": true,
-    "bio": {
-     "birth": "2000.07.21",
-     "from": "埼玉県",
-     "blood": "A型"
-    }
+    "img": true
    },
    {
     "id": "mf156b081a4",
@@ -22355,12 +15746,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2000.02.10",
-     "from": "東京都",
-     "blood": "B型",
-     "height": "155cm"
-    },
     "nick_aliases": [
      "（のむさん）"
     ]
@@ -22373,12 +15758,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2000.04.26",
-     "from": "埼玉県",
-     "blood": "AB型",
-     "height": "162cm"
-    },
     "nick_aliases": [
      "(はまちゃん大佐)"
     ]
@@ -22390,13 +15769,7 @@ window.AKB_GROUPS = [
     "nick": "あやぱん",
     "status": "former",
     "end": null,
-    "img": true,
-    "bio": {
-     "birth": "1999.08.04",
-     "from": "神奈川県",
-     "blood": "O型",
-     "height": "156cm"
-    }
+    "img": true
    },
    {
     "id": "m843560f354",
@@ -22406,11 +15779,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": "2017.07.06",
     "img": true,
-    "bio": {
-     "birth": "1999.03.04",
-     "from": "愛知県",
-     "blood": "B型"
-    },
     "nick_aliases": [
      "（藤丼、イーヨー）"
     ]
@@ -22423,12 +15791,6 @@ window.AKB_GROUPS = [
     "status": "former",
     "end": null,
     "img": true,
-    "bio": {
-     "birth": "2001.03.08",
-     "from": "愛知県",
-     "blood": "B型",
-     "height": "163.5cm"
-    },
     "nick_aliases": [
      "（さこ、らっこ）"
     ]

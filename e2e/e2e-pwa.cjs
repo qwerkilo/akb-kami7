@@ -78,7 +78,7 @@ async function pickMembers(page, n) {
 buildTemp(); // 临时副本（只拷壳 + img 软链）必须在起服务之前
 runSuite({
   name: "pwa",
-  expect: 42, // 执行器保证服务器就绪后，「静态服务器就绪」不再占一条检查（原 43）
+  expect: 43, // 执行器保证服务器就绪后，「静态服务器就绪」不再占一条检查（原 43）
   port: PORT,
   cwd: TMP,
   body: async ({ browser, checker }) => {
@@ -319,6 +319,26 @@ runSuite({
       return img ? img.getAttribute("src") : null;
     });
     ok(!!photoSeen, `断网后已浏览成员仍有照片（${photoSeen || "无"}）`);
+    // bios.js 走 SW 壳缓存：断网打开资料卡仍要有生日（拆分 bio 的离线验收）
+    await page.locator(".card .info").first().click();
+    await waitForSelector(page, "断网后简介资料卡", "#profile:not([hidden])", {
+      timeout: 15000,
+      hard: true,
+    });
+    const pfOffline = (await page.textContent("#pf-fields")) || "";
+    ok(
+      /\b(19|20)\d{2}\b/.test(pfOffline),
+      `断网后简介仍显示生日（${pfOffline.slice(0, 24)}）`
+    );
+    await page.keyboard.press("Escape");
+    await waitFor(
+      page,
+      "简介关闭",
+      () => document.getElementById("profile").hidden,
+      {
+        timeout: 5000,
+      }
+    );
     await pickMembers(page, 7);
     await page.locator("#start-btn").click();
     // ADR-0019：开始后先过「筛选」这一步，提交才进对决

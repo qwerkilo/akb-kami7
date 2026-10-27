@@ -870,6 +870,33 @@ class WriteMembersJsTests(unittest.TestCase):
         payload = src.split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
         self.assertEqual(json.loads(payload), sections)
 
+    def test_splits_bio_into_bios_js(self):
+        sections = [
+            {
+                "group": "AKB48",
+                "label": "1期生",
+                "members": [
+                    {"id": "m1", "name": "甲", "bio": {"birth": "1990.01.01"}},
+                    {"id": "m2", "name": "乙", "bio": {}},
+                ],
+            }
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "members.js")
+            fetch_members.write_members_js(sections, path)
+            members = json.loads(
+                open(path, encoding="utf-8").read().split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
+            )
+            bios = json.loads(
+                open(os.path.join(td, "bios.js"), encoding="utf-8")
+                .read()
+                .split("window.AKB_BIOS = ", 1)[1]
+                .rstrip(";\n")
+            )
+        self.assertEqual(bios, {"m1": {"birth": "1990.01.01"}, "m2": {}})
+        self.assertNotIn("bio", members[0]["members"][0], "members.js 不许再带 bio")
+        self.assertEqual(members[0]["members"][0]["id"], "m1")
+
 
 class PruneUnusedTests(unittest.TestCase):
     def test_removes_unreferenced_files(self):
@@ -1340,13 +1367,18 @@ class LoveIntegrationTests(unittest.TestCase):
                 sections = json.loads(
                     fh.read().split("window.AKB_GROUPS = ", 1)[1].rstrip(";\n")
                 )
+            with open(os.path.join(td, "bios.js"), encoding="utf-8") as fh:
+                bios = json.loads(
+                    fh.read().split("window.AKB_BIOS = ", 1)[1].rstrip(";\n")
+                )
             self.assertEqual(len(sections), 1)
             self.assertEqual(sections[0]["series"], "love")
             self.assertEqual(sections[0]["group"], "=LOVE")
             member = sections[0]["members"][0]
             self.assertEqual(member["name"], "大谷 映美里")
             self.assertTrue(member["img"])
-            self.assertEqual(member["bio"]["romaji"], "OTANI EMIRI")
+            self.assertNotIn("bio", member, "members.js 不许内嵌 bio")
+            self.assertEqual(bios[member["id"]]["romaji"], "OTANI EMIRI")
 
 
 NOGIZAKA_FIXTURE = """== 現役メンバー ==

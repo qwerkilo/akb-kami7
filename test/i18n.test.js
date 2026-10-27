@@ -132,12 +132,14 @@ test("简介自由文本对照表：结构合法且覆盖产物中的趣味/特�
     assert.ok(entry.zh.length > 0 && entry.en.length > 0);
   }
   const memberSrc = fs.readFileSync(path.join(root, "members.js"), "utf8");
+  const biosSrc = fs.readFileSync(path.join(root, "bios.js"), "utf8");
   const sandbox = { window: {} };
   vm.runInNewContext(memberSrc, sandbox);
+  vm.runInNewContext(biosSrc, sandbox);
   const texts = new Set();
   for (const sec of sandbox.window.AKB_GROUPS) {
     for (const m of sec.members) {
-      const bio = m.bio || {};
+      const bio = sandbox.window.AKB_BIOS[m.id] || {};
       if (bio.hobby) texts.add(bio.hobby);
       if (bio.skill) texts.add(bio.skill);
     }

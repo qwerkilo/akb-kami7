@@ -7,6 +7,11 @@
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map(CORE.flattenMembers(GROUPS).map((m) => [m.id, m]));
 
+  // 简介数据拆在 bios.js（首屏少解析 ~106KB）。空闲或打开资料卡时加载；
+  // 离线由 SW 壳缓存兜底（bios.js 在 sw-cache-rules.js 的 SHELL_FILES 里）。
+  let BIOS = null;
+  let biosLoading = null;
+
   // 首次访问的默认语言按浏览器判定（这是「选什么」的决定，不是持久化）；
   // 一旦用户自己选过，session 里的落盘值优先。
   const preferLang = () => {
@@ -571,24 +576,53 @@
 
   let profileOpener = null;
 
+  function loadBios() {
+    if (biosLoading) return biosLoading;
+    biosLoading = new Promise((resolve) => {
+      const el = document.createElement("script");
+      el.src = "bios.js";
+      el.async = true;
+      el.onload = () => resolve((BIOS = window.AKB_BIOS || {}));
+      el.onerror = () => resolve(null);
+      document.head.appendChild(el);
+    });
+    return biosLoading;
+  }
+
+  function warmBios() {
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1200));
+    idle(() => void loadBios());
+  }
+
+  function paintProfileRows() {
+    const m = BY_ID.get(profileId);
+    if (!m) return;
+    const bio = (BIOS && BIOS[m.id]) || {};
+    const rows = CORE.profileRows({ ...m, bio }, t, lang, I18N.values);
+    $("#pf-fields").innerHTML = rows
+      .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
+      .join("");
+  }
+
   function openProfile(id) {
     const m = BY_ID.get(id);
     if (!m) return;
     profileId = id;
-    const rows = CORE.profileRows(m, t, lang, I18N.values);
     $("#pf-photo").src = thumbSrc(m);
     $("#pf-name").textContent = m.name;
     $("#pf-kana").textContent = m.kana || "";
     $("#pf-badge").textContent =
       m.group + (m.generation ? " · " + CORE.genText(m.generation, lang) : "");
     $("#pf-close").setAttribute("aria-label", t("bio_close"));
-    $("#pf-fields").innerHTML = rows
-      .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
-      .join("");
+    paintProfileRows();
     $("#profile").hidden = false;
     setPageInert(true);
     profileOpener = document.activeElement;
     $("#pf-close")?.focus();
+    // 首次打开早于空闲预取：数据到了补画一次（失败就保持无 bio 的卡片）
+    loadBios().then(() => {
+      if (profileId === id && !$("#profile").hidden) paintProfileRows();
+    });
   }
 
   function closeProfile() {
@@ -1958,6 +1992,7 @@
   renderChrome();
   navigate("boot");
   initPWA();
+  warmBios();
 })();
 
 // L11：boot 占位与相位切换解耦 —— 模块加载后的下一帧就把它摘掉（相位在 init 里

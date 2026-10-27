@@ -111,23 +111,41 @@ test("壳：字体样式表非阻塞 + noscript 兜底与主链接同 URL（#2 �
     path.join(__dirname, "..", "index.html"),
     "utf8"
   );
-  const hrefs = [
-    ...html.matchAll(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/g),
-  ].map((m) => m[1]);
-  assert.equal(hrefs.length, 2, "主链接 + noscript 兜底各一份");
-  assert.equal(
-    hrefs[0],
-    hrefs[1],
-    "两份必须同 URL（漂移 → 无 JS 用户拿另一套字体）"
+  const parts = html.split(/<\/?noscript>/);
+  const mainBlock = parts[0];
+  const noJsBlock = parts[1] || "";
+  const grab = (block) => [
+    ...new Set(
+      [
+        ...block.matchAll(
+          /href="(https:\/\/fonts\.googleapis\.com\/css2[^"]*)"/g
+        ),
+      ].map((m) => m[1])
+    ),
+  ];
+  const mainHrefs = grab(mainBlock);
+  const noJsHrefs = grab(noJsBlock);
+  assert.ok(mainHrefs.length >= 1, "主链接要在");
+  assert.deepEqual(
+    noJsHrefs.slice().sort(),
+    mainHrefs.slice().sort(),
+    "noscript 兜底必须与主链接同一组 URL（漂移 → 无 JS 用户拿另一套字体）"
   );
+  for (const href of mainHrefs) {
+    const tag = mainBlock
+      .split(/<link\b/)
+      .find((t) => t.includes(`href="${href}"`));
+    assert.ok(tag, `找不到字体链接标签：${href}`);
+    assert.match(tag, /media="print"/, "主链接必须非阻塞（#2）");
+    assert.match(
+      tag,
+      /onload="this\.media\s*=\s*'all'"/,
+      "非阻塞链接必须自己切回 all（否则字体永远不生效）"
+    );
+  }
   assert.match(
     html,
-    /media="print"[\s\S]{0,60}onload="this\.media\s*=\s*'all'"/,
-    "主链接必须非阻塞（#2）"
-  );
-  assert.match(
-    html,
-    /<noscript>[\s\S]{0,400}fonts\.googleapis\.com[\s\S]{0,400}<\/noscript>/,
+    /<noscript>[\s\S]*fonts\.googleapis\.com[\s\S]*<\/noscript>/,
     "noscript 兜底要在"
   );
 });
