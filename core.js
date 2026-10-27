@@ -1285,16 +1285,57 @@
     return cut ? "screen_keep" : "screen_cut";
   }
 
-  function warmUrls(css, codes) {
-    const urls = [];
+  function faceFamily(face) {
+    const m = face.match(/font-family:\s*([^;]+);/i);
+    if (!m) return "";
+    return m[1]
+      .split(",")[0]
+      .trim()
+      .replace(/^["']|["']$/g, "")
+      .toLowerCase();
+  }
+
+  // @font-face 的权重可能是单值（700）或可变区间（500 900）
+  function faceWeightRange(face) {
+    const m = face.match(/font-weight:\s*([^;]+);/i);
+    const nums = (m ? m[1] : "").match(/\d+/g) || ["400"];
+    return [Number(nums[0]), Number(nums[nums.length - 1])];
+  }
+
+  function weightDistance(w, [lo, hi]) {
+    return w < lo ? lo - w : w > hi ? w - hi : 0;
+  }
+
+  // usages: [{ family, weight, chars }] —— 只预热「这个元素真的会用这个 family/weight
+  // 渲染」的子集。此前是「任何可见字符 × 所有 family」：标题字体的 CJK 子集被正文
+  // 字符全部点亮（实测 154 个 woff2 / 1.5MB，其中大部分是白拉的）。
+  function warmUrls(css, usages) {
+    const faces = [];
     for (const block of css.split("@font-face").slice(1)) {
       const cut = block.indexOf("}");
       if (cut < 0) continue;
       const face = block.slice(0, cut);
       const mUrl = face.match(/url\((https:\/\/[^)]+\.woff2)\)/);
-      if (mUrl && faceCovers(face, codes)) urls.push(mUrl[1]);
+      if (!mUrl) continue;
+      faces.push({
+        family: faceFamily(face),
+        wr: faceWeightRange(face),
+        block: face,
+        url: mUrl[1],
+      });
     }
-    return urls;
+    const chosen = new Set();
+    for (const u of usages) {
+      const famFaces = faces.filter((f) => f.family === u.family);
+      if (!famFaces.length) continue;
+      const w = Number(u.weight) || 400;
+      // CSS 的选面规则：同 family 里取权重距离最近的那一档
+      const best = Math.min(...famFaces.map((f) => weightDistance(w, f.wr)));
+      for (const f of famFaces)
+        if (weightDistance(w, f.wr) === best && faceCovers(f.block, u.chars))
+          chosen.add(f.url);
+    }
+    return [...chosen];
   }
 
   return {

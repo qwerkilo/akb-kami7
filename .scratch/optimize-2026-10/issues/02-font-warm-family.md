@@ -1,6 +1,6 @@
 # 02 字体预热按「实际渲染的 family+weight」收口
 
-- **Status**: ready
+- **Status**: done
 - **Blocked by**: 无（顺序在 01 之后）
 - **对应决策**: Q6 = A / Q7 = A1
 
@@ -24,3 +24,17 @@
 2. 缝② 单测覆盖 family/weight 匹配；**≥2 个变异被杀**（匹配反转 / 忽略 weight）。
 3. `npm run e2e:pwa` 42/42（离线字体仍工作）、`npm run e2e` 255/255、`npm run check` exit 0。
 4. 同条件 A/B 无视觉差异（`document.fonts.ready` 后首屏文本宽度/换行一致）。
+
+## Comments
+
+2026-10-27：落地。`warmUrls(css, usages)` 按 computed `family+weight` 选面（同 family 取
+CSS 的「最近权重」规则）；`fontUsages` 只收**可见**叶元素的文本（`getClientRects().length`），
+不可见相位不预热（Q7=A1）。
+
+- 实测（390px 冷缓存，同一探针）：woff2 **154 → 51 个**、解码字节 **1,515,108 → 518,520**
+  （−66%，超过 ≥50% 的目标）。
+- 缝②：新增「只用到 A 时 B 的 face 不预热 / 用到 B 时无 range 照常 / 600 取最近 700」；
+  **2 个变异全杀**（忽略 family / 忽略 weight）。
+- `npm run e2e:pwa` 42/42、`npm run e2e` 255/255、`npm run check` exit 0。
+- 如实记：探针里 woff2 的 `transferSize` 恒 0（Chromium 内存缓存），所以对比用的是
+  `decodedBodySize`（同一口径的前后值）。

@@ -2866,22 +2866,38 @@ test("names() 的四个系列每个字段都非空（缺一个字段就会静默
   }
 });
 
-test("字体子集选择：范围解析 / 覆盖判定 / 取 URL", () => {
+test("字体子集选择：范围解析 / 覆盖判定 / 按 family+weight 取 URL", () => {
   assert.deepEqual(core.fontRange("U+30-39"), [0x30, 0x39]);
   assert.deepEqual(core.fontRange("U+4??"), [0x400, 0x4ff]);
   assert.equal(core.fontRange("junk"), null);
   const css = [
-    "@font-face{src:url(https://x/a.woff2);unicode-range:U+30-39;}",
-    "@font-face{src:url(https://x/b.woff2);unicode-range:U+0400-04FF;}",
-    "@font-face{src:url(https://x/c.woff2);}",
+    "@font-face{font-family:'A';font-weight:400;src:url(https://x/a.woff2);unicode-range:U+30-39;}",
+    "@font-face{font-family:'A';font-weight:400;src:url(https://x/b.woff2);unicode-range:U+0400-04FF;}",
+    "@font-face{font-family:'B';font-weight:400;src:url(https://x/c.woff2);}",
+    "@font-face{font-family:'A';font-weight:700;src:url(https://x/d.woff2);unicode-range:U+30-39;}",
   ].join("");
-  const urls = core.warmUrls(css, new Set([0x31]));
-  assert.ok(urls.includes("https://x/a.woff2"), "覆盖到的子集要预热");
-  assert.ok(!urls.includes("https://x/b.woff2"), "覆盖不到的不预热");
+  // 只用到 A：B 的 face（无 unicode-range、覆盖同样字符）不许被点亮
+  const onlyA = core.warmUrls(css, [
+    { family: "a", weight: "400", chars: new Set([0x31]) },
+  ]);
+  assert.ok(onlyA.includes("https://x/a.woff2"), "覆盖到的子集要预热");
+  assert.ok(!onlyA.includes("https://x/b.woff2"), "覆盖不到的不预热");
+  assert.ok(!onlyA.includes("https://x/c.woff2"), "没用到的 family 不预热");
+  assert.ok(!onlyA.includes("https://x/d.woff2"), "权重不同的 face 不预热");
+  // 用到 B 时，无 unicode-range 的 face 照常预热
+  const withB = core.warmUrls(css, [
+    { family: "b", weight: "400", chars: new Set([0x31]) },
+  ]);
   assert.ok(
-    urls.includes("https://x/c.woff2"),
+    withB.includes("https://x/c.woff2"),
     "没有 unicode-range 的照常预热"
   );
+  // 无完全匹配时取权重最近的一档（CSS 的选面规则）
+  const nearest = core.warmUrls(css, [
+    { family: "a", weight: "600", chars: new Set([0x31]) },
+  ]);
+  assert.ok(nearest.includes("https://x/d.woff2"), "600 最近的是 700");
+  assert.ok(!nearest.includes("https://x/a.woff2"), "不是 400");
 });
 
 test("筛选行的原因键：锁定 / 名额用尽 / 划掉 / 保留 四选一", () => {

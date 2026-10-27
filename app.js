@@ -1813,16 +1813,35 @@
     });
   }
   // 当前页可见字符的码点集合（DOM 依赖，故留在 app.js；纯选择逻辑在 core.js）
-  function fontCodePoints(root) {
-    const out = new Set();
+  // 可见文本按「computed family + weight」分组：fonts 预热只拉这些组合的子集。
+  // 不可见相位（result/duel 弹层等）不预热 —— 它们离线时走系统兜底，见 Q7=A1。
+  function fontUsages(root) {
+    const byKey = new Map();
     const els = root.querySelectorAll(
       "body *:not(script):not(style):not(noscript)"
     );
     for (const el of els) {
       if (el.childElementCount) continue;
-      for (const ch of el.textContent || "") out.add(ch.codePointAt(0));
+      const text = el.textContent || "";
+      if (!text || !el.getClientRects().length) continue;
+      const cs = getComputedStyle(el);
+      const weight = cs.fontWeight;
+      for (const raw of cs.fontFamily.split(",")) {
+        const family = raw
+          .trim()
+          .replace(/^["']|["']$/g, "")
+          .toLowerCase();
+        if (!family) continue;
+        const key = family + "|" + weight;
+        let set = byKey.get(key);
+        if (!set) byKey.set(key, (set = new Set()));
+        for (const ch of text) set.add(ch.codePointAt(0));
+      }
     }
-    return out;
+    return [...byKey.entries()].map(([key, chars]) => {
+      const [family, weight] = key.split("|");
+      return { family, weight, chars };
+    });
   }
 
   async function warmFonts() {
@@ -1837,9 +1856,10 @@
         const css = await (
           await fetch(link.href, { credentials: "omit" })
         ).text();
-        // #4：只预热「unicode-range 覆盖当前页可见字符」的子集。此前把 CSS 里
-        // 全部子集都拉下来（~500 个文件 / 5.7MB），绝大多数字形当前页面用不到。
-        const urls = CORE.warmUrls(css, fontCodePoints(document));
+        // #4：只预热「可见元素真的会用这个 family/weight 渲染」的子集。此前是
+        // 可见字符 × 全部 family（500+ 文件 / 5.7MB），标题字体的 CJK 子集被正文
+        // 字符全部点亮；现在按 computed style 分组挑选。
+        const urls = CORE.warmUrls(css, fontUsages(document));
         // 分批并发：逐个 await 要十几秒，期间用户断网就只预热了一半（实测会）。
         // 页面被切走/隐藏就停：否则导航会中断这批请求并刷一串资源错误。
         for (let i = 0; i < urls.length; i += 16) {
