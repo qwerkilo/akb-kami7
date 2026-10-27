@@ -5,7 +5,16 @@ import time
 import urllib.parse
 import urllib.request
 
-PROXY = os.environ.get("AKB_PROXY", "http://127.0.0.1:7897")
+def default_proxy(env=None):
+    """默认代理：本机 7897；CI 没有本机代理（GitHub Actions 自带 CI=true）→ 直连。
+    显式 AKB_PROXY 始终优先（空串 = 直连）。"""
+    env = os.environ if env is None else env
+    if "AKB_PROXY" in env:
+        return env["AKB_PROXY"]
+    return "" if env.get("CI") else "http://127.0.0.1:7897"
+
+
+PROXY = default_proxy()
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 API = "https://48pedia.org/api.php"
 

@@ -77,6 +77,10 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 
 - 本地预览（仓库根目录）：**`npm run serve`**（= `e2e/serve.py` 线程版，端口 8000；探针也用它），用 `http://` 访问（`file://` 下海报导出会因 canvas 污染失败）。**用 threading 版**（`ThreadingHTTPServer`）：页面并发要 ~30 个字体文件，单线程版会让 `load` 事件迟迟不触发，E2E 偶发导航超时。
 - **提交闸门 = `npm run check`**（`prettier --check .` + `npm run lint:undef` + `npm test` + `npm run complexity`）。格式化、未定义标识符（`no-undef`，抓过 e2e-v5 的 `errs`）与复杂度都**不会**被 `npm test` 抓到，所以闸门把它们串在一起。**以退出码为准**（`echo $?`）：输出里混着基线的既有热点，`grep` 关键词会漏掉末尾的 ✗ —— 2026-10-04 因此带着红闸门提交过**两次**（第二次是 shell 里用 `;` 串了「check → commit」，红闸门照样提交了）。把 check 与提交用 `&&` 串起来，红的会拦住提交。 **push 也放在同一条链里**：闸门拦下后，下一条 `git push` 仍会打印 `Everything up-to-date`（它只说明没东西可推，不代表已提交）—— 2026-10-11 因此误报过一次「已推送」✗。**判定别用管道**：`cmd | tail` 的退出码是 `tail` 的，会吃掉闸门的红 —— 要看输出就重定向到日志再看文件。
+- **生成脚本也在链上**：会改写仓库的脚本（如 Python heredoc / 生成器）必须与随后的格式化、
+  `npm run check`、提交用 `&&` 串成一条链 —— heredoc 之后**另起一行**的命令会照常执行。
+  2026-10-27 检查点拆分时 heredoc 崩在 `makedirs("")`，提交照样发生、讯息声称「指针已同步」
+  而实际没改。
 - 格式化写回：全仓 `npm run format:write`；只处理**已暂存**文件用
   `PATH=/root/.local/bin:$PATH node node_modules/lint-staged/bin/lint-staged.js`
   （`/root/.local/bin/prettier` 是垫片，指向 `node_modules/prettier/bin/prettier.cjs`）。**顺序有陷阱**：lint-staged 只处理**已暂存**的文件，先跑 `graph:sync` 再 `git add` 会让它变成 no-op（本项目踩过两次）。

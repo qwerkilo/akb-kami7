@@ -5,6 +5,24 @@ from unittest import mock
 import wiki
 
 
+class ProxyDefaultTests(unittest.TestCase):
+    """CI 里没有本机 7897 代理：默认必须直连，否则每个 workflow 都要记得置空。"""
+
+    def test_local_default_uses_dev_proxy(self):
+        self.assertEqual(wiki.default_proxy({}), "http://127.0.0.1:7897")
+
+    def test_ci_default_is_direct(self):
+        self.assertEqual(wiki.default_proxy({"CI": "true"}), "")
+
+    def test_explicit_proxy_wins_over_ci(self):
+        self.assertEqual(
+            wiki.default_proxy({"CI": "true", "AKB_PROXY": "http://p"}), "http://p"
+        )
+
+    def test_empty_explicit_is_direct(self):
+        self.assertEqual(wiki.default_proxy({"AKB_PROXY": ""}), "")
+
+
 class FakeResponse:
     def __init__(self, data):
         self.data = data

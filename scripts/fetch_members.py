@@ -4,7 +4,7 @@ usage: python fetch_members.py            # fetch lists, download, compress
        python fetch_members.py --no-dl    # reuse cached originals only
        python fetch_members.py --force    # recompress even if outputs are up to date
        python fetch_members.py --accept-drop   # 名册相对基线塌了也照跑（真解散一个团时才用）
-env AKB_PROXY overrides the proxy (default http://127.0.0.1:7897, empty = direct)
+env AKB_PROXY overrides the proxy (default http://127.0.0.1:7897; CI 无本机代理，默认直连; empty = direct)
 """
 import hashlib
 import json
