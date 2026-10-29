@@ -1,6 +1,6 @@
 # 03 · 早安 loader 的装配与 load
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 01、02
 - **所属 spec**：`.scratch/morningmusume/spec.md`
 - **缝**：①（纯函数与装配）
@@ -40,3 +40,9 @@
 - **变异验证**：至少四个（合并时覆盖掉一侧 / 归一化写成恒等 / 回退链跳过一级 /
   section 的 series 写错），全部会红。
 - `load()` 的网络部分用注入的 fetch 测试，**不发真实请求**。
+
+## Comments
+
+装配层 `build_members(official, parsed)` + `morning_loader` 已接进 `fetch_members.py`；早安 11 团 169 人在产物里（提交 `97ba6b3` / `a754e8d`）。
+
+2026-10-29 triage 复核：工单已交付，补状态。

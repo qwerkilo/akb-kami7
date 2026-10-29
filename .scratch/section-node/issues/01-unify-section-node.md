@@ -1,5 +1,7 @@
 # 工单 01 · 折叠段渲染器与 toggle 合一 + level 显式化 + 两处不一致归一
 
+- **Status**: resolved
+
 **规格**：`.scratch/section-node/spec.md`
 
 ## 步骤
@@ -20,3 +22,9 @@
 - `npm run check` 全绿；E2E 三套全绿。
 - 探针除两处有意差异外相同。
 - 版式基线（页头 66/60、托盘 81/84、首卡 385/389）不动。
+
+## Comments
+
+折叠段渲染器已合一为 `app.js:309 sectionHTML(o)`（level 显式），两层折叠段走同一份。
+
+2026-10-29 triage 复核：实现早已落地，补状态。

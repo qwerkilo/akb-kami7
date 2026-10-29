@@ -1,6 +1,6 @@
 # 工单 01：特征测试 + `wayback.py` + 搬迁调用点
 
-- **Status**: in progress
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## 实现
@@ -29,3 +29,9 @@
   `wayback_photo` 2，改名 `latest_snapshot`）；love 的 `original_url` 用例与 morning 的
   `snapshot_ts` 用例**删除**（同输入同输出，已被新用例覆盖 —— love 的 `im_` 后缀用例
   并进新文件的 `test_strip_tolerates_rewrite_suffixes`，没有丢覆盖）。
+
+## Comments
+
+`scripts/wayback.py` 已收全部 Wayback 知识（CDX / 快照 URL 拼拆 / 最近快照），调用点全部改指（提交 `12985ee`）。
+
+2026-10-29 triage 复核：工单已交付（检查点第六十三轮），补状态。

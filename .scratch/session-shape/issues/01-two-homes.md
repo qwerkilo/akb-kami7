@@ -1,5 +1,7 @@
 # 工单 01 · 每系列状态形状收成两个家 + clearScreening + 守卫
 
+- **Status**: resolved
+
 **规格**：`.scratch/session-shape/spec.md`
 
 ## 步骤（每步都要见到红）
@@ -24,3 +26,9 @@
 - 既有 session 测试全绿（它们是这次重构的安全网）。
 - 探针逐字节相同。
 - 复杂度棘轮未推高。
+
+## Comments
+
+每系列状态形状已收在 `session.js` 的 `toRecord`/`fromRecord`（:79/:95），落盘与内存 store 同源。
+
+2026-10-29 triage 复核：实现早已落地，补状态。

@@ -1,6 +1,6 @@
 # 02 · 早安 loader 的 parse 纯函数（Wikipedia 两表 + 官网详情页）
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 - **所属 spec**：`.scratch/morningmusume/spec.md`
 - **缝**：① Python 解析纯函数（`scripts/test_morning_members.py`，fixture 驱动）
@@ -42,3 +42,9 @@
   把 `脱退` 当成 current / 丢掉某个字段），全部会红。
 - 至少一条测试断言「早安的 wikitext 用等爱的 parser 得到 0 人」—— 把这次踩过的
   坑钉住，防止有人后来「顺手复用」。
+
+## Comments
+
+`scripts/morningmusume_members.py` 的 parse 纯函数已落地（两表 + 官网详情页；不复用等爱 parser），fixture 测试在 `scripts/test_morning_members.py`（提交 `97ba6b3` 起）。
+
+2026-10-29 triage 复核：工单已交付（检查点第五十五轮起），补状态。

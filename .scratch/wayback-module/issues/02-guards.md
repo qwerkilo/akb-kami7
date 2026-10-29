@@ -1,6 +1,6 @@
 # 工单 02：缝③ 守卫 + 变异验证
 
-- **Status**: in progress
+- **Status**: resolved
 - **Blocked by**: 01
 
 ## 实现
@@ -23,3 +23,9 @@
 - 变异 3 个全杀：① love 内联格式复活 ② `snapshot_ts` 第二份实现 ③ `latest_snapshot`
   自拼格式（值相同 → 行为测试按定义抓不到，**只有计数守卫杀得掉**）。
 - `npm run check` exit=0；产品行为不变（纯 Python 重构，`members.js` 未动、未跑 E2E）。
+
+## Comments
+
+守卫「Wayback URL 格式与解析只许在 `wayback.py`」+「格式字面量全仓一处」在 `test/members-artifact.test.js`；变异只有计数守卫杀得掉（提交 `12985ee`）。
+
+2026-10-29 triage 复核：工单已交付（检查点第六十三轮），补状态。

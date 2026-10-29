@@ -1,5 +1,7 @@
 # 工单 01 · playOnce 合三处 + 兜底从 CSS 读 + 修掉自我击败
 
+- **Status**: resolved
+
 **规格**：`.scratch/motion-once/spec.md`
 
 ## 步骤
@@ -17,3 +19,9 @@
 
 - `npm run check` 全绿；三套 E2E 全绿。
 - 探针：三个时刻时长同量级，降级下不播不残留。
+
+## Comments
+
+playOnce 三处合一已在 `app.js:189`；时长从 CSS 读出（`style.css` 注释指向 `playOnce`），兜底与降级路径都有。
+
+2026-10-29 triage 复核：实现早已落地，补状态。

@@ -1,6 +1,6 @@
 # 工单 02：守卫与变异
 
-- **Status**: ready
+- **Status**: resolved
 - **Blocked by**: 01
 
 ## 实现
@@ -13,3 +13,9 @@
 ## 判据
 
 - 守卫全绿；两条变异都被杀；`npm run check` exit=0。
+
+## Comments
+
+守卫在 `test/e2e-source.test.js`：函数集合恰好五个 / 套件不许重复定义 / 用到哪个必须解构哪个（提交 `e5f7ffa`）。
+
+2026-10-29 triage 复核：工单已交付（检查点第六十八轮），补状态。

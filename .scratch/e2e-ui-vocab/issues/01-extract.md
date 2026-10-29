@@ -1,6 +1,6 @@
 # 工单 01：抽出 `e2e/_ui.cjs` 并迁移两个套件
 
-- **Status**: ready
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## 实现
@@ -14,3 +14,9 @@
 
 - 两个套件不再定义这五个；`node --check` 通过。
 - `npm run e2e:all` **5/5**（245/54/42/72/144 不变）。
+
+## Comments
+
+`e2e/_ui.cjs` 已收五个共享页面操作，`e2e.cjs` / `e2e-v5.cjs` 改为名字级解构（提交 `e5f7ffa`）。
+
+2026-10-29 triage 复核：工单已交付（检查点第六十八轮），补状态。

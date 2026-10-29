@@ -1,6 +1,6 @@
 # 01 · 把与站点无关的照片回退链提到共享模块
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 - **所属 spec**：`.scratch/morningmusume/spec.md`
 - **依据**：grilling R2-Q3；既有 `wiki.py` / `roster.py` 已确立「按能复用来拆」的先例
@@ -30,3 +30,9 @@ CDX 查询（`cdx_rows`）、Wayback 取图（`wayback_photo`）、Commons 取�
 - `npm test` 全绿，Python 测试数不减少（迁移不是删除）。
 - 现有 `test_love_members.py` 的照片相关用例要么跟着迁到新模块的测试文件，
   要么证明它们仍然通过 —— 不允许「测试没了所以绿」。
+
+## Comments
+
+`scripts/photo_chain.py` 已建立并被两处共用：`commons_photo` / `commons_search_photo` / `commons_for` / `cdx_rows`（Wayback 部分后来再收进 `wayback.py`）；等爱 `love_members.py:326` 已改用 `commons_for`。
+
+2026-10-29 triage 复核：工单已交付（早安批 + 第六轮扫描候选⑨），补状态。
