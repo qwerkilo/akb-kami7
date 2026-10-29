@@ -488,6 +488,17 @@
             </figcaption>
           </figure>
           <div class="result-side">
+            <p class="hint shared-note" id="shared-note" hidden>
+              <span data-i18n="shared_note">这是通过链接分享的排名</span>
+              <button
+                type="button"
+                id="shared-cta"
+                class="ghost"
+                data-i18n="shared_cta"
+              >
+                我也来排
+              </button>
+            </p>
             <div
               class="seg seg-style"
               role="radiogroup"
@@ -545,6 +556,9 @@
               </button>
               <button id="share-btn" class="ghost" data-i18n="share">
                 分享到 X
+              </button>
+              <button id="copy-link" class="ghost" data-i18n="copy_link">
+                复制链接
               </button>
               <button id="resort-btn" class="ghost" data-i18n="resort">
                 这几位重新排序

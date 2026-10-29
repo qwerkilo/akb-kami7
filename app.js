@@ -7,6 +7,16 @@
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map(CORE.flattenMembers(GROUPS).map((m) => [m.id, m]));
 
+  // 分享链接（ADR-0025）：只读展示分享者的排名；不写 localStorage、不碰接收者的存档。
+  const sharedLink = (() => {
+    const d = CORE.decodeShare(location.search);
+    if (!d) return null;
+    const members = d.ids.map((id) => BY_ID.get(id));
+    if (members.some((m) => !m || m.series !== d.series)) return null;
+    return { ...d, members };
+  })();
+  let sharedOn = !!sharedLink;
+
   // 简介数据拆在 bios.js（首屏少解析 ~106KB）。空闲或打开资料卡时加载；
   // 离线由 SW 壳缓存兜底（bios.js 在 sw-cache-rules.js 的 SHELL_FILES 里）。
   let BIOS = null;
@@ -1083,6 +1093,57 @@
   /* ---------------- result ---------------- */
   let ranking = [];
 
+  // ---- 分享链接的只读结果（ADR-0025）----
+  function paintSharedSteps() {
+    const bar = $("#steps");
+    if (!bar) return;
+    for (const btn of bar.querySelectorAll("[data-step]")) {
+      const key = btn.getAttribute("data-step");
+      btn.disabled = !(key === "pick" || key === "result");
+      btn.setAttribute("aria-current", key === "result" ? "step" : "false");
+    }
+  }
+
+  function enterShared() {
+    if (!sharedLink) return;
+    ranking = sharedLink.members.slice();
+    $("#title-input").value =
+      sharedLink.title ||
+      CORE.names(sharedLink.series, sharedLink.size, t).title;
+    $("#shared-note").hidden = false;
+    $("#resort-btn").hidden = true;
+    renderRankList();
+    show("result");
+    renderSteps();
+    // renderSteps 的 sync() 会把 series/pick 拉回接收者自己的存档 —— 只读页按分享者的来画
+    series = sharedLink.series;
+    pick = sharedLink.size;
+    renderStyleSeg();
+    paintSharedSteps();
+    drawPoster();
+  }
+
+  function exitShared() {
+    if (!sharedOn) return;
+    sharedOn = false;
+    ranking = [];
+    $("#shared-note").hidden = true;
+    $("#resort-btn").hidden = false;
+    if (location.search) history.replaceState(null, "", location.pathname);
+  }
+
+  /** 当前结果页的分享链接；file:// 或排名为空时返回空串（复制时提示失败）。 */
+  function shareLink() {
+    if (!ranking.length || !location.protocol.startsWith("http")) return "";
+    const q = CORE.encodeShare({
+      series: sharedOn && sharedLink ? sharedLink.series : series,
+      size: ranking.length,
+      ids: ranking.map((m) => m.id),
+      title: $("#title-input").value,
+    });
+    return q ? `${location.origin}${location.pathname}?${q}` : "";
+  }
+
   const rankList = $("#rank-list");
 
   rankList.addEventListener("keydown", profileKey);
@@ -1205,6 +1266,17 @@
     navigate("restart");
   });
   $("#save-btn").addEventListener("click", savePoster);
+  $("#copy-link").addEventListener("click", async () => {
+    const link = shareLink();
+    if (!link) return toast(t("copy_failed"));
+    try {
+      await navigator.clipboard.writeText(link);
+      toast(t("copied"));
+    } catch {
+      toast(t("copy_failed"));
+    }
+  });
+  $("#shared-cta").addEventListener("click", () => navigate("pick"));
   $("#share-btn").addEventListener("click", () => {
     const ex = resultExport();
     window.open(
@@ -1280,11 +1352,7 @@
       hashtag: names().posterTags,
       fileName: `${names().fileBase}.png`,
       caption: `${title}\n\n${ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n")}\n\n${names().shareTags}`,
-      shareUrl:
-        location.protocol.startsWith("http") &&
-        !/^(localhost|127\.)/.test(location.hostname)
-          ? location.href.split("#")[0]
-          : "",
+      shareUrl: shareLink(),
     };
   }
 
@@ -1597,6 +1665,8 @@
 
   // opts 透给 startDuel（目前只有 { shuffle }，出图页「这几位重新排序」用）
   function navigate(intent, opts) {
+    // 只读分享页里的任何导航（步骤 ①、重新选人、CTA）都先退回接收者自己的会话
+    if (sharedOn && intent !== "boot") exitShared();
     const out = CORE.nav(navCtx(), intent);
     if (out.effect === "abandon") S.abandonDuel();
     view = out.view;
@@ -1993,6 +2063,7 @@
   navigate("boot");
   initPWA();
   warmBios();
+  if (sharedOn) enterShared();
 })();
 
 // L11：boot 占位与相位切换解耦 —— 模块加载后的下一帧就把它摘掉（相位在 init 里

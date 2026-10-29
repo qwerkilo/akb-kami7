@@ -846,6 +846,50 @@
   const STATE_VERSION = 1;
   const SIZES = [7, 16, 40];
 
+  // ---- 分享链接（ADR-0025）：编码最终排名，不编码对决答案 ----
+  const SHARE_ID_RE = /^m[0-9a-f]{10}$/;
+  const SHARE_TITLE_MAX = 24; // 与结果页标题输入框的 maxlength 一致
+
+  function cleanTitle(v) {
+    return String(v == null ? "" : v)
+      .replace(/[\u0000-\u001f]/g, "")
+      .trim()
+      .slice(0, SHARE_TITLE_MAX);
+  }
+
+  function shareIdsOk(ids, size) {
+    return (
+      Array.isArray(ids) &&
+      ids.length === size &&
+      new Set(ids).size === size &&
+      ids.every((id) => SHARE_ID_RE.test(id))
+    );
+  }
+
+  function encodeShare(data) {
+    const d = data || {};
+    if (!SERIES_KEYS[d.series] || !SIZES.includes(d.size)) return "";
+    if (!shareIdsOk(d.ids, d.size)) return "";
+    const p = new URLSearchParams({
+      r: `${d.series}-${d.size}-${d.ids.join(",")}`,
+    });
+    const title = cleanTitle(d.title);
+    if (title) p.set("t", title);
+    return p.toString();
+  }
+
+  function decodeShare(search) {
+    const p = new URLSearchParams(search || "");
+    const m = /^([a-z0-9]+)-(\d+)-(.+)$/.exec(p.get("r") || "");
+    if (!m) return null;
+    const series = m[1];
+    const size = Number(m[2]);
+    if (!SERIES_KEYS[series] || !SIZES.includes(size)) return null;
+    const ids = m[3].split(",");
+    if (!shareIdsOk(ids, size)) return null;
+    return { series, size, ids, title: cleanTitle(p.get("t")) };
+  }
+
   function serializeState(state) {
     return JSON.stringify({
       v: STATE_VERSION,
@@ -1368,6 +1412,8 @@
     steps,
     serializeState,
     deserializeState,
+    encodeShare,
+    decodeShare,
     duelProgress,
     isTransfer,
     leaveText,

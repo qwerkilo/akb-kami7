@@ -2906,3 +2906,74 @@ test("筛选行的原因键：锁定 / 名额用尽 / 划掉 / 保留 四选一"
   assert.equal(core.markReasonKey(false, false, true), "screen_keep");
   assert.equal(core.markReasonKey(false, false, false), "screen_cut");
 });
+
+// ---- 分享链接编解码（ADR-0025）----
+const shareIds = (n, prefix = "m") =>
+  Array.from(
+    { length: n },
+    (_, i) => `${prefix}${String(i).padStart(10, "0")}`
+  );
+
+test("分享链接：roundtrip 保留系列/档位/顺序/标题", () => {
+  const ids = shareIds(7);
+  const q = core.encodeShare({
+    series: "48g",
+    size: 7,
+    ids,
+    title: "我的神7",
+  });
+  assert.match(q, /^r=48g-7-/);
+  assert.deepEqual(core.decodeShare("?" + q), {
+    series: "48g",
+    size: 7,
+    ids,
+    title: "我的神7",
+  });
+});
+
+test("分享链接：40 档与日文标题也能往返", () => {
+  const ids = shareIds(40);
+  const q = core.encodeShare({
+    series: "morning",
+    size: 40,
+    ids,
+    title: "好き顔ソート",
+  });
+  const back = core.decodeShare("?" + q);
+  assert.equal(back.size, 40);
+  assert.deepEqual(back.ids, ids);
+  assert.equal(back.title, "好き顔ソート");
+});
+
+test("分享链接：坏系列/坏档位/数量不符/重复 id/坏 id 一律 null", () => {
+  const ok = shareIds(7);
+  const cases = [
+    `r=nope-7-${ok.join(",")}`,
+    `r=48g-9-${ok.join(",")}`,
+    `r=48g-7-${ok.slice(0, 6).join(",")}`,
+    `r=48g-7-${[...ok.slice(0, 6), ok[0]].join(",")}`,
+    `r=48g-7-${[...ok.slice(0, 6), "x123"].join(",")}`,
+  ];
+  for (const c of cases) assert.equal(core.decodeShare("?" + c), null, c);
+  assert.equal(core.decodeShare(""), null);
+  assert.equal(core.decodeShare("?t=只有标题"), null);
+});
+
+test("分享链接：encodeShare 对非法输入返回空串，标题截到 24 字", () => {
+  const ids = shareIds(7);
+  assert.equal(
+    core.encodeShare({ series: "48g", size: 8, ids, title: "" }),
+    ""
+  );
+  assert.equal(
+    core.encodeShare({ series: "nope", size: 7, ids, title: "" }),
+    ""
+  );
+  const q = core.encodeShare({
+    series: "48g",
+    size: 7,
+    ids,
+    title: "一二三四五六七八九十一二三四五六七八九十一二三四五六七八",
+  });
+  assert.equal(core.decodeShare("?" + q).title.length, 24);
+});

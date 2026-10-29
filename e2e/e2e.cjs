@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 255, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 260, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1122,6 +1122,101 @@ runSuite({
       await page.keyboard.press("Escape");
       await setLang(page, "zh");
       await page.waitForTimeout(200);
+
+      // -- 分享链接（只读结果，ADR-0025）
+      block("分享链接（只读结果）");
+      const shareIds = await page.evaluate(() => {
+        const sec = (window.AKB_GROUPS || []).find(
+          (s) => s.series === "48g" && s.members.length >= 7
+        );
+        return sec.members.slice(0, 7).map((m) => m.id);
+      });
+      const shareQuery = `r=48g-7-${shareIds.join(",")}&t=${encodeURIComponent("共享排名")}`;
+      await page.addInitScript(() => {
+        window.__copied = null;
+        Object.defineProperty(navigator, "clipboard", {
+          configurable: true,
+          value: {
+            writeText: async (t) => {
+              window.__copied = t;
+            },
+          },
+        });
+      });
+      await page.goto(`${BASE}?${shareQuery}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 120000,
+      });
+      await ready(page);
+      await waitForSelector(
+        page,
+        "分享结果相位",
+        "#phase-result:not([hidden])",
+        {
+          timeout: 15000,
+          hard: true,
+        }
+      );
+      const shared = await page.evaluate((ids) => {
+        const byId = new Map();
+        for (const sec of window.AKB_GROUPS)
+          for (const m of sec.members) byId.set(m.id, m.name);
+        return {
+          expected: ids.map((id) => byId.get(id)),
+          names: [...document.querySelectorAll("#rank-list .nm")].map((el) =>
+            (el.firstChild?.textContent || "").trim()
+          ),
+          title: document.getElementById("title-input").value,
+          note: !document.getElementById("shared-note").hidden,
+        };
+      }, shareIds);
+      check("分享链接：只读说明可见", shared.note, `note=${shared.note}`);
+      check(
+        "分享链接：顺序与标题来自链接",
+        JSON.stringify(shared.names) === JSON.stringify(shared.expected) &&
+          shared.title === "共享排名",
+        `${shared.names.slice(0, 3)} title=${shared.title}`
+      );
+      await page.locator("#copy-link").click();
+      await page.waitForTimeout(150);
+      const copied = await page.evaluate(() => window.__copied);
+      check(
+        "分享链接：复制按钮写入含排名的链接",
+        !!copied &&
+          copied.includes("?r=48g-7-") &&
+          shareIds.every((id) => copied.includes(id)),
+        (copied || "").slice(0, 60)
+      );
+      await page.locator("#shared-cta").click();
+      await waitForSelector(page, "CTA 回挑人页", "#phase-pick:not([hidden])", {
+        timeout: 15000,
+        hard: true,
+      });
+      const afterCta = await page.evaluate(() => ({
+        search: location.search,
+        noteHidden: document.getElementById("shared-note").hidden,
+      }));
+      check(
+        "分享链接：CTA 回挑人页并清掉 URL",
+        afterCta.search === "" && afterCta.noteHidden === true,
+        JSON.stringify(afterCta)
+      );
+      const badIds = Array.from({ length: 7 }, (_, i) => "mdeadbeef0" + i);
+      await page.goto(`${BASE}?r=48g-7-${badIds.join(",")}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 120000,
+      });
+      await ready(page);
+      await page.waitForTimeout(300);
+      const invalid = await page.evaluate(() => ({
+        result: !document.getElementById("phase-result").hidden,
+        note: !document.getElementById("shared-note").hidden,
+      }));
+      check(
+        "分享链接：成员不存在的链接被忽略",
+        invalid.result === false && invalid.note === false,
+        JSON.stringify(invalid)
+      );
 
       // -- 清空已选（确认）
       block("清空已选（确认）");

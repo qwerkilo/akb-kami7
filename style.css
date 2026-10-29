@@ -1014,6 +1014,15 @@ html[data-cols="compact"] {
   margin: 0;
 }
 
+/* 只读分享页的说明行：文字仍走 .hint，这里只负责排布 */
+.shared-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 /* ---------- result ---------- */
 .result-grid {
   display: grid;
