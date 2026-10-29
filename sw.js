@@ -62,7 +62,10 @@ async function networkFirst(req) {
   const cache = await caches.open(SHELL_CACHE);
   try {
     const res = await fetch(req);
-    if (res && res.ok) await put(cache, req, res);
+    // 分享链接每次 query 不同：按完整 URL 缓存会在壳缓存里积压 index.html 副本
+    // （壳缓存没有上限）；离线兜底本来就走 index.html —— 带 query 的导航不进缓存
+    const queryNav = req.mode === "navigate" && new URL(req.url).search;
+    if (res && res.ok && !queryNav) await put(cache, req, res);
     return res;
   } catch (err) {
     const hit =

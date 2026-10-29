@@ -2923,6 +2923,7 @@ test("分享链接：roundtrip 保留系列/档位/顺序/标题", () => {
     title: "我的神7",
   });
   assert.match(q, /^r=48g-7-/);
+  assert.ok(q.includes(",m"), `id 之间应保留字面逗号：${q.slice(0, 40)}`);
   assert.deepEqual(core.decodeShare("?" + q), {
     series: "48g",
     size: 7,
@@ -2976,4 +2977,36 @@ test("分享链接：encodeShare 对非法输入返回空串，标题截到 24 �
     title: "一二三四五六七八九十一二三四五六七八九十一二三四五六七八",
   });
   assert.equal(core.decodeShare("?" + q).title.length, 24);
+});
+
+test("分享链接：原型键与保留字不算已知系列", () => {
+  const ids = shareIds(7);
+  for (const series of ["constructor", "__proto__", "toString"]) {
+    assert.equal(core.encodeShare({ series, size: 7, ids, title: "" }), "");
+    assert.equal(core.decodeShare(`?r=${series}-7-${ids.join(",")}`), null);
+  }
+});
+
+test("分享链接：标题里的控制字符被剥掉", () => {
+  const q = core.encodeShare({
+    series: "48g",
+    size: 7,
+    ids: shareIds(7),
+    title: "a\u0001b\tc",
+  });
+  assert.equal(core.decodeShare("?" + q).title, "abc");
+});
+
+test("分享链接：标题上限与结果页输入框 maxlength 是同一份契约", () => {
+  const html = require("node:fs").readFileSync(
+    require("node:path").join(__dirname, "..", "index.html"),
+    "utf8"
+  );
+  assert.match(
+    html,
+    new RegExp(
+      `id="title-input"[\\s\\S]{0,200}maxlength="${core.SHARE_TITLE_MAX}"`
+    ),
+    "index.html 的标题 maxlength 与 core.SHARE_TITLE_MAX 不一致"
+  );
 });

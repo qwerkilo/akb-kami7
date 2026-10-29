@@ -179,3 +179,13 @@ test("路径以 / 结尾的同源请求不是壳文件（SHELL_NAMES 里不能�
     "shell"
   );
 });
+
+test("带 query 的导航不写入壳缓存（分享链接会积压 index.html 副本）", () => {
+  const src = fs.readFileSync(path.join(__dirname, "..", "sw.js"), "utf8");
+  assert.match(
+    src,
+    /req\.mode === "navigate" && new URL\(req\.url\)\.search/,
+    "带 query 的导航必须先识别出来"
+  );
+  assert.match(src, /!queryNav/, "识别出来后不得写缓存");
+});

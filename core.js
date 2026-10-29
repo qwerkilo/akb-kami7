@@ -848,7 +848,8 @@
 
   // ---- 分享链接（ADR-0025）：编码最终排名，不编码对决答案 ----
   const SHARE_ID_RE = /^m[0-9a-f]{10}$/;
-  const SHARE_TITLE_MAX = 24; // 与结果页标题输入框的 maxlength 一致
+  const SHARE_TITLE_MAX = 24; // 与结果页标题输入框的 maxlength 一致（单测比对 HTML）
+  const hasSeries = (key) => Object.hasOwn(SERIES_KEYS, key);
 
   function cleanTitle(v) {
     return String(v == null ? "" : v)
@@ -868,14 +869,12 @@
 
   function encodeShare(data) {
     const d = data || {};
-    if (!SERIES_KEYS[d.series] || !SIZES.includes(d.size)) return "";
+    if (!hasSeries(d.series) || !SIZES.includes(d.size)) return "";
     if (!shareIdsOk(d.ids, d.size)) return "";
-    const p = new URLSearchParams({
-      r: `${d.series}-${d.size}-${d.ids.join(",")}`,
-    });
+    // 手拼而不是 URLSearchParams：逗号要保持字面量（可读、可手动检查）
+    const r = `${d.series}-${d.size}-${d.ids.join(",")}`;
     const title = cleanTitle(d.title);
-    if (title) p.set("t", title);
-    return p.toString();
+    return title ? `r=${r}&t=${encodeURIComponent(title)}` : `r=${r}`;
   }
 
   function decodeShare(search) {
@@ -884,7 +883,7 @@
     if (!m) return null;
     const series = m[1];
     const size = Number(m[2]);
-    if (!SERIES_KEYS[series] || !SIZES.includes(size)) return null;
+    if (!hasSeries(series) || !SIZES.includes(size)) return null;
     const ids = m[3].split(",");
     if (!shareIdsOk(ids, size)) return null;
     return { series, size, ids, title: cleanTitle(p.get("t")) };
@@ -1414,6 +1413,7 @@
     deserializeState,
     encodeShare,
     decodeShare,
+    SHARE_TITLE_MAX,
     duelProgress,
     isTransfer,
     leaveText,

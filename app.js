@@ -16,6 +16,13 @@
     return { ...d, members };
   })();
   let sharedOn = !!sharedLink;
+  let titleBeforeShared = null;
+
+  // 只读分享页的真实上下文：series/pick 会被 sync() 反复拉回接收者的存档，
+  // 所以结果相关的命名一律从这里取，而不是读那两个变量。
+  const activeSeries = () =>
+    sharedOn && sharedLink ? sharedLink.series : series;
+  const activeSize = () => (sharedOn && sharedLink ? sharedLink.size : pick);
 
   // 简介数据拆在 bios.js（首屏少解析 ~106KB）。空闲或打开资料卡时加载；
   // 离线由 SW 壳缓存兜底（bios.js 在 sw-cache-rules.js 的 SHELL_FILES 里）。
@@ -77,7 +84,7 @@
     return typeof v === "function" ? v(...args) : v;
   };
   function names() {
-    return CORE.names(series, pick, t);
+    return CORE.names(activeSeries(), activeSize(), t);
   }
 
   let posterStyle = snap.posterStyle;
@@ -124,19 +131,19 @@
     const brand = $("#brand");
     if (brand) {
       brand.textContent = N.brand;
-      brand.classList.toggle("long", pick !== 7 || lang === "en");
+      brand.classList.toggle("long", activeSize() !== 7 || lang === "en");
     }
     const eyebrow = $("#eyebrow");
     if (eyebrow) eyebrow.textContent = N.eyebrow;
     const size7 = $("#size-7");
-    if (size7) size7.textContent = CORE.names(series, 7, t).brand;
+    if (size7) size7.textContent = CORE.names(activeSeries(), 7, t).brand;
     // 按钮里放长短两个标签，窄屏由 CSS 选短的那个。这里必须渲染成两个 <span> ——
     // 直接写 textContent 会把结构抹掉，窄屏就只剩一个截断的长标签了。
     document.querySelectorAll(".seg-series [data-series]").forEach((b) => {
       const n = CORE.names(b.dataset.series, pick, t);
       b.innerHTML = `<span class="seg-label-full">${esc(n.seriesLabel)}</span><span class="seg-label-short">${esc(n.seriesShort)}</span>`;
     });
-    paintSeg(".seg-series", "series", series);
+    paintSeg(".seg-series", "series", activeSeries());
     const seriesSeg = document.querySelector(".seg-series");
     if (seriesSeg) seriesSeg.setAttribute("aria-label", t("series_label"));
     const title = $("#title-input");
@@ -1099,37 +1106,56 @@
     if (!bar) return;
     for (const btn of bar.querySelectorAll("[data-step]")) {
       const key = btn.getAttribute("data-step");
-      btn.disabled = !(key === "pick" || key === "result");
+      // 当前步（出图）不可点：点它只会退出只读，用户预期是「什么都不发生」
+      btn.disabled = key !== "pick";
       btn.setAttribute("aria-current", key === "result" ? "step" : "false");
     }
   }
 
-  function enterShared() {
-    if (!sharedLink) return;
+  /** 只读结果页的渲染体：任何重渲染（切换语言/皮肤/样式）都必须走这里。 */
+  function paintSharedView() {
+    if (!sharedLink) return false;
     ranking = sharedLink.members.slice();
-    $("#title-input").value =
-      sharedLink.title ||
-      CORE.names(sharedLink.series, sharedLink.size, t).title;
     $("#shared-note").hidden = false;
     $("#resort-btn").hidden = true;
-    renderRankList();
-    show("result");
-    renderSteps();
-    // renderSteps 的 sync() 会把 series/pick 拉回接收者自己的存档 —— 只读页按分享者的来画
-    series = sharedLink.series;
-    pick = sharedLink.size;
-    renderStyleSeg();
+    renderResultBody();
     paintSharedSteps();
-    drawPoster();
+    return true;
+  }
+
+  function enterShared() {
+    if (!sharedLink) return;
+    const input = $("#title-input");
+    titleBeforeShared = {
+      value: input.value,
+      dirty: input.dataset.dirty || "",
+    };
+    input.value =
+      sharedLink.title ||
+      CORE.names(sharedLink.series, sharedLink.size, t).title;
+    // 标记为「用户改过」：applyStatic / setLang 不得用接收者的默认标题覆盖分享标题
+    input.dataset.dirty = "1";
+    renderChrome();
+    paintSharedView();
   }
 
   function exitShared() {
     if (!sharedOn) return;
     sharedOn = false;
     ranking = [];
+    view = "pick"; // 否则 CTA 会走「结果页返回」= abandon，清掉接收者自己的对决存档
     $("#shared-note").hidden = true;
     $("#resort-btn").hidden = false;
+    const input = $("#title-input");
+    if (input && titleBeforeShared) {
+      input.value = titleBeforeShared.value;
+      if (titleBeforeShared.dirty)
+        input.dataset.dirty = titleBeforeShared.dirty;
+      else delete input.dataset.dirty;
+    }
+    titleBeforeShared = null;
     if (location.search) history.replaceState(null, "", location.pathname);
+    renderChrome();
   }
 
   /** 当前结果页的分享链接；file:// 或排名为空时返回空串（复制时提示失败）。 */
@@ -1238,16 +1264,21 @@
     });
   }
 
-  function renderResult() {
-    sync();
-    if (snap.phase !== "result") return;
-    ranking = snap.ranking.map((id) => BY_ID.get(id));
+  /** 结果页的渲染顺序只有这一处（普通结果与只读分享共用）。 */
+  function renderResultBody() {
     renderRankList();
     captureUnveil(); // 必须在 show 之前 —— 之后对决页已隐藏，取不到位置
     show("result");
     renderSteps();
     renderStyleSeg();
     drawPoster();
+  }
+
+  function renderResult() {
+    sync();
+    if (snap.phase !== "result") return;
+    ranking = snap.ranking.map((id) => BY_ID.get(id));
+    renderResultBody();
   }
 
   let drawTimer;
@@ -1459,7 +1490,7 @@
     if (!S.setSkin(next)) return;
     sync();
     paintSkin();
-    if (snap.phase === "result") drawPoster();
+    if (sharedOn || snap.phase === "result") drawPoster();
   }
 
   /* ---------------- 向导模式（v5 A） ---------------- */
@@ -1643,6 +1674,7 @@
   }
 
   function paint() {
+    if (sharedOn && paintSharedView()) return;
     sync();
     if (view === "screening") {
       show("screen");
@@ -1743,17 +1775,21 @@
     "intro-skip": closeIntro,
   });
 
+  function stepClick(step) {
+    // 只读分享页的 ① 只是退出只读，不涉及接收者自己的对决 —— 不要弹确认
+    if (sharedOn) return navigate(step.dataset.step);
+    // ① 在非 pick 相位会 abandon 掉进行中的对决（core.nav 的 pick 规则）——与
+    // 「重新选人」是同一条销毁路径，复用同一句确认（M5 只盖了按钮，这条漏了；
+    // 第八轮扫描抓到：结果页点 ① 海报与全部答案直接消失、零确认）。
+    const out = CORE.nav(navCtx(), step.dataset.step);
+    if (out.effect === "abandon" && !window.confirm(t("reselect_confirm")))
+      return;
+    return navigate(step.dataset.step);
+  }
+
   document.addEventListener("click", (e) => {
     const step = e.target.closest("#steps [data-step]");
-    if (step && !step.disabled) {
-      // ① 在非 pick 相位会 abandon 掉进行中的对决（core.nav 的 pick 规则）——与
-      // 「重新选人」是同一条销毁路径，复用同一句确认（M5 只盖了按钮，这条漏了；
-      // 第八轮扫描抓到：结果页点 ① 海报与全部答案直接消失、零确认）。
-      const out = CORE.nav(navCtx(), step.dataset.step);
-      if (out.effect === "abandon" && !window.confirm(t("reselect_confirm")))
-        return;
-      return navigate(step.dataset.step);
-    }
+    if (step && !step.disabled) return stepClick(step);
     const act = e.target.closest("[data-act]");
     if (act) {
       const fn = CLICK_ACTIONS[act.dataset.act];
