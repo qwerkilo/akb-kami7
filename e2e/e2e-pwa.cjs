@@ -233,9 +233,18 @@ runSuite({
       });
     let gotFonts = { n: 0, css: 0 };
     const fontTick = waitTicker("等待字体预热");
-    for (let i = 0; i < 60; i++) {
+    // 不再等一个写死的条数（`n >= 17` 是旧预热集的产物，当前集更小 → 门恒假，
+    // 每次白等满 30s）。判据改成「CSS 已缓存 + 预热批次稳定」：连续两拍条数不变
+    // 即认为首批已落盘；上限 10s，超时也继续（离线断言会自己红）。
+    let prevFonts = -1;
+    let stable = 0;
+    for (let i = 0; i < 20; i++) {
       gotFonts = await fontCacheInfo();
-      if (gotFonts.css > 0 && gotFonts.n >= 17) break;
+      if (gotFonts.css > 0 && gotFonts.n >= 2) {
+        stable = gotFonts.n === prevFonts ? stable + 1 : 0;
+        if (stable >= 2) break;
+      }
+      prevFonts = gotFonts.n;
       fontTick.tick(`${gotFonts.n} 条`);
       await page.waitForTimeout(500);
     }

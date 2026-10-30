@@ -2116,20 +2116,31 @@ class PermanentDownloadTests(unittest.TestCase):
 
 
 class ImageQueryFileFilterTests(unittest.TestCase):
-    """性能调研 #5：48pedia 只查还需要照片的文件（缺图者每轮仍会被查）。"""
+    """性能调研 #5：48pedia 只查还需要照片的文件（缺图者每轮仍会被查）。
 
-    def _member(self, fid, f):
-        return {"id": fid, "name": "X", "file": f}
+    `skip` 的真实形状是 `photo_skip.key()` 的 `(团, 名)` 集合，不是文件名 ——
+    旧测试用文件名做夹具，把「键不匹配导致过滤恒不生效」的 bug 测成了绿。
+    """
+
+    def _member(self, fid, f, name="X", group="48g"):
+        return {"id": fid, "name": name, "group": group, "file": f}
 
     def test_skips_members_the_pipeline_already_skips(self):
-        ms = [self._member("m1", "a.jpg"), self._member("m2", "b.jpg")]
+        ms = [
+            self._member("m1", "a.jpg", "A", "48g"),
+            self._member("m2", "b.jpg", "B", "48g"),
+        ]
         self.assertEqual(
-            fetch_members.image_query_files(ms, {"a.jpg"}), ["b.jpg"]
+            fetch_members.image_query_files(ms, {("48g", "A")}), ["b.jpg"]
         )
 
     def test_empty_skip_queries_everything(self):
-        ms = [self._member("m1", "a.jpg")]
+        ms = [self._member("m1", "a.jpg", "A")]
         self.assertEqual(fetch_members.image_query_files(ms, set()), ["a.jpg"])
+
+    def test_member_without_file_is_not_queried(self):
+        ms = [self._member("m1", "", "A"), self._member("m2", "b.jpg", "B")]
+        self.assertEqual(fetch_members.image_query_files(ms, set()), ["b.jpg"])
 
 
 if __name__ == "__main__":

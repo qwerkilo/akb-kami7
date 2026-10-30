@@ -906,8 +906,13 @@ def image_query_files(members, skip):
     每轮全查要 26–80s（27 批）却零消费。`skip` 用 `skip_photo` —— 它由
     `photo_skip_for` 按「站内照片」推出，`--refresh-photos` 时是空集（全量重解析）。
     """
-    skip = skip or set()
-    return [f for f in member_files(members) if f not in skip]
+    return sorted(
+        {
+            m["file"]
+            for m in members
+            if m.get("file") and not photo_skip.skips(skip, m)
+        }
+    )
 
 
 def resolve_missing(members, urls):
