@@ -13,9 +13,16 @@
 - 测量纪律：同条件 A/B（review-rules #2），数字带测量表面与条件（#6）；资源体积用 `decodedBodySize`/`encodedBodySize`，`transferSize` 可能为 0。
 - 本仓库是本地 markdown tracker：研究资产写 `.scratch/perf-load/research/NN-*.md`（替代 wayfinder 的 `research/<name>` 分支；本仓无 PR 流程），从对应票链接。
 - 排序偏好：用户可感知优先（首访/滚动/搜索/离线），其次低风险；开发效率项单独成组。
+- **研究发现两个真缺陷，另走 `diagnosing-bugs`，不算本图的决策**：① `image_query_files` 键不匹配（性能 #5 空操作）；② pwa 字体门 `n>=17` 恒假。先记在这里，由用户决定是否插入 bug 流程。
 - 本图只产**决策**与可开工工单，不改产品代码；研究票由子代理并行取证，决议票由用户拍板。
 
 ## Decisions so far
+
+- [01 · 首访真实瀑布](issues/01-first-visit-profile.md)：首访 1.12–1.48MB；JS 占 43–57%、字体 19–34%；LCP 中位 644ms、load 中位 5.4s（长尾全在 Google Fonts，2/16 次字体失败静默回退）；无视觉风险项：延后 bios+poster 省 129K、修 SW 重复拉 index 25K。
+- [02 · 字体交付面](issues/02-font-delivery.md)：Zen+Nunito CSS 87KB/373 faces；zh 实画 15 个 Zen face/142K，预热 37 个/365K（61% 多预热）；C1–C3（500 拆品牌 text=、Dela 延后、修 warmUrls 权重）可零视觉把 zh 降到约 238K（−51%）。
+- [03 · 运行时与内存](issues/03-runtime-memory.md)：宽命中搜索 71–93ms longtask；默认名册 641 节点/首屏 347–379ms，全展开 7804 节点/595KB；海报绘制 282–306ms；40 张 full 解码约 15.3MB、全库均值约 47.6MB；PWA 600 张上限对应 6.2–28.6MB。
+- [04 · 管线墙钟](issues/04-pipeline-wallclock.md)：14m08 构成 = 旧站扫描 370s + 下载 281s（死 URL 重试）+ 数据 145s + Commons 27s；发现 `image_query_files` 键不匹配导致性能 #5 空操作（每轮白付 26–80s）；负结果缓存等可再压到约 2m50s–3m20s。
+- [05 · CI/E2E](issues/05-ci-e2e-load.md)：本地 e2e:all 4m16；CI push 中位 3m35；nightly 3m05–3m50（旧「runner 慢 10–20×」不成立）；pwa 字体门 `n>=17` 恒假，每次白等 30s。
 
 <!-- 关闭一张票后在这里追加一行：gist + 链接 -->
 
