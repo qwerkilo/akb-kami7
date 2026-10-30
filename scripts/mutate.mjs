@@ -159,11 +159,39 @@ for (const [idx, m] of mutations.entries()) {
 restoreAll();
 
 const survived = results.filter((r) => !r.killed);
+// 结论落一份可复查的文件：stdout 可能被管道/并发输出截断（2026-10-30 实证：
+// `| tail` 只留下测试命令的收尾行，判定行没进视野，白重跑了一轮 6 分钟的变异）。
+// 读这个文件就能下结论，不必重跑。
+function finish(code) {
+  const report = join(tmpdir(), "mutate-last.json");
+  try {
+    writeFileSync(
+      report,
+      JSON.stringify(
+        {
+          at: new Date().toISOString(),
+          testCmd,
+          results,
+          survived: survived.map((r) => r.name),
+          toolFailed,
+          exitCode: code,
+        },
+        null,
+        2
+      )
+    );
+    console.log(`\n报告：${report}`);
+  } catch (e) {
+    console.error(`⚠ 报告写入失败：${e.message}`);
+  }
+  process.exit(code);
+}
+
 if (toolFailed) {
   console.error("\n工具自身失败（锚点/写入/还原），以上结论不可信 —— 退出码 2");
-  process.exit(2);
+  finish(2);
 }
 console.log(
   `\n${results.length - survived.length}/${results.length} 个变异被杀${survived.length ? "，存活：" + survived.map((r) => r.name).join("、") : ""}`
 );
-process.exit(survived.length ? 1 : 0);
+finish(survived.length ? 1 : 0);

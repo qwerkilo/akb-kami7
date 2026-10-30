@@ -175,7 +175,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
   （**本批最后一个提交**的 SHA —— `git rev-parse HEAD` 在推送前后同值，不必等推送再补一个「填基点」提交）。
   索引只维护活信息（下次基点 / 批次日录 / 未收口清单），历史不重写。
 - 下次 review 从上次记录的基点开始，不重复审查已经通过的部分。
-- **两轴审查要核 `docs/reviews/review-rules.md` 的六条硬性检查项**（新工具退化路径 / 性能 A/B / 测试开关保存恢复 / 等待失败出声 / 长跑后台 / 视觉同条件 A/B）。
+- **两轴审查要核 `docs/reviews/review-rules.md`**：判断类规则逐条过（机械类已转成守卫，不在那里重复）。
 - 质检基线在 `docs/reviews/qa-baseline.md`；口径「CCN > 10 才列修」由 `npm run complexity` 的趋势棘轮守（只拦新增/变高，2026-10-04 接进闸门）；CRAP 与覆盖率仍靠手动跑（lizard 不输出 CRAP，本仓无覆盖率工具链）。
 
 ## 约定
