@@ -1367,9 +1367,13 @@
       fonts: {
         ui: v("--font-ui", d.fonts.ui),
         jp: v("--font-jp", d.fonts.jp),
-        display: v("--font-display", d.fonts.display),
+        name: v("--font-poster-name", v("--font-jp", d.fonts.jp)),
+        display: v("--font-poster", v("--font-display", d.fonts.display)),
       },
       cardStroke: parseFloat(v("--poster-card-stroke", "3px")) || 0,
+      corner: parseFloat(v("--poster-corner", "10px")),
+      shadow: v("--poster-shadow", "1") !== "0",
+      rankStyle: v("--poster-rank", "tape"),
     };
   }
 

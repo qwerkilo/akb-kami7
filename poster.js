@@ -23,8 +23,11 @@
         placeholder: "#e4e7ee",
         placeholderInk: "#7e8390",
       },
-      fonts: { ui, jp, display: '"Dela Gothic One",' + jp },
+      fonts: { ui, jp, name: jp, display: '"Dela Gothic One",' + jp },
       cardStroke: 3,
+      corner: 10,
+      shadow: true,
+      rankStyle: "tape",
     };
   }
 
@@ -38,6 +41,9 @@
         typeof tokens.cardStroke === "number"
           ? tokens.cardStroke
           : d.cardStroke,
+      corner: typeof tokens.corner === "number" ? tokens.corner : d.corner,
+      shadow: tokens.shadow === false ? false : d.shadow,
+      rankStyle: tokens.rankStyle || d.rankStyle,
     };
   }
 
@@ -167,16 +173,16 @@
 
   function slotCard(ctx, T, im, m, x, y, w, h, compact, photoH) {
     const ph = photoH || h;
-    panel(ctx, T, x, y, w, h, 10, {
-      color: "rgba(28,30,43,.18)",
+    panel(ctx, T, x, y, w, h, T.corner, {
+      color: T.shadow ? "rgba(28,30,43,.18)" : null,
       blur: 24,
       dy: 10,
       stroke: compact ? Math.min(2, T.cardStroke) : T.cardStroke,
     });
 
     ctx.save();
-    if (ph < h) topRoundedRect(ctx, x, y, w, ph, 10);
-    else roundRect(ctx, x, y, w, h, 10);
+    if (ph < h) topRoundedRect(ctx, x, y, w, ph, T.corner);
+    else roundRect(ctx, x, y, w, h, T.corner);
     ctx.clip();
     photo(ctx, T, im, { x, y, w, h: ph }, m.name);
     ctx.restore();
@@ -193,7 +199,41 @@
       : { w: 64, h: 48, padX: 10, padY: 14, num: 28 };
   }
 
+  // 编辑部：把名次做成压在照片上的大号衬线数字（白描边 + 墨色字，证件照底也读得清）
+  function editorialRank(ctx, T, rank, x, y, big, compact) {
+    const size = big
+      ? 96
+      : compact
+        ? rank <= 3
+          ? 44
+          : 36
+        : rank <= 3
+          ? 64
+          : 52;
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.font = `400 ${size}px ${T.fonts.display}`;
+    const label = String(rank).padStart(2, "0");
+    ctx.lineWidth = big ? 7 : 5;
+    ctx.strokeStyle = "rgba(255,255,255,.9)";
+    ctx.strokeText(label, x + 8, y + 2);
+    ctx.fillStyle = T.colors.ink;
+    ctx.fillText(label, x + 8, y + 2);
+    if (big) {
+      ctx.font = `700 15px ${T.fonts.ui}`;
+      ctx.strokeText("CENTER", x + 14, y + size + 4);
+      ctx.fillStyle = T.colors.pink;
+      ctx.fillText("CENTER", x + 14, y + size + 4);
+    }
+    ctx.restore();
+  }
+
   function rankTape(ctx, T, rank, x, y, big, compact) {
+    if (T.rankStyle === "editorial") {
+      editorialRank(ctx, T, rank, x, y, big, compact);
+      return;
+    }
     const g = tapeGeom(big, compact, rank);
     const tx = x - g.padX;
     const ty = y - g.padY;
@@ -227,7 +267,14 @@
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = T.colors.ink;
     const sizes = labelSizes(big, compact, rank);
-    const nameSize = fitText(ctx, m.name, w + 10, sizes.name, 700, T.fonts.jp);
+    const nameSize = fitText(
+      ctx,
+      m.name,
+      w + 10,
+      sizes.name,
+      700,
+      T.fonts.name || T.fonts.jp
+    );
     ctx.fillText(m.name, x + w / 2, y + h + nameSize + 14);
     const sub = String(subOf(m) || "");
     const subSize = fitText(ctx, sub, w + 10, sizes.sub, 500, T.fonts.ui);
@@ -458,7 +505,14 @@
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = T.colors.ink;
-    fitText(ctx, title, W - fr.margin * 2, tall ? 56 : 64, 900, T.fonts.ui);
+    fitText(
+      ctx,
+      title,
+      W - fr.margin * 2,
+      tall ? 56 : 64,
+      700,
+      T.fonts.display
+    );
     ctx.fillText(title, fr.margin, tall ? 100 : 118);
     tape(
       ctx,

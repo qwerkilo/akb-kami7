@@ -1,6 +1,6 @@
 # 01 · 设计基础：令牌、页头、步骤条、按钮
 
-- **Status**: ready-for-agent
+- **Status**: resolved
 - **Blocked by**: 无
 - **缝**：③ 产物守卫（style-artifact）、⑦ E2E
 
@@ -14,3 +14,9 @@
 ## 验收
 
 `e2e:header` / `e2e:first` 全绿；style-artifact 守卫更新且仍只许减不许增；对比度守卫通过。
+
+## Comments
+
+2026-10-30 落地：经典皮令牌整块重定（纸白/墨黑/荧光粉、零圆角、无阴影）、页头文字化、
+步骤条 01/02/03、挑人 hero（三语新键）、档位文字 tab、按钮与焦点统一。
+`e2e:header` 72/72、`e2e:first` 145/145；`npm run check` exit 0。

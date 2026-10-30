@@ -633,6 +633,8 @@
       step_duel: "筛选 / 对决",
       step_result: "出图",
       step_duel_n: (n) => `第 ${n} 题`,
+      pick_hero: "挑出你的本命",
+      pick_hero_sub: "从 1,134 位成员里选，几道二选一排出顺序。",
       coach_title: (brand) => `三步挑出你的${brand}`,
       coach_body: (n) =>
         `① 在下面选满 ${n} 位 ② 划掉一半挑出你最想排前面的，再两两对决定下顺序 ③ 生成海报。选满后按钮会亮起，进度会自动保存。`,
@@ -827,6 +829,9 @@
       step_duel: "Screen / Duel",
       step_result: "Poster",
       step_duel_n: (n) => `Q${n}`,
+      pick_hero: "Pick your favourites",
+      pick_hero_sub:
+        "Choose from 1,134 members, then settle the order with a few head-to-heads.",
       coach_title: (brand) => `Pick your ${brand} in 3 steps`,
       coach_body: (n) =>
         `① Choose ${n} members below ② Cut half away to keep the ones you most want ranked, then duel them to fix the order ③ Generate your poster. The button lights up when full; progress saves automatically.`,
@@ -1028,6 +1033,8 @@
       step_duel: "絞り込み / 対決",
       step_result: "ポスター",
       step_duel_n: (n) => `第${n}問`,
+      pick_hero: "推しを選ぶ",
+      pick_hero_sub: "1,134人から選び、数回の二択で順番を決めます。",
       coach_title: (brand) => `3ステップで${brand}を決めよう`,
       coach_body: (n) =>
         `① 下から ${n} 人を選ぶ ② 半数を外して残したい人だけを残し、1対1で順番を決める ③ ポスターを生成。選び終わるとボタンが光ります。進行状況は自動保存。`,

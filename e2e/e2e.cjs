@@ -1758,8 +1758,8 @@ runSuite({
         });
       const classicPx = await posterPx();
       check(
-        "海报：原版皮肤底色 #edeff3",
-        classicPx === "237,239,243",
+        "海报：原版皮肤底色 #f5f2ec",
+        classicPx === "245,242,236",
         classicPx
       );
       await setSkin(page, "sticker");
@@ -1804,7 +1804,7 @@ runSuite({
       // 既比「第一帧 == 稳定后」，也比「第一帧 == 这位访客本来就该看到的皮肤」——
       // 只比相等的话，CSS 与应用一起错也会相等。
       const SKIN_FLOOR = {
-        classic: "rgb(237, 239, 243)",
+        classic: "rgb(245, 242, 236)",
         sticker: "rgb(245, 241, 230)",
       };
       const SKIN_RADIUS = { classic: "999px", sticker: "14px" };
