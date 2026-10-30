@@ -3393,3 +3393,295 @@ html[data-cols="compact"] {
     border-width: 1px;
   }
 }
+
+/* ===== 编辑部：筛选 / 对决 / 说明浮层 ===== */
+[data-skin="classic"] .screen-head {
+  padding: 0;
+}
+[data-skin="classic"] .screen-head h2 {
+  font: 700 28px/1.05 var(--font-serif);
+  letter-spacing: -0.03em;
+}
+[data-skin="classic"] .screen-intro {
+  font-size: 12px;
+  line-height: 1.7;
+}
+[data-skin="classic"] .screen-round {
+  margin-top: 10px;
+  color: var(--pink);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+[data-skin="classic"] .screen-list {
+  padding: 0;
+}
+[data-skin="classic"] .screen-row {
+  gap: 12px;
+  padding: 8px 0;
+}
+[data-skin="classic"] .screen-row .av {
+  width: 44px;
+  height: 58px;
+  border-radius: 0;
+}
+[data-skin="classic"] .screen-row .who b {
+  font-size: 14px;
+}
+[data-skin="classic"] .screen-row .who s {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+[data-skin="classic"] .screen-row .mark {
+  min-width: 60px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  font-size: 12px;
+  font-weight: 600;
+}
+[data-skin="classic"] .screen-row.cut .av img {
+  filter: grayscale(1);
+  opacity: 0.32;
+}
+[data-skin="classic"] .screen-row.cut .mark {
+  background: none;
+  color: var(--pink);
+  border-color: var(--pink);
+}
+[data-skin="classic"] .screen-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding: 10px 0;
+  background: var(--floor);
+  border-top: 1px solid var(--line);
+}
+[data-skin="classic"] .screen-foot .primary {
+  border-radius: 0;
+}
+[data-skin="classic"] .duel-intro {
+  background: rgba(245, 242, 236, 0.86);
+  backdrop-filter: blur(6px);
+}
+[data-skin="classic"] .di-card {
+  border-radius: 0;
+  border: 1px solid var(--line);
+  box-shadow: 0 26px 70px rgba(35, 28, 18, 0.16);
+  padding: 24px;
+}
+[data-skin="classic"] .di-card h2 {
+  font: 700 28px/1.05 var(--font-serif);
+  letter-spacing: -0.03em;
+}
+[data-skin="classic"] .di-list li {
+  font-size: 13px;
+  line-height: 1.7;
+}
+[data-skin="classic"] .di-acts .primary,
+[data-skin="classic"] .di-acts .ghost {
+  border-radius: 0;
+}
+[data-skin="classic"] .fighter .ph {
+  border-radius: 0;
+}
+[data-skin="classic"] .duel-head h2 {
+  font: 700 24px/1.1 var(--font-serif);
+  text-align: left;
+}
+[data-skin="classic"] .duel-saved {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+/* 生写卡：说明浮层也贴纸化 */
+[data-skin="sticker"] .di-card {
+  position: relative;
+  border: 1px dashed #b9a68f;
+  border-radius: 4px;
+  box-shadow: 0 12px 0 rgba(74, 54, 38, 0.16);
+  background: var(--card);
+}
+[data-skin="sticker"] .di-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -9px;
+  width: 66px;
+  height: 18px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(243, 217, 139, 0.92);
+}
+[data-skin="sticker"] .di-card h2 {
+  font-family: var(--font-serif);
+}
+[data-skin="sticker"] .di-acts .primary {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* ===== 微交互：统一的手感（时长走令牌；reduced-motion 由全局块归零） ===== */
+[data-skin="classic"] .card .ph img {
+  transition: transform var(--dur-slow) var(--ease);
+}
+[data-skin="classic"] .card:hover .ph img {
+  transform: scale(1.02);
+}
+[data-skin="classic"] .steps button,
+[data-skin="classic"] .seg-series button,
+[data-skin="classic"] .seg-style button,
+[data-skin="classic"] .t {
+  transition:
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease);
+}
+[data-skin="classic"] .primary {
+  transition:
+    transform var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+[data-skin="classic"] .primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+[data-skin="sticker"] .card .ph img {
+  transition: transform var(--dur-mid) var(--ease);
+}
+
+/* 对决：窄屏用满一屏，标题左对齐，照片更大，去掉中间的空白带 */
+@media (max-width: 560px) {
+  #phase-duel {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 10px 16px 20px;
+    gap: 8px;
+  }
+  #phase-duel .duel-thin {
+    position: static;
+  }
+  #phase-duel .duel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+    margin: 4px 0 0;
+    text-align: left;
+  }
+  #phase-duel .duel-head h2 {
+    max-width: 70%;
+    font: 700 22px/1.1 var(--font-serif);
+    text-align: left;
+  }
+  #phase-duel .duel-saved {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  #phase-duel .duel {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+  }
+  #phase-duel .fighter {
+    width: 100%;
+  }
+  #phase-duel .fighter .ph {
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+  #phase-duel .fighter .kn {
+    display: none;
+  }
+  #phase-duel .fighter .nm {
+    font-size: 14px;
+  }
+  #phase-duel .fighter .meta {
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #phase-duel .duel-actions {
+    margin-top: auto;
+    justify-content: space-between;
+  }
+  #phase-duel .hint {
+    font-size: 10px;
+  }
+  [data-skin="classic"] .screen-foot .ghost {
+    border-radius: 0;
+  }
+  [data-skin="classic"] .screen-foot .primary {
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  #phase-duel .duel-thin {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+  #phase-duel .duel-thin .bar {
+    height: 2px;
+    border-radius: 0;
+    background: var(--line);
+  }
+  #phase-duel .duel-progress {
+    font-size: 11px;
+  }
+  #phase-duel .duel {
+    align-items: stretch;
+    min-height: 0;
+  }
+  #phase-duel .fighter {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  #phase-duel .fighter .ph {
+    flex: 1 1 auto;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+  #phase-duel .fighter .ph img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #phase-duel .fighter .nm {
+    padding: 8px 0 2px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* 照片保持 3:4 自然裁切：拉满一屏会把脸裁成特写，反而难选 */
+  #phase-duel .duel {
+    align-items: flex-start;
+    flex: 0 0 auto;
+    margin-top: 10px;
+  }
+  #phase-duel .fighter .ph {
+    flex: 0 0 auto;
+    aspect-ratio: 3 / 4;
+    height: auto;
+  }
+  #phase-duel .fighter .ph img {
+    height: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  #phase-duel .duel {
+    flex: 1 1 auto;
+    align-items: center;
+    margin-top: 0;
+  }
+}
