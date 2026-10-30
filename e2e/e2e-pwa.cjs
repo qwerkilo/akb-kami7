@@ -78,7 +78,7 @@ async function pickMembers(page, n) {
 buildTemp(); // 临时副本（只拷壳 + img 软链）必须在起服务之前
 runSuite({
   name: "pwa",
-  expect: 45, // 执行器保证服务器就绪后，「静态服务器就绪」不再占一条检查（原 43）
+  expect: 46, // 执行器保证服务器就绪后，「静态服务器就绪」不再占一条检查（原 43）
   port: PORT,
   cwd: TMP,
   body: async ({ browser, checker }) => {
@@ -123,6 +123,15 @@ runSuite({
       { timeout: 20000 }
     );
     ok(controlled, "页面已被 SW 接管（controller 非空）");
+    // 先做一次根导航（reload）：壳缓存的重复 index 副本只有导航写入后才出现，
+    // 只在 install 之后数条目是数不到的（变异实测会假绿）。
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
+    await waitFor(
+      page,
+      "重载后 SW 仍接管",
+      () => navigator.serviceWorker.controller !== null,
+      { timeout: 20000 }
+    );
     const cached = await page.evaluate(async () => {
       const keys = await caches.keys();
       const shell = await caches.open(
@@ -131,6 +140,7 @@ runSuite({
       return (await shell.keys()).length;
     });
     ok(cached >= 12, `壳已预缓存（${cached} 条）`);
+    ok(cached === 15, `壳缓存没有重复的 index 副本（${cached} 条）`);
 
     console.log("\n[2] 断网后完整走完 挑人 → 对决 → 出图");
     // 先等 document.fonts.ready 再量：否则在线侧可能量到 FOUT 期间的回退字体宽度，

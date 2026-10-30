@@ -764,9 +764,16 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
     /captureUnveil\(\);[^\n]*\n?\s*show\("result"\)/,
     'captureUnveil 必须在 show("result") 之前调用（之后对决页已隐藏，取不到位置）'
   );
+  // 预览从 toDataURL 改成 toBlob + object URL（082–185ms 的同步编码移出主线程）：
+  // 仍然必须是「先拿到像素再揭幕」，只是信号从 data URL 变成 object URL。
   assert.match(
     app,
-    /#poster-img[\s\S]{0,80}\.src = canvas\.toDataURL[\s\S]{0,80}\n\s*unveil\(\)/,
+    /canvas\.toBlob\(/,
+    "海报预览必须用 toBlob（同步 toDataURL 会合成 282–306ms 长任务）"
+  );
+  assert.match(
+    app,
+    /img\.src = url;[\s\S]{0,80}\n\s*unveil\(\)/,
     "unveil 必须在海报有像素之后调用（否则飞过去是一片空白）"
   );
 });

@@ -58,14 +58,26 @@ async function put(cache, req, res) {
   } catch (_) {}
 }
 
+// 根导航统一存成 `index.html` 这一把键：预缓存已经存了它，若再按请求 URL
+// （`/`）存一份，壳缓存里就有两个 25KB 的 index 副本（研究实测 +25K）。
+function navKey(req) {
+  if (req.mode !== "navigate") return req;
+  const url = new URL(req.url);
+  if (url.search) return req;
+  return url.pathname === "/" || url.pathname.endsWith("/index.html")
+    ? "index.html"
+    : req;
+}
+
 async function networkFirst(req) {
   const cache = await caches.open(SHELL_CACHE);
   try {
     const res = await fetch(req);
     // 分享链接每次 query 不同：按完整 URL 缓存会在壳缓存里积压 index.html 副本
     // （壳缓存没有上限）；离线兜底本来就走 index.html —— 带 query 的导航不进缓存
-    const queryNav = req.mode === "navigate" && new URL(req.url).search;
-    if (res && res.ok && !queryNav) await put(cache, req, res);
+    const url = new URL(req.url);
+    const queryNav = req.mode === "navigate" && url.search;
+    if (res && res.ok && !queryNav) await put(cache, navKey(req), res);
     return res;
   } catch (err) {
     const hit =

@@ -439,7 +439,7 @@
 
   // 宽命中（单个 "a" 曾命中 1000+）会把 467KB 的 innerHTML 一次重建 → 冻结 ~1s。
   // 只渲染前 N 张，其余用一行诚实提示（再输入一个字即可缩小）。
-  const SEARCH_RENDER_CAP = 80;
+  const SEARCH_RENDER_CAP = 40;
   function renderSearch(view) {
     const hits = view.hits;
     const shown = hits.slice(0, SEARCH_RENDER_CAP);
@@ -1414,7 +1414,17 @@
     });
 
     try {
-      $("#poster-img").src = canvas.toDataURL("image/png");
+      // toDataURL 是同步编码（40 人实测 177–185ms，合成 282–306ms 的长任务）；
+      // toBlob 把编码移出主线程，预览用 object URL。下载路径本来就是 toBlob。
+      const blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, "image/png")
+      );
+      if (!blob) throw new Error("poster blob is null");
+      const url = URL.createObjectURL(blob);
+      const img = $("#poster-img");
+      if (img.dataset.objUrl) URL.revokeObjectURL(img.dataset.objUrl);
+      img.dataset.objUrl = url;
+      img.src = url;
       unveil(); // 海报有像素了才揭幕，否则飞过去是一片空白
     } catch (err) {
       $("#poster-img").alt = t("poster_fail");

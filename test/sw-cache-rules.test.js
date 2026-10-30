@@ -184,8 +184,18 @@ test("带 query 的导航不写入壳缓存（分享链接会积压 index.html �
   const src = fs.readFileSync(path.join(__dirname, "..", "sw.js"), "utf8");
   assert.match(
     src,
-    /req\.mode === "navigate" && new URL\(req\.url\)\.search/,
+    /req\.mode === "navigate" && url\.search/,
     "带 query 的导航必须先识别出来"
   );
   assert.match(src, /!queryNav/, "识别出来后不得写缓存");
+  assert.match(
+    src,
+    /function navKey\(req\)/,
+    "根导航要归到 index.html 这一把键"
+  );
+  const listed = RULES.SHELL_FILES.filter((f) => f !== "./");
+  assert.ok(
+    !listed.includes("./") && !listed.includes("/"),
+    "SHELL_FILES 不得再列根路径（与 index.html 是同一份文档，会存两份）"
+  );
 });

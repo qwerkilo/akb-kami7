@@ -586,7 +586,7 @@ runSuite({
           return (
             im &&
             im.getAttribute("src") &&
-            im.getAttribute("src").startsWith("data:image/png") &&
+            /^(blob:|data:image\/png)/.test(im.getAttribute("src")) &&
             im.naturalWidth > 100
           );
         },
@@ -644,16 +644,16 @@ runSuite({
       await openFilterPanel(page);
       await page.fill("#search", "");
       await page.waitForTimeout(350);
-      // 搜索上限：宽命中（"a" 曾 1089 条）只渲染前 80 张 + 一行「还有 N 位」
+      // 搜索上限：宽命中（"a" 曾 1089 条）只渲染前 40 张 + 一行「还有 N 位」
       await page.fill("#search", "a");
       await page.waitForTimeout(350);
       check(
-        "搜索宽命中：只渲染 80 张 + 提示还有更多",
+        "搜索宽命中：只渲染 40 张 + 提示还有更多",
         await page.evaluate(() => {
           const cards = document.querySelectorAll(".gen-body .card").length;
           const hint =
             document.querySelector(".gen-body + .hint")?.textContent || "";
-          return cards === 80 && /还有|more|他に/.test(hint);
+          return cards === 40 && /还有|more|他に/.test(hint);
         })
       );
       await page.fill("#search", "");
@@ -1550,7 +1550,8 @@ runSuite({
         if (!(await page.isVisible("#phase-duel"))) break;
         await page.click("#fighter-a");
       }
-      // 等海报**真的画出来**：`#poster-img` 的 src 变成 data URL 才是那个信号。
+      // 等海报**真的画出来**：`#poster-img` 的 src 变成 object URL（blob:）才是那个信号。
+      // （预览已从 toDataURL 改成 toBlob + object URL，编码不再占主线程。）
       // （不要等 `document.images` 全 complete —— 海报的图是 `new Image()` 加载的、
       // 根本不在 document.images 里，而名册的 lazy 图在视口外永不加载，实测恒假、
       // 白烧 20s 超时。）
@@ -1560,7 +1561,7 @@ runSuite({
         () => {
           const im = document.getElementById("poster-img");
           return (
-            im && (im.getAttribute("src") || "").startsWith("data:image/png")
+            im && /^(blob:|data:image\/png)/.test(im.getAttribute("src") || "")
           );
         },
         { timeout: 20000, hard: true }
@@ -1571,7 +1572,9 @@ runSuite({
       const lovePosterOk = await page.evaluate(() => {
         const img = document.getElementById("poster-img");
         return (
-          img && img.src.startsWith("data:image/png") && img.src.length > 100000
+          img &&
+          /^(blob:|data:image\/png)/.test(img.src) &&
+          img.naturalWidth > 100
         );
       });
       check(

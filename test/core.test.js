@@ -2898,6 +2898,24 @@ test("字体子集选择：范围解析 / 覆盖判定 / 按 family+weight 取 U
   ]);
   assert.ok(nearest.includes("https://x/d.woff2"), "600 最近的是 700");
   assert.ok(!nearest.includes("https://x/a.woff2"), "不是 400");
+
+  // 权重平局：CSS Fonts 4 §5.2 —— 目标 > 500 时选更大的，< 500 时选更小的。
+  // 旧实现「平局全保留」让 600 同时预热 500 与 700、800 同时预热 700 与 900。
+  const ties = [
+    "@font-face{font-family:'T';font-weight:500;src:url(https://x/w500.woff2);}",
+    "@font-face{font-family:'T';font-weight:700;src:url(https://x/w700.woff2);}",
+    "@font-face{font-family:'T';font-weight:900;src:url(https://x/w900.woff2);}",
+  ].join("");
+  const up = core.warmUrls(ties, [
+    { family: "t", weight: "600", chars: new Set([0x31]) },
+  ]);
+  assert.ok(up.includes("https://x/w700.woff2"), "600 应选 700");
+  assert.ok(!up.includes("https://x/w500.woff2"), "600 不应选 500");
+  const up2 = core.warmUrls(ties, [
+    { family: "t", weight: "800", chars: new Set([0x31]) },
+  ]);
+  assert.ok(up2.includes("https://x/w900.woff2"), "800 应选 900");
+  assert.ok(!up2.includes("https://x/w700.woff2"), "800 不应选 700");
 });
 
 test("筛选行的原因键：锁定 / 名额用尽 / 划掉 / 保留 四选一", () => {

@@ -1349,6 +1349,20 @@
     return w < lo ? lo - w : w > hi ? w - hi : 0;
   }
 
+  // CSS Fonts 4 §5.2：同 family 里取权重距离最近的一档；平局时
+  // 目标 > 500 选更大的权重，否则选更小的。旧实现平局全保留，
+  // 600 会同时预热 500/700、800 同时预热 700/900（实测多拉 67.5K）。
+  function closestWeight(faces, w) {
+    const best = Math.min(...faces.map((f) => weightDistance(w, f.wr)));
+    const tied = faces.filter((f) => weightDistance(w, f.wr) === best);
+    if (tied.length < 2) return tied;
+    const pick =
+      w > 500
+        ? Math.max(...tied.map((f) => f.wr[0]))
+        : Math.min(...tied.map((f) => f.wr[1]));
+    return tied.filter((f) => (w > 500 ? f.wr[0] : f.wr[1]) === pick);
+  }
+
   // usages: [{ family, weight, chars }] —— 只预热「这个元素真的会用这个 family/weight
   // 渲染」的子集。此前是「任何可见字符 × 所有 family」：标题字体的 CJK 子集被正文
   // 字符全部点亮（实测 154 个 woff2 / 1.5MB，其中大部分是白拉的）。
@@ -1372,11 +1386,8 @@
       const famFaces = faces.filter((f) => f.family === u.family);
       if (!famFaces.length) continue;
       const w = Number(u.weight) || 400;
-      // CSS 的选面规则：同 family 里取权重距离最近的那一档
-      const best = Math.min(...famFaces.map((f) => weightDistance(w, f.wr)));
-      for (const f of famFaces)
-        if (weightDistance(w, f.wr) === best && faceCovers(f.block, u.chars))
-          chosen.add(f.url);
+      for (const f of closestWeight(famFaces, w))
+        if (faceCovers(f.block, u.chars)) chosen.add(f.url);
     }
     return [...chosen];
   }

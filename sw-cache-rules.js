@@ -13,8 +13,9 @@
   // 跨源只收这两个域：它们是 warmFonts（app.js）预热的同一批资源。
   // 另一份在 app.js 的 warmFonts——改字体源时两处要一起改（页面侧由断网 E2E 兜底）。
   const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
+  // 不要加 "./"：它与 index.html 是同一份文档的两种 URL，预缓存会存两份
+  // （实测壳缓存 16 条里有两个 25KB 副本）。根导航由 SW 的 navKey 归到 index.html。
   const SHELL_FILES = [
-    "./",
     "index.html",
     "style.css",
     "core.js",
