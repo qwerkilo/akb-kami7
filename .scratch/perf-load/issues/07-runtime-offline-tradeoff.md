@@ -1,7 +1,7 @@
 # 07 · 运行时与离线取舍
 
 - **Type**: grilling
-- **Status**: open
+- **Status**: claimed
 - **Blocked by**: 03
 
 ## Question
