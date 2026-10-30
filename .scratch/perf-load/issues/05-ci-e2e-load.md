@@ -1,7 +1,7 @@
 # 05 · CI / E2E 负载画像
 
 - **Type**: research
-- **Status**: open
+- **Status**: claimed
 - **Blocked by**: 无
 
 ## Question

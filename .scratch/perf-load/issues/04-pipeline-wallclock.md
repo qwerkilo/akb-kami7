@@ -1,7 +1,7 @@
 # 04 · 数据管线墙钟分解
 
 - **Type**: research
-- **Status**: open
+- **Status**: claimed
 - **Blocked by**: 无
 
 ## Question

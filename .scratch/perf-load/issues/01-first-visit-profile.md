@@ -1,7 +1,7 @@
 # 01 · 首访真实瀑布与主线程画像
 
 - **Type**: research
-- **Status**: open
+- **Status**: claimed
 - **Blocked by**: 无
 
 ## Question

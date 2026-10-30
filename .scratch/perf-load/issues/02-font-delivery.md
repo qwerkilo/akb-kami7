@@ -1,7 +1,7 @@
 # 02 · 字体交付面：Zen CSS 88KB 与 48 个 woff2
 
 - **Type**: research
-- **Status**: open
+- **Status**: claimed
 - **Blocked by**: 无
 
 ## Question
