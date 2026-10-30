@@ -24,15 +24,17 @@
 - [04 · 管线墙钟](issues/04-pipeline-wallclock.md)：14m08 构成 = 旧站扫描 370s + 下载 281s（死 URL 重试）+ 数据 145s + Commons 27s；发现 `image_query_files` 键不匹配导致性能 #5 空操作（每轮白付 26–80s）；负结果缓存等可再压到约 2m50s–3m20s。
 - [05 · CI/E2E](issues/05-ci-e2e-load.md)：本地 e2e:all 4m16；CI push 中位 3m35；nightly 3m05–3m50（旧「runner 慢 10–20×」不成立）；pwa 字体门 `n>=17` 恒假，每次白等 30s。
 - [06 · 首访取舍](issues/06-first-visit-tradeoff.md)：本轮只做零视觉三项（延后 bios+poster、字体预热 C1–C3、SW 重复 index）；字体失败先留痕；验收 zh ≤1.15MB / LCP ≤700ms / 首屏 145/145；图片与 members 拆分排除。
+- [07 · 运行时/离线取舍](issues/07-runtime-offline-tradeoff.md)：海报预览改用 toBlob（去 82–185ms 同步任务）；搜索上限 80→40；海报解码内存先做原型（票 10）；全展开/PWA 缓存留 backlog；确认延迟与微优化不做。
 
 <!-- 关闭一张票后在这里追加一行：gist + 链接 -->
 
 ## Not yet specified
 
-- **图片交付**：thumb 19MB / full 73MB；是否需要响应式尺寸、AVIF/WebP 质量档、只在选中时取 full、PWA 缓存淘汰策略 —— 取决于首访画像与真实命中率。
+- **图片交付**：thumb 19MB / full 73MB；是否需要响应式尺寸、AVIF/WebP 质量档、只在选中时取 full、PWA 缓存淘汰策略 —— 取决于首访画像与真实命中率（海报解码内存已毕业为票 10）。
 - **PWA 缓存预算**：图片 600 / 字体 500 的上限与设备配额、内存峰值的关系；离线命中率是否达标。
 - **搜索索引**：启动预计算 60ms、宽命中 80 张上限是否足够；worker 化是否值得（依赖运行时画像）。
 - **字体自托管（B0/B1）**：C1–C3 已决；自托管 UI 子集/全量名字子集仍需视觉与离线 A/B（另票）。
+- **名册全展开 / PWA 缓存预算**：07 决定留 backlog，等真实设备数据与离线矩阵。
 - **Pages 缓存头**：静态托管的缓存策略可调空间（预计很小，验证后再决定是否成票）。
 
 ## Out of scope
