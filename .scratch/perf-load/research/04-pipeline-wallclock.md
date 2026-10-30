@@ -1,0 +1,181 @@
+# 04 · 数据管线墙钟分解
+
+- **票**：`.scratch/perf-load/issues/04-pipeline-wallclock.md`
+- **日期**：2026-10-30
+- **口径**：只读研究。未跑 `fetch_members.py`，未改产品代码，未 commit。
+
+## Question
+
+增量跑「14–15 分钟」的构成是什么（数据 / 下载 / 压缩 / 旧站扫描 / CDX / 其他）？哪些是限流地板，哪些可并发 / 可缓存 / 可跳过？继续压缩的候选与上限、代价、风险各是什么？哪些不建议做？
+
+## Method
+
+1. 读代码：`scripts/fetch_members.py`、`progress.py`、`fetch_pool.py`、`morningmusume_members.py`、`love_members.py`、`photo_chain.py`、`wayback.py`、`wiki.py`、`photo_skip.py`；权威文档 `docs/agents/data-pipeline.md`、ADR-0023 / ADR-0024。
+2. 解析现有日志：`/tmp/opencode/pipe-*.log` 共 8 份带阶段行（`▶` / `✓`，由 `scripts/progress.py` 输出），时间范围 2026-10-06..10-08。用阶段行做逐段耗时表，不用整轮总时长做比较（同一天两次整轮能差 2–4 倍，见工单 06 的订正）。
+3. 读历史记录：`.scratch/perf-fetch-e2e/issues/08-data-phase-concurrency.md`（14m08s 的完整阶段表）、`issues/06-pipeline-concurrency.md`（Wayback A/B）、`.scratch/perf-fetch-e2e/spec.md`、`docs/reviews/checkpoints/2026-10-06..07-perf-scans.md`、`2026-10-08..11-ux-perf.md`、`/tmp/opencode/perf-opportunities.md`（2026-10-08 只读扫描）。
+4. 本机只读测量（2026-10-30，当前工作区）：`members.js` 计数、`img/full`+`img/thumb` 文件数与体积、`_orig` 文件数、`photo_skip_for` / `read_prev_members` 耗时、FUSE stat、`listdir`、`import fetch_members`、OpenCC 转换、`json.dumps`。
+5. 用构造输入验证 `image_query_files` 的过滤键形状（不写文件）。
+6. **没做**：没跑真实管线；没做新的网络 A/B（Wayback/48pedia/官网的并发实验直接引用 2026-10-06 的实测）；没测 `--refresh-photos` 全量（仓内亦从未实测）。
+
+## Raw numbers
+
+### A. 14m08s 那一轮的逐段构成（**实测**）
+
+来源：`.scratch/perf-fetch-e2e/issues/08-data-phase-concurrency.md:54-68`，原始日志 `/tmp/opencode/pipe-conc.log`（2026-10-06 02:39 收尾）。数据状态：1544 人 / 缺图 9 → 7 / 旧站扫描任务 107。
+
+| 阶段 | 项数 | 用时 | 占 14m08s |
+| --- | --- | --- | --- |
+| 48pedia 来源页 | 11 | 12.6s | 1.5% |
+| 等爱 官网列表+详情 | 33 | 20.0s | 2.4% |
+| 等爱 Wikipedia | 3 | 2.0s | 0.2% |
+| 早安 官网列表+详情 | 70 | 54.1s | 6.4% |
+| 早安 Wikipedia | 11 | 30.6s | 3.6% |
+| 48pedia 图片 URL（imageinfo，27 批） | 27 批 | 25.7s | 3.0% |
+| **数据阶段小计** | | **2m25s** | **17%** |
+| **旧站扫描**（含 CDX 枚举 + 快照抓取） | 107 次抓取 | **370.5s** | **44%** |
+| Commons | 5 | 26.6s | 3.1% |
+| **下载原图** | 1535 | **281.1s** | **33%** |
+| 压缩 | 1544 | 3.9s | 0.5% |
+| 阶段合计 | | 827.1s | |
+| 未计入（启动 / 合并 / 门 / 写产物 / 日志） | | ≈20.9s | 2.5% |
+| **整轮墙钟** | | **848s = 14m08s** | |
+
+同日的第二次整轮 **15m32s**（`issues/06-pipeline-concurrency.md:60`）：只有总时长与「数据阶段 5.6 分钟」被记录，没有逐段表（该 5.6 分钟的口径可能含 imageinfo：`pipe-conc2` 的五段数据是 277s、加 imageinfo 80s ≈ 6m）。`/tmp/opencode/pipe-conc2.log` 的阶段和是 906.8s，加同类残差 ≈929s，与 15m32s 只差 4s —— **推测**它就是那一轮（日志没有总时长，属推断）。两次的数据阶段差 2.4 vs 5.6 分钟，是网络漂移，不是代码差异。
+
+### B. 8 份日志的阶段区间（**实测**，2026-10-06..10-08）
+
+| 阶段 | 区间 | 备注 |
+| --- | --- | --- |
+| 48pedia 来源页（11） | 12.1 – 65.9s | 同一天也能差 5 倍 |
+| 等爱 官网（33） | 20.0 – 71.3s | 3 个官网，2 并发/站 |
+| 等爱 Wikipedia（3） | 2.0 – 4.8s | |
+| 早安 官网（70） | 54.0 – 119.6s | 3 并发，0.2s 间隔 |
+| 早安 Wikipedia（11） | 7.1 – 72.6s | 抖动最大 |
+| 48pedia imageinfo（27 批） | 25.7 – 80.2s | **性能 #5 的修复实际是空操作，见 F4** |
+| 旧站扫描（48 次抓取） | 121.5 – 166.3s | 另一轮 107 次 = 370.5s |
+| Commons（5） | 26.6 – 60.8s | 串行 + `pause=1.5`，5 人全「源里没有」 |
+| 下载原图（1535） | 248.9 – 326.0s | **修 404 前**；真凶是两个死 URL 的 24 次尝试 + 183s sleep |
+| 压缩（1544） | 2.5 – 17.5s | 全部命中缓存 |
+| 整轮 | 14m08s / 15m32s | 8 份日志中只有 2 份能对上整轮总时长（其余只有阶段行） |
+
+### C. 修复后的推算（**推断**，算术叠加在实测阶段上）
+
+已落地两个性能提交：
+- `693cdee` 性能 #1：`download()` 与 `wiki.get()` 对 404/410 立即失败（`scripts/fetch_members.py:499-500`、`scripts/wiki.py:55-58`）。
+- `b4a3111` 性能 #5：imageinfo 只查缺照片的文件 —— **但实际未生效**（F4）。
+
+以 `pipe-groups.log`（2026-10-07，当前 7 缺图状态、48 次扫描、404 修复前）为基线：
+
+| 项 | 修复前（实测） | 修复后（推断） | 依据 |
+| --- | --- | --- | --- |
+| 数据阶段（不含 imageinfo） | 139.1s | ≈139s | 阶段行 |
+| 48pedia imageinfo | 39.0s | 39.0s（#5 未生效） | 阶段行 |
+| 旧站扫描 | 121.5s | ≈121.5s | 无改动 |
+| Commons | 39.9s | ≈39.9s | 无改动 |
+| 下载 | 256.6s | **≈1–3s** | 1535 次 `os.path.exists`；本机实测 1338 次 orig stat = 0.40s；两个死 URL 各 1 次 404 |
+| 压缩 | 4.7s | 4.7s | 无改动 |
+| **阶段合计** | **600.8s** | **≈346s** | 逐项相减 |
+| 未计入残留 | ≈20s | ≈20s | 14m08s 的残差 |
+| **整轮** | **≈10m21s** | **≈6m06s** | 同上（网络快时可到 5m30s，慢时约 7m） |
+
+若 **#5 的接线被修好**（imageinfo 27 批 → 0 批，见 F4），再减 25.7–80.2s（本日志 39.0s）→ **≈5m27s**（区间 5m–6m）。
+
+> 这两个数都是**推断**：2026-10-08 之后没有任何一次真实管线日志（`/tmp/opencode` 中最新的 `pipe-*.log` 是 10-08 04:52，两个性能提交之后没有跑过整轮）。当前状态只由「阶段和 + 已知修复」推出，不是实测。
+
+### D. 本机只读测量（**实测**，2026-10-30）
+
+| 测量 | 结果 |
+| --- | --- |
+| `members.js` | 125 段 / 1544 人；48g 1134/1134 有图、sakamichi 204/204、love 37/37、morning 162/169 |
+| 缺图 | **7 人，全在 morning 侧**（石黒彩/市井紗耶香/福田明日香/有原栞菜/梅田えりか/村上愛/小数賀芙由香） |
+| `img/full` | 1537 个文件 / 73.2MB |
+| `img/thumb` | 1537 个 / 15.8MB |
+| `scripts/_orig` | 1590 个 / 153.1MB |
+| `scripts/_resolved.json` | 164 条（只存**成功**的 URL） |
+| `photo_skip_for(False, …)` | **1.9s**（读 members.js 0.6s + 对 1544 人各 stat full/thumb 两次） |
+| FUSE stat 1338 人（full+thumb） | **857ms**（0.32ms/次） |
+| `listdir` 三个图片目录（4664 项） | **861ms** |
+| `import fetch_members` | **0.22s** |
+| OpenCC `t2s` 转换 1544 个名字 + `build_simplified` | **35ms** |
+| `json.dumps` 1544 人的 sections | **2ms** |
+| `image_query_files(ms, frozenset({('G','X')}))` | **返回全部文件**（应为 1 个）→ 过滤未生效 |
+
+### E. Wayback 并发的地板（**实测**，引用 2026-10-06 A/B）
+
+同一批 8 个真实快照 URL 交替跑两轮（`issues/06-pipeline-concurrency.md:50-58`）：
+
+| 跑法 | 第 1 轮 | 第 2 轮 |
+| --- | --- | --- |
+| 串行 + 0.2s 间隔 | 13.6s | 31.2s |
+| **池化 2 并发** | **5.9s** | **6.5s** |
+| 池化 3 并发 | 24.5s | 41.2s |
+
+结论：2 并发稳定最快；3 并发被限流、比串行还慢。生产因此钉死 `web.archive.org: (2, 0.2)`（`scripts/fetch_pool.py:33`）。按 48 次抓取 / 2 并发 = 24 个串行槽位，实测 121.5–166.3s ↔ 每槽 5.1–6.9s，**就是 Wayback 的响应时延地板**。
+
+## Findings
+
+### F1. 14–15 分钟的构成：旧站扫描 44% + 下载 33% + 数据 17% + 其余 6%
+
+按实测的 14m08s 表：旧站扫描 370.5s、下载 281.1s、数据阶段 145s（官网 86.7s + 维基 32.6s + imageinfo 25.7s）、Commons 26.6s、压缩 3.9s、其他 ≈21s。**「下载 4–5 分钟是 FUSE stat」的旧说法已被证伪**（`/tmp/opencode/perf-opportunities.md:149`；本机复测 1338 次 stat = 0.86s）：那是两个永久 404 的死快照在叠加重试（24 次请求 + 183s sleep），修掉后下载阶段回落到秒级。
+
+### F2. 限流地板（不可靠加并发消除）
+
+1. **Wayback**：2 并发 / 0.2s 间隔是实测最优；3 并发更慢。48 次抓取 ≈ 2m00–2m45。
+2. **48pedia**：2 并发 / 0.5s 间隔（WAF/521 前科）；11 个来源页 12–66s。管线边缘 8 次重试专为 521 留的（`fetch_members.py:1025-1029`）。
+3. **Commons**：串行 + `pause=1.5`（`morningmusume_members.py:1519`、`photo_chain.py:124-143`）。5 人 26.6–60.8s。429 不节流会被记成「源里没有」（ADR-0022/0024 明确记录过的坑）。
+4. **helloproject 官网**：3 并发 / 0.2s（`fetch_pool.py:21`）；70 个详情页 54–120s，是数据阶段最大的单项。
+5. **ja.wikipedia**：3 并发，但 11 个条目 7–72s，抖动来自上游，不是并发能压的。
+
+### F3. 已并发 / 已缓存 / 已跳过的（不需要再做）
+
+- 已并发：三个 loader 的详情页/维基页/48pedia 来源页/imageinfo 批次（`fetch_pool.fetch_many`）、旧站快照（2 并发）、下载（6 线程）。
+- 已缓存：`_orig` 原图（命中即 1 次 stat）、`img/full`+`img/thumb`（mtime 比源图新就只 `Image.open` 读尺寸）、`_resolved.json`（早安成功 URL 预填，164 条）。
+- 已跳过：有站内照片的成员整条照片链（ADR-0023）、`--no-dl`、无缺图时旧站扫描直接返回（`resolve_old_site_photos` 的 `missing` 为空）、404/410 不重试。
+
+### F4. ⚠ 性能 #5 的修复是空操作（实测，当前 HEAD）
+
+`image_query_files(members, skip)` 的 `skip` 生产传的是 `photo_skip_for()` 的结果 —— 一组 **`(group, name)` 键**（`photo_skip.key`），而函数拿它和**文件名**比较：
+
+```python
+return [f for f in member_files(members) if f not in skip]   # fetch_members.py:910
+```
+
+字符串永远不在元组集合里 → 返回**全部** 1338 个文件。测试之所以绿，是因为夹具喂了 `{"a.jpg"}`（文件名集合，`test_fetch_members.py:2124-2132`），与生产形状不同。构造验证：`image_query_files(ms, frozenset({('G','X')}))` 返回 `['a.jpg','b.jpg']`，期望 `['b.jpg']`。
+
+后果：**每轮仍然付 25.7–80.2s（27 批）**，提交信息里的「每轮省 26–80s」从未兑现。修法很小（按 `photo_skip.skips(skip, m)` 过滤成员，`--refresh-photos` 时 skip 为 None 即全查），但要同时改测试夹具形状、并修正 `main` 里的进度总分母（现在按未过滤的 `n_files` 算，过滤生效后会显示 `0/27`）。
+
+### F5. 残余的重试预算仍是坏网络下的尖峰
+
+`get()` 默认 8 次重试、sleep 2+4+…+14 = 56s，再乘 `download()` 的 3 次外层尝试（5s+10s）→ 单个持续 5xx 的 URL 最多可烧 ≈183s + 请求时间（每次 `timeout=40`）。404 已快失败，但 429/500/521 仍走满。历史事故：`≠ME` 一页交替 500 与 21–31s，三次真实管线都被挡（`2026-10-06..07-perf-scans.md:94-97`）。
+
+### F6. 「14–15 分钟」是旧数据状态的数，不是今天的基线
+
+14m08s 那轮是 12 缺图 / 107 次扫描 / 1535 次下载 / 404 未修。今天：7 缺图、48 次扫描、下载全缓存、404 已修、imageinfo 仍全查。**当前增量跑应在 6m06s 左右（推断；网快 5m30s、网慢约 7m）**；若只信实测，最近一次可比的整轮是 10m21s（`pipe-groups.log` 阶段和 600.8s + 残差，404 修复前）。
+
+## Options
+
+按「预计节省 / 代价 / 风险」排序。节省都是对**当前** ~6 分钟的增量跑而言；上限用实测区间。
+
+| # | 候选 | 预计节省 | 代价 | 风险 |
+| --- | --- | --- | --- | --- |
+| A | **修好 #5 的过滤键**（按 `photo_skip.skips` 过滤成员，而非文件名） | **26–80s**（本日志 39s） | ~5 行 + 测试夹具改形状 + 进度分母 | 低。缺图者必须仍被查；`--refresh-photos` 时必须全查（skip=None） |
+| B | **旧站/Commons 负结果缓存**（CDX 行 + 快照页 + Commons 空结果，按成员键，TTL 7–30 天） | **≈2m10s–3m30s**（扫描 121–166s → 5–15s；Commons 27–61s → ~1s） | 新缓存文件（每次 <5MB）、TTL 策略、原因表要能说「缓存」 | 中。与 ADR-0023 #3「缺图者每轮仍被尝试」冲突（TTL 是折中）；**绝不能缓存「查询失败」**（ADR-0024 已知陷阱）；新存档在 TTL 内看不到 |
+| C | 只缓存 CDX 行（不缓存快照页） | ≈15–25s | 一个小 JSON | 低。CDX 结果稳定；但收益只有 B 的 1/6 |
+| D | 数据页 TTL 缓存（官网/维基 HTML，`--fast` 显式开关） | ≈1m30s–2m（整段数据阶段） | 新开关 + 缓存目录 | 中高。**默认开违反 ADR-0023 #1「数据照常抓」**；名册过期会漏新人/毕业。只适合同日反复调试 |
+| E | Commons 流水线化（保持 1.5s 间隔，重叠网络延迟） | 10–25s（27–61s 的 30–40%） | 改 `_resolve_commons` 为小池 + 主机闸门 | 中。429 会把结果降级成「查询失败」；收益小 |
+| F | 官网详情 3→4/5 并发 | 10–20s | 一次 A/B | 中。helloproject 可能 403/429；需实测再定 |
+| G | 收紧照片下载重试（8→3 次；或同主机连续 5xx 熔断） | 正常 0；坏网络最多 ~3 分钟 | 改 `get`/`download` 的重试参数 | 中。可能本轮丢一张可恢复的图（下轮会重试）；不能动 429 的退避语义 |
+| H | 不再重复 `_resolve_file_evidence` 的 CDX（已确认 0 行的 2 人） | 8–12s | 一行判断 / 小缓存 | 低 |
+
+**上限**：A+B+H 之后，增量跑 ≈ **2m50s–3m20s**（数据 ≈2m20s + 扫描 ≈15s + Commons ≈1s + 下载/压缩/其他 ≈10s）。C 是 B 的轻量变体（只缓存 CDX 行），与 B 不叠加。再叠加 D 才能进 1–2 分钟，但那已经是「不抓数据」，语义上不再是增量跑。
+
+## Caveats
+
+1. **没有修复后的实测整轮**。2026-10-08 之后 `pipe-*.log` 没有新条目；C 节与 Options 的节省都是算术推断，置信度中等。要收口这张票应向用户申请一次真实增量跑（当前应在 6 分钟量级，留 15 分钟余量足够）。
+2. **14m08s 与今天的缺图数不同**（12 → 7），旧站扫描预算按缺图人数缩放（`_group_budget = max(30, 15×人数)`），所以 370.5s 不能直接当今天的地板；今天的实测地板是 121.5–166.3s。
+3. **阶段行不含「CDX 枚举」单列**：CDX 在 `旧站扫描` 的 stage 内（`_old_site_candidates` 在 `_resolve_old_site_groups` 的 stage 作用域里），所以 B 表的「旧站扫描」= CDX + 快照抓取。按 5 个前缀查询（3 モー娘。+1 ℃-ute +1 アンジュルム）× 4.5–6.7s / 2 并发 + 2 次 file-evidence 串行 CDX ≈ 20–35s（**推断**，CDX 单次耗时引用 `/tmp/opencode/perf-opportunities.md:150`）。
+4. **Commons 的「失败 5」不是重试浪费**：`progress.tick(ok=bool(resolved))` 把「查了但没有」记成失败，5 人都是 SOURCE_EMPTY（`perf-opportunities.md:155`）。
+5. **下载并发 6 绕过 `fetch_pool` 的主机闸门**（`download_all` 自建 `ThreadPoolExecutor(6)`）。增量跑全是缓存命中，无影响；`--refresh-photos` 全量时对 Wayback/CDN 是 6 并发，与「Wayback 2 并发最优」矛盾，是未验证的风险点（全量刷新本来就从未实测）。
+6. **负结果缓存是决策变更**，不是纯性能改动：ADR-0023 第 3 条明确「缺图者每轮仍被尝试」。要做需改 ADR 或把 TTL 写进 ADR，否则下次审查会按「偏离规格」打回。
+7. **「#5 未生效」是本次新发现**，建议单独开一张 bug 票（`diagnosing-bugs` → `tdd`），不要混进性能票一起做；它的回归测试必须用 `photo_skip.key` 形状的夹具，否则会再次假绿。
+8. 本机 FUSE 的 stat/listdir 合计约 1.7s（`photo_skip_for` 1.9s + 3 目录 listdir 0.86s 有重叠），是**秒级**、不是分钟级；任何「FUSE 是地板」的结论都应先按此口径复核。
