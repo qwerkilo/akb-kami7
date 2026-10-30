@@ -1662,8 +1662,8 @@ runSuite({
         return cs.borderTopWidth + " " + cs.borderTopStyle;
       });
       check(
-        "皮肤：贴纸容器墨描边 2px solid",
-        stickerBorder === "2px solid",
+        "皮肤：贴纸容器 1px 虚线",
+        stickerBorder === "1px dashed",
         stickerBorder
       );
 
@@ -1766,8 +1766,8 @@ runSuite({
       await page.waitForTimeout(1200);
       const stickerPx = await posterPx();
       check(
-        "海报：贴纸皮肤底色 #f5f1e6",
-        stickerPx === "245,241,230",
+        "海报：贴纸皮肤底色 #f1e7d8",
+        stickerPx === "241,231,216",
         stickerPx
       );
 
@@ -1786,7 +1786,7 @@ runSuite({
       await page.click('.seg-style [data-style="b"]');
       await page.waitForTimeout(1200);
       const pxB = await posterPx();
-      check("切杂志封面：画面变白底", pxB === "255,255,255", pxB);
+      check("切杂志封面：画面变纸白", pxB === "255,253,247", pxB);
       check(
         "样式选择已持久化",
         (await page.evaluate(
@@ -1797,7 +1797,7 @@ runSuite({
       await page.click('.seg-style [data-style="a"]');
       await page.waitForTimeout(1200);
       const pxA2 = await posterPx();
-      check("切回金字塔：底色恢复", pxA2 === "245,241,230", pxA2);
+      check("切回金字塔：底色恢复", pxA2 === "241,231,216", pxA2);
 
       // 首屏不能闪皮肤。两个独立 context（应用 boot 会把 akb:skin 写进 localStorage，
       // 同一 context 里量第二次会读到已存皮肤，闪就量不出来了）；
@@ -1805,7 +1805,7 @@ runSuite({
       // 只比相等的话，CSS 与应用一起错也会相等。
       const SKIN_FLOOR = {
         classic: "rgb(245, 242, 236)",
-        sticker: "rgb(245, 241, 230)",
+        sticker: "rgb(241, 231, 216)",
       };
       const SKIN_RADIUS = { classic: "999px", sticker: "14px" };
       const readSkin = (page) =>

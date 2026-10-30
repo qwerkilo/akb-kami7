@@ -3068,3 +3068,328 @@ html[data-cols="compact"] {
 [data-skin="classic"] .poster img {
   border-radius: 0;
 }
+
+/* =====================================================================
+   ADR-0026 · 贴纸 = 生写卡：拍立得 / 胶带 / 印章 / 剪贴簿
+   与 classic 共享 DOM 与骨架，只换材质。
+   ===================================================================== */
+[data-skin="sticker"] {
+  --floor: #f1e7d8;
+  --card: #fffdf7;
+  --ink: #2b211b;
+  --muted: #7a6a5b;
+  --line: #c9b8a4;
+  --peach: #ffb4a2;
+  --lemon: #f3d98b;
+  --lilac: #e7d9c6;
+  --pink: #e4007f;
+  --pink-soft: #fbe0ee;
+  --radius: 8px;
+  --border: 1px dashed var(--line);
+  --shadow: 3px 3px 0 var(--ink);
+  --shadow-soft: 0 6px 0 rgba(74, 54, 38, 0.14);
+  --shadow-sm: 2px 2px 0 rgba(74, 54, 38, 0.18);
+  --shadow-xs: 1px 1px 0 rgba(74, 54, 38, 0.18);
+  --card-radius: 2px;
+  --card-pad: 0px;
+  --thumb-radius: 0px;
+  --slot-radius: 2px;
+  --row-radius: 4px;
+  --tray-bg: #efe3d2;
+  --tray-border-top: 1px dashed var(--line);
+  --font-poster: var(--font-serif);
+  --font-poster-name: var(--font-serif);
+  --poster-corner: 6px;
+  --poster-shadow: 1;
+  --poster-rank: tape;
+  --poster-card-stroke: 0px;
+}
+
+[data-skin="sticker"] body,
+[data-skin="sticker"] {
+  background:
+    radial-gradient(rgba(120, 90, 60, 0.12) 1px, transparent 1px) 0 0 / 18px
+      18px,
+    var(--floor);
+}
+[data-skin="sticker"] .kami {
+  font-family: var(--font-round);
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+[data-skin="sticker"] .eyebrow {
+  background: #fff8ea;
+  border: 1px dashed #b9a68f;
+  box-shadow: none;
+  color: var(--muted);
+}
+[data-skin="sticker"] .seg-series button {
+  border: 1px dashed #b9a68f;
+  background: #fff8ea;
+  border-radius: 6px;
+  box-shadow: none;
+}
+[data-skin="sticker"] .seg-series button[aria-checked="true"] {
+  background: var(--lemon);
+  border-style: solid;
+  transform: rotate(-2deg);
+}
+[data-skin="sticker"] .more-btn {
+  border: 1px dashed #b9a68f;
+  background: #fff8ea;
+  border-radius: 6px;
+  box-shadow: none;
+}
+[data-skin="sticker"] .steps {
+  background: #f6eddf;
+  border-bottom: 1px dashed var(--line);
+}
+[data-skin="sticker"] .steps button[aria-current="step"] {
+  background: var(--lemon);
+  color: var(--ink);
+  transform: rotate(-1deg);
+}
+[data-skin="sticker"] .steps .step-no {
+  background: var(--ink);
+  color: var(--card);
+}
+
+/* ---- 卡片：拍立得 + 胶带 + 选中印章 ---- */
+[data-skin="sticker"] .card {
+  position: relative;
+  padding: 8px 8px 10px;
+  background: var(--card);
+  border: 0;
+  border-radius: 2px;
+  box-shadow: var(--shadow-soft);
+  transform: rotate(-0.7deg);
+}
+[data-skin="sticker"] .card:nth-child(even) {
+  transform: rotate(0.8deg);
+}
+[data-skin="sticker"] .card:hover {
+  transform: rotate(0) translateY(-3px);
+}
+[data-skin="sticker"] .card::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -5px;
+  left: 50%;
+  width: 46px;
+  height: 13px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(243, 217, 139, 0.92);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+[data-skin="sticker"] .card .ph {
+  border-radius: 0;
+  background: var(--placeholder);
+}
+[data-skin="sticker"] .card .nm {
+  padding-top: 4px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+[data-skin="sticker"] .card .meta {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+[data-skin="sticker"] .card[aria-pressed="true"] {
+  transform: rotate(0) translateY(-4px);
+  box-shadow: 0 10px 0 rgba(74, 54, 38, 0.2);
+}
+[data-skin="sticker"] .card[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  z-index: 3;
+  right: 6px;
+  top: 12px;
+  width: 34px;
+  height: 34px;
+  border: 2px solid #c0392b;
+  border-radius: 50%;
+  color: #c0392b;
+  font: 700 16px/30px var(--font-serif);
+  text-align: center;
+  transform: rotate(-14deg);
+  background: rgba(255, 253, 247, 0.65);
+}
+[data-skin="sticker"] .card .info {
+  background: rgba(255, 253, 247, 0.88);
+  border: 1px dashed #b9a68f;
+}
+[data-skin="sticker"] .grp-head,
+[data-skin="sticker"] .gen-head {
+  background: none;
+  border: 0;
+  border-bottom: 1px dashed var(--line);
+  box-shadow: none;
+}
+[data-skin="sticker"] .grp-name,
+[data-skin="sticker"] .gen-name {
+  font-family: var(--font-serif);
+}
+
+/* ---- 托盘：迷你生写 ---- */
+[data-skin="sticker"] .tray {
+  border-top: 1px dashed var(--line);
+  background: var(--tray-bg);
+  box-shadow: 0 -8px 24px rgba(74, 54, 38, 0.08);
+}
+[data-skin="sticker"] .slot {
+  border: 1px dashed #b9a68f;
+  background: var(--card);
+}
+[data-skin="sticker"] .slot.filled {
+  transform: rotate(-2deg);
+  box-shadow: 2px 2px 0 rgba(74, 54, 38, 0.18);
+}
+
+/* ---- 筛选 / 对决：纸片与拍立得 ---- */
+[data-skin="sticker"] .screen-head h2,
+[data-skin="sticker"] .duel-head h2 {
+  font-family: var(--font-serif);
+}
+[data-skin="sticker"] .screen-list li {
+  border: 0;
+  margin-bottom: 7px;
+  background: var(--card);
+  border: 1px dashed #b9a68f;
+  box-shadow: 0 3px 0 rgba(74, 54, 38, 0.1);
+  transform: rotate(-0.35deg);
+}
+[data-skin="sticker"] .fighter {
+  background: var(--card);
+  border: 0;
+  box-shadow: 0 8px 0 rgba(74, 54, 38, 0.14);
+  padding: 8px 8px 12px;
+  transform: rotate(-1deg);
+}
+[data-skin="sticker"] .fighter:last-of-type {
+  transform: rotate(1deg);
+}
+[data-skin="sticker"] .fighter img {
+  border: 4px solid #fff;
+  border-radius: 0;
+}
+[data-skin="sticker"] .or {
+  color: #c0392b;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  opacity: 1;
+}
+
+/* ---- 结果：剪贴簿 ---- */
+[data-skin="sticker"] .poster {
+  position: relative;
+  background: var(--card);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: 0 12px 0 rgba(74, 54, 38, 0.14);
+  transform: rotate(-0.5deg);
+}
+[data-skin="sticker"] .poster::before,
+[data-skin="sticker"] .poster::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  width: 72px;
+  height: 20px;
+  background: rgba(243, 217, 139, 0.9);
+}
+[data-skin="sticker"] .poster::before {
+  left: -16px;
+  top: -8px;
+  transform: rotate(-4deg);
+}
+[data-skin="sticker"] .poster::after {
+  right: -16px;
+  bottom: -8px;
+  transform: rotate(3deg);
+}
+[data-skin="sticker"] .poster img {
+  border-radius: 0;
+}
+[data-skin="sticker"] .seg-style button,
+[data-skin="sticker"] .field input,
+[data-skin="sticker"] .rank-list li {
+  border-style: dashed;
+}
+[data-skin="sticker"] .primary {
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+[data-skin="sticker"] .primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+[data-skin="sticker"] .ghost {
+  border-style: dashed;
+}
+@media (max-width: 560px) {
+  [data-skin="sticker"] .result-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin: 4px -16px 0;
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+    background: var(--tray-bg);
+    border-top: 1px dashed var(--line);
+  }
+}
+
+/* 生写卡：细节修正（信息按钮、尺寸段、托盘、名册纸堆） */
+[data-skin="sticker"] .card .ph {
+  border: 0;
+}
+[data-skin="sticker"] .card .info {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+[data-skin="sticker"] .card .info::before {
+  background: var(--card);
+  border: 1px dashed #b9a68f;
+  border-radius: 50%;
+}
+[data-skin="sticker"] .roster {
+  border: 1px dashed var(--line);
+  border-radius: 2px;
+  box-shadow: 0 6px 0 rgba(74, 54, 38, 0.12);
+}
+@media (max-width: 560px) {
+  [data-skin="sticker"] .seg-size {
+    flex: 1 1 0;
+    gap: 4px;
+  }
+  [data-skin="sticker"] .seg-size button {
+    padding: 8px 7px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  [data-skin="sticker"] .tray-hint {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
+    padding: 0;
+  }
+  [data-skin="sticker"] .tray-hint > span[data-i18n="tray_hint"] {
+    display: none;
+  }
+  [data-skin="sticker"] .slots {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* 生写卡的筛选触发按钮收窄，给三枚档位 tab 留出整行宽度 */
+  [data-skin="sticker"] .filter-trigger {
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    font-size: 11px;
+    border-width: 1px;
+  }
+}

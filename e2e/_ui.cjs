@@ -70,8 +70,15 @@ function firstScreenGeo() {
     const x = c.getBoundingClientRect();
     return x.width > 0 && x.height > 0;
   });
+  // 列数只数**第一行**：名册是分段（团 → 期生）渲染的，全局 slice(0,6)
+  // 会把另一段的卡算进来，列数虚高（实测 3 列被算成 4 列）。
+  const top0 = cards[0] ? Math.round(cards[0].getBoundingClientRect().top) : 0;
   const cols = new Set(
-    cards.slice(0, 6).map((c) => Math.round(c.getBoundingClientRect().left))
+    cards
+      .filter(
+        (c) => Math.abs(Math.round(c.getBoundingClientRect().top) - top0) <= 2
+      )
+      .map((c) => Math.round(c.getBoundingClientRect().left))
   ).size;
   const fullFaces = cards.filter((c) => {
     const x = c.getBoundingClientRect();
