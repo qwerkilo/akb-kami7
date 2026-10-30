@@ -1,7 +1,7 @@
 # 08 · 管线与 CI 取舍
 
 - **Type**: grilling
-- **Status**: open
+- **Status**: claimed
 - **Blocked by**: 04, 05
 
 ## Question
