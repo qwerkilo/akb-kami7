@@ -13,7 +13,7 @@
 - 测量纪律：同条件 A/B（review-rules #2），数字带测量表面与条件（#6）；资源体积用 `decodedBodySize`/`encodedBodySize`，`transferSize` 可能为 0。
 - 本仓库是本地 markdown tracker：研究资产写 `.scratch/perf-load/research/NN-*.md`（替代 wayfinder 的 `research/<name>` 分支；本仓无 PR 流程），从对应票链接。
 - 排序偏好：用户可感知优先（首访/滚动/搜索/离线），其次低风险；开发效率项单独成组。
-- **研究发现两个真缺陷，另走 `diagnosing-bugs`，不算本图的决策**：① `image_query_files` 键不匹配（性能 #5 空操作）；② pwa 字体门 `n>=17` 恒假。先记在这里，由用户决定是否插入 bug 流程。
+- **研究发现的两个真缺陷已修（610df3b）**：① `image_query_files` 键不匹配 → 按 `photo_skip.skips` 过滤（变异被杀）；② pwa 字体门恒假 → 「CSS 已缓存 + 连续两拍稳定」，pwa 52s→28s。它们不算本图的决策票，但影响 04/05 的可压缩量。
 - 本图只产**决策**与可开工工单，不改产品代码；研究票由子代理并行取证，决议票由用户拍板。
 
 ## Decisions so far

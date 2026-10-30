@@ -34,6 +34,7 @@
 | 2026-10-29 · 分享链接（ADR-0025） | 83 | [2026-10-29-share-link.md](checkpoints/2026-10-29-share-link.md) |
 | 2026-10-30 · 测试类型覆盖矩阵、retro | 84–85 | [2026-10-30-test-matrix.md](checkpoints/2026-10-30-test-matrix.md) |
 | 2026-10-30 · 获奖级视觉改版（ADR-0026） | 86 | [2026-10-30-award-redesign.md](checkpoints/2026-10-30-award-redesign.md) |
+| 2026-10-30 · 性能研究后的两处缺陷 | 87 | [2026-10-30-perf-bugfix.md](checkpoints/2026-10-30-perf-bugfix.md) |
 
 ### 未收口清单
 
