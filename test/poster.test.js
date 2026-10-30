@@ -136,10 +136,18 @@ function drawWith(n) {
   return { members, calls, ctx };
 }
 
-test("layout：7/16/32 的画布尺寸", () => {
+test("layout：产品档位 7/16/40 的画布尺寸", () => {
   assert.deepEqual(poster.layout(7), { width: 1080, height: 1440 });
   assert.deepEqual(poster.layout(16), { width: 1080, height: 1920 });
-  assert.deepEqual(poster.layout(32), { width: 1080, height: 1440 });
+  assert.deepEqual(poster.layout(40), { width: 1080, height: 1440 });
+});
+
+test("layout 边界：7→8 与 16→17 是 1440/1920 的切换点", () => {
+  assert.equal(poster.layout(7).height, 1440);
+  assert.equal(poster.layout(8).height, 1920);
+  assert.equal(poster.layout(16).height, 1920);
+  assert.equal(poster.layout(17).height, 1440);
+  assert.equal(poster.layout(40).height, 1440);
 });
 
 test("draw：7 人海报槽位齐、标题/话题/名字/副标题都落笔", () => {
@@ -161,7 +169,7 @@ test("draw：16 人海报 16 个槽位与 CENTER 标记", () => {
   assert.ok(!calls.texts.some((x) => x.includes("undefined")));
 });
 
-test("draw：32 人金字塔——序号 1-32 齐全、上半有名字/字幕、其余不画", () => {
+test("draw：32 人金字塔（通用形状夹具，非产品档位）——序号 1-32 齐全、上半有名字/字幕、其余不画", () => {
   const { members, calls } = drawWith(32);
   members.forEach((m, i) => {
     const named = i < 16;
@@ -272,7 +280,7 @@ function drawFull(n) {
   return { calls };
 }
 
-test("draw：32 人金字塔——行分布 1-3-5-7-9-7、居中、宽度不增、上半有名字", () => {
+test("draw：32 人金字塔（通用形状夹具）——行分布 1-3-5-7-9-7、居中、宽度不增、上半有名字", () => {
   const { calls } = drawFull(32);
   assert.equal(calls.images.length, 32);
   const rects = calls.images.map((a) => ({
@@ -317,7 +325,7 @@ test("draw：32 人金字塔——行分布 1-3-5-7-9-7、居中、宽度不增�
   }
 });
 
-test("draw：32 人金字塔——照片 cover 不变形、每行居中、长标题截断", () => {
+test("draw：32 人金字塔（通用形状夹具）——照片 cover 不变形、每行居中、长标题截断", () => {
   const members = people(32);
   members.forEach((m, i) => (m.subtitle = `副标题${i + 1}`));
   const { ctx, calls } = fakeCtx();
@@ -393,11 +401,11 @@ test("draw：cardStroke 0 不描卡片边（原版），默认 3px（贴纸）",
   assert.ok(calls.strokes.includes(2), "页脚分隔线仍描边");
 });
 
-test("draw 自行声明画布尺寸：7/16/32 由成员数决定", () => {
+test("draw 自行声明画布尺寸：产品档位 7/16/40 由成员数决定", () => {
   for (const [n, h] of [
     [7, 1440],
     [16, 1920],
-    [32, 1440],
+    [40, 1440],
   ]) {
     const { ctx } = drawWith(n);
     assert.equal(ctx.canvas.width, 1080, `${n} 宽`);
@@ -430,9 +438,9 @@ test("默认样式 = a：省略 style 与 style:'a' 的调用序列完全一致"
   assert.deepEqual(runStyle(undefined, 32).calls, runStyle("a", 32).calls);
 });
 
-test("四样式 × 7/16/32/40：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
+test("四样式 × 7/16/40：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
   for (const style of poster.styles) {
-    for (const n of [7, 16, 32, 40]) {
+    for (const n of [7, 16, 40]) {
       const { calls, ctx } = runStyle(style, n);
       const want = poster.layout(n);
       assert.equal(ctx.canvas.width, want.width, `${style}/${n} 宽`);
@@ -474,7 +482,7 @@ test("四样式 × 7/16/32/40：画布尺寸正确、全员上图、所有绘制
 
 test("B/C/D：全员名字与名次都落笔（对比 a 只画前 16 名）", () => {
   for (const style of ["b", "c", "d"]) {
-    for (const n of [7, 16, 32, 40]) {
+    for (const n of [7, 16, 40]) {
       const { members, calls } = runStyle(style, n);
       for (const m of members)
         assert.ok(
@@ -521,8 +529,8 @@ test("四样式都消费注入令牌：ink 随 tokens 变、cardStroke=0 不描�
   }
 });
 
-test("C 领奖台：前三张照片互不重叠且整体居中（7/16/32）", () => {
-  for (const n of [7, 16, 32, 40]) {
+test("C 领奖台：前三张照片互不重叠且整体居中（7/16/40）", () => {
+  for (const n of [7, 16, 40]) {
     const { calls } = runStyle("c", n);
     const rects = calls.images.slice(0, 3).map((args, i) => {
       const [, , , , , x, y, w, h] = args;

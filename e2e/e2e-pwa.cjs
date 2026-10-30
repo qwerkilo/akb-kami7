@@ -78,7 +78,7 @@ async function pickMembers(page, n) {
 buildTemp(); // 临时副本（只拷壳 + img 软链）必须在起服务之前
 runSuite({
   name: "pwa",
-  expect: 43, // 执行器保证服务器就绪后，「静态服务器就绪」不再占一条检查（原 43）
+  expect: 45, // 执行器保证服务器就绪后，「静态服务器就绪」不再占一条检查（原 43）
   port: PORT,
   cwd: TMP,
   body: async ({ browser, checker }) => {
@@ -486,6 +486,34 @@ runSuite({
       fontOffline.faces > 0 && Math.abs(fontOffline.h1 - fontOnline.h1) < 2,
       `断网后字体未变样（face ${fontOffline.faces} vs ${fontOnline.faces}，h1 宽 ${fontOffline.h1} vs ${fontOnline.h1}）`
     );
+
+    // 离线打开分享链接：SW 用壳缓存兜底 index.html，只读结果页必须能渲染
+    const offlineShareIds = await page.evaluate(() => {
+      const sec = (window.AKB_GROUPS || []).find(
+        (s) => s.series === "48g" && s.members.length >= 7
+      );
+      return sec.members.slice(0, 7).map((m) => m.id);
+    });
+    await page.goto(
+      `${BASE}?r=48g-7-${offlineShareIds.join(",")}&t=${encodeURIComponent("离线分享")}`,
+      { waitUntil: "domcontentloaded", timeout: 120000 }
+    );
+    await waitForSelector(page, "离线分享结果", "#phase-result:not([hidden])", {
+      timeout: 15000,
+      hard: true,
+    });
+    const offlineShare = await page.evaluate(() => ({
+      rows: document.querySelectorAll("#rank-list li").length,
+      note:
+        getComputedStyle(document.getElementById("shared-note")).display !==
+        "none",
+      title: document.getElementById("title-input").value,
+    }));
+    ok(
+      offlineShare.rows === 7 && offlineShare.title === "离线分享",
+      `离线分享：榜单与标题来自链接（rows=${offlineShare.rows} title=${offlineShare.title}）`
+    );
+    ok(offlineShare.note, "离线分享：只读说明可见");
 
     console.log("\n[3] 离线胶囊随网络切换");
     await ctx.setOffline(false);

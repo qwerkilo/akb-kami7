@@ -3010,3 +3010,14 @@ test("分享链接：标题上限与结果页输入框 maxlength 是同一份契
     "index.html 的标题 maxlength 与 core.SHARE_TITLE_MAX 不一致"
   );
 });
+
+test("分享链接：标题里的 & = # 与 emoji 原样往返", () => {
+  const title = "A&B=C #1 🎤";
+  const q = core.encodeShare({
+    series: "love",
+    size: 7,
+    ids: shareIds(7),
+    title,
+  });
+  assert.equal(core.decodeShare("?" + q).title, title);
+});

@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 265, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 269, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -2223,6 +2223,72 @@ runSuite({
         `${w1} → ${w2}`
       );
       await ctxD.close();
+    }
+
+    // ---- 存储拒绝（隐私模式 / 配额满）----
+    // session 层已有单测（storage 抛错不崩），这里验**产品行为**：设置仍生效、刷新回落默认、无异常。
+    block("存储拒绝（隐私模式）");
+    {
+      const ctxS = await browser.newContext({
+        viewport: { width: 1280, height: 800 },
+        locale: "zh-CN",
+      });
+      const ps = await ctxS.newPage();
+      const sErrs = [];
+      ps.on("pageerror", (e) => sErrs.push(String(e)));
+      await ps.addInitScript(() => {
+        Storage.prototype.setItem = function () {
+          throw new DOMException("denied", "QuotaExceededError");
+        };
+      });
+      await ps.goto(BASE, { waitUntil: "domcontentloaded", timeout: 120000 });
+      await ready(ps);
+      await ps.click('.seg-lang [data-lang="en"]');
+      await ps.waitForTimeout(250);
+      const afterLang = await ps.evaluate(() => ({
+        lang: document.documentElement.lang,
+        cards: document.querySelectorAll(".card").length,
+      }));
+      check(
+        "存储拒绝：切语言仍生效",
+        afterLang.lang === "en" && afterLang.cards > 0,
+        JSON.stringify(afterLang)
+      );
+      await ps.click('.seg-skin [data-skin="sticker"]');
+      await ps.click('.seg-cols [data-cols="large"]');
+      await ps.waitForTimeout(250);
+      const applied = await ps.evaluate(() => ({
+        skin: document.documentElement.dataset.skin,
+        cols: document.documentElement.dataset.cols,
+        stored: localStorage.length,
+      }));
+      check(
+        "存储拒绝：皮肤与卡片大小仍生效",
+        applied.skin === "sticker" &&
+          applied.cols === "large" &&
+          applied.stored === 0,
+        JSON.stringify(applied)
+      );
+      await ps.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
+      await ready(ps);
+      const fallback = await ps.evaluate(() => ({
+        lang: document.documentElement.lang,
+        skin: document.documentElement.dataset.skin,
+        cols: document.documentElement.dataset.cols ?? null,
+      }));
+      check(
+        "存储拒绝：刷新回落默认（未持久化）",
+        fallback.lang === "zh-CN" &&
+          fallback.skin === "classic" &&
+          fallback.cols === null,
+        JSON.stringify(fallback)
+      );
+      check(
+        "存储拒绝：无未处理异常",
+        sErrs.length === 0,
+        sErrs.join(" | ").slice(0, 200)
+      );
+      await ctxS.close();
     }
   },
 });

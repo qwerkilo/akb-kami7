@@ -41,6 +41,7 @@
 | ⑦ E2E 黑盒          | 行为不变的硬验收                           | `e2e/`（命令与各套件矩阵见下节；收尾行与 check 数守恒由 `e2e/_check.cjs` 统一，套件自报 `EXPECT`）                         |
 
 - 跑单个文件：`node --test test/core.test.js`；单条用例加 `--test-name-pattern`。
+- **补测试前先读覆盖矩阵** `.scratch/test-matrix/spec.md`（正常/边界/异常/权限/数据/回归 六类 × 现状 × 缺口）。
 - **套件生命周期**（起服务 / 就绪 / 起浏览器 / 清理 / 退出码）唯一出处是 `e2e/_suite.cjs` 的 `runSuite`：套件只提供 `body({ browser, base, checker })`，不许手写 `spawn(serve.py)` 或 `process.exit`；共享的页面操作（筛选/更多浮层/回挑人页等五个）唯一出处是 `e2e/_ui.cjs`；E2E 的存储种子（键与载荷）唯一出处是 `e2e/_store.cjs`（键从 `core.PREF_KEYS` 派生 —— 手写键名时产品一改就静默失效）（守卫都在 `test/e2e-source.test.js`）。
 - **E2E 在 `e2e/`**：`npm run e2e`（主套件）/ `:v5` / `:pwa` / `:header`（页头矩阵：语言 × 档位 × 系列 × 在线/离线）/ `:first`（首屏矩阵：皮肤 × 语言 × 320–560px）。⑦ 是 UI 改动的唯一验收手段，改 `app.js`/`core.js` 后必须跑 **`npm run e2e:all`**（五套件；只跑主套件会漏 —— M5 的 confirm 曾让 v5 静默红：它点「放弃」被 dialog 挡下，2026-10-10 才被发现）。
 - 缝③ 的守卫要么双向（清单 vs 盘上），要么带**级联后的有效值**：只扫「有没有这条规则」会被同名规则骗过（`style.css` 有**两个** `@media (max-width: 560px)` 块）。
