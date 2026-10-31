@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 269, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 272, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -2015,6 +2015,18 @@ runSuite({
         np.on("pageerror", (e) => nErrs.push(String(e)));
         await np.goto(BASE, { waitUntil: "domcontentloaded", timeout: 180000 });
         await np.waitForTimeout(1500);
+        // 这一组此前三次都跑在 zh 上（locale 固定），标签却写 zh/en/ja ——
+        // 覆盖是假的。这里真的切一次语言，并断言 html lang 跟着变。
+        await setLang(np, lang);
+        await np.waitForTimeout(300);
+        const langNow = await np.evaluate(
+          () => document.documentElement.lang || ""
+        );
+        check(
+          `390px/${lang}：语言真的切换了`,
+          langNow.toLowerCase().startsWith(lang),
+          `html lang=${langNow}`
+        );
         for (const target of ["love", "48g"]) {
           await np.click(`.seg-series [data-series="${target}"]`, {
             force: true,

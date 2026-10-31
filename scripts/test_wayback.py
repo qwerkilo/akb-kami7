@@ -40,6 +40,21 @@ class CdxRowsCharacterizationTests(unittest.TestCase):
 
         self.assertEqual(wayback.cdx_rows("https://x", boom), [])
 
+    def test_reports_failures_separately_from_empty(self):
+        """失败必须可与「成功但 0 行」区分：缓存层只能缓存后者。"""
+        errors = []
+        out = wayback.cdx_rows(
+            "https://x",
+            lambda url: (_ for _ in ()).throw(OSError("boom")),
+            errors=errors,
+        )
+        self.assertEqual(out, [])
+        self.assertEqual(len(errors), 1)
+        errors = []
+        out = wayback.cdx_rows("https://x", lambda url: "[]", errors=errors)
+        self.assertEqual(out, [])
+        self.assertEqual(errors, [])
+
     def test_query_carries_limit_and_status_filter(self):
         seen = {}
 

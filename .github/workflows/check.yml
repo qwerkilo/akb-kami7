@@ -40,7 +40,15 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npm i --no-save playwright # 只为让 require("playwright") 能解析；不动 lock
+      # 钉版本 + 缓存浏览器：本地是 1.62.x ↔ chromium-1234；不钉版本时
+      # 新版 playwright 会要求未安装的浏览器（实测 0/1），且每次下载 17–42s、
+      # 网络尾部最坏 552s（CI #102）。
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-1.62.1
+      # 只为让 require("playwright") 能解析；不动 lock
+      - run: npm i --no-save playwright@1.62.1
       - run: npx playwright install --with-deps chromium
       - run: python3 -m pip install --user Pillow
       - run: npm run e2e

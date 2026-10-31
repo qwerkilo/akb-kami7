@@ -395,7 +395,14 @@ class ResolvedCacheTests(unittest.TestCase):
             former = [{"name": "既存", "file": "morningmusume:既存", "status": "former"}]
 
             def fake_resolve(
-                members, urls, fetch, warn=None, pause=0.0, skip=None, notes=None
+                members,
+                urls,
+                fetch,
+                warn=None,
+                pause=0.0,
+                skip=None,
+                notes=None,
+                cache_path=None,
             ):
                 seen.update(urls)
 
@@ -423,7 +430,14 @@ class ResolvedCacheTests(unittest.TestCase):
             former = [{"name": "新", "file": "morningmusume:新", "status": "former"}]
 
             def fake_resolve(
-                members, urls, fetch, warn=None, pause=0.0, skip=None, notes=None
+                members,
+                urls,
+                fetch,
+                warn=None,
+                pause=0.0,
+                skip=None,
+                notes=None,
+                cache_path=None,
             ):
                 urls["morningmusume:新"] = "https://x/new.jpg"
 
@@ -1637,6 +1651,58 @@ class PhotoReasonTests(unittest.TestCase):
 
         mm._resolve_commons(members, urls, fetch, 0, notes)
         self.assertEqual(notes.get(members[0]["file"]), "源里没有")
+
+
+class CdxCacheTests(unittest.TestCase):
+    def test_cache_ttl_and_hit(self):
+        cache = {}
+        mm._cdx_cache_put(cache, "prefix:x", [["a"]], now=1000)
+        self.assertEqual(mm._cdx_cache_get(cache, "prefix:x", now=1060), [["a"]])
+        self.assertIsNone(
+            mm._cdx_cache_get(cache, "prefix:x", now=1000 + mm.CDX_TTL_SECONDS + 1)
+        )
+
+    def test_prefix_cache_hit_skips_fetch(self):
+        cache = {
+            "prefix:http://x/": {
+                "at": 10**12,
+                "rows": [["k", "20200101000000", "http://x/a", "text/html"]],
+            }
+        }
+        missing = [{"name": "X", "file": "f", "join": "", "end": ""}]
+
+        def boom(_url):
+            raise AssertionError("命中缓存后不许再查 CDX")
+
+        best = mm._old_site_candidates(["http://x/"], boom, missing, cache)
+        self.assertEqual(best, {"http://x/a": ["20200101000000"]})
+
+    def test_failed_query_is_not_cached(self):
+        cache = {}
+        missing = [{"name": "X", "file": "f", "join": "", "end": ""}]
+
+        def fake_rows(prefix_url, fetch, limit, prefix, errors):
+            errors.append(RuntimeError("429"))
+            return []
+
+        with mock.patch.object(mm.wayback, "cdx_rows", fake_rows):
+            mm._old_site_candidates(["http://x/"], lambda u: "", missing, cache)
+        self.assertNotIn("prefix:http://x/", cache)
+
+    def test_file_evidence_caches_successful_empty_rows(self):
+        cache = {}
+        calls = []
+
+        def fetch(_url):
+            calls.append(1)
+            return "[]"
+
+        member = {"name": "X", "file": "f", "join": "", "end": ""}
+        with mock.patch.object(mm, "OLD_SITE_FILE_EVIDENCE", {"X": "http://x/x.jpg"}):
+            mm._resolve_file_evidence({"X": member}, {}, fetch, 0, cache)
+            mm._resolve_file_evidence({"X": member}, {}, fetch, 0, cache)
+        self.assertEqual(len(calls), 1)
+        self.assertIn("file:http://x/x.jpg", cache)
 
 
 if __name__ == "__main__":

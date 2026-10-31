@@ -18,7 +18,12 @@ _TS = re.compile(r"/web/(\d{4,14})")
 _SNAPSHOT_PREFIX = re.compile(r"^https?://web\.archive\.org/web/\d+[a-z]*_/")
 
 
-def cdx_rows(url, fetch, limit=6, prefix=False):
+def cdx_rows(url, fetch, limit=6, prefix=False, errors=None):
+    """CDX 行（已剥表头）。`errors` 是可选列表：查询失败时把异常放进去。
+
+    `[]` 本身既可能是「成功但 0 行」也可能是失败 —— 缓存层必须能区分，
+    否则会把一次 429 永久记成「源里没有」（ADR-0024 的坑）。
+    """
     params = {
         "url": url,
         "output": "json",
@@ -31,7 +36,9 @@ def cdx_rows(url, fetch, limit=6, prefix=False):
     query = "http://web.archive.org/cdx/search/cdx?" + urllib.parse.urlencode(params)
     try:
         rows = json.loads(fetch(query) or "[]")
-    except Exception:
+    except Exception as err:
+        if errors is not None:
+            errors.append(err)
         return []
     return rows[1:] if rows else []
 

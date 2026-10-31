@@ -10,3 +10,5 @@ node_modules/
 # E2E 保存海报的落盘产物
 48group_*.png
 sakamichi_*.png
+
+scripts/_cdx.json

@@ -1,7 +1,9 @@
 name: matrix
 
-# 矩阵套件（页头 73 态 / 首屏 145 态）在 GitHub runner 上比本地慢 10–20×，
-# 放进 push 闸门会拖住每次提交（2026-10-08 实测 >2h），所以单独每晚跑 + 手工可触发。
+# 矩阵套件（页头 73 态 / 首屏 145 态）单独每晚跑 + 手工可触发：它们要挡的是
+# 视觉/布局漂移，不是每次提交。旧注释里的「runner 慢 10–20× / >2h」是 2026-10-08
+# 一次五套件全量并发的推断，已被 2026-10-30 的 step 级实测推翻（见
+# .scratch/perf-load/research/05-ci-e2e-load.md）；当前 job 成本以那份研究为准。
 # 失败 = job 红；不阻塞 push，也不自动开 issue。
 on:
   schedule:
@@ -21,7 +23,11 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npm i --no-save playwright
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-1.62.1
+      - run: npm i --no-save playwright@1.62.1
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e:header
       - run: npm run e2e:first

@@ -635,7 +635,11 @@ def default_loaders(skip_photo, use_cache, notes=None):
     return (
         lambda fetch: love_members.load(fetch, skip_photo=skip_photo, notes=notes),
         lambda fetch: morningmusume_members.load(
-            fetch, use_cache=use_cache, skip_photo=skip_photo, notes=notes
+            fetch,
+            use_cache=use_cache,
+            skip_photo=skip_photo,
+            notes=notes,
+            cache_path=morningmusume_members.CDX_CACHE if use_cache else None,
         ),
     )
 

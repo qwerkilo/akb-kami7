@@ -27,6 +27,7 @@
 - [05 · CI/E2E](issues/05-ci-e2e-load.md)：本地 e2e:all 4m16；CI push 中位 3m35；nightly 3m05–3m50（旧「runner 慢 10–20×」不成立）；pwa 字体门 `n>=17` 恒假，每次白等 30s。
 - [06 · 首访取舍](issues/06-first-visit-tradeoff.md)：本轮只做零视觉三项（延后 bios+poster、字体预热 C1–C3、SW 重复 index）；字体失败先留痕；验收 zh ≤1.15MB / LCP ≤700ms / 首屏 145/145；图片与 members 拆分排除。
 - [07 · 运行时/离线取舍](issues/07-runtime-offline-tradeoff.md)：海报预览改用 toBlob（去 82–185ms 同步任务）；搜索上限 80→40；海报解码内存先做原型（票 10）；全展开/PWA 缓存留 backlog；确认延迟与微优化不做。
+- [08 · 管线与 CI 取舍](issues/08-pipeline-ci-tradeoff.md)：CDX 缓存（成功响应/7 天 TTL）+ CI Playwright 缓存与钉版本 + 390px 语言覆盖修正；真实管线 30 分钟未完成，另开票 11。
 
 <!-- 关闭一张票后在这里追加一行：gist + 链接 -->
 
@@ -37,6 +38,7 @@
 - **搜索索引**：启动预计算 60ms、宽命中 80 张上限是否足够；worker 化是否值得（依赖运行时画像）。
 - **字体自托管（B0/B1）**：C1–C3 已决；自托管 UI 子集/全量名字子集仍需视觉与离线 A/B（另票）。
 - **名册全展开 / PWA 缓存预算**：07 决定留 backlog，等真实设备数据与离线矩阵。
+- **旧站扫描预算/目标（660 项、30 分钟未完成）**：08 实测暴露，见票 11。
 - **Pages 缓存头**：静态托管的缓存策略可调空间（预计很小，验证后再决定是否成票）。
 
 ## Out of scope

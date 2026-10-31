@@ -35,6 +35,46 @@ RESOLVED_CACHE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "_resolved.json"
 )
 
+# CDX 查询结果缓存（只缓存**成功**的响应，含「成功但 0 行」）：
+# 旧站快照枚举每轮要重查 5 个前缀（20–35s），而 CDX 的存档列表几天内不会变。
+# **不能缓存查询失败** —— 失败与「源里没有」必须可区分（ADR-0024 的教训）。
+# 文件证据那 2 条串行 CDX 同理：已确认 0 行的条目在 TTL 内不再重查。
+CDX_CACHE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "_cdx.json"
+)
+CDX_TTL_SECONDS = 7 * 24 * 3600
+
+
+def _load_cdx_cache(path=None):
+    try:
+        with open(path or CDX_CACHE, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _cdx_cache_get(cache, key, now=None):
+    entry = (cache or {}).get(key)
+    if not isinstance(entry, dict):
+        return None
+    if (now or time.time()) - entry.get("at", 0) > CDX_TTL_SECONDS:
+        return None
+    rows = entry.get("rows")
+    return rows if isinstance(rows, list) else None
+
+
+def _cdx_cache_put(cache, key, rows, now=None):
+    cache[key] = {"at": now or time.time(), "rows": rows}
+
+
+def _save_cdx_cache(cache, path=None):
+    try:
+        with open(path or CDX_CACHE, "w", encoding="utf-8") as fh:
+            json.dump(cache, fh, ensure_ascii=False, sort_keys=True)
+    except OSError:
+        pass
+
 SERIES = "morning"
 FILE_PREFIX = "morningmusume"
 GROUP = "モーニング娘。"
@@ -1096,18 +1136,41 @@ def _norm_old_url(u):
     return u.replace("://www.helloproject.com:80/", "://www.helloproject.com/")
 
 
-def _old_site_candidates(prefixes, fetch, missing):
+def _prefix_rows(prefixes, fetch, cache, now):
+    """前缀 → CDX 行；未过期的缓存不再查询，只写成功响应（含 0 行）。"""
+    rows_by_prefix = {}
+    wanted = []
+    for prefix in prefixes:
+        hit = _cdx_cache_get(cache, "prefix:" + prefix, now)
+        if hit is None:
+            wanted.append(prefix)
+        else:
+            rows_by_prefix[prefix] = hit
+    errors = {p: [] for p in wanted}
+    if wanted:
+        fetched = fetch_pool.fetch_many(
+            wanted,
+            lambda p: wayback.cdx_rows(
+                p, fetch, limit=1000, prefix=True, errors=errors[p]
+            ),
+            host="web.archive.org",
+        )
+        for prefix in wanted:
+            rows_by_prefix[prefix] = fetched[prefix]
+            if not errors[prefix]:
+                _cdx_cache_put(cache, "prefix:" + prefix, fetched[prefix], now)
+    return rows_by_prefix
+
+
+def _old_site_candidates(prefixes, fetch, missing, cache=None):
     """按前缀枚举 CDX → `{归一 URL: [在籍内快照 ts…]}`（只收 HTML）。
 
     前缀彼此独立：并发查询（按主机限流），按前缀原顺序归并（确定性）。
+    `cache` 里命中未过期的前缀不再查询；只写入**成功**的响应（含 0 行）。
     """
+    cache = {} if cache is None else cache
+    rows_by_prefix = _prefix_rows(prefixes, fetch, cache, time.time())
     best = {}
-    # matchType=prefix 由 cdx_rows 加，url 不能再带 "*"（带了会被当字面量 → 0 行）
-    rows_by_prefix = fetch_pool.fetch_many(
-        list(prefixes),
-        lambda p: wayback.cdx_rows(p, fetch, limit=1000, prefix=True),
-        host="web.archive.org",
-    )
     for prefix in prefixes:
         for row in rows_by_prefix[prefix]:
             ts, original = row[1], row[2]
@@ -1121,7 +1184,6 @@ def _old_site_candidates(prefixes, fetch, missing):
             # 排在排序后面、被每团预算截掉 —— 早期成员一个都配不到（实测根因）。
             best.setdefault(_norm_old_url(original), []).append(ts)
     return best
-
 
 def _match_page(html, original, ts, by_name, urls):
     """快照页的 img 配对（`alt=姓名`）→ 过在籍期后写入 urls。"""
@@ -1215,15 +1277,23 @@ def _pick_old_site_group(best, by_name, urls, fetch, budget, fetched, limit):
     return fetched + len(tasks), cut
 
 
-def _resolve_file_evidence(by_name, urls, fetch, pause):
+def _resolve_file_evidence(by_name, urls, fetch, pause, cache=None):
     """无 alt、只有文件名证据的少数：逐条 CDX 找快照（同样过在籍期校验）。"""
+    cache = {} if cache is None else cache
     for name, original in OLD_SITE_FILE_EVIDENCE.items():
         m = by_name.get(name)
         if not m or m["file"] in urls:
             continue
-        if pause:
-            time.sleep(pause)
-        for row in wayback.cdx_rows(original, fetch, limit=6):
+        key = "file:" + original
+        rows = _cdx_cache_get(cache, key)
+        if rows is None:
+            if pause:
+                time.sleep(pause)
+            errors = []
+            rows = wayback.cdx_rows(original, fetch, limit=6, errors=errors)
+            if not errors:
+                _cdx_cache_put(cache, key, rows)
+        for row in rows:
             if not tenure_ok(m, row[1]):
                 continue
             urls[m["file"]] = wayback.snapshot_url(row[1], row[2])
@@ -1240,7 +1310,9 @@ def _group_budget(missing, group):
     return max(30, 15 * in_group)
 
 
-def _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes=None):
+def _resolve_old_site_groups(
+    missing, by_name, urls, fetch, limit, notes=None, cache=None
+):
     """按团分预算抓快照（团序与 OLD_PAGE_PREFIXES 一致），返回抓取次数。
 
     `notes`（工单 09）：预算用尽/全局上限时，该团没解析到的人原因写进 `notes[file]` ——
@@ -1261,7 +1333,11 @@ def _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes=None):
             if not any(m.get("group") == group for m in missing):
                 continue
             budget = _group_budget(missing, group)
-            best = _old_site_candidates(prefixes, fetch, missing)
+            best = (
+                _old_site_candidates(prefixes, fetch, missing)
+                if cache is None
+                else _old_site_candidates(prefixes, fetch, missing, cache)
+            )
             fetched, cut = _pick_old_site_group(
                 best, by_name, urls, fetch, budget, fetched, limit
             )
@@ -1293,7 +1369,7 @@ def _note_scan_gaps(missing, urls, verdicts, notes):
 
 
 def resolve_old_site_photos(
-    members, urls, fetch, pause=0.0, limit=900, notes=None
+    members, urls, fetch, pause=0.0, limit=900, notes=None, cache_path=None
 ):
     """旧官网 Wayback 源（工单 02）：按团枚举快照页 → 解析 `alt=姓名` 配对 →
     **在籍期校验**后写入 urls。抓取次数有上限（limit），失败不阻断链。"""
@@ -1304,8 +1380,14 @@ def resolve_old_site_photos(
     # pause 只给 _resolve_file_evidence：它逐条**串行**打 Wayback 的 CDX（量小、
     # 不在 fetch_pool 的批量闸门里，平时没人给它限速）；上面的批量快照走主机闸门，
     # 不套这个节流。（旧注释写「48pedia 要节流」是错的 —— 那段根本不碰 48pedia。）
-    _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes)
-    _resolve_file_evidence(by_name, urls, fetch, pause)
+    # 只在生产路径启用缓存（cache_path 由 resolve_former_photos 传入）：
+    # 测试直接调用本函数时不碰真实缓存文件，否则用例之间会互相污染
+    # （实测：前一个用例写入的 CDX 行让后一个「在籍期外」用例假通过）。
+    cache = _load_cdx_cache(cache_path) if cache_path else {}
+    _resolve_old_site_groups(missing, by_name, urls, fetch, limit, notes, cache)
+    _resolve_file_evidence(by_name, urls, fetch, pause, cache)
+    if cache_path:
+        _save_cdx_cache(cache, cache_path)
     return members, urls
 
 def _resolve_og(members, urls, fetch):
@@ -1371,7 +1453,14 @@ def _resolve_commons(members, urls, fetch, pause, notes):
 
 
 def resolve_former_photos(
-    members, urls, fetch, warn=print, pause=0.0, skip=None, notes=None
+    members,
+    urls,
+    fetch,
+    warn=print,
+    pause=0.0,
+    skip=None,
+    notes=None,
+    cache_path=None,
 ):
     """毕业成员的头像。**照片回退链**（CONTEXT）三节，按序：
 
@@ -1397,7 +1486,9 @@ def resolve_former_photos(
     # 顺序即优先级（spec 决定 2）：og 先写进 urls，旧站只补它没覆盖的
     _resolve_og(target, urls, fetch)
     try:
-        resolve_old_site_photos(target, urls, fetch, pause=pause, notes=notes)
+        resolve_old_site_photos(
+            target, urls, fetch, pause=pause, notes=notes, cache_path=cache_path
+        )
     except Exception as e:
         warn("warning: 旧官网快照源失败（继续走 Commons）：{}".format(e))
     _resolve_commons(target, urls, fetch, pause, notes)
@@ -1473,7 +1564,15 @@ def _save_resolved(urls, path=None):
         pass
 
 
-def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None, notes=None):
+def load(
+    fetch,
+    warn=print,
+    photo=True,
+    use_cache=False,
+    skip_photo=None,
+    notes=None,
+    cache_path=None,
+):
     """抓官网（仅 OFFICIAL_GROUPS）+ 各团 Wikipedia 条目 + 毕业照片。返回 (members, urls)。
 
     `notes`（工单 01）：照片解析没找到的原因，`notes[file]` —— 由管线合并进唯一
@@ -1516,7 +1615,14 @@ def load(fetch, warn=print, photo=True, use_cache=False, skip_photo=None, notes=
             # 预填已解析过的（各解析段只处理不在 urls 里的人 → 天然增量）
             _prefill(urls, _load_resolved())
         resolve_former_photos(
-            members, urls, fetch, warn, pause=1.5, skip=skip_photo, notes=notes
+            members,
+            urls,
+            fetch,
+            warn,
+            pause=1.5,
+            skip=skip_photo,
+            notes=notes,
+            cache_path=cache_path if use_cache else None,
         )
         if use_cache:
             _save_resolved(urls)
