@@ -200,19 +200,38 @@ def parse_nick(cell, name=None):
     return (first, rest)
 
 
+def _plain_lines(lines):
+    return [ln for ln in lines if not ln.startswith("［") and not ln.startswith("[")]
+
+
+def _kana_only_wrapped(line):
+    return bool(re.fullmatch(r"[（(][ぁ-ゖァ-ヺー\s]+[）)]", line))
+
+
+def _has_kanji(line):
+    return bool(re.search(r"[一-龯々]", line))
+
+
 def first_line(cell_text):
     """姓名格是 `{{Display none|のなか みき/}}[[野中美希]]<br />{{Small|（のなか みき）}}` ——
     正式名是第一行，`{{Display none|…/}}` 里是假名，`{{Small|(…)}` 是重复的假名注记。
-    站内姓名要正式名，假名另存，所以只取第一行。"""
+    站内姓名要正式名，假名另存，所以只取第一行。
+
+    真实页面的姓名格也可能把假名注记放在正式名之前（`（のなか みき）` 在前）：
+    只有「第一行是整行括号假名」时才往后找汉字名，避免把リンリン的第二行
+    （漢字表記 `（銭琳）`）误当正式名。
+    """
     lines = [ln.strip() for ln in (cell_text or "").split("\n")]
     lines = [ln for ln in lines if ln]
-    # 第一行可能是角色徽章而不是姓名（BEYOOOOONDS 的「リーダー」徽章写成
-    # Small 模板 + 粗体，清洗后是方括号行），跳过方括号行。
-    for ln in lines:
-        if not ln.startswith("［") and not ln.startswith("["):
-            return ln
-    return lines[0] if lines else ""
-
+    plain = _plain_lines(lines)
+    if not plain:
+        return lines[0] if lines else ""
+    head = plain[0]
+    if _kana_only_wrapped(head):
+        for ln in plain[1:]:
+            if _has_kanji(ln):
+                return ln
+    return head
 
 def kana_of(cell_text):
     """从姓名格里取假名：`{{Display none|のなか みき/}}` 里那一份。

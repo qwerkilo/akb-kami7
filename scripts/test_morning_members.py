@@ -97,6 +97,13 @@ class NickTests(unittest.TestCase):
             ("めいちゃん", ["めいち", "めいさん", "パンダちゃん"]),
         )
 
+    def test_first_line_prefers_kanji_when_kana_is_first(self):
+        """真实抓取：姓名格可能把假名注记放在正式名之前（`（のなか みき）` 在前），
+        直接取第一行会把整批成员名变成假名。"""
+        self.assertEqual(mm.first_line("（のなか みき）\n野中美希"), "野中美希")
+        self.assertEqual(mm.first_line("野中美希\n（のなか みき）"), "野中美希")
+        self.assertEqual(mm.first_line("リンリン\n（りんりん）"), "リンリン")
+
     def test_first_line_is_cleaned_too(self):
         """真实抓取抓到的缺陷：中澤裕子的昵称格里带 <ref group="注">…</ref>，
         只洗别名那几行会让它漏进产物。而「昵称 == 姓名时丢掉」是**姓名格**的规则，
