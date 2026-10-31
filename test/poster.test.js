@@ -71,6 +71,7 @@ function fakeCtx() {
       calls.images.push(args);
       calls.imagesM.push(m.slice());
     },
+    strokeText() {},
     fillText(text, x, y) {
       calls.texts.push(String(text));
       // 逐次记录「这次写字时生效的字色与字体」：只靠 texts 看不出占位首字用的是哪个令牌
@@ -759,4 +760,36 @@ test("超长名字被省略号截断（fitText/clipText 的截断路径）", () 
     0,
     "短名字不该被截断"
   );
+});
+
+function drawStyle(style, rankStyle) {
+  const members = people(7);
+  const { ctx, calls } = fakeCtx();
+  const tokens = { ...poster.defaultTokens(), rankStyle };
+  poster.draw(ctx, {
+    members,
+    images: members.map(() => null),
+    title: "我的 48 Group 神7",
+    dateText: "48 Group 好き顔ソート · 2026.10.31",
+    hashtag: "#48Group",
+    photoSrc: "写真：48pedia",
+    subOf: () => "",
+    tokens,
+    style,
+  });
+  return calls.texts;
+}
+
+test("名次：classic 编辑部数字贯穿 B/C/D，贴纸皮肤仍用章/奖牌", () => {
+  for (const style of ["c", "d"]) {
+    const editorial = drawStyle(style, "editorial");
+    assert.ok(
+      editorial.includes("01") && editorial.includes("07"),
+      `样式 ${style} 的编辑部名次应写成 01…07`
+    );
+    const tape = drawStyle(style, "tape");
+    assert.ok(!tape.includes("01"), `样式 ${style} 的贴纸章不应出现补零名次`);
+  }
+  const b = drawStyle("b", "editorial");
+  assert.ok(b.includes("02") && b.includes("07"), "B 小卡应使用编辑部名次");
 });
