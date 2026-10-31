@@ -60,3 +60,12 @@
   （透明底 + `--muted` + `--line` 边框），英文 `need` 改 `N to go`。390 两皮肤计算样式核过。
 - **验证**：`npm run check` exit 0；`e2e:all` 5/5。
 - **下次基点**：本批最后一个提交
+
+## 第一百轮 · 桌面托盘槽位对齐
+
+- **日期**：2026-10-31
+- **本次基点**：`bd4fa62`
+- **结论**：1280 下槽位 `space-between` 散开（~90px 间隔）；≥561px 改
+  `justify-content:flex-start; gap:10px`，与左侧计数/提示对齐，窄屏保留原行为。
+- **验证**：`test/style-artifact.test.js` 33/33；`npm run check` exit 0；`e2e:all` 5/5。
+- **下次基点**：本批最后一个提交

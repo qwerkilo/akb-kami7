@@ -3703,3 +3703,12 @@ html[data-cols="compact"] {
   border-color: var(--line);
   box-shadow: none;
 }
+
+/* 宽视口不要把 7 个槽位用 space-between 拉到整条托盘：实测 1280 下间隔 ~90px，
+   空槽散成一片。窄屏仍保留 space-between（7 档刚好铺满，40 档横向滚动）。 */
+@media (min-width: 561px) {
+  .slots {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+}

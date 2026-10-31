@@ -37,3 +37,10 @@
 - 修：`[data-skin] .primary:disabled` 改为透明底 + `--muted` + `--line` 边框，不再是主行动色；
   en 文案 `need` 改 `N to go`。390px 两皮肤实测（`#start-btn` disabled、底色透明、文字中性）。
 - `check` exit 0；`e2e:all` 5/5。
+
+## 追加（2026-10-31）：桌面托盘槽位
+
+- 1280 下 7 个空槽被 `space-between` 拉开成 ~90px 间隔，散在整条托盘。
+- 修：≥561px 时 `justify-content:flex-start; gap:10px`，槽位与左侧计数/提示对齐；
+  窄屏不变（7 档刚好铺满）。
+- 1280 实测首槽 x=136（与内容左缘对齐）、无横向滚动；`check` 0、`e2e:all` 5/5。
