@@ -229,6 +229,21 @@
     ctx.restore();
   }
 
+  // 编辑部名次数字：白描边 + 墨色，压在照片上也读得清；与 rankStyle=tape 的贴纸章互斥。
+  function editorialNumber(ctx, T, rank, x, y, size) {
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.font = `400 ${size}px ${T.fonts.display}`;
+    const label = String(rank).padStart(2, "0");
+    ctx.lineWidth = Math.max(3, size * 0.08);
+    ctx.strokeStyle = "rgba(255,255,255,.9)";
+    ctx.strokeText(label, x, y);
+    ctx.fillStyle = T.colors.ink;
+    ctx.fillText(label, x, y);
+    ctx.restore();
+  }
+
   function rankTape(ctx, T, rank, x, y, big, compact) {
     if (T.rankStyle === "editorial") {
       editorialRank(ctx, T, rank, x, y, big, compact);
@@ -616,16 +631,20 @@
       const x = M + (k % cols) * (cw + gap);
       const y = gy + Math.floor(k / cols) * (ch + labelH + 12);
       slotCard(ctx, T, images[i], members[i], x, y, cw, ch, true);
-      ctx.save();
-      roundRect(ctx, x + 6, y + 6, 46, 24, 12);
-      ctx.fillStyle = rankColor(i + 1, T);
-      ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.font = `800 15px ${T.fonts.ui}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(String(i + 1), x + 29, y + 19);
-      ctx.restore();
+      if (T.rankStyle === "editorial") {
+        editorialNumber(ctx, T, i + 1, x + 8, y + 4, Math.min(30, cw * 0.18));
+      } else {
+        ctx.save();
+        roundRect(ctx, x + 6, y + 6, 46, 24, 12);
+        ctx.fillStyle = rankColor(i + 1, T);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.font = `800 15px ${T.fonts.ui}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(i + 1), x + 29, y + 19);
+        ctx.restore();
+      }
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = T.colors.ink;
@@ -713,22 +732,26 @@
         members[p.i].name
       );
       ctx.restore();
-      ctx.beginPath();
-      ctx.arc(
-        p.x + p.w / 2,
-        p.y + p.h - p.bar / 2 - 2 * k,
-        30 * k,
-        0,
-        Math.PI * 2
-      );
-      ctx.fillStyle = MEDALS[p.i + 1];
-      ctx.fill();
-      ctx.fillStyle = "#fff";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.font = `400 ${40 * kx}px ${T.fonts.display}`;
-      ctx.fillText(String(p.i + 1), p.x + p.w / 2, p.y + p.h - p.bar / 2);
-      ctx.textBaseline = "alphabetic";
+      if (T.rankStyle === "editorial") {
+        editorialNumber(ctx, T, p.i + 1, p.x + 14, p.y + 10, 54 * kx);
+      } else {
+        ctx.beginPath();
+        ctx.arc(
+          p.x + p.w / 2,
+          p.y + p.h - p.bar / 2 - 2 * k,
+          30 * k,
+          0,
+          Math.PI * 2
+        );
+        ctx.fillStyle = MEDALS[p.i + 1];
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = `400 ${40 * kx}px ${T.fonts.display}`;
+        ctx.fillText(String(p.i + 1), p.x + p.w / 2, p.y + p.h - p.bar / 2);
+        ctx.textBaseline = "alphabetic";
+      }
       ctx.fillStyle = T.colors.ink;
       const ns = fitText(
         ctx,
@@ -768,11 +791,15 @@
           false,
           photoH2
         );
-        ctx.textAlign = "center";
-        ctx.fillStyle = rankColor(i + 1, T);
-        ctx.font = `400 34px ${T.fonts.display}`;
-        ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
-        ctx.textAlign = "left";
+        if (T.rankStyle === "editorial") {
+          editorialNumber(ctx, T, i + 1, x + 10, y + 8, 30);
+        } else {
+          ctx.textAlign = "center";
+          ctx.fillStyle = rankColor(i + 1, T);
+          ctx.font = `400 34px ${T.fonts.display}`;
+          ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
+          ctx.textAlign = "left";
+        }
         ctx.fillStyle = T.colors.ink;
         const ns2 = fitText(
           ctx,
@@ -961,15 +988,19 @@
     );
     ctx.font = `700 ${ns}px ${T.fonts.jp}`;
     ctx.fillText(m.name, -g.cw / 2 + 12, g.cardH / 2 - 16);
-    ctx.beginPath();
-    ctx.arc(g.cw / 2 - 30, g.cardH / 2 - 30, 17, 0, Math.PI * 2);
-    ctx.fillStyle = rankColor(idx + 1, T);
-    ctx.fill();
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `400 22px ${T.fonts.display}`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText(String(idx + 1), g.cw / 2 - 30, g.cardH / 2 - 29);
+    if (T.rankStyle === "editorial") {
+      editorialNumber(ctx, T, idx + 1, -g.cw / 2 + 12, -g.cardH / 2 + 10, 30);
+    } else {
+      ctx.beginPath();
+      ctx.arc(g.cw / 2 - 30, g.cardH / 2 - 30, 17, 0, Math.PI * 2);
+      ctx.fillStyle = rankColor(idx + 1, T);
+      ctx.fill();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `400 22px ${T.fonts.display}`;
+      ctx.fillStyle = "#fff";
+      ctx.fillText(String(idx + 1), g.cw / 2 - 30, g.cardH / 2 - 29);
+    }
     if (idx % 5 === 2 || idx % 7 === 3) collageTape(ctx, T, g);
     ctx.restore();
   }
