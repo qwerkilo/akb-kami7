@@ -1538,6 +1538,15 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
   }
 
+  // 切相位时清掉上一步的提示：它属于上一屏（实测「已选满」的黑色 toast
+  // 会压在筛选页第 6 行/按钮上 2.4 秒）。
+  function hideToast() {
+    const el = $("#toast");
+    if (!el) return;
+    clearTimeout(toastTimer);
+    el.classList.remove("show");
+  }
+
   function ringSVG(n, m) {
     const pct = m ? Math.min(1, n / m) : 0;
     const c = 2 * Math.PI * 26;
@@ -1715,6 +1724,7 @@
     if (sharedOn && intent !== "boot") exitShared();
     const out = CORE.nav(navCtx(), intent);
     if (out.effect === "abandon") S.abandonDuel();
+    hideToast();
     view = out.view;
     // 对决的对手来自「已选 + 筛选层级」（ADR-0019 改写版），不再由调用方传 order
     if (out.effect === "start" || out.effect === "resume")

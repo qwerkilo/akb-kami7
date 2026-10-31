@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 272, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 273, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -349,6 +349,10 @@ runSuite({
       await page.waitForTimeout(400);
       // ADR-0019：开始后先过「筛选」这一步
       check("进入筛选", await page.isVisible("#phase-screen"));
+      check(
+        "进入筛选：上一步的 toast 不残留",
+        (await page.locator("#toast.show").count()) === 0
+      );
       check(
         "筛选：一屏列出已选的人",
         (await page.locator(".screen-row").count()) === 7,
