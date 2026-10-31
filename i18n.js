@@ -815,7 +815,7 @@
       drop_confirm: "Drop this duel? The current progress will be lost.",
       clear_confirm:
         "Clear all picks? This series' screening and duel progress will be discarded.",
-      need: (n) => `${n} more`,
+      need: (n) => `${n} to go`,
       steps_label: "Flow",
       step_pick: "Pick",
       step_duel: "Screen / Duel",

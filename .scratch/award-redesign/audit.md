@@ -30,3 +30,10 @@
   压在筛选名单第 6 行/按钮上。修法：`navigate()` 切相位时 `hideToast()`。
 - 主套件 +1 检查「进入筛选：上一步的 toast 不残留」；变异（删 `hideToast()`）被杀。
 - `check` exit 0；`e2e:all` 5/5（273/54/46/73/145）。
+
+## 追加（2026-10-31）：禁用主按钮的可供性
+
+- 「7 more」淡粉色块看起来像「再选 7 个」的行动按钮，实际是禁用状态。
+- 修：`[data-skin] .primary:disabled` 改为透明底 + `--muted` + `--line` 边框，不再是主行动色；
+  en 文案 `need` 改 `N to go`。390px 两皮肤实测（`#start-btn` disabled、底色透明、文字中性）。
+- `check` exit 0；`e2e:all` 5/5。
