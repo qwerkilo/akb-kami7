@@ -15,3 +15,12 @@
   无法确认真实格形状；**没有真跑管线**。票 12 保持 in-progress。
 - **验证**：`npm run check` exit 0（128 条 morning 单测）。
 - **下次基点**：本批最后一个代码提交（`git rev-parse HEAD`）
+
+## 第九十二轮 · 写产物前的姓名漂移门
+
+- **日期**：2026-10-31
+- **本次基点**：`e86ccf4`
+- **结论**：`_roster_gate` 增加 `name_drift`（上一轮汉字 → 本轮纯假名）检查，
+  命中即 `SystemExit`（`--accept-drop` 放行并打警告）。这是**防护**，不是解析根因修复；
+  票 12 仍 in-progress（真实页面未取到）。
+- **验证**：`npm run check` exit 0；新增 `name_drift` 3 条 + 门 1 条测试。

@@ -993,9 +993,49 @@ def _prepare_dirs(dirs):
         os.makedirs(d, exist_ok=True)
 
 
+def _has_kanji(text):
+    return bool(re.search(r"[一-龯々]", text or ""))
+
+
+def _prev_names(prev_members):
+    return {
+        m.get("kana") or m.get("name"): m.get("name") or ""
+        for m in prev_members or []
+    }
+
+
+def name_drift(prev_members, new_members):
+    """名字从汉字变纯假名的成员 —— 姓名格解析/上游变化的信号。
+
+    2026-10-31 真实跑：解析记录全变假名，旧站 `alt=汉字` 配不上、55 人缺图。
+    这类漂移不是「改名」，必须在写产物前停住；`--accept-drop` 可人工放行。
+    键用 kana（两边的共同读法），没有 kana 时退回 name。
+    """
+    prev = _prev_names(prev_members)
+    drift = []
+    for m in new_members or []:
+        old = prev.get(m.get("kana") or m.get("name"))
+        if old and _has_kanji(old) and not _has_kanji(m.get("name")):
+            drift.append((old, m.get("name") or ""))
+    return drift
+
 def _roster_gate(all_members, dirs, accept_drop):
     """规模门：名册相对基线塌了就不写入（prune_unused 会删图）。"""
     problems = roster_problems(all_members, read_baseline(dirs["root"]))
+    drift = name_drift(read_prev_members(dirs["root"]), all_members)
+    if drift:
+        detail = "、".join(
+            "{}→{}".format(old, new) for old, new in drift[:5]
+        )
+        if not accept_drop:
+            raise SystemExit(
+                "成员名从汉字变假名（{} 人：{}）。这可能写坏产物与照片，本次不写入；"
+                "确认是上游真改名再加 --accept-drop。".format(len(drift), detail)
+            )
+        print(
+            "[--accept-drop] 放行名字漂移：{} 人（{}）".format(len(drift), detail),
+            file=sys.stderr,
+        )
     if not problems:
         return
     detail = "；".join(problems)

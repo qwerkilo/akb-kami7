@@ -25,3 +25,9 @@
 **未验证**：真实 ja.wikipedia 抓取连续超时（SSL handshake / webfetch 60s），
 无法确认真实姓名格是否就是「假名在前」。下一步：网络恢复后用真实页面 diff
 `split_rows` 的 `名前` 原始格；真跑后必须核对 `members.js` 名字仍为汉字、缺图 7 人。
+
+## Safety gate（2026-10-31）
+
+`fetch_members._roster_gate` 现在在写产物前比对上一轮：任何「上一轮汉字 → 本轮纯假名」
+都会 **SystemExit**（`--accept-drop` 可人工放行）。这不是解析修复，是防止未知上游/解析
+形状再次写坏 `members.js` 与图片。纯函数 `name_drift` + 门各一条测试。

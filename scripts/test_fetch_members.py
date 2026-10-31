@@ -2143,5 +2143,40 @@ class ImageQueryFileFilterTests(unittest.TestCase):
         self.assertEqual(fetch_members.image_query_files(ms, set()), ["b.jpg"])
 
 
+class RosterNameDriftGateTests(unittest.TestCase):
+    def test_gate_aborts_before_writing(self):
+        with mock.patch.object(
+            fetch_members, "read_baseline", return_value=None
+        ), mock.patch.object(
+            fetch_members,
+            "read_prev_members",
+            return_value=[{"kana": "のなか みき", "name": "野中美希"}],
+        ):
+            with self.assertRaises(SystemExit) as cm:
+                fetch_members._roster_gate(
+                    [{"kana": "のなか みき", "name": "のなか みき"}],
+                    {"root": "/tmp"},
+                    False,
+                )
+        self.assertIn("汉字变假名", str(cm.exception))
+
+
+class NameDriftTests(unittest.TestCase):
+    def test_flags_kanji_to_kana(self):
+        prev = [{"kana": "のなか みき", "name": "野中美希"}]
+        new = [{"kana": "のなか みき", "name": "のなか みき"}]
+        self.assertEqual(
+            fetch_members.name_drift(prev, new), [("野中美希", "のなか みき")]
+        )
+
+    def test_allows_pure_kana_names(self):
+        prev = [{"kana": "りんりん", "name": "リンリン"}]
+        new = [{"kana": "りんりん", "name": "リンリン"}]
+        self.assertEqual(fetch_members.name_drift(prev, new), [])
+
+    def test_no_previous_baseline_is_not_a_drift(self):
+        self.assertEqual(fetch_members.name_drift([], [{"name": "野中美希"}]), [])
+
+
 if __name__ == "__main__":
     unittest.main()
