@@ -97,6 +97,33 @@ class NickTests(unittest.TestCase):
             ("めいちゃん", ["めいち", "めいさん", "パンダちゃん"]),
         )
 
+    def test_generation_from_combined_join_column(self):
+        """上游把「加入年月日」与「（12期）」并成一列：归一后只剩日期，
+        期生必须从原始格的括号取回（2026-10-31 真跑一度丢了全员的 generation）。"""
+        self.assertEqual(
+            mm._generation_from_row(
+                {"加入年月日": "2014.09.30"},
+                {"加入年月日": "2014年9月30日{{Center|（12期）}}"},
+                allow_fallback=True,
+            ),
+            "12期生",
+        )
+        self.assertEqual(
+            mm._generation_from_row({"加入期": "17期"}, {}), "17期"
+        )
+
+    def test_sort_template_key_is_kana(self):
+        self.assertEqual(
+            mm.kana_of("{{Sort|じゅんじゅん|[[ジュンジュン]]|speak=key}}"), "じゅんじゅん"
+        )
+
+    def test_sort_template_returns_display_value(self):
+        """上游 2026-10 给现役表姓名格套上 Sort 模板；取第一个位置参数
+        会让整批成员名变假名（2026-10-31 真实跑 55 人缺图）。"""
+        raw = "{{Sort|のなか みき|[[野中美希]]|speak=key}}"
+        self.assertEqual(mm.clean(raw), "野中美希")
+        self.assertEqual(mm.clean("{{Sort|しずおかけん|[[静岡県]]}}"), "静岡県")
+
     def test_first_line_prefers_kanji_when_kana_is_first(self):
         """真实抓取：姓名格可能把假名注记放在正式名之前（`（のなか みき）` 在前），
         直接取第一行会把整批成员名变成假名。"""

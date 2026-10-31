@@ -24,3 +24,18 @@
   命中即 `SystemExit`（`--accept-drop` 放行并打警告）。这是**防护**，不是解析根因修复；
   票 12 仍 in-progress（真实页面未取到）。
 - **验证**：`npm run check` exit 0；新增 `name_drift` 3 条 + 门 1 条测试。
+
+## 第九十三轮 · 票 12 收口：Sort 模板是根因
+
+- **日期**：2026-10-31
+- **本次基点**：`3b3b6c6`
+- **审查范围**：真实 ja.wikipedia 页面（`action=raw`）+ 增量管线。
+- **结论**：
+  - 根因是上游姓名格 `{{Sort|读音|显示值}}`，`_strip_templates` 取第一个参数 → 假名。
+    修 `_strip_templates`（Sort 取显示值）、`kana_of`（Sort 键）、`_generation_from_row`
+    （合并列的期生，统一 `N期生`，只对モーニング娘。回退）、`photo_skip.key`（kana）。
+  - 真跑 **5m37s**、缺图 **7**、generation **51**、名字全汉字；语义 diff 仅 5 处合法变化
+    （増本綺良/秋山眞緒毕业、工藤遥别名顺序），无丢失。
+  - 票 11/12 均 resolved。
+- **验证**：`npm run check` exit 0；`npm run e2e:all` 5/5（272/54/46/73/145）。
+- **下次基点**：本批最后一个提交（`git rev-parse HEAD`）

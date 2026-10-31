@@ -294,14 +294,6 @@
       zh: "速读",
       en: "Speed reading",
     },
-    "ダンス、映画、お花": {
-      zh: "跳舞、看电影、花",
-      en: "Dancing, films, flowers",
-    },
-    人の素敵な所を見つける: {
-      zh: "发现别人的优点",
-      en: "Spotting people's best qualities",
-    },
     "レッサーパンダ・動物の動画を見ること、甘いものを食べること": {
       zh: "看小熊猫与动物视频、吃甜食",
       en: "Red-panda and animal videos, sweets",

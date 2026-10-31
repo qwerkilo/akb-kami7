@@ -688,6 +688,7 @@ def read_prev_members(root):
         {
             "group": sec["group"],
             "name": m.get("name"),
+            "kana": m.get("kana") or m.get("name"),
             "id": m.get("id"),
             "img": bool(m.get("img")),
         }

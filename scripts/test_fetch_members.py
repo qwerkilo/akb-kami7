@@ -272,6 +272,25 @@ class PhotoSkipPredicateTests(unittest.TestCase):
             )
             self.assertNotIn(("AKB48", "A"), skip)
 
+    def test_morning_kana_identity_matches_kanji_display_name(self):
+        """早安的显示名是汉字、解析记录里是假名：跳过键必须用 kana 这一稳定读法，
+        否则同一人被当成「没照片」重新扫旧站（实测 44 人、旧站扫描 660 项）。"""
+        with tempfile.TemporaryDirectory() as td:
+            full, thumb = self._dirs(td)
+            self._touch(full, "m1.webp")
+            self._touch(thumb, "m1.webp")
+            prev = [
+                {
+                    "group": "モーニング娘。",
+                    "name": "野中美希",
+                    "kana": "のなか みき",
+                    "id": "m1",
+                    "img": True,
+                }
+            ]
+            skip = fetch_members.photo_skip_keys(prev, full, thumb)
+            self.assertIn(("モーニング娘。", "のなか みき"), skip)
+
     def test_duplicate_name_in_same_group_is_not_skipped(self):
         """同名不同人（id 带 #join 后缀）→ 从名字判不出 id，保守不跳过。"""
         with tempfile.TemporaryDirectory() as td:

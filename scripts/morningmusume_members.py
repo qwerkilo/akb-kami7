@@ -139,7 +139,13 @@ def _strip_templates(text):
         if not m:
             break
         inner = m.group(1)
-        arg = inner.split("|")[1] if "|" in inner else ""
+        parts = inner.split("|")
+        # {{Sort|排序键|显示值|…}}：显示值是**第二个**位置参数，取第一个会得到假名/读音。
+        # 2026-10-31 上游给现役表姓名格套上 Sort 后，整批成员名变成假名。
+        if parts[0].strip() == "Sort" and len(parts) > 2:
+            arg = parts[2]
+        else:
+            arg = parts[1] if len(parts) > 1 else ""
         text = text[: m.start()] + arg + text[m.end() :]
     return text
 
@@ -237,6 +243,9 @@ def kana_of(cell_text):
     """从姓名格里取假名：`{{Display none|のなか みき/}}` 里那一份。
     早安的表没有独立的假名列，假名只在这个被隐藏的块里。"""
     t = cell_text or ""
+    m = re.search(r"\{\{Sort\|([^|}]+)\|", t)
+    if m:
+        return m.group(1).strip()
     m = re.search(r"\{\{Display none\|([^}/]+)/\}\}", t)
     if m:
         return m.group(1).strip()
@@ -531,11 +540,24 @@ def _split_vitals(v):
     return blood, height, frm
 
 
-def _members_from_table(text, status, from_section=""):
+def _generation_from_row(row, raw, allow_fallback=False):
+    """加入期：独立列直接用；上游 2026-10 把「加入年月日」与「（12期）」并成一列，
+    归一后只剩日期 —— 从原始格里的括号取回，别静默丢掉期生。"""
+    gen = _col(row, "加入期")
+    if gen:
+        return gen
+    if not allow_fallback:
+        return ""
+    cell = _col(raw, "加入年月日")
+    return _generation(cell)
+
+
+def _members_from_table(text, status, from_section="", group=None):
     """字段取**清洗后**的行（姓名/日期/期生都已归一），昵称取**原始行** ——
     昵称要按 `<br />` 拆行，清洗过就看不出有几行了。
     注意**不要在这里再归一一次**：格值已经是 YYYY.MM.DD / N期生，
     再过一次 _date 会认不出（它的正则只认「1999年10月7日」这种原表形状）。"""
+    group = group or DEFAULT_GROUP
     out = []
     rows = split_rows(text)
     raws = raw_row(text)
@@ -570,7 +592,9 @@ def _members_from_table(text, status, from_section=""):
                 "nick": nick,
                 "nick_aliases": aliases,
                 "status": status,
-                "generation": row.get("加入期", ""),
+                "generation": _generation_from_row(
+                    row, raw, allow_fallback=(group == DEFAULT_GROUP)
+                ),
                 "birth": _col(row, "生年月日"),
                 "blood": blood,
                 "from": frm,
@@ -704,11 +728,11 @@ def parse_wiki_members(wikitext, group=DEFAULT_GROUP):
     for mark in cfg["current"]:
         span = _section_span(wikitext, mark, marks)
         if span:
-            out += _members_from_table(span, "current", mark)
+            out += _members_from_table(span, "current", mark, group)
     for mark in cfg["former"]:
         span = _section_span(wikitext, mark, marks)
         if span:
-            out += _members_from_table(span, "former", mark)
+            out += _members_from_table(span, "former", mark, group)
     return out
 
 

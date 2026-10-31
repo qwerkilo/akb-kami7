@@ -12739,15 +12739,6 @@ window.AKB_GROUPS = [
     "img": true
    },
    {
-    "id": "m2dc32fca98",
-    "name": "増本綺良",
-    "kana": "ますもと きら",
-    "nick": "",
-    "status": "current",
-    "end": null,
-    "img": true
-   },
-   {
     "id": "m1ac412d17e",
     "name": "松田里奈",
     "kana": "まつだ りな",
@@ -12808,6 +12799,15 @@ window.AKB_GROUPS = [
     "nick": "",
     "status": "former",
     "end": "2026.05.31",
+    "img": true
+   },
+   {
+    "id": "m2dc32fca98",
+    "name": "増本綺良",
+    "kana": "ますもと きら",
+    "nick": "",
+    "status": "former",
+    "end": "2026.09.30",
     "img": true
    },
    {
@@ -14150,8 +14150,8 @@ window.AKB_GROUPS = [
     "img": true,
     "generation": "10期生",
     "nick_aliases": [
-     "ハルちゃん",
-     "どぅー"
+     "どぅー",
+     "ハルちゃん"
     ]
    },
    {
@@ -15081,15 +15081,6 @@ window.AKB_GROUPS = [
   "label": "つばきファクトリー",
   "members": [
    {
-    "id": "m4cf9771782",
-    "name": "秋山眞緒",
-    "kana": "あきやま まお",
-    "nick": "まおぴん",
-    "status": "current",
-    "end": null,
-    "img": true
-   },
-   {
     "id": "m4054aa2119",
     "name": "石井泉羽",
     "kana": "いしい みはね",
@@ -15196,6 +15187,15 @@ window.AKB_GROUPS = [
     "nick": "るの",
     "status": "current",
     "end": null,
+    "img": true
+   },
+   {
+    "id": "m4cf9771782",
+    "name": "秋山眞緒",
+    "kana": "あきやま まお",
+    "nick": "まおぴん",
+    "status": "former",
+    "end": "2026.10.26",
     "img": true
    },
    {

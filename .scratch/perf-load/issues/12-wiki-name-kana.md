@@ -1,7 +1,7 @@
 # 12 · 真实跑产物变假名名 + 55 人缺图
 
 - **Type**: grilling
-- **Status**: in-progress
+- **Status**: resolved
 - **Blocked by**: 无
 
 ## Question
@@ -31,3 +31,18 @@
 `fetch_members._roster_gate` 现在在写产物前比对上一轮：任何「上一轮汉字 → 本轮纯假名」
 都会 **SystemExit**（`--accept-drop` 可人工放行）。这不是解析修复，是防止未知上游/解析
 形状再次写坏 `members.js` 与图片。纯函数 `name_drift` + 门各一条测试。
+
+## Answer（2026-10-31 真实页面验证）
+
+真实页面（`action=raw`）确认：上游给姓名格套了 `{{Sort|读音|显示值}}`，`_strip_templates`
+取**第一个位置参数**（读音）→ `name` 变假名。修复：
+
+- `_strip_templates` 对 `Sort` 取第二个位置参数（显示值）；
+- `kana_of` 从 `Sort` 的排序键取读音；
+- 上游把「加入年月日（加入期）」并成一列 → `_generation_from_row` 从原始格取回期生，
+  并统一成 `N期生`（モーニング娘。才启用回退，其他团仍按期生列）；
+- `photo_skip.key` 用 `kana or name`，上一轮投影补 `kana`。
+
+真跑结果：**5m37s**、`members.js` 名字全为汉字、**缺图 7 人不变**、generation **51 人**；
+逐成员语义比对只有 **5 处**合法上游变化（増本綺良/秋山眞緒 毕业、工藤遥别名顺序），
+无丢失、无新增缺图。`npm run check` exit 0、`e2e:all` 5/5。

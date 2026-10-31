@@ -11,8 +11,13 @@
 
 
 def key(member):
-    """跳过名单的键：`(团, 名)` —— **键的唯一出处**。"""
-    return (member.get("group"), member.get("name"))
+    """跳过名单的键：`(团, kana 或名)` —— **键的唯一出处**。
+
+    早安的显示名是汉字、解析记录里是可读假名：用 name 会让同一人匹配不上、
+    整批重扫旧站（2026-10-31 实测 660 项、30 分钟没跑完）。kana 是两边的共同
+    读法；没有 kana 的系列（48G/等爱）回退 name。
+    """
+    return (member.get("group"), member.get("kana") or member.get("name"))
 
 
 def skips(skipped, member):
