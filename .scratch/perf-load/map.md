@@ -30,7 +30,7 @@
 - [08 · 管线与 CI 取舍](issues/08-pipeline-ci-tradeoff.md)：CDX 缓存（成功响应/7 天 TTL）+ CI Playwright 缓存与钉版本 + 390px 语言覆盖修正；真实管线 30 分钟未完成，另开票 11。
 - [11 · 旧站扫描 660 与 30 分钟未完成](issues/11-old-site-scan-budget.md)：660 = 15 × 44；根因是解析记录用假名、上一轮 members.js 用汉字，skip 键 name 匹配不上。
 - [12 · 真实跑产物变假名名 + 55 人缺图](issues/12-wiki-name-kana.md)：上游 `{{Sort|读音|显示值}}` 被取成读音；修 `_strip_templates`/`kana_of`/期生合并列/skip 键，真跑 5m37s、缺图 7、generation 51。
-- [09 · 总优先级与验收口径](issues/09-priority-acceptance.md)：P0 已完成；P1 = 删 Zen 500 + poster 延后；P2 起进 backlog。验收：体积用 encoded/decoded、同条件 A/B、`e2e:all` 5/5、首屏 145/145、数据真跑语义 diff。
+- [09 · 总优先级与验收口径](issues/09-priority-acceptance.md)：P0 已完成；P1 = 删 Zen 500（已实现，CSS −33%、截图相同）；poster 延后放弃（POSTER_STYLES 所有权成本 > 8.8KB）；P2 起进 backlog。验收：体积用 encoded/decoded、同条件 A/B、`e2e:all` 5/5、首屏 145/145、数据真跑语义 diff。
 
 <!-- 关闭一张票后在这里追加一行：gist + 链接 -->
 

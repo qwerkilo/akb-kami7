@@ -66,3 +66,20 @@ test("正文字体（Zen/Nunito）绝不能带 text= 子集", () => {
     );
   }
 });
+
+test("Zen 不请求 500 档（首访实测 0 个 500 face 被绘制）", () => {
+  assert.ok(rest.length >= 1, "Zen/Nunito 的字体链接不见了");
+  for (const u of rest) {
+    const weights = new URL(u).searchParams
+      .getAll("family")
+      .map((f) => f.replace(/ /g, "+"));
+    assert.ok(
+      weights.every((f) => !f.includes("Zen+Kaku+Gothic+New:wght@500")),
+      "Zen 500 没有实际渲染，保留它只会多下载一份 CSS"
+    );
+    assert.ok(
+      weights.some((f) => f.includes("Zen+Kaku+Gothic+New:wght@700;900")),
+      "Zen 必须保留 700/900 两档"
+    );
+  }
+});

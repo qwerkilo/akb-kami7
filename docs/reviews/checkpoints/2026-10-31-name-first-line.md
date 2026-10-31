@@ -49,3 +49,15 @@
     验收：encoded/decoded 体积、同条件 A/B、`e2e:all` 5/5、首屏 145/145、数据真跑语义 diff。
 - **验证**：纯文档；`npm run check` exit 0。
 - **下次基点**：本批最后一个提交
+
+## 第九十五轮 · P1①：删 Zen 500
+
+- **日期**：2026-10-31
+- **本次基点**：`ad68957`
+- **结论**：Zen 500 在首访真实渲染 0 个 face（研究 02）；删掉后 Google Fonts CSS
+  **87,244 → 58,403 wire（−28,841 B / −33%）**。390 与 1280 的挑人页截图（旧/新 index）
+  **逐字节相同**；`e2e:all` 5/5、首屏矩阵 145/145。
+- **P1② 放弃**：`app.js:45`/`session.js` 在建会话时读 `AKB_POSTER.styles`，延后 poster.js
+  需要搬走 POSTER_STYLES 所有权，8.8KB gzip 不值这个风险（如实记录，不硬做）。
+- **验证**：`test/fonts.test.js` 新增「Zen 不请求 500」；`npm run check` exit 0。
+- **下次基点**：本批最后一个提交
