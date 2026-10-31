@@ -37,6 +37,7 @@
 | 2026-10-30 · 性能研究后的两处缺陷 | 87 | [2026-10-30-perf-bugfix.md](checkpoints/2026-10-30-perf-bugfix.md) |
 | 2026-10-30 · 性能决议首批实现 | 88 | [2026-10-30-perf-impl.md](checkpoints/2026-10-30-perf-impl.md) |
 | 2026-10-31 · 08 管线与 CI 取舍 | 89 | [2026-10-31-perf-ci.md](checkpoints/2026-10-31-perf-ci.md) |
+| 2026-10-31 · 旧站 660 根因与数据回归 | 90 | [2026-10-31-pipe-root.md](checkpoints/2026-10-31-pipe-root.md) |
 
 ### 未收口清单
 
