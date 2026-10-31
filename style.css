@@ -1986,8 +1986,16 @@ html[data-cols="compact"] {
 }
 #phase-duel .duel {
   flex: 1;
-  display: flex;
+  /* 桌面不能沿用窄屏的 flex：两个 .fighter 会缩到内容宽（实测 1280 只有 176px），
+     两侧留下大片空白。网格 + 上限让两张脸成为桌面的主角；窄屏在下面的
+     @media 里另有 grid 覆盖。 */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
 }
 #phase-duel .duel .or {
   align-self: center;

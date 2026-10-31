@@ -29,3 +29,15 @@
   sticker C 不变。
 - **验证**：`test/poster.test.js` 22/22；`npm run check` exit 0；`e2e:all` 5/5。
 - **下次基点**：本批最后一个提交
+
+## 第九十七轮 · P2③：桌面 1280 对决布局修复
+
+- **日期**：2026-10-31
+- **本次基点**：`d470f30`
+- **结论**：复拍 1280 发现真布局缺陷 —— `#phase-duel .duel` 全局 `display:flex`
+  （本意是窄屏）让两个 `.fighter` 缩到 176px、两侧大片空白；改为
+  `display:grid` + `minmax(0,1fr) auto minmax(0,1fr)` + `max-width:860px`。
+  复拍：classic/sticker 卡片约 396px、照片清晰、无横向滚动；390 窄屏由既有
+  `@media` 覆盖，行为不变。
+- **验证**：`test/style-artifact.test.js` 33/33；`npm run check` exit 0；`e2e:all` 5/5。
+- **下次基点**：本批最后一个提交
