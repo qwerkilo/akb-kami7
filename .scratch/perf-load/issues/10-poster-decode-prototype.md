@@ -1,7 +1,7 @@
 # 10 · 海报解码内存原型
 
 - **Type**: prototype
-- **Status**: open
+- **Status**: backlog (out of scope for this map)
 - **Blocked by**: 无
 
 ## Question

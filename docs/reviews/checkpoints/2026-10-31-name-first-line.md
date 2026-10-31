@@ -39,3 +39,13 @@
   - 票 11/12 均 resolved。
 - **验证**：`npm run check` exit 0；`npm run e2e:all` 5/5（272/54/46/73/145）。
 - **下次基点**：本批最后一个提交（`git rev-parse HEAD`）
+
+## 第九十四轮 · 票 09 收口：perf-load 地图完成
+
+- **日期**：2026-10-31
+- **本次基点**：`ede652e`
+- **结论**：优先级表落票 09：P0 已完成；P1 = 删除 Zen 500（真实渲染 0 face，−28.7KB wire）
+  - `poster.js` 延后（8.8KB gzip）；P2 起（海报解码原型/图片/PWA/字体自托管/worker）进 backlog。
+    验收：encoded/decoded 体积、同条件 A/B、`e2e:all` 5/5、首屏 145/145、数据真跑语义 diff。
+- **验证**：纯文档；`npm run check` exit 0。
+- **下次基点**：本批最后一个提交

@@ -1,7 +1,7 @@
 # 地图：性能与负载优化（2026-10-30）
 
 - **Label**: wayfinder:map
-- **Status**: charting
+- **Status**: complete
 
 ## Destination
 
@@ -28,7 +28,9 @@
 - [06 · 首访取舍](issues/06-first-visit-tradeoff.md)：本轮只做零视觉三项（延后 bios+poster、字体预热 C1–C3、SW 重复 index）；字体失败先留痕；验收 zh ≤1.15MB / LCP ≤700ms / 首屏 145/145；图片与 members 拆分排除。
 - [07 · 运行时/离线取舍](issues/07-runtime-offline-tradeoff.md)：海报预览改用 toBlob（去 82–185ms 同步任务）；搜索上限 80→40；海报解码内存先做原型（票 10）；全展开/PWA 缓存留 backlog；确认延迟与微优化不做。
 - [08 · 管线与 CI 取舍](issues/08-pipeline-ci-tradeoff.md)：CDX 缓存（成功响应/7 天 TTL）+ CI Playwright 缓存与钉版本 + 390px 语言覆盖修正；真实管线 30 分钟未完成，另开票 11。
-- [11 · 旧站扫描 660 与 30 分钟未完成](issues/11-old-site-scan-budget.md)：660 = 15 × 44；根因是解析记录用假名、上一轮 members.js 用汉字，skip 键 name 匹配不上。修键会暴露票 12 的数据回归，故未提交。
+- [11 · 旧站扫描 660 与 30 分钟未完成](issues/11-old-site-scan-budget.md)：660 = 15 × 44；根因是解析记录用假名、上一轮 members.js 用汉字，skip 键 name 匹配不上。
+- [12 · 真实跑产物变假名名 + 55 人缺图](issues/12-wiki-name-kana.md)：上游 `{{Sort|读音|显示值}}` 被取成读音；修 `_strip_templates`/`kana_of`/期生合并列/skip 键，真跑 5m37s、缺图 7、generation 51。
+- [09 · 总优先级与验收口径](issues/09-priority-acceptance.md)：P0 已完成；P1 = 删 Zen 500 + poster 延后；P2 起进 backlog。验收：体积用 encoded/decoded、同条件 A/B、`e2e:all` 5/5、首屏 145/145、数据真跑语义 diff。
 
 <!-- 关闭一张票后在这里追加一行：gist + 链接 -->
 
@@ -39,11 +41,11 @@
 - **搜索索引**：启动预计算 60ms、宽命中 80 张上限是否足够；worker 化是否值得（依赖运行时画像）。
 - **字体自托管（B0/B1）**：C1–C3 已决；自托管 UI 子集/全量名字子集仍需视觉与离线 A/B（另票）。
 - **名册全展开 / PWA 缓存预算**：07 决定留 backlog，等真实设备数据与离线矩阵。
-- **旧站扫描预算/目标**：11 已定位为 name/kana 身份不一致；修键前必须先解票 12 的解析回归。
-- **早安解析名变假名 / 55 人缺图**：12（阻断数据管线；候选修复已提交，待真实页面验证）。
 - **Pages 缓存头**：静态托管的缓存策略可调空间（预计很小，验证后再决定是否成票）。
 
 ## Out of scope
+
+- 海报解码原型（票 10）与图片/PWA 缓存/字体自托管/搜索 worker：P2+ backlog，见 09 优先级表。
 
 - 加后端 / CDN / 构建步骤（违反静态站约束）。
 - 重写搜索算法或 UI（不是性能决策，另开一轮）。
