@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 277, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 278, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -2232,6 +2232,23 @@ runSuite({
       await pd.waitForTimeout(300);
       const langNow = await pd.evaluate(() => document.documentElement.lang);
       check("桌面：点 EN 真的切换语言", langNow === "en", `lang=${langNow}`);
+
+      // 新皮肤曾把 seg-skin 的 min-height 压到 auto（22px < WCAG 2.5.8 的 24px）。
+      // 皮肤切换器是本功能的核心控件，必须在宽屏可见态下守住 44px；系列 tab 守 24px。
+      const touch = await pd.evaluate(() => {
+        const h = (sel) => {
+          const el = document.querySelector(sel);
+          return el && el.getClientRects().length
+            ? Math.round(el.getBoundingClientRect().height)
+            : 0;
+        };
+        return { skin: h(".seg-skin button"), series: h(".seg-series button") };
+      });
+      check(
+        "桌面：皮肤 44px / 系列 tab 24px 触控目标",
+        touch.skin >= 44 && touch.series >= 24,
+        JSON.stringify(touch)
+      );
 
       // ---- 卡片大小档位（「一排几个头像」）----
       const cardW = () =>
