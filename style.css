@@ -787,7 +787,7 @@ html[data-cols="compact"] {
   white-space: nowrap;
 }
 .card .meta {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1334,7 +1334,7 @@ html[data-cols="compact"] {
   padding: 4px 0 6px;
 }
 .pf-fields dt {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.16em;
   color: var(--pink);
@@ -2870,7 +2870,7 @@ html[data-cols="compact"] {
   background: var(--line);
 }
 [data-skin="classic"] .tray-hint {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   opacity: 0.55;
 }
@@ -3006,7 +3006,7 @@ html[data-cols="compact"] {
 }
 [data-skin="classic"] .rank-list .meta {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.04em;
 }
 
@@ -3293,7 +3293,7 @@ html[data-cols="compact"] {
   font-size: 15px;
 }
 [data-skin="sticker"] .card .meta {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.02em;
 }
 [data-skin="sticker"] .card[aria-pressed="true"] {
@@ -3508,7 +3508,7 @@ html[data-cols="compact"] {
 [data-skin="classic"] .screen-round {
   margin-top: 10px;
   color: var(--pink);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -3591,7 +3591,7 @@ html[data-cols="compact"] {
   text-align: left;
 }
 [data-skin="classic"] .duel-saved {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
 }
 
@@ -3710,7 +3710,7 @@ html[data-cols="compact"] {
     justify-content: space-between;
   }
   #phase-duel .hint {
-    font-size: 10px;
+    font-size: 11px;
   }
   [data-skin="classic"] .screen-foot .ghost {
     border-radius: 0;

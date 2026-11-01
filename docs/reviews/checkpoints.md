@@ -41,6 +41,7 @@
 | 2026-10-31 · 票 12 候选修复与数据根因 | 91–95 | [2026-10-31-name-first-line.md](checkpoints/2026-10-31-name-first-line.md) |
 | 2026-11-01 · AKB 官方风皮肤（ADR-0027） | 101–103 | [2026-11-01-akb-skin.md](checkpoints/2026-11-01-akb-skin.md) |
 | 2026-11-01 · 海报 B/C/D 层级优化 | 104 | [2026-11-01-poster-tiers.md](checkpoints/2026-11-01-poster-tiers.md) |
+| 2026-11-01 · UI 质量自检（八维） | 105 | [2026-11-01-ui-quality.md](checkpoints/2026-11-01-ui-quality.md) |
 
 ### 未收口清单
 
