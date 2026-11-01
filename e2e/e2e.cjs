@@ -191,7 +191,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 282, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 284, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1236,6 +1236,28 @@ runSuite({
         (k) => localStorage.getItem(k),
         S.stateKey("48g")
       );
+      // 分享结果也要跟随接收者选择的第五样式（样式是全局偏好，与只读分享正交）
+      await page.evaluate(
+        (k) => localStorage.setItem(k, "e"),
+        S.prefKey("posterStyle")
+      );
+      await page.goto(`${BASE}?${shareQuery}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 120000,
+      });
+      await ready(page);
+      await waitForSelector(
+        page,
+        "分享结果相位（样式 e）",
+        "#phase-result:not([hidden])",
+        { timeout: 15000, hard: true }
+      );
+      const sharedPx = await page.evaluate(() => {
+        const c = document.getElementById("poster-canvas");
+        const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;
+        return d[0] + "," + d[1] + "," + d[2];
+      });
+      check("分享结果：接触印相样式生效", sharedPx === "16,16,18", sharedPx);
       check(
         "分享链接：打开只读页不改接收者存档",
         receiverAfterOpen === receiverBefore,
@@ -1815,6 +1837,16 @@ runSuite({
       await page.waitForTimeout(1200);
       const pxE = await posterPx();
       check("切接触印相：暗房底色 #101012", pxE === "16,16,18", pxE);
+      await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
+      await ready(page);
+      check(
+        "接触印相选择已持久化",
+        (await page.evaluate(
+          () =>
+            document.querySelector('.seg-style [aria-checked="true"]')?.dataset
+              .style
+        )) === "e"
+      );
       await page.click('.seg-style [data-style="b"]');
       await page.waitForTimeout(1200);
       const pxB = await posterPx();

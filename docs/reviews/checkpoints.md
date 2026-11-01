@@ -47,6 +47,7 @@
 | 2026-11-01 · 原版「剧目」 | 108 | [2026-11-01-classic-playbill.md](checkpoints/2026-11-01-classic-playbill.md) |
 | 2026-11-01 · 皮肤系统守卫（retro） | 109 | [2026-11-01-skin-guards.md](checkpoints/2026-11-01-skin-guards.md) |
 | 2026-11-01 · 接触印相（第五样式） | 110 | [2026-11-01-poster-contact.md](checkpoints/2026-11-01-poster-contact.md) |
+| 2026-11-01 · 测试矩阵复检 | 111 | [2026-11-01-test-matrix-v2.md](checkpoints/2026-11-01-test-matrix-v2.md) |
 
 ### 未收口清单
 
