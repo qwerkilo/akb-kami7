@@ -13,3 +13,4 @@
 
 - 新增 `poster.test.js` 守卫：`index.html` 的 `data-style` 集合必须等于 `poster.styles`，
   且每个样式都有 `data-i18n="style_<id>"`。新增第六样式时，漏改按钮或三语键会直接红。
+- 补 `poster.test.js`：接触印相行分布 7=3/2/2、16=4×4、40=6×7（末行 4）、全员不超出画布；变异「40 行改回 5×8」被杀。该测试是既有行为的 characterization（新增样式已完成，不需要 red）。

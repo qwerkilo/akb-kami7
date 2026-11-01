@@ -831,3 +831,37 @@ test("样式按钮与 poster.styles 同步（新增样式必须同时改 index.h
     );
   }
 });
+
+test("E 接触印相：行分布与全员上图（7=3/2/2、16=4×4、40=6×7 末行 4）", () => {
+  const expected = {
+    7: [3, 2, 2],
+    16: [4, 4, 4, 4],
+    40: [6, 6, 6, 6, 6, 6, 4],
+  };
+  for (const [n, rows] of Object.entries(expected)) {
+    const size = poster.layout(Number(n));
+    const members = people(Number(n));
+    const { ctx, calls } = fakeCtx();
+    poster.draw(ctx, {
+      members,
+      images: fakeImgs(Number(n)),
+      title: "T",
+      dateText: "D",
+      hashtag: "#H",
+      photoSrc: "P",
+      subOf: () => "s",
+      style: "e",
+    });
+    assert.equal(calls.images.length, Number(n), `${n} 缺照片`);
+    const byRow = new Map();
+    for (const [, , , , , dx, dy, dw, dh] of calls.images) {
+      assert.ok(
+        dx >= 0 && dy >= 0 && dx + dw <= size.width && dy + dh <= size.height,
+        `${n} 有照片超出画布`
+      );
+      const key = Math.round(dy);
+      byRow.set(key, (byRow.get(key) || 0) + 1);
+    }
+    assert.deepEqual([...byRow.values()], rows, `${n} 行分布`);
+  }
+});
