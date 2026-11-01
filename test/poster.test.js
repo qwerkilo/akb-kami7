@@ -814,3 +814,20 @@ test("名次：classic 编辑部数字贯穿 B/C/D，贴纸皮肤仍用章/奖�
   const b = drawStyle("b", "editorial");
   assert.ok(b.includes("02") && b.includes("07"), "B 小卡应使用编辑部名次");
 });
+
+test("样式按钮与 poster.styles 同步（新增样式必须同时改 index.html 与三语键）", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const html = fs.readFileSync(
+    path.join(__dirname, "..", "index.html"),
+    "utf8"
+  );
+  const ids = [...html.matchAll(/data-style="([a-z])"/g)].map((m) => m[1]);
+  assert.deepEqual([...new Set(ids)], poster.styles, "按钮集合必须等于 styles");
+  for (const id of poster.styles) {
+    assert.ok(
+      html.includes(`data-i18n="style_${id}"`),
+      `样式 ${id} 缺 data-i18n="style_${id}"`
+    );
+  }
+});
