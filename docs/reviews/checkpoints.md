@@ -44,6 +44,7 @@
 | 2026-11-01 · UI 质量自检（八维） | 105 | [2026-11-01-ui-quality.md](checkpoints/2026-11-01-ui-quality.md) |
 | 2026-11-01 · 浮层焦点圈禁 | 106 | [2026-11-01-ui-quality.md](checkpoints/2026-11-01-ui-quality.md) |
 | 2026-11-01 · 皮肤扩展（玻璃/青瓷/珍珠 + 官方 A+C） | 107 | [2026-11-01-skins.md](checkpoints/2026-11-01-skins.md) |
+| 2026-11-01 · 原版「剧目」 | 108 | [2026-11-01-classic-playbill.md](checkpoints/2026-11-01-classic-playbill.md) |
 
 ### 未收口清单
 

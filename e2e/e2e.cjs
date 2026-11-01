@@ -1785,8 +1785,8 @@ runSuite({
       await page.waitForTimeout(1200);
       const classicPx = await posterPx();
       check(
-        "海报：原版皮肤底色 #f5f2ec",
-        classicPx === "245,242,236",
+        "海报：原版皮肤底色 #f3ecdc",
+        classicPx === "243,236,220",
         classicPx
       );
       await setSkin(page, "sticker");
@@ -1832,7 +1832,7 @@ runSuite({
       // 只比相等的话，CSS 与应用一起错也会相等。
       const SKIN_FLOOR = {
         akb: "rgb(255, 255, 255)",
-        classic: "rgb(245, 242, 236)",
+        classic: "rgb(243, 236, 220)",
         sticker: "rgb(241, 231, 216)",
         glass: "rgb(237, 240, 250)",
         celadon: "rgb(237, 242, 238)",
