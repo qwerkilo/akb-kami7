@@ -199,17 +199,19 @@
       : { w: 64, h: 48, padX: 10, padY: 14, num: 28 };
   }
 
+  // 名次数字的基准字号：大卡 96；小卡按前三/其余分两档。
+  function rankBase(big, compact, rank) {
+    if (big) return 96;
+    if (compact) return rank <= 3 ? 44 : 36;
+    return rank <= 3 ? 64 : 52;
+  }
+
   // 编辑部：把名次做成压在照片上的大号衬线数字（白描边 + 墨色字，证件照底也读得清）
-  function editorialRank(ctx, T, rank, x, y, big, compact) {
-    const size = big
-      ? 96
-      : compact
-        ? rank <= 3
-          ? 44
-          : 36
-        : rank <= 3
-          ? 64
-          : 52;
+  function editorialRank(ctx, T, rank, x, y, big, compact, w, h) {
+    // 小卡上的名次数字不能按「完整卡」的字号画：40 档底部只有 ~96px 宽，
+    // 44px 的数字会直接压住脸。字号随卡宽收缩，最小 16px。
+    const base = rankBase(big, compact, rank);
+    const size = Math.max(16, Math.min(base, (w || 240) * 0.22));
     ctx.save();
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
@@ -217,9 +219,13 @@
     const label = String(rank).padStart(2, "0");
     ctx.lineWidth = big ? 7 : 5;
     ctx.strokeStyle = "rgba(255,255,255,.9)";
-    ctx.strokeText(label, x + 8, y + 2);
+    const small = !big && w && w < 150;
+    const px = x + Math.max(3, (w || 240) * 0.04);
+    const size2 = small ? 16 : size;
+    ctx.font = `400 ${size2}px ${T.fonts.display}`;
+    ctx.strokeText(label, px, y + 2);
     ctx.fillStyle = T.colors.ink;
-    ctx.fillText(label, x + 8, y + 2);
+    ctx.fillText(label, px, y + 2);
     if (big) {
       ctx.font = `700 15px ${T.fonts.ui}`;
       ctx.strokeText("CENTER", x + 14, y + size + 4);
@@ -244,9 +250,9 @@
     ctx.restore();
   }
 
-  function rankTape(ctx, T, rank, x, y, big, compact) {
+  function rankTape(ctx, T, rank, x, y, w, h, big, compact) {
     if (T.rankStyle === "editorial") {
-      editorialRank(ctx, T, rank, x, y, big, compact);
+      editorialRank(ctx, T, rank, x, y, big, compact, w, h);
       return;
     }
     const g = tapeGeom(big, compact, rank);
@@ -314,10 +320,32 @@
     big,
     compact,
     subOf,
-    hideText
+    hideText,
+    captionRank
   ) {
     slotCard(ctx, T, im, m, x, y, w, h, compact);
-    rankTape(ctx, T, rank, x, y, big, compact);
+    // 40 档底部小卡：名次移到名字行，不再压在脸上（w<150 时卡内只有照片）。
+    if (captionRank && compact && w < 150) {
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+      const ns = fitText(
+        ctx,
+        m.name,
+        w - 34,
+        14,
+        700,
+        T.fonts.name || T.fonts.jp
+      );
+      ctx.fillStyle = T.colors.ink;
+      ctx.font = `700 ${ns}px ${T.fonts.name || T.fonts.jp}`;
+      ctx.fillText(m.name, x, y + h + ns + 10);
+      ctx.textAlign = "right";
+      ctx.fillStyle = T.colors.pink;
+      ctx.font = `700 12px ${T.fonts.ui}`;
+      ctx.fillText(String(rank).padStart(2, "0"), x + w, y + h + ns + 10);
+      return;
+    }
+    rankTape(ctx, T, rank, x, y, w, h, big, compact);
     if (hideText) return;
     slotLabel(ctx, T, m, rank, x, y, w, h, big, compact, subOf);
   }
@@ -596,7 +624,7 @@
         members[i],
         i + 1,
         M + 460,
-        heroY + (i - 1) * 300,
+        heroY + (i - 1) * 340,
         400,
         280,
         false,
@@ -613,7 +641,7 @@
         members[i],
         i + 1,
         M + (i - 3) * 238,
-        heroY + 600,
+        heroY + 660,
         220,
         293,
         false,
@@ -663,17 +691,19 @@
         members[i],
         i + 1,
         sx,
-        heroY + (i - 1) * (sh + 26),
+        heroY + (i - 1) * (sh + 60),
         sw,
         sh,
         false,
         true,
-        subOf
+        subOf,
+        false,
+        true
       );
     }
     const mw = 220 * scale;
     const mh = 250 * scale;
-    const midY = Math.max(heroY + hero.h, heroY + sh * 2 + 26) + 24;
+    const midY = Math.max(heroY + hero.h, heroY + sh * 2 + 60) + 24;
     for (let i = 3; i < 7; i++) {
       slot(
         ctx,
@@ -687,10 +717,12 @@
         mh,
         false,
         true,
-        subOf
+        subOf,
+        false,
+        true
       );
     }
-    const restY = midY + mh + 34;
+    const restY = midY + mh + 70;
     const restN = n - 7;
     const cols = n <= 16 ? 5 : 9;
     const rows = Math.ceil(restN / cols);
@@ -711,10 +743,12 @@
         M + (k % cols) * (rw + gap),
         restY + Math.floor(k / cols) * (rh + gap),
         rw,
-        Math.max(40, rh - 24),
+        Math.max(20, rh - 56),
         false,
         true,
-        subOf
+        subOf,
+        false,
+        true
       );
     }
   }
@@ -1085,8 +1119,26 @@
     );
     ctx.font = `700 ${ns}px ${T.fonts.jp}`;
     ctx.fillText(m.name, -g.cw / 2 + 12, g.cardH / 2 - 16);
-    if (T.rankStyle === "editorial") {
-      editorialNumber(ctx, T, idx + 1, -g.cw / 2 + 12, -g.cardH / 2 + 10, 30);
+    if (T.rankStyle === "editorial" && g.cw < 150) {
+      // 小卡把名次放到名字右侧，避免数字压在脸上。
+      ctx.textAlign = "right";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = T.colors.pink;
+      ctx.font = `700 12px ${T.fonts.ui}`;
+      ctx.fillText(
+        String(idx + 1).padStart(2, "0"),
+        g.cw / 2 - 12,
+        g.cardH / 2 - 17
+      );
+    } else if (T.rankStyle === "editorial") {
+      editorialNumber(
+        ctx,
+        T,
+        idx + 1,
+        -g.cw / 2 + 8,
+        -g.cardH / 2 + 8,
+        Math.max(16, Math.min(30, g.cw * 0.2))
+      );
     } else {
       ctx.beginPath();
       ctx.arc(g.cw / 2 - 30, g.cardH / 2 - 30, 17, 0, Math.PI * 2);
