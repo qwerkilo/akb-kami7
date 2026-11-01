@@ -191,7 +191,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 284, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 288, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1712,6 +1712,16 @@ runSuite({
         stickerBorder === "1px dashed",
         stickerBorder
       );
+      for (const skin of ["glass", "celadon", "pearl"]) {
+        await page.evaluate((s) => {
+          document.querySelector(`.seg-skin [data-skin="${s}"]`).click();
+        }, skin);
+        await page.waitForTimeout(250);
+        check(
+          `皮肤：切到 ${skin}`,
+          (await page.getAttribute("html", "data-skin")) === skin
+        );
+      }
 
       // 切皮肤不重建挑人 DOM：探针节点与滚动位置保留
       await page.evaluate(() => {
@@ -2408,6 +2418,35 @@ runSuite({
         afterLang.lang === "en" && afterLang.cards > 0,
         JSON.stringify(afterLang)
       );
+      const storageShareIds = await ps.evaluate(() => {
+        const sec = (window.AKB_GROUPS || []).find(
+          (s) => s.series === "48g" && s.members.length >= 7
+        );
+        return sec.members.slice(0, 7).map((m) => m.id);
+      });
+      await ps.goto(`${BASE}?r=48g-7-${storageShareIds.join(",")}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 120000,
+      });
+      await ready(ps);
+      await waitForSelector(
+        ps,
+        "存储拒绝的分享结果",
+        "#phase-result:not([hidden])",
+        { timeout: 15000, hard: true }
+      );
+      await ps.click('.seg-style [data-style="e"]');
+      await ps.waitForTimeout(1200);
+      const storageStylePx = await ps.evaluate(() => {
+        const c = document.getElementById("poster-canvas");
+        const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;
+        return d[0] + "," + d[1] + "," + d[2];
+      });
+      check(
+        "存储拒绝：海报样式仍生效",
+        storageStylePx === "16,16,18",
+        storageStylePx
+      );
       await ps.click('.seg-skin [data-skin="sticker"]');
       await ps.click('.seg-cols [data-cols="large"]');
       await ps.waitForTimeout(250);
@@ -2429,12 +2468,15 @@ runSuite({
         lang: document.documentElement.lang,
         skin: document.documentElement.dataset.skin,
         cols: document.documentElement.dataset.cols ?? null,
+        style: document.querySelector('.seg-style [aria-checked="true"]')
+          ?.dataset.style,
       }));
       check(
         "存储拒绝：刷新回落默认（未持久化）",
         fallback.lang === "zh-CN" &&
           fallback.skin === "akb" &&
-          fallback.cols === null,
+          fallback.cols === null &&
+          fallback.style === "a",
         JSON.stringify(fallback)
       );
       check(
