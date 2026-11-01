@@ -18,7 +18,7 @@
 
 ## 当前状态（活信息）
 
-- **下次基点**：`a04d52d`（AKB 官方风皮肤 + 审查修复，本批最后一个代码提交）
+- **下次基点**：`76ba9f3`（AKB 官方风皮肤 + 审查修复 + 触控守卫，本批最后一个代码提交）
 - **写法**：新的检查点追加到**当前批次文件**末尾；索引只在「基点 / 批次 / 未收口」变化时更新。
   每条记录的字段（日期 / 本次基点 / 审查范围 / 结论 / 遗留 / 下次基点）见上面的格式说明。
 
@@ -33,13 +33,13 @@
 | 2026-10-08 → 10-11 · UX/性能 24 项、scan8 12 项、retro | 82 | [2026-10-08..11-ux-perf.md](checkpoints/2026-10-08..11-ux-perf.md) |
 | 2026-10-29 · 分享链接（ADR-0025） | 83 | [2026-10-29-share-link.md](checkpoints/2026-10-29-share-link.md) |
 | 2026-10-30 · 测试类型覆盖矩阵、retro | 84–85 | [2026-10-30-test-matrix.md](checkpoints/2026-10-30-test-matrix.md) |
-| 2026-10-30 · 获奖级视觉改版（ADR-0026） | 86 | [2026-10-30-award-redesign.md](checkpoints/2026-10-30-award-redesign.md) |
+| 2026-10-30 · 获奖级视觉改版（ADR-0026） | 86、96–100 | [2026-10-30-award-redesign.md](checkpoints/2026-10-30-award-redesign.md) |
 | 2026-10-30 · 性能研究后的两处缺陷 | 87 | [2026-10-30-perf-bugfix.md](checkpoints/2026-10-30-perf-bugfix.md) |
 | 2026-10-30 · 性能决议首批实现 | 88 | [2026-10-30-perf-impl.md](checkpoints/2026-10-30-perf-impl.md) |
 | 2026-10-31 · 08 管线与 CI 取舍 | 89 | [2026-10-31-perf-ci.md](checkpoints/2026-10-31-perf-ci.md) |
 | 2026-10-31 · 旧站 660 根因与数据回归 | 90 | [2026-10-31-pipe-root.md](checkpoints/2026-10-31-pipe-root.md) |
-| 2026-10-31 · 票 12 候选修复（未真跑） | 91 | [2026-10-31-name-first-line.md](checkpoints/2026-10-31-name-first-line.md) |
-| 2026-11-01 · AKB 官方风皮肤（ADR-0027） | 101 | [2026-11-01-akb-skin.md](checkpoints/2026-11-01-akb-skin.md) |
+| 2026-10-31 · 票 12 候选修复与数据根因 | 91–95 | [2026-10-31-name-first-line.md](checkpoints/2026-10-31-name-first-line.md) |
+| 2026-11-01 · AKB 官方风皮肤（ADR-0027） | 101–103 | [2026-11-01-akb-skin.md](checkpoints/2026-11-01-akb-skin.md) |
 
 ### 未收口清单
 
