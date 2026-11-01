@@ -2267,11 +2267,27 @@ runSuite({
             ? Math.round(el.getBoundingClientRect().height)
             : 0;
         };
-        return { skin: h(".seg-skin button"), series: h(".seg-series button") };
+        const box = (sel) => {
+          const el = document.querySelector(sel);
+          return el && el.getClientRects().length
+            ? {
+                w: Math.round(el.getBoundingClientRect().width),
+                h: Math.round(el.getBoundingClientRect().height),
+              }
+            : { w: 0, h: 0 };
+        };
+        return {
+          skin: box(".seg-skin button"),
+          lang: box(".seg-lang button"),
+          series: box(".seg-series button"),
+        };
       });
       check(
-        "桌面：皮肤 44px / 系列 tab 24px 触控目标",
-        touch.skin >= 44 && touch.series >= 24,
+        "桌面：皮肤 44px 高 / 语言与系列 ≥24px 触控目标",
+        touch.skin.h >= 44 &&
+          touch.skin.w >= 24 &&
+          touch.lang.w >= 24 &&
+          touch.series.h >= 24,
         JSON.stringify(touch)
       );
 

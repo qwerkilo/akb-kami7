@@ -4448,3 +4448,12 @@ html[data-cols="compact"] {
     max-width: 100%;
   }
 }
+
+/* 原版（剧目）的工具按钮是纯文字，实测 1280px 下只有 12px 宽；
+   给它们 24px 的最小宽度，保留文字型外观也守住可点面积。 */
+[data-skin="classic"] .seg-lang button,
+[data-skin="classic"] .seg-skin button,
+[data-skin="classic"] .seg-cols button {
+  min-width: 24px;
+  padding: 3px 4px;
+}
