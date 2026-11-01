@@ -902,11 +902,14 @@
     ctx.restore();
   }
 
+  // 行分布按「可用面积」重排：7 人用 3/2/2 放大拍立得（4/3 会在标题下留 270px 空白），
+  // 16/32/40 各用 4/6/7 列填满高度；行间允许轻微重叠，才像一叠散落的照片。
   function collageRows(n) {
-    if (n <= 7) return [4, 3];
-    if (n <= 16) return [6, 5, 5];
-    if (n <= 32) return [7, 7, 6, 6, 6];
-    return [8, 8, 8, 8, 8];
+    if (n <= 7) return [3, 2, 2];
+    const per = n <= 16 ? 4 : n <= 32 ? 6 : 7;
+    const rows = [];
+    for (let left = n; left > 0; left -= per) rows.push(Math.min(per, left));
+    return rows;
   }
 
   // 贴纸标题 + 右上角人数徽章
@@ -982,7 +985,7 @@
       ctx,
       m.name,
       g.cw - 56,
-      Math.min(19, g.cw * 0.16),
+      Math.min(30, g.cw * 0.13),
       700,
       T.fonts.jp
     );
@@ -1005,6 +1008,64 @@
     ctx.restore();
   }
 
+  // 7 人拼贴：主视觉 > 2/3 > 4–7，三层尺寸，不再把七张拍立得平铺。
+  function collageSeven(
+    ctx,
+    T,
+    members,
+    images,
+    title,
+    dateText,
+    n,
+    fr,
+    hashtag,
+    photoSrc
+  ) {
+    collageHeader(ctx, T, title, dateText, n, fr, ctx.canvas.width);
+    const hero = {
+      x: 72,
+      y: 232,
+      w: 420,
+      h: 560,
+      cardH: 560,
+      photoH: 508,
+      rot: -0.012,
+    };
+    collageCard(ctx, T, members[0], images[0], 0, { ...hero, cw: hero.w });
+    const side = [
+      { x: 516, y: 232, w: 270, h: 360, photoH: 308, rot: 0.018 },
+      { x: 522, y: 616, w: 270, h: 360, photoH: 308, rot: -0.01 },
+    ];
+    side.forEach((g, i) =>
+      collageCard(ctx, T, members[i + 1], images[i + 1], i + 1, {
+        ...g,
+        cw: g.w,
+        cardH: g.h,
+      })
+    );
+    const mid = { y: 960, w: 220, h: 293, photoH: 241 };
+    for (let i = 3; i < 7; i++) {
+      collageCard(ctx, T, members[i], images[i], i, {
+        x: 72 + (i - 3) * 238,
+        y: mid.y,
+        cw: mid.w,
+        cardH: mid.h,
+        photoH: mid.photoH,
+        rot: i % 2 ? 0.012 : -0.012,
+      });
+    }
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    posterFooter(
+      ctx,
+      T,
+      ctx.canvas.width,
+      ctx.canvas.height,
+      hashtag,
+      photoSrc
+    );
+  }
+
   function drawCollage(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc } = opts;
     const n = members.length;
@@ -1012,6 +1073,21 @@
     ctx.fillStyle = T.colors.floor;
     ctx.fillRect(0, 0, W, H);
     collageDots(ctx, T, W, H);
+    if (n <= 7) {
+      collageSeven(
+        ctx,
+        T,
+        members,
+        images,
+        title,
+        dateText,
+        n,
+        fr,
+        hashtag,
+        photoSrc
+      );
+      return;
+    }
     collageHeader(ctx, T, title, dateText, n, fr, W);
 
     const rows = collageRows(n);
@@ -1020,11 +1096,16 @@
     const cw = (W - 80 - gap * (perRow - 1)) / perRow;
     const photoH = (cw - 24) * 1.333;
     const cardH = photoH + 52;
-    const top = 300;
+    // 标题面板底边约 204：从 232 起排，不再把整块垂直居中（居中是 7 人版
+    // 「标题下 270px 空白」的根因）。步长按剩余高度摊开，允许轻微重叠。
+    const top = 232;
     const avail = fr.footerTop - top;
-    const step = cardH + 26;
-    const blockH = rows.length * cardH + (rows.length - 1) * 26;
-    const y0 = top + Math.max(0, (avail - blockH) / 2);
+    const step =
+      rows.length > 1
+        ? Math.min(cardH + 26, (avail - cardH) / (rows.length - 1))
+        : 0;
+    const blockH = cardH + (rows.length - 1) * step;
+    const y0 = blockH < avail ? top + (avail - blockH) / 2 : top;
     const jitter = [0, 14, -10, 18, -6, 10, -14];
     let idx = 0;
     for (let r = 0; r < rows.length; r++) {

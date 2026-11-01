@@ -601,6 +601,36 @@ test("D 拼贴：拍立得消费 cardStroke（贴纸 ≥ 人数条 3px 墨描边
   assert.ok(run(32, 3) >= 32, `32 人贴纸应有 ≥32 条 3px 描边`);
 });
 
+test("D 拼贴：7 人三层尺寸、16 人 4×4、40 人 7×5+5", () => {
+  const seven = runStyle("d", 7);
+  assert.equal(seven.calls.images.length, 7, "D/7 应有七张图");
+  const widths = seven.calls.images.map((a) => Math.round(a[7]));
+  assert.ok(
+    widths[0] > widths[1] && widths[1] > widths[3],
+    `D/7 应为 主视觉 > 2/3 > 4–7，实得 ${widths}`
+  );
+  for (const [n, want] of [
+    [16, [4, 4, 4, 4]],
+    [40, [7, 7, 7, 7, 7, 5]],
+  ]) {
+    const { calls, ctx } = runStyle("d", n);
+    // D 的图片是在 translate 之后画的：calls.images 的 y 是局部坐标（每张相同），
+    // 行位置要从当时的变换矩阵取（imagesM[5] = 卡片中心 y）。
+    const rowsMap = new Map();
+    for (const m of calls.imagesM) {
+      const y = Math.round(m[5]);
+      rowsMap.set(y, (rowsMap.get(y) || 0) + 1);
+    }
+    assert.deepEqual([...rowsMap.values()], want, `D/${n} 行分布`);
+    const firstCenter = Math.min(...calls.imagesM.map((m) => m[5]));
+    assert.ok(
+      firstCenter < 500,
+      `D/${n} 首行应从标题下开始（中心 y=${firstCenter}）`
+    );
+    assert.ok(ctx.canvas.height === poster.layout(n).height, `D/${n} 画布高`);
+  }
+});
+
 test("全员无照片时每个位置都有占位（四样式 × 三档，占位与首字）", () => {
   // 收口成一处绘制点之后，「没有照片」这件事的结果不再取决于样式：
   // 每一格要么有脸，要么有底色 + 名字首字。c（榜单）此前是**零占位**——
