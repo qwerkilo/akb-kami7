@@ -11,6 +11,7 @@ function fakeCtx() {
     textFonts: [],
     images: [],
     imagesM: [],
+    arcs: [],
     fills: [],
     fonts: [],
     strokes: [],
@@ -47,7 +48,9 @@ function fakeCtx() {
     lineTo(...a) {
       calls.paths.push("lineTo");
     },
-    arc() {},
+    arc(x, y, r) {
+      calls.arcs.push({ x, y, r });
+    },
     clip() {},
     fill() {},
     fillRect() {},
@@ -863,5 +866,36 @@ test("E 接触印相：行分布与全员上图（7=3/2/2、16=4×4、40=6×7 �
       byRow.set(key, (byRow.get(key) || 0) + 1);
     }
     assert.deepEqual([...byRow.values()], rows, `${n} 行分布`);
+  }
+});
+
+test("接触印相：冠军蜡笔圈完整落在第一张卡内（不压邻卡、不出画布）", () => {
+  for (const n of [7, 16, 40]) {
+    const members = people(n);
+    const { ctx, calls } = fakeCtx();
+    poster.draw(ctx, {
+      members,
+      images: fakeImgs(n),
+      title: "T",
+      dateText: "D",
+      hashtag: "#H",
+      photoSrc: "P",
+      subOf: () => "s",
+      style: "e",
+    });
+    assert.equal(calls.arcs.length, 1, `${n} 张卡应有且只有一个冠军圈`);
+    const card = calls.images[0];
+    const cardX = card[5];
+    const cardY = card[6];
+    const cardW = card[7];
+    const cardH = card[8];
+    const ring = calls.arcs[0];
+    assert.ok(
+      ring.x - ring.r >= cardX &&
+        ring.x + ring.r <= cardX + cardW &&
+        ring.y - ring.r >= cardY &&
+        ring.y + ring.r <= cardY + cardH,
+      `${n} 的冠军圈越出卡片：${JSON.stringify({ card: { cardX, cardY, cardW, cardH }, ring })}`
+    );
   }
 });

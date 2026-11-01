@@ -1376,13 +1376,13 @@
     ctx.fillStyle = rank === 1 ? T.colors.pink : T.colors.ink;
     ctx.fillText(label, tx, ty);
     if (rank === 1) {
-      ctx.strokeStyle = "rgba(255,255,255,.92)";
+      ctx.strokeStyle = T.colors.pink;
       ctx.lineWidth = Math.max(2, numSize * 0.14);
       ctx.beginPath();
       ctx.arc(
         tx + numSize * 0.72,
-        ty + numSize * 0.55,
-        numSize * 1.35,
+        ty + numSize * 0.72,
+        numSize * 0.62,
         0,
         Math.PI * 2
       );
