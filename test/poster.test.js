@@ -601,33 +601,21 @@ test("D 拼贴：拍立得消费 cardStroke（贴纸 ≥ 人数条 3px 墨描边
   assert.ok(run(32, 3) >= 32, `32 人贴纸应有 ≥32 条 3px 描边`);
 });
 
-test("D 拼贴：7 人三层尺寸、16 人 4×4、40 人 7×5+5", () => {
-  const seven = runStyle("d", 7);
-  assert.equal(seven.calls.images.length, 7, "D/7 应有七张图");
-  const widths = seven.calls.images.map((a) => Math.round(a[7]));
-  assert.ok(
-    widths[0] > widths[1] && widths[1] > widths[3],
-    `D/7 应为 主视觉 > 2/3 > 4–7，实得 ${widths}`
-  );
-  for (const [n, want] of [
-    [16, [4, 4, 4, 4]],
-    [40, [7, 7, 7, 7, 7, 5]],
-  ]) {
-    const { calls, ctx } = runStyle("d", n);
-    // D 的图片是在 translate 之后画的：calls.images 的 y 是局部坐标（每张相同），
-    // 行位置要从当时的变换矩阵取（imagesM[5] = 卡片中心 y）。
-    const rowsMap = new Map();
-    for (const m of calls.imagesM) {
-      const y = Math.round(m[5]);
-      rowsMap.set(y, (rowsMap.get(y) || 0) + 1);
-    }
-    assert.deepEqual([...rowsMap.values()], want, `D/${n} 行分布`);
-    const firstCenter = Math.min(...calls.imagesM.map((m) => m[5]));
+test("D 拼贴：7/16/40 都是 1 > 2–3 > 4–7 的面积层级", () => {
+  for (const n of [7, 16, 40]) {
+    const { calls } = runStyle("d", n);
+    assert.equal(calls.images.length, n, `D/${n} 应有 ${n} 张图`);
+    const area = calls.images.map((a) => a[7] * a[8]);
     assert.ok(
-      firstCenter < 500,
-      `D/${n} 首行应从标题下开始（中心 y=${firstCenter}）`
+      area[0] > area[1] && area[1] > area[3],
+      `D/${n} 面积应递减（主视觉/2/4）：${area.slice(0, 4)}`
     );
-    assert.ok(ctx.canvas.height === poster.layout(n).height, `D/${n} 画布高`);
+    if (n > 7) {
+      assert.ok(
+        area[3] > area[area.length - 1],
+        `D/${n} 4–7 应大于底部网格：${area[3]} vs ${area[area.length - 1]}`
+      );
+    }
   }
 });
 

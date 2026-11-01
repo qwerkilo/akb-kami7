@@ -983,14 +983,6 @@
 
   // 行分布按「可用面积」重排：7 人用 3/2/2 放大拍立得（4/3 会在标题下留 270px 空白），
   // 16/32/40 各用 4/6/7 列填满高度；行间允许轻微重叠，才像一叠散落的照片。
-  function collageRows(n) {
-    if (n <= 7) return [3, 2, 2];
-    const per = n <= 16 ? 4 : n <= 32 ? 6 : 7;
-    const rows = [];
-    for (let left = n; left > 0; left -= per) rows.push(Math.min(per, left));
-    return rows;
-  }
-
   // 贴纸标题 + 右上角人数徽章
   function collageHeader(ctx, T, title, dateText, n, fr, W) {
     const tw = Math.min(W - 144, 480);
@@ -1145,6 +1137,83 @@
     );
   }
 
+  // 8–40 人：前 7 名保留三层（1 / 2–3 / 4–7），其余进底部网格；
+  // 这样大档位也不会退回「所有卡同样大」的平铺。
+  function collageFeatured(
+    ctx,
+    T,
+    members,
+    images,
+    title,
+    dateText,
+    n,
+    fr,
+    hashtag,
+    photoSrc
+  ) {
+    const W = ctx.canvas.width;
+    const H = ctx.canvas.height;
+    collageHeader(ctx, T, title, dateText, n, fr, W);
+    const scale = H > 1440 ? 0.9 : 0.55;
+    const hero = { x: 72, y: 232, w: 420 * scale, h: 560 * scale };
+    collageCard(ctx, T, members[0], images[0], 0, {
+      ...hero,
+      cw: hero.w,
+      cardH: hero.h,
+      photoH: hero.h - 52,
+      rot: -0.012,
+    });
+    const sw = 270 * scale;
+    const sh = 360 * scale;
+    [232, 232 + sh + 20].forEach((y, i) =>
+      collageCard(ctx, T, members[i + 1], images[i + 1], i + 1, {
+        x: 516,
+        y,
+        cw: sw,
+        cardH: sh,
+        photoH: sh - 52,
+        rot: i ? -0.012 : 0.015,
+      })
+    );
+    const mw = 220 * scale;
+    const mh = 293 * scale;
+    const midY = Math.max(hero.y + hero.h, 232 + sh * 2 + 20) + 16;
+    for (let i = 3; i < 7; i++) {
+      collageCard(ctx, T, members[i], images[i], i, {
+        x: 72 + (i - 3) * (mw + 18),
+        y: midY,
+        cw: mw,
+        cardH: mh,
+        photoH: mh - 52,
+        rot: i % 2 ? 0.012 : -0.012,
+      });
+    }
+    const restY = midY + mh + 24;
+    const restN = n - 7;
+    const cols = n <= 16 ? 5 : 9;
+    const rows = Math.ceil(restN / cols);
+    const gap = n <= 16 ? 18 : 10;
+    const rw = (W - 144 - gap * (cols - 1)) / cols;
+    const rh = Math.min(
+      mh * 0.75,
+      (fr.footerTop - restY - gap * (rows - 1)) / rows
+    );
+    for (let i = 7; i < n; i++) {
+      const k = i - 7;
+      collageCard(ctx, T, members[i], images[i], i, {
+        x: 72 + (k % cols) * (rw + gap),
+        y: restY + Math.floor(k / cols) * (rh + gap),
+        cw: rw,
+        cardH: rh,
+        photoH: Math.max(20, rh - 52),
+        rot: 0,
+      });
+    }
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    posterFooter(ctx, T, W, H, hashtag, photoSrc);
+  }
+
   function drawCollage(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc } = opts;
     const n = members.length;
@@ -1167,47 +1236,18 @@
       );
       return;
     }
-    collageHeader(ctx, T, title, dateText, n, fr, W);
-
-    const rows = collageRows(n);
-    const perRow = Math.max(...rows);
-    const gap = 18;
-    const cw = (W - 80 - gap * (perRow - 1)) / perRow;
-    const photoH = (cw - 24) * 1.333;
-    const cardH = photoH + 52;
-    // 标题面板底边约 204：从 232 起排，不再把整块垂直居中（居中是 7 人版
-    // 「标题下 270px 空白」的根因）。步长按剩余高度摊开，允许轻微重叠。
-    const top = 232;
-    const avail = fr.footerTop - top;
-    const step =
-      rows.length > 1
-        ? Math.min(cardH + 26, (avail - cardH) / (rows.length - 1))
-        : 0;
-    const blockH = cardH + (rows.length - 1) * step;
-    const y0 = blockH < avail ? top + (avail - blockH) / 2 : top;
-    const jitter = [0, 14, -10, 18, -6, 10, -14];
-    let idx = 0;
-    for (let r = 0; r < rows.length; r++) {
-      const y = y0 + r * step;
-      const rowN = rows[r];
-      const rowW = rowN * cw + (rowN - 1) * gap;
-      const x0 = (W - rowW) / 2;
-      for (let c = 0; c < rowN; c++, idx++) {
-        const m = members[idx];
-        if (!m) continue;
-        collageCard(ctx, T, m, images[idx], idx, {
-          x: x0 + c * (cw + gap) + jitter[(c + r) % jitter.length] * 0.8,
-          y,
-          cw,
-          cardH,
-          photoH,
-          rot: (((c * 7 + r * 5) % 11) - 5) * 0.008,
-        });
-      }
-    }
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    posterFooter(ctx, T, W, H, hashtag, photoSrc);
+    collageFeatured(
+      ctx,
+      T,
+      members,
+      images,
+      title,
+      dateText,
+      n,
+      fr,
+      hashtag,
+      photoSrc
+    );
   }
 
   const STYLES = ["a", "b", "c", "d"];
