@@ -205,7 +205,7 @@
   --card-radius: 12px;
   --card-pad: 0;
   --card-align: center;
-  --thumb-radius: 8px;
+  --thumb-radius: 10px;
   --thumb-border: 0;
   --slot-radius: 8px;
   --row-radius: 12px;
@@ -438,6 +438,9 @@ main {
 }
 .swatch.classic {
   background: linear-gradient(135deg, #edeff3 0 50%, #e4007f 50% 100%);
+}
+.swatch.akb {
+  background: linear-gradient(135deg, #ffffff 0 50%, #d81b60 50% 100%);
 }
 .swatch.sticker {
   background: linear-gradient(135deg, #f5f1e6 0 50%, #ffe08a 50% 100%);
@@ -3764,11 +3767,6 @@ html[data-cols="compact"] {
 /* ---------- AKB 官方风组件层（默认皮肤） ----------
    参考 akb48.co.jp 的视觉语言：白底、玫瑰粉、细粉线、圆角 CTA、照片优先。
    只借语言，不复制其 Logo/图片；结构仍是本站的工具页。 */
-[data-skin="akb"] .masthead {
-  border-bottom: 1px solid var(--line);
-  padding-top: 22px;
-  padding-bottom: 14px;
-}
 [data-skin="akb"] .eyebrow {
   background: none;
   border: 0;
@@ -3799,17 +3797,6 @@ html[data-cols="compact"] {
 [data-skin="akb"] .gen-head[aria-expanded="true"],
 [data-skin="akb"] .grp-head[aria-expanded="true"] {
   background: var(--pink-soft);
-}
-[data-skin="akb"] .card {
-  border: 1px solid var(--line);
-  border-radius: var(--card-radius);
-  background: var(--card);
-  padding: 0;
-  box-shadow: var(--shadow-soft);
-}
-[data-skin="akb"] .card .ph {
-  border-radius: 10px;
-  overflow: hidden;
 }
 [data-skin="akb"] .card[aria-pressed="true"] {
   background: var(--picked-bg);
@@ -3847,17 +3834,10 @@ html[data-cols="compact"] {
 [data-skin="akb"] .steps button[aria-current="step"] {
   color: var(--pink);
 }
-[data-skin="akb"] .tray {
-  background: var(--card);
-  border-top: 1px solid var(--line);
-}
 [data-skin="akb"] .poster {
   background: var(--lilac);
   border: 1px solid var(--line);
   border-radius: 14px;
-}
-[data-skin="akb"] .swatch.akb {
-  background: linear-gradient(135deg, #ffffff 0 50%, var(--pink) 50% 100%);
 }
 [data-skin="akb"] .slot.empty-slot {
   background: var(--pink-soft);
@@ -3867,6 +3847,7 @@ html[data-cols="compact"] {
 [data-skin="akb"] .masthead {
   align-items: flex-end;
   padding: 20px 16px 12px;
+  border-bottom: 1px solid var(--line);
 }
 [data-skin="akb"] .masthead h1 {
   margin-bottom: 8px;
@@ -3878,13 +3859,38 @@ html[data-cols="compact"] {
   padding: 4px 8px;
 }
 [data-skin="akb"] .seg-skin button {
-  min-height: auto;
   gap: 5px;
+}
+[data-skin="akb"] .seg-lang button,
+[data-skin="akb"] .seg-cols button {
+  min-height: 24px;
 }
 [data-skin="akb"] .seg-series {
   gap: 16px;
 }
 [data-skin="akb"] .seg-series button {
   font: 600 12px/1 var(--font-ui);
-  padding: 4px 0;
+  padding: 6px 0;
+}
+[data-skin="akb"] .card,
+[data-skin="akb"] .primary,
+[data-skin="akb"] .ghost,
+[data-skin="akb"] .seg button {
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+[data-skin="akb"] .card:hover {
+  transform: translateY(-1px);
+}
+[data-skin="akb"] .primary:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+[data-skin="akb"] .primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+[data-skin="akb"] .seg button:hover {
+  border-color: var(--pink);
 }

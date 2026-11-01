@@ -1881,7 +1881,7 @@ runSuite({
         check(
           `首屏按钮圆角 = 稳定后（${label}）`,
           first.radius === settled.radius,
-          `首屏 ${first.radius} vs 稳定后 ${settled.radius}（期望 ${SKIN_RADIUS[seed || "classic"]}）`
+          `首屏 ${first.radius} vs 稳定后 ${settled.radius}（期望 ${SKIN_RADIUS[seed || "akb"]}）`
         );
       }
       check(
