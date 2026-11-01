@@ -176,7 +176,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 273, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 277, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -192,6 +192,7 @@ runSuite({
     page.setDefaultNavigationTimeout(120000);
     page.setDefaultTimeout(120000);
     const errors = [];
+    let liveChecked = false;
     page.on("pageerror", (e) => errors.push(String(e)));
     page.on("console", (m) => {
       if (m.type() === "error" && !isExpectedNoise(m)) errors.push(m.text());
@@ -534,7 +535,8 @@ runSuite({
           pairs.add(await firstPair());
           // L10：换人时的姓名播报（visually-hidden 的 role=status）——
           // 只验一次（该块会多次重进对决，pairs.size===1 即首轮）
-          if (pairs.size === 1) {
+          if (!liveChecked) {
+            liveChecked = true;
             check(
               "对决页：选手姓名有 live region",
               await page.evaluate(() => {
@@ -1622,12 +1624,12 @@ runSuite({
       await page.waitForTimeout(400);
       const skinDefault = await page.getAttribute("html", "data-skin");
       const skinChecked = await page.getAttribute(
-        '.seg-skin [data-skin="classic"]',
+        '.seg-skin [data-skin="akb"]',
         "aria-checked"
       );
       check(
-        "皮肤：默认原版且选中态正确",
-        skinDefault === "classic" && skinChecked === "true",
+        "皮肤：默认官方风且选中态正确",
+        skinDefault === "akb" && skinChecked === "true",
         `${skinDefault}/${skinChecked}`
       );
       const classicBorder = await page.evaluate(() => {
@@ -1635,7 +1637,7 @@ runSuite({
         return cs.borderTopWidth + " " + cs.borderTopStyle;
       });
       check(
-        "皮肤：原版容器细边 1px solid",
+        "皮肤：官方风容器细边 1px solid",
         classicBorder === "1px solid",
         classicBorder
       );
@@ -1763,6 +1765,10 @@ runSuite({
           const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;
           return d[0] + "," + d[1] + "," + d[2];
         });
+      const akbPx = await posterPx();
+      check("海报：官方风皮肤底色 #ffffff", akbPx === "255,255,255", akbPx);
+      await setSkin(page, "classic");
+      await page.waitForTimeout(1200);
       const classicPx = await posterPx();
       check(
         "海报：原版皮肤底色 #f5f2ec",
@@ -1811,10 +1817,11 @@ runSuite({
       // 既比「第一帧 == 稳定后」，也比「第一帧 == 这位访客本来就该看到的皮肤」——
       // 只比相等的话，CSS 与应用一起错也会相等。
       const SKIN_FLOOR = {
+        akb: "rgb(255, 255, 255)",
         classic: "rgb(245, 242, 236)",
         sticker: "rgb(241, 231, 216)",
       };
-      const SKIN_RADIUS = { classic: "999px", sticker: "14px" };
+      const SKIN_RADIUS = { akb: "12px", classic: "999px", sticker: "14px" };
       const readSkin = (page) =>
         page.evaluate(() => {
           const cs = getComputedStyle(document.body);
@@ -1826,10 +1833,11 @@ runSuite({
         });
       for (const [label, seed] of [
         ["新访客", null],
+        ["已存 akb", "akb"],
         ["已存 sticker", "sticker"],
         ["已存 classic", "classic"],
       ]) {
-        const want = SKIN_FLOOR[seed || "classic"];
+        const want = SKIN_FLOOR[seed || "akb"];
         const firstCtx = await browser.newContext();
         if (seed) await S.seedPrefs(firstCtx, { skin: seed });
         const firstPage = await firstCtx.newPage();
@@ -2298,7 +2306,7 @@ runSuite({
       check(
         "存储拒绝：刷新回落默认（未持久化）",
         fallback.lang === "zh-CN" &&
-          fallback.skin === "classic" &&
+          fallback.skin === "akb" &&
           fallback.cols === null,
         JSON.stringify(fallback)
       );

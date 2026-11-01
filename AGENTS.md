@@ -5,7 +5,7 @@
 纯静态站点，无构建步骤、无框架、无运行时依赖：`index.html` + `style.css` + `core.js` + `session.js` + `poster.js` + `i18n.js` + `app.js` + `members.js` + `simplified.js`，用静态服务器直接托管。
 
 - 站点覆盖四系列共 24 团：48g 七团（AKB48 / SKE48 / NMB48 / HKT48 / NGT48 / STU48 / SDN48）、坂道三团（乃木坂46 / 櫻坂46 / 日向坂46）、等爱三团（=LOVE / ≠ME / ≒JOY）、早安家族十一团（モーニング娘。 / アンジュルム / Juice=Juice / つばきファクトリー / BEYOOOOONDS / OCHA NORMA / ロージークロニクル / Berryz工房 / カントリー・ガールズ / こぶしファクトリー / ℃-ute），现役 + 毕业（人数以脚本输出为准，见 `docs/agents/data-pipeline.md`）。
-- 能力：四系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，层级与题数上限见 `docs/adr/0019-screening-then-rank.md`）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（classic / sticker）、PWA 可安装 + 离线。
+- 能力：四系列切换（各自保留已选/对决/筛选进度）、7/16/40 档位（筛选步逐轮二分划掉一半，层级与题数上限见 `docs/adr/0019-screening-then-rank.md`）、海报四样式（金字塔默认 / 杂志 / 榜单 / 拼贴，跟随皮肤）、简体输入与罗马字检索、对决进度与刷新续玩、向导模式（三步指示器、首屏见脸、引导卡、① 返回不丢进度）、成员简介卡片、皮肤切换（AKB 官方风默认 / 原版 / 贴纸）、PWA 可安装 + 离线。
 - 层次：`core.js` 无 DOM 依赖的纯逻辑（搜索归一、两级分组、筛选轮次与层级、`mergeSort` 对决 replay、持久化载荷编解码、导航相位 `nav`/`steps`、`names()` 命名组合）；`session.js` 会话状态深模块（系列/档位/已选/对决/筛选，storage 与成员查询注入，node 可测）；`poster.js` 海报绘制（7/16/40 × 四样式，ctx 依赖注入，假 ctx 可测）；`i18n.js` 是 zh/en/ja 文案；`app.js` 是 DOM 层：向导 → pick → 筛选 → duel → result（canvas 海报导出）。
 - `members.js` / `simplified.js` 是生成文件，不要手改。
 - 三语 UI（zh/en/ja）：文案在 `i18n.js`，`index.html` 的 `data-i18n` 引用同一批键。**加一个 UI 文案要同时改三种语言**（漏一种时 `test/i18n.test.js` 会红，它还额外要求 ja 与 zh 同集合）；出身地/星座/期生/状态这类可穷举字段走映射表（只服务 zh/en，ja 直出数据原文），趣味/特技走仓库内「日文原文 → zh/en」对照表，未收录自动回退原文。
@@ -94,7 +94,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
 - 横账的第四个维度（在线/离线）只有 `npm run e2e` 的 390px 块与 `npm run e2e:header` 覆盖；仓内 `test/style-artifact.test.js` 只能守「规则不许被删」，守不住「预算算错」。改窄屏页头后把四维矩阵重跑一遍并如实记录数字。
 - ≤380px 的换行用 `display: contents` 让品牌 / tab /「更多」各自参与 `.masthead` 排列，tab 落第二行、其余留第一行；`margin-left: auto` 而不是写死像素（zh「更多」52 / en「More」63 宽度不同）。
 - 探针**读计算样式**而不是元素属性：`[hidden]` 会被作者样式的 `display` 盖掉（`el.hidden === true` 但元素仍在布局里），这类问题只有计算样式看得见。
-- **两个主色别混**：`--pink` 两款皮肤**同值**（`#e4007f`），`--peach` 在贴纸皮是**浅色** `#ffb4a2`。压 `--peach` 的文字用 `--on-primary`（按皮肤），压 `--pink` 的用 `--on-pink`（白字）。我一次把两者搞混、加了个多余的 `--on-accent`，在贴纸皮上造成深墨压强洋红 3.63:1 —— 对比度守卫现在逐对断言，别再加新令牌。
+- **主色别跨皮肤混用**：`--pink` 在 AKB 官方风是 `#d81b60`、原版/贴纸是 `#e4007f`；`--peach` 在官方风是深玫瑰 `#d81b60`、贴纸是浅色 `#ffb4a2`。压 `--peach` 的文字用 `--on-primary`（按皮肤），压 `--pink` 的用 `--on-pink`；对比度守卫逐对断言，别再加新令牌。
 - **刻度守卫是棘轮**：`style.css` 里还有刻度外的字号与间距，`test/style-artifact.test.js` 钉着清单并**只许减不许增**。整体重排要动全层数值（改 padding 就是改版面），所以分批做。
 - 名册卡片 `<img>` 没有 `onerror` 兜底 —— 0 字节的图会渲染成坏卡片。
 
@@ -126,7 +126,7 @@ node scripts/mutate.mjs --mutate <文件> <旧文本> <新文本> [--mutate ...]
   零动画的层也能通过「存在 ≤400ms」的判据。
 - **`appendChild` 之后单次 `requestAnimationFrame` 改样式不保证产生 transition**（浏览器不保证
   这之间做过样式重算）。要 `void el.offsetHeight` 强制一次。
-- **主色有两个**：`--pink` 两款皮肤同值（`#e4007f`），`--peach` 在贴纸皮是浅色 `#ffb4a2`。
+- **主色有三个皮肤各自的令牌**：`--pink` 在 AKB 官方风 `#d81b60`、原版/贴纸 `#e4007f`；`--peach` 在官方风 `#d81b60`、贴纸 `#ffb4a2`。
   **压 `--pink` 的文字用 `--on-pink`（两款都是白字），压 `--peach` 的用 `--on-primary`**；
   把主色当**图形**用（渐变、边框）也只能用 `--pink` —— 层级段曾用 `--peach`，
   贴纸皮下与底色只差 1.02:1。

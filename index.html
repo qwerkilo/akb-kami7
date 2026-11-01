@@ -10,7 +10,7 @@
       name="description"
       content="从 48 Group、坂道与等爱三团的历代成员（含毕业成员）里选出最喜欢的 7 / 16 / 40 张脸，两两比较排出名次，生成你的神7 / 7福神 / 推し7 图片。可安装到桌面，离线也能用。"
     />
-    <meta name="theme-color" content="#e4007f" />
+    <meta name="theme-color" content="#d81b60" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -45,9 +45,9 @@
       try {
         var s = localStorage.getItem("akb:skin");
         document.documentElement.dataset.skin =
-          s === "sticker" || s === "classic" ? s : "classic";
+          s === "akb" || s === "sticker" || s === "classic" ? s : "akb";
       } catch (_) {
-        document.documentElement.dataset.skin = "classic";
+        document.documentElement.dataset.skin = "akb";
       }
     </script>
     <link rel="stylesheet" href="style.css" />
@@ -160,6 +160,15 @@
               type="button"
               role="radio"
               aria-checked="true"
+              data-skin="akb"
+            >
+              <span class="swatch akb" aria-hidden="true"></span
+              ><span data-i18n="skin_akb">官方</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
               data-skin="classic"
             >
               <span class="swatch classic" aria-hidden="true"></span

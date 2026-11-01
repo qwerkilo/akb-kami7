@@ -143,7 +143,7 @@
 /* 当前段用渐变表示「组内第几题」（--fill 由 renderDuel 写）。
    不用改宽度：那些段是 flex 里的等宽小条，改宽度会把整排挤变形。 */
 .duel-tiers i.now {
-  /* 用 --pink 不用 --peach：--pink 两款皮肤同值（#e4007f），压白底 4.56:1；
+  /* 用 --pink 不用 --peach：各皮肤分别定义，压白底对比度由守卫逐对断言；
      --peach 在贴纸皮是浅色 #ffb4a2，压 --line 只有 1.02:1 —— 「现在第几组」
      这个唯一信号在一款皮肤里等于没有（两轴都指认了这条）。 */
   background: linear-gradient(
@@ -166,11 +166,60 @@
 [hidden] {
   display: none !important;
 }
-/* 原版（上游 11fa090 的视觉语言）。三条不变式（test/style-artifact.test.js 守着）：
-   ① 本块必须带 :root（= 应用默认皮肤，session.js 的 skin），否则新访客首屏会闪贴纸；
-   ② 本块必须排在贴纸块之前（:root 与 [data-skin=…] 同权重，后来者胜）；
-   ③ 两块令牌键集必须相同。 */
+/* 三款皮肤（akb 官方风 / classic 原版 / sticker 贴纸）。三条不变式
+   （test/style-artifact.test.js 守着）：
+   ① 默认皮肤块必须带 :root（= 应用默认皮肤，session.js 的 skin）；
+   ② 顺序必须是 akb → classic → sticker（同权重下后来者胜）；
+   ③ 三块令牌键集必须相同。 */
+/* 默认皮肤（AKB 官方风）：白底、玫瑰粉、细线、圆角 CTA。
+   参考的是 akb48.co.jp 的视觉语言（白/粉/细边框/图像优先），不复用其 Logo 与照片。
+   :root 必须与默认皮肤同一块：首屏内联脚本在 CSS 前写 data-skin，JS 失效时也要有新皮肤令牌。 */
 :root,
+[data-skin="akb"] {
+  --floor: #ffffff;
+  --card: #ffffff;
+  --ink: #231815;
+  --muted: #626262;
+  --line: #f6c3d6;
+  --placeholder: #f4f0f1;
+  --placeholder-ink: #8b8284;
+  --peach: #d81b60;
+  --mint: #fde7ef;
+  --lilac: #fff5f9;
+  --lemon: #fde7ef;
+  --pink: #d81b60;
+  --pink-soft: #fde7ef;
+  --ok: #0b7a4f;
+  --radius: 12px;
+  --border: 1px solid var(--line);
+  --shadow: 0 10px 30px rgba(216, 27, 96, 0.18);
+  --shadow-soft: 0 2px 10px rgba(35, 24, 21, 0.06);
+  --shadow-sm: 0 0 0 2px var(--pink-soft);
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #ffffff;
+  --on-pink: #ffffff;
+  --seg-active-color: #ffffff;
+  --hover-bg: #fff8fb;
+  --picked-bg: #fde7ef;
+  --card-radius: 12px;
+  --card-pad: 0;
+  --card-align: center;
+  --thumb-radius: 8px;
+  --thumb-border: 0;
+  --slot-radius: 8px;
+  --row-radius: 12px;
+  --tray-bg: var(--card);
+  --tray-border-top: 1px solid var(--line);
+  --poster-card-stroke: 0px;
+  --font-poster: var(--font-ui);
+  --font-poster-name: var(--font-jp);
+  --poster-corner: 12px;
+  --poster-shadow: 0;
+  --poster-rank: editorial;
+}
+
+/* 原版（编辑部）：纸白/墨黑/一点粉。令牌键集必须与其他块相同。 */
 [data-skin="classic"] {
   --floor: #edeff3;
   --card: #ffffff;
@@ -217,10 +266,9 @@
   --poster-rank: editorial;
 }
 
-/* 贴纸（与本项目同期做出来的风格）。两块令牌必须键集相同——曾经贴纸块多出
+/* 贴纸（与本项目同期做出来的风格）。三块令牌必须键集相同——曾经贴纸块多出
    --placeholder/--placeholder-ink，classic 下 .card .ph 背景静默变透明。
-   必须排在原版块之后：
-   :root 与 [data-skin="…"] 同权重，靠后者胜出，所以「默认皮肤」的别名只挂在原版块上 */
+   必须排在默认/原版块之后：同权重下后来者胜。 */
 [data-skin="sticker"] {
   --floor: #f5f1e6;
   --card: #ffffff;
@@ -2129,7 +2177,7 @@ html[data-cols="compact"] {
   .pick-progress {
     margin-top: 8px;
   }
-  /* 首屏判据要在**三语言 × 两款皮肤**下都成立，而不只经典皮：贴纸皮的
+  /* 首屏判据要在**三语言 × 三款皮肤**下都成立，而不只经典皮：贴纸皮的
      .coach-q 圆点把引导卡撑到 60px（经典皮 56px），英文档位段那行 46（44），
      合起来让 en × 贴纸皮的第一张卡落在 405 —— 差 5px 越界，而工单 02 当时
      只量了经典皮就写下了「两款皮肤都满足」。下面两条在窄屏再收 6px。 */
@@ -2975,7 +3023,7 @@ html[data-cols="compact"] {
   }
 }
 
-/* 挑人 hero 的基础形态（两皮肤共用；classic 在上面加衬线/字号，sticker 在工单 05 接） */
+/* 挑人 hero 的基础形态（三皮肤共用；classic 在上面加衬线/字号，sticker 在工单 05 接） */
 .pick-hero {
   margin: 8px 0 0;
 }
@@ -3711,4 +3759,132 @@ html[data-cols="compact"] {
     justify-content: flex-start;
     gap: 10px;
   }
+}
+
+/* ---------- AKB 官方风组件层（默认皮肤） ----------
+   参考 akb48.co.jp 的视觉语言：白底、玫瑰粉、细粉线、圆角 CTA、照片优先。
+   只借语言，不复制其 Logo/图片；结构仍是本站的工具页。 */
+[data-skin="akb"] .masthead {
+  border-bottom: 1px solid var(--line);
+  padding-top: 22px;
+  padding-bottom: 14px;
+}
+[data-skin="akb"] .eyebrow {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  color: var(--pink);
+  letter-spacing: 0.14em;
+}
+[data-skin="akb"] .kami {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  color: var(--pink);
+  font: 800 44px/1 var(--font-ui);
+  letter-spacing: 0.01em;
+}
+[data-skin="akb"] .kami.long {
+  font-size: 30px;
+}
+[data-skin="akb"] .seg button[aria-checked="true"] {
+  background: var(--pink);
+  color: var(--on-pink);
+  box-shadow: none;
+  transform: none;
+}
+[data-skin="akb"] .gen-head[aria-expanded="true"],
+[data-skin="akb"] .grp-head[aria-expanded="true"] {
+  background: var(--pink-soft);
+}
+[data-skin="akb"] .card {
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  background: var(--card);
+  padding: 0;
+  box-shadow: var(--shadow-soft);
+}
+[data-skin="akb"] .card .ph {
+  border-radius: 10px;
+  overflow: hidden;
+}
+[data-skin="akb"] .card[aria-pressed="true"] {
+  background: var(--picked-bg);
+  box-shadow: 0 0 0 2px var(--pink);
+  transform: none;
+}
+[data-skin="akb"] .card[aria-pressed="true"]::after {
+  background: var(--pink);
+  border: 0;
+  color: var(--on-pink);
+}
+[data-skin="akb"] .primary {
+  border: 0;
+  border-radius: 12px;
+  background: var(--pink);
+  color: var(--on-pink);
+  box-shadow: var(--shadow);
+}
+[data-skin="akb"] .primary:disabled {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+[data-skin="akb"] .ghost {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+}
+[data-skin="akb"] .steps {
+  background: var(--lilac);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+[data-skin="akb"] .steps button[aria-current="step"] {
+  color: var(--pink);
+}
+[data-skin="akb"] .tray {
+  background: var(--card);
+  border-top: 1px solid var(--line);
+}
+[data-skin="akb"] .poster {
+  background: var(--lilac);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+[data-skin="akb"] .swatch.akb {
+  background: linear-gradient(135deg, #ffffff 0 50%, var(--pink) 50% 100%);
+}
+[data-skin="akb"] .slot.empty-slot {
+  background: var(--pink-soft);
+  border: 1px dashed var(--line);
+}
+
+[data-skin="akb"] .masthead {
+  align-items: flex-end;
+  padding: 20px 16px 12px;
+}
+[data-skin="akb"] .masthead h1 {
+  margin-bottom: 8px;
+}
+[data-skin="akb"] .seg-lang button,
+[data-skin="akb"] .seg-skin button,
+[data-skin="akb"] .seg-cols button {
+  font: 600 12px/1 var(--font-ui);
+  padding: 4px 8px;
+}
+[data-skin="akb"] .seg-skin button {
+  min-height: auto;
+  gap: 5px;
+}
+[data-skin="akb"] .seg-series {
+  gap: 16px;
+}
+[data-skin="akb"] .seg-series button {
+  font: 600 12px/1 var(--font-ui);
+  padding: 4px 0;
 }

@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const I18N = require("../i18n.js");
 
-// 产物不变式：style.css 两款皮肤的令牌块必须键集相同。
+// 产物不变式：style.css 三款皮肤的令牌块必须键集相同。
 // 曾经贴纸块多出 --placeholder/--placeholder-ink，而 :root 兜底挂在贴纸块上
 // ——等于替 classic 兜住了这两个键。兜底改挂 classic 之后，那两个键在 classic
 // 下解析失败，.card .ph 的背景静默变透明（缩略图加载期间可见）。
@@ -30,36 +30,47 @@ function blockKeys(selector) {
 
 const firstFamily = (font) => (/["']([^"']+)["']/.exec(font) || [, ""])[1];
 
-test("两款皮肤的令牌键集相同且无重复", () => {
+test("三款皮肤的令牌键集相同且无重复", () => {
+  const akb = blockKeys('[data-skin="akb"] {');
   const classic = blockKeys('[data-skin="classic"] {');
   const sticker = blockKeys('[data-skin="sticker"] {');
-  assert.deepEqual(classic, [...new Set(classic)], "原版块里有重复的键");
-  assert.deepEqual(sticker, [...new Set(sticker)], "贴纸块里有重复的键");
-  assert.deepEqual(
-    [...classic].sort(),
-    [...sticker].sort(),
-    `键集不同：仅原版 ${classic.filter((k) => !sticker.includes(k))}，仅贴纸 ${sticker.filter((k) => !classic.includes(k))}`
-  );
+  for (const [label, keys] of [
+    ["官方风", akb],
+    ["原版", classic],
+    ["贴纸", sticker],
+  ]) {
+    assert.deepEqual(keys, [...new Set(keys)], `${label}块里有重复的键`);
+  }
+  const all = new Set([...akb, ...classic, ...sticker]);
+  for (const [label, keys] of [
+    ["官方风", akb],
+    ["原版", classic],
+    ["贴纸", sticker],
+  ]) {
+    const missing = [...all].filter((k) => !keys.includes(k));
+    assert.deepEqual(missing, [], `${label}块缺少 ${missing}`);
+  }
   assert.ok(
-    classic.length >= 30,
-    `令牌块看起来被掏空了（只有 ${classic.length} 个键）`
+    akb.length >= 30,
+    `令牌块看起来被掏空了（只有 ${akb.length} 个键）`
   );
 });
 
-test("默认皮肤（:root）挂在原版块上，且原版块排在贴纸块之前", () => {
-  const rootIdx = css.indexOf(':root,\n[data-skin="classic"] {');
+test("默认皮肤（:root）挂在官方风块上，且三块顺序为 akb→classic→sticker", () => {
+  const rootIdx = css.indexOf(':root,\n[data-skin="akb"] {');
+  const classicIdx = css.indexOf('[data-skin="classic"] {');
   const stickerIdx = css.indexOf('[data-skin="sticker"] {');
   assert.ok(
     rootIdx >= 0,
-    ':root 必须与 [data-skin="classic"] 同一块（首屏皮肤 = 应用默认）'
+    ':root 必须与 [data-skin="akb"] 同一块（首屏皮肤 = 应用默认）'
   );
   assert.ok(
-    rootIdx < stickerIdx,
-    "同权重下后来者胜：原版块必须排在贴纸块之前，否则贴纸会被盖掉"
+    rootIdx < classicIdx && classicIdx < stickerIdx,
+    "同权重下后来者胜：顺序必须是 akb → classic → sticker"
   );
   assert.ok(
-    !/\n:root,\n\[data-skin="sticker"\]/.test(css),
-    ":root 不得挂在贴纸上（新访客会闪一下贴纸）"
+    !/\n:root,\n\[data-skin="(?:classic|sticker)"\]/.test(css),
+    ":root 不得挂在非默认皮肤上（新访客会闪一下旧外观）"
   );
 });
 
@@ -298,7 +309,7 @@ function contrast(a, b) {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-test("对比度：两款皮肤的正文 / 次要文字 / 占位首字都达标（ADR-0020 §6）", () => {
+test("对比度：三款皮肤的正文 / 次要文字 / 占位首字都达标（ADR-0020 §6）", () => {
   // 正文与小字 ≥4.5:1（WCAG AA）；占位首字是大字号图形，套大字阈值 ≥3:1 ——
   // 它是**信息**（离线时要读得出是谁），不能当装饰豁免。
   // 同块内的 var() 引用要能解析：贴纸块的 --on-primary 写的是 var(--ink)，
@@ -316,14 +327,14 @@ test("对比度：两款皮肤的正文 / 次要文字 / 占位首字都达标�
     // 压 --peach 的文字（主按钮 / 分段控件选中态）：--on-primary 是这个用途的令牌
     // （实测白字在原版 #e4007f 上 4.56:1；贴纸皮那块 --peach 是浅色，用墨色 9.09:1）
     ["主按钮文字 / 主色浅色面", "--on-primary", "--peach", 4.5],
-    // 压 --pink 的文字：--pink 两款皮肤同值（#e4007f），所以白字即可 ——
+    // 压 --pink 的文字：各皮肤用自己的 --on-pink（官方风 #d81b60、原版/贴纸 #e4007f）——
     // 实测 4.56:1。我一度把它写成「主色作正文」的用例，那是伪判据（CSS 里
     // 0 处 color: var(--pink)），真判据是主按钮/分段控件/序号这些压 --pink 的元素。
     ["压 --pink 的文字", "--on-pink", "--pink", 4.5],
     ["占位首字 / 占位底", "--placeholder-ink", "--placeholder", 3],
     ["占位底上的 ink", "--ink", "--placeholder", 4.5],
   ];
-  for (const skin of ["classic", "sticker"]) {
+  for (const skin of ["akb", "classic", "sticker"]) {
     const v = blockVars(`[data-skin="${skin}"] {`);
     for (const [name, fg, bg, min] of PAIRS) {
       assert.ok(v[fg], `${skin} 块缺 ${fg}`);
@@ -604,7 +615,7 @@ test("窄屏：步骤条标签不换行（en「Screen / Duel」曾把步骤条�
 });
 
 test("托盘不透明（半透明会让名册卡片从下面透出并与提示文字重叠）", () => {
-  for (const skin of ["classic", "sticker"]) {
+  for (const skin of ["akb", "classic", "sticker"]) {
     const v = blockVars(`[data-skin="${skin}"] {`);
     assert.ok(v["--tray-bg"], `${skin} 块缺 --tray-bg`);
     assert.doesNotMatch(
@@ -884,7 +895,7 @@ test("层级段：当前格用 --pink 而非 --peach（贴纸皮下 --peach 压 
   assert.match(
     now[1],
     /var\(--pink\)/,
-    "当前格填充必须用 --pink（两款皮肤同值，白底 4.56:1）"
+    "当前格填充必须用 --pink（各皮肤令牌不同，对比度守卫逐对断言）"
   );
   assert.doesNotMatch(
     now[1],
@@ -892,7 +903,7 @@ test("层级段：当前格用 --pink 而非 --peach（贴纸皮下 --peach 压 
     "当前格填充不能用 --peach（贴纸皮是浅色 #ffb4a2）"
   );
   // 图形对比度下限 3:1（与对比度守卫同一套计算）
-  for (const skin of ["classic", "sticker"]) {
+  for (const skin of ["akb", "classic", "sticker"]) {
     const v = blockVars(`[data-skin="${skin}"] {`);
     const cr = contrast(v["--pink"], v["--card"]);
     assert.ok(

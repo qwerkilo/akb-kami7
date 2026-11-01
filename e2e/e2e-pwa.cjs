@@ -327,7 +327,7 @@ runSuite({
       `没浏览过的成员断网后无图（${cold ? cold.name + " naturalWidth=" + cold.w : "无卡"}）`
     );
     ok(
-      !!cold && /228, 231, 238/.test(cold.ph),
+      !!cold && /244, 240, 241/.test(cold.ph),
       `占位底色兜底（${cold ? cold.ph : "无"}）`
     );
 

@@ -15,7 +15,7 @@
   // `SERIES.includes(next)` 直接 return false，点击静默无反应。
   const SERIES = Object.keys(CORE.SERIES_KEYS);
   const SIZES = [7, 16, 40];
-  const SKINS = ["classic", "sticker"];
+  const SKINS = ["akb", "classic", "sticker"];
   const LANGS = ["zh", "en", "ja"];
   // 键名住在 core.PREF_KEYS（跨模块契约的单一出处）
   const stateKey = CORE.PREF_KEYS.state;
@@ -39,7 +39,7 @@
       cut: [],
       // 用户是否已点「继续细分」进入下一轮（轮次自动推进，靠它区分「可提交」与「已在下一轮」）
       deeperRound: 0,
-      skin: "classic",
+      skin: "akb",
       generation: "all",
       // 全局偏好：不随系列切换而变，存储不可用时回落到这些默认值。
       // lang 的默认值由调用方按浏览器语言注入（那是「首次访问选什么」的决定，不是持久化）
