@@ -18,13 +18,13 @@ const PORT = 8871;
 const BASE = `http://127.0.0.1:${PORT}/`;
 const WIDTHS = [320, 360, 375, 390, 414, 560];
 const LANGS = ["zh", "en", "ja"];
-const SKINS = ["akb", "classic", "sticker"];
+const SKINS = ["akb", "classic", "sticker", "glass", "celadon", "pearl"];
 // 档位维取两端：7 档（判据建立时的默认档）与 40 档（托盘槽位最多 → 最坏）。
 // 中间档位（16）在两者之间，槽位数只影响换行 —— 40 档过了它必过。
 const SIZES = [7, 40];
 runSuite({
   name: "first",
-  expect: 217, // 3 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查 + 「种子生效」1 条
+  expect: 433, // 6 皮肤 × 3 语言 × 6 宽度 × 2 档 × 2 检查 + 「种子生效」1 条
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;

@@ -190,11 +190,11 @@
   --pink: #d81b60;
   --pink-soft: #fde7ef;
   --ok: #0b7a4f;
-  --radius: 12px;
+  --radius: 0px;
   --border: 1px solid var(--line);
   --shadow: 0 10px 30px rgba(216, 27, 96, 0.18);
-  --shadow-soft: 0 2px 10px rgba(35, 24, 21, 0.06);
-  --shadow-sm: 0 0 0 2px var(--pink-soft);
+  --shadow-soft: 0 3px 10px rgba(35, 24, 21, 0.06);
+  --shadow-sm: 4px 4px 0 var(--pink);
   --shadow-xs: none;
   --shadow-disabled: none;
   --on-primary: #ffffff;
@@ -202,19 +202,19 @@
   --seg-active-color: #ffffff;
   --hover-bg: #fff8fb;
   --picked-bg: #fde7ef;
-  --card-radius: 12px;
-  --card-pad: 0;
+  --card-radius: 0px;
+  --card-pad: 5px 5px 0;
   --card-align: center;
-  --thumb-radius: 10px;
+  --thumb-radius: 0px;
   --thumb-border: 0;
-  --slot-radius: 8px;
-  --row-radius: 12px;
+  --slot-radius: 0px;
+  --row-radius: 0px;
   --tray-bg: var(--card);
-  --tray-border-top: 1px solid var(--line);
+  --tray-border-top: 2px solid var(--pink);
   --poster-card-stroke: 0px;
   --font-poster: var(--font-ui);
   --font-poster-name: var(--font-jp);
-  --poster-corner: 12px;
+  --poster-corner: 0px;
   --poster-shadow: 0;
   --poster-rank: editorial;
 }
@@ -311,6 +311,139 @@
   --poster-corner: 10px;
   --poster-shadow: 1;
   --poster-rank: tape;
+}
+
+/* 玻璃花园：柔光渐变 + 玻璃拟态；与官方风共用同一套令牌键。 */
+[data-skin="glass"] {
+  --floor: #edf0fa;
+  --card: #ffffff;
+  --ink: #241f3d;
+  --muted: #6b6485;
+  --line: #d8d3ea;
+  --placeholder: #e9e4f7;
+  --placeholder-ink: #6f668f;
+  --peach: #6b4ed8;
+  --mint: #e4dfff;
+  --lilac: #f1ecff;
+  --lemon: #e8fff6;
+  --pink: #6b4ed8;
+  --pink-soft: #efeaff;
+  --ok: #0b7a4f;
+  --radius: 20px;
+  --border: 1px solid var(--line);
+  --shadow: 0 18px 50px rgba(90, 70, 160, 0.16);
+  --shadow-soft: 0 10px 28px rgba(90, 70, 160, 0.12);
+  --shadow-sm: 0 0 0 2px var(--pink);
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #ffffff;
+  --on-pink: #ffffff;
+  --seg-active-color: #ffffff;
+  --hover-bg: #f7f4ff;
+  --picked-bg: #efeaff;
+  --card-radius: 20px;
+  --card-pad: 6px;
+  --card-align: left;
+  --thumb-radius: 18px;
+  --thumb-border: 0;
+  --slot-radius: 14px;
+  --row-radius: 18px;
+  --tray-bg: #fbfaff;
+  --tray-border-top: 1px solid var(--line);
+  --poster-card-stroke: 0px;
+  --font-poster: var(--font-ui);
+  --font-poster-name: var(--font-jp);
+  --poster-corner: 18px;
+  --poster-shadow: 0;
+  --poster-rank: editorial;
+}
+/* 青瓷：淡青灰 + 墨绿、细框、留白。 */
+[data-skin="celadon"] {
+  --floor: #edf2ee;
+  --card: #f9fbf8;
+  --ink: #1b2b26;
+  --muted: #5b6d64;
+  --line: #c9d7cf;
+  --placeholder: #e8efea;
+  --placeholder-ink: #60786c;
+  --peach: #2f6f5e;
+  --mint: #e3efe9;
+  --lilac: #f1f6f2;
+  --lemon: #e8f2ec;
+  --pink: #2f6f5e;
+  --pink-soft: #e3efe9;
+  --ok: #0b7a4f;
+  --radius: 2px;
+  --border: 1px solid var(--line);
+  --shadow: none;
+  --shadow-soft: none;
+  --shadow-sm: 0 0 0 1px var(--pink);
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #ffffff;
+  --on-pink: #ffffff;
+  --seg-active-color: #ffffff;
+  --hover-bg: #f4f8f4;
+  --picked-bg: #e3efe9;
+  --card-radius: 0px;
+  --card-pad: 5px;
+  --card-align: center;
+  --thumb-radius: 0px;
+  --thumb-border: 0;
+  --slot-radius: 0px;
+  --row-radius: 0px;
+  --tray-bg: var(--card);
+  --tray-border-top: 1px solid var(--line);
+  --poster-card-stroke: 0px;
+  --font-poster: var(--font-serif);
+  --font-poster-name: var(--font-jp);
+  --poster-corner: 0px;
+  --poster-shadow: 0;
+  --poster-rank: editorial;
+}
+/* 珍珠：暖象牙 + 香槟、拱形照片、细金线。 */
+[data-skin="pearl"] {
+  --floor: #f7f2e9;
+  --card: #fffaf1;
+  --ink: #2c2620;
+  --muted: #6f6559;
+  --line: #e2d4c0;
+  --placeholder: #efe6d8;
+  --placeholder-ink: #77685a;
+  --peach: #8a6a3a;
+  --mint: #f6ead8;
+  --lilac: #fbf1e2;
+  --lemon: #f6ead8;
+  --pink: #8a6a3a;
+  --pink-soft: #f6ead8;
+  --ok: #0b7a4f;
+  --radius: 14px;
+  --border: 1px solid var(--line);
+  --shadow: 0 18px 50px rgba(80, 60, 40, 0.1);
+  --shadow-soft: 0 10px 28px rgba(80, 60, 40, 0.08);
+  --shadow-sm: 0 0 0 1px var(--pink);
+  --shadow-xs: none;
+  --shadow-disabled: none;
+  --on-primary: #ffffff;
+  --on-pink: #ffffff;
+  --seg-active-color: #ffffff;
+  --hover-bg: #fdf8ef;
+  --picked-bg: #f6ead8;
+  --card-radius: 74px 74px 10px 10px;
+  --card-pad: 0;
+  --card-align: center;
+  --thumb-radius: 74px 74px 0 0;
+  --thumb-border: 0;
+  --slot-radius: 10px;
+  --row-radius: 14px;
+  --tray-bg: var(--card);
+  --tray-border-top: 1px solid var(--line);
+  --poster-card-stroke: 0px;
+  --font-poster: var(--font-serif);
+  --font-poster-name: var(--font-jp);
+  --poster-corner: 14px;
+  --poster-shadow: 0;
+  --poster-rank: editorial;
 }
 
 * {
@@ -444,6 +577,15 @@ main {
 }
 .swatch.sticker {
   background: linear-gradient(135deg, #f5f1e6 0 50%, #ffe08a 50% 100%);
+}
+.swatch.glass {
+  background: linear-gradient(135deg, #ece8ff 0 50%, #7c5cff 50% 100%);
+}
+.swatch.celadon {
+  background: linear-gradient(135deg, #edf2ee 0 50%, #2f6f5e 50% 100%);
+}
+.swatch.pearl {
+  background: linear-gradient(135deg, #f7f2e9 0 50%, #8a6a3a 50% 100%);
 }
 
 /* ---------- segmented chips ---------- */
@@ -3933,4 +4075,255 @@ html[data-cols="compact"] {
 }
 [data-skin="akb"] .seg button:hover {
   border-color: var(--pink);
+}
+
+/* ================= 皮肤：官方 A+C 结合 / 玻璃花园 / 青瓷 / 珍珠 ================= */
+
+/* 官方 A+C：应援带 + 生写卡（同一套官方白/粉，不引入新色） */
+[data-skin="akb"] .pick-hero {
+  position: relative;
+}
+[data-skin="akb"] .pick-hero::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  right: 7%;
+  width: 64px;
+  height: 176px;
+  background: linear-gradient(
+    180deg,
+    rgba(216, 27, 96, 0.22),
+    rgba(216, 27, 96, 0.04)
+  );
+  transform: rotate(13deg);
+  pointer-events: none;
+  z-index: 0;
+}
+[data-skin="akb"] .pick-hero h2 {
+  position: relative;
+  z-index: 1;
+  /* 不用 --font-display：Dela 的 text= 子集只含品牌字，任意标题字会变豆腐块。 */
+  font-family: var(--font-ui);
+  font-weight: 800;
+}
+[data-skin="akb"] .card {
+  border: 2px solid var(--pink);
+  border-radius: 0;
+  padding: 5px 5px 0;
+}
+[data-skin="akb"] .card .ph {
+  border-radius: 0;
+}
+[data-skin="akb"] .card .nm {
+  margin: 0 -5px;
+  padding: 7px 8px;
+  background: var(--pink);
+  color: var(--on-pink);
+  text-align: center;
+}
+[data-skin="akb"] .card .meta {
+  padding: 5px 8px 8px;
+  text-align: center;
+}
+[data-skin="akb"] .card .info {
+  border-radius: 0;
+}
+[data-skin="akb"] .card[aria-pressed="true"] {
+  background: var(--picked-bg);
+  box-shadow: 4px 4px 0 var(--pink);
+  transform: rotate(-0.7deg);
+}
+[data-skin="akb"] .card[aria-pressed="true"]::after {
+  top: 5px;
+  left: 5px;
+  width: auto;
+  height: auto;
+  padding: 1px 5px;
+  border: 1px solid var(--pink);
+  border-radius: 0;
+  background: #fff;
+  color: var(--pink);
+  font: 700 11px/1.4 var(--font-ui);
+}
+[data-skin="akb"] .seg button,
+[data-skin="akb"] .seg button[aria-checked="true"],
+[data-skin="akb"] .primary,
+[data-skin="akb"] .ghost {
+  border-radius: 0;
+}
+[data-skin="akb"] .pick-hero::after {
+  content: "RIBBON / CARD";
+  position: absolute;
+  right: 0;
+  top: 8px;
+  font: 700 9px/1 var(--font-ui);
+  letter-spacing: 0.18em;
+  color: var(--pink);
+}
+@media (max-width: 560px) {
+  [data-skin="akb"] .pick-hero::before {
+    width: 42px;
+    height: 140px;
+    right: 4%;
+  }
+  [data-skin="akb"] .pick-hero::after {
+    display: none;
+  }
+}
+
+/* 玻璃花园：渐变只在 body 上，面板保持实色，tray 仍是实色（守卫生效） */
+[data-skin="glass"] body {
+  background-color: var(--floor);
+  background-image:
+    radial-gradient(
+      circle at 18% 14%,
+      rgba(124, 92, 255, 0.22),
+      transparent 24rem
+    ),
+    radial-gradient(
+      circle at 86% 20%,
+      rgba(103, 232, 201, 0.26),
+      transparent 22rem
+    ),
+    radial-gradient(
+      circle at 56% 90%,
+      rgba(255, 178, 209, 0.2),
+      transparent 26rem
+    );
+  background-attachment: fixed;
+}
+[data-skin="glass"] .masthead,
+[data-skin="glass"] .roster,
+[data-skin="glass"] .tray,
+[data-skin="glass"] .filter-panel,
+[data-skin="glass"] .coach,
+[data-skin="glass"] .poster {
+  backdrop-filter: blur(16px);
+}
+[data-skin="glass"] .card {
+  background: rgba(255, 255, 255, 0.58);
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 12px 30px rgba(90, 70, 160, 0.14);
+}
+[data-skin="glass"] .card .ph {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+[data-skin="glass"] .card[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--pink),
+    0 14px 34px rgba(124, 92, 255, 0.22);
+}
+[data-skin="glass"] .kami,
+[data-skin="glass"] .pick-hero h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+[data-skin="glass"] .primary,
+[data-skin="glass"] .ghost {
+  border-radius: 999px;
+}
+
+/* 青瓷：细框、留白、墨绿；不加阴影 */
+[data-skin="celadon"] body {
+  background-color: var(--floor);
+  background-image:
+    radial-gradient(
+      circle at 82% 8%,
+      rgba(47, 111, 94, 0.07),
+      transparent 24rem
+    ),
+    linear-gradient(
+      90deg,
+      transparent calc(100% - 1px),
+      rgba(47, 111, 94, 0.07) 0
+    );
+  background-size:
+    auto,
+    25% 100%;
+}
+[data-skin="celadon"] .kami,
+[data-skin="celadon"] .pick-hero h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+[data-skin="celadon"] .card {
+  background: var(--card);
+}
+[data-skin="celadon"] .card .ph {
+  border: 1px solid var(--line);
+}
+[data-skin="celadon"] .card[aria-pressed="true"] {
+  box-shadow: 0 0 0 1px var(--pink);
+  transform: none;
+}
+[data-skin="celadon"] .primary,
+[data-skin="celadon"] .ghost {
+  border-radius: 0;
+}
+[data-skin="celadon"] .seg button {
+  border-radius: 0;
+}
+
+/* 珍珠：拱形照片、暖象牙、香槟金 */
+[data-skin="pearl"] body {
+  background-color: var(--floor);
+  background-image:
+    radial-gradient(
+      circle at 18% 10%,
+      rgba(255, 255, 255, 0.95),
+      transparent 22rem
+    ),
+    radial-gradient(
+      circle at 84% 22%,
+      rgba(232, 217, 195, 0.55),
+      transparent 26rem
+    );
+}
+[data-skin="pearl"] .kami,
+[data-skin="pearl"] .pick-hero h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+[data-skin="pearl"] .card {
+  background: var(--card);
+  border-color: var(--line);
+}
+[data-skin="pearl"] .card .nm,
+[data-skin="pearl"] .card .meta {
+  text-align: center;
+}
+[data-skin="pearl"] .card[aria-pressed="true"] {
+  box-shadow: 0 0 0 1px var(--pink);
+}
+[data-skin="pearl"] .primary,
+[data-skin="pearl"] .ghost {
+  border-radius: 999px;
+}
+[data-skin="pearl"] .seg button {
+  border-radius: 999px;
+}
+/* 新皮肤的共用修正：品牌字与选中 seg 必须用自己的 ink/on-pink，不能沿用默认的
+   “浅底 + 白字”（玻璃/青瓷/珍珠的 --mint/--lilac 都是浅色，白字会消失）。 */
+[data-skin="glass"] .kami,
+[data-skin="celadon"] .kami,
+[data-skin="pearl"] .kami {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  color: var(--pink);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+[data-skin="glass"] .seg button[aria-checked="true"],
+[data-skin="celadon"] .seg button[aria-checked="true"],
+[data-skin="pearl"] .seg button[aria-checked="true"] {
+  background: var(--pink);
+  color: var(--on-pink);
+  box-shadow: none;
 }

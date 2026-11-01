@@ -45,7 +45,14 @@
       try {
         var s = localStorage.getItem("akb:skin");
         document.documentElement.dataset.skin =
-          s === "akb" || s === "sticker" || s === "classic" ? s : "akb";
+          s === "akb" ||
+          s === "classic" ||
+          s === "sticker" ||
+          s === "glass" ||
+          s === "celadon" ||
+          s === "pearl"
+            ? s
+            : "akb";
       } catch (_) {
         document.documentElement.dataset.skin = "akb";
       }
@@ -182,6 +189,33 @@
             >
               <span class="swatch sticker" aria-hidden="true"></span
               ><span data-i18n="skin_sticker">贴纸</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-skin="glass"
+            >
+              <span class="swatch glass" aria-hidden="true"></span
+              ><span data-i18n="skin_glass">玻璃花园</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-skin="celadon"
+            >
+              <span class="swatch celadon" aria-hidden="true"></span
+              ><span data-i18n="skin_celadon">青瓷</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-skin="pearl"
+            >
+              <span class="swatch pearl" aria-hidden="true"></span
+              ><span data-i18n="skin_pearl">珍珠</span>
             </button>
           </div>
           <div

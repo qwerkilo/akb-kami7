@@ -1834,8 +1834,18 @@ runSuite({
         akb: "rgb(255, 255, 255)",
         classic: "rgb(245, 242, 236)",
         sticker: "rgb(241, 231, 216)",
+        glass: "rgb(237, 240, 250)",
+        celadon: "rgb(237, 242, 238)",
+        pearl: "rgb(247, 242, 233)",
       };
-      const SKIN_RADIUS = { akb: "12px", classic: "999px", sticker: "14px" };
+      const SKIN_RADIUS = {
+        akb: "0px",
+        classic: "999px",
+        sticker: "14px",
+        glass: "999px",
+        celadon: "0px",
+        pearl: "999px",
+      };
       const readSkin = (page) =>
         page.evaluate(() => {
           const cs = getComputedStyle(document.body);
