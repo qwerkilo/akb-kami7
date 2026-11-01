@@ -74,9 +74,23 @@ const block = blockStarter(); // 功能块头（进度 + 分块耗时）
 // 套件生命周期（起服务/就绪/浏览器/清理/退出码）收在 `e2e/_suite.cjs`（第六轮扫描候选 2）。
 
 // 说明卡（v5：只弹一次）先关掉，否则遮罩挡住答题
-async function dismissIntro(page) {
-  if (await page.isVisible("#duel-intro"))
-    await page.click('#duel-intro [data-act="intro-go"]');
+let introTrapChecked = false;
+async function dismissIntro(page, check) {
+  if (!(await page.isVisible("#duel-intro"))) return;
+  if (!introTrapChecked) {
+    introTrapChecked = true;
+    let inside = true;
+    for (let i = 0; i < 8; i++) {
+      await page.keyboard.press("Tab");
+      inside =
+        inside &&
+        (await page.evaluate(
+          () => !!document.activeElement?.closest("#duel-intro")
+        ));
+    }
+    check("对决说明：Tab 圈禁在浮层内", inside);
+  }
+  await page.click('#duel-intro [data-act="intro-go"]');
 }
 
 async function setSkin(page, skin) {
@@ -176,7 +190,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 278, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 279, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -431,7 +445,7 @@ runSuite({
         await page.waitForTimeout(120);
       }
       await page.click("#screen-submit");
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       await page.waitForTimeout(300);
       check("筛选提交后进入对决", await page.isVisible("#phase-duel"));
       const max = Number(await page.textContent("#duel-max"));
@@ -531,7 +545,7 @@ runSuite({
             hard: true,
           });
           // resort 会重开对决 → maybeIntro() 又弹说明卡，遮罩会挡住答题
-          await dismissIntro(page);
+          await dismissIntro(page, check);
           pairs.add(await firstPair());
           // L10：换人时的姓名播报（visually-hidden 的 role=status）——
           // 只验一次（该块会多次重进对决，pairs.size===1 即首轮）
@@ -670,7 +684,7 @@ runSuite({
       for (let i = 0; i < 5; i++) await unsel.nth(i).click();
       await page.click("#start-btn");
       await passScreening(page);
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       await page.waitForTimeout(300);
       for (let i = 0; i < 20; i++) {
         if (!(await clickFighter(page))) break;
@@ -695,7 +709,7 @@ runSuite({
       for (let i = 0; i < 7; i++) await page.locator(".card").nth(i).click();
       await page.click("#start-btn");
       await passScreening(page);
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       await page.waitForTimeout(300);
       for (let i = 0; i < 16; i++) {
         if (await page.isHidden("#phase-duel")) break;
@@ -924,7 +938,7 @@ runSuite({
         est40.join(",")
       );
       await page.click("#screen-submit");
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       await page.waitForTimeout(400);
       const max40 = await page.textContent("#duel-max");
       check("40 档：四轮细分后题数 = 106（不是 177）", max40 === "106", max40);
@@ -1066,7 +1080,7 @@ runSuite({
       await page.waitForTimeout(400);
       await page.click("#start-btn");
       await passScreening(page);
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       await page.waitForTimeout(300);
       for (let i = 0; i < 16; i++) {
         if (await page.isHidden("#phase-duel")) break;
@@ -1550,7 +1564,7 @@ runSuite({
       await page.waitForTimeout(200);
       await page.click("#start-btn");
       await passScreening(page);
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       for (let i = 0; i < 30; i++) {
         await page.waitForTimeout(160);
         if (!(await page.isVisible("#phase-duel"))) break;
@@ -1748,7 +1762,7 @@ runSuite({
       for (let i = 0; i < 7; i++) await page.locator(".card").nth(i).click();
       await page.click("#start-btn");
       await passScreening(page);
-      await dismissIntro(page);
+      await dismissIntro(page, check);
       for (let i = 0; i < 30; i++) {
         await page.waitForTimeout(180);
         if (!(await page.isVisible("#phase-duel"))) break;

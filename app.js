@@ -582,10 +582,10 @@
   let profileId = null;
 
   // 浮层打开时把页面其余部分设为 inert：Tab 不会再走到背景（M4 的圈禁，
-  // 用平台能力而不是手搓 tabindex 队列）。只对 #profile 生效，pwa-sheet 走它自己的。
-  function setPageInert(on) {
+  // 用平台能力而不是手搓 tabindex 队列）。三个浮层共用，keep 是当前浮层的 id。
+  function setPageInert(on, keep = []) {
     for (const el of document.body.children) {
-      if (el.id === "profile" || el.tagName === "SCRIPT") continue;
+      if (keep.includes(el.id) || el.tagName === "SCRIPT") continue;
       if (on) el.setAttribute("inert", "");
       else el.removeAttribute("inert");
     }
@@ -633,7 +633,7 @@
     $("#pf-close").setAttribute("aria-label", t("bio_close"));
     paintProfileRows();
     $("#profile").hidden = false;
-    setPageInert(true);
+    setPageInert(true, ["profile"]);
     profileOpener = document.activeElement;
     $("#pf-close")?.focus();
     // 首次打开早于空闲预取：数据到了补画一次（失败就保持无 bio 的卡片）
@@ -1028,11 +1028,20 @@
     toast(t("duel_saved"));
   });
 
+  // 当前打开的可圈禁浮层：简介 / 对决说明 / 安装指引。
+  function openDialog() {
+    if (profileId) return $("#profile");
+    if (introOpen) return $("#duel-intro");
+    if (sheetOpen) return $("#pwa-sheet");
+    return null;
+  }
+
   // Tab 圈禁：inert 挡住背景之后，剩下的缺口是「最后一个可聚焦元素按 Tab 会
   // 跳到浏览器 UI、再回来时落在 body」——这里把 Tab/Shift+Tab 兜回浮层内。
   function profileTrap(e) {
-    if (e.key !== "Tab" || !profileId) return;
-    const el = $("#profile");
+    if (e.key !== "Tab") return;
+    const el = openDialog();
+    if (!el) return;
     const items = [
       ...el.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -1774,6 +1783,7 @@
     paintIntro();
     el.hidden = false;
     introOpen = true;
+    setPageInert(true, ["duel-intro"]);
     const go = el.querySelector('[data-act="intro-go"]');
     if (go) go.focus();
   }
@@ -1781,6 +1791,7 @@
     rememberFlag(INTRO_KEY);
     $("#duel-intro").hidden = true;
     introOpen = false;
+    setPageInert(false);
     const f = $("#fighter-a");
     if (f) f.focus();
   }
@@ -1937,6 +1948,7 @@
     el.hidden = false;
     const scrim = $("#pwa-scrim");
     if (scrim) scrim.hidden = false;
+    setPageInert(true, ["pwa-sheet", "pwa-scrim"]);
     el.querySelector("button")?.focus();
   }
   function closeSheet() {
@@ -1946,6 +1958,7 @@
     el.hidden = true;
     const scrim = $("#pwa-scrim");
     if (scrim) scrim.hidden = true;
+    setPageInert(false);
     // 还给真正的触发者（iOS 上是「安装」，桌面事件捕获后可能是「iOS 怎么装？」）
     if (sheetOpener && sheetOpener.isConnected) sheetOpener.focus();
     sheetOpener = null;
