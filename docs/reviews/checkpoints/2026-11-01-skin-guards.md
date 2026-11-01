@@ -19,4 +19,4 @@
   只读第一块，未发现；合并后暴露并修正）。
 - **验证**：`npm run check` exit 0；`e2e:all` 5/5（281 / 54 / 46 / 73 / 433）；
   `test/style-artifact.test.js` 35 项；`test/poster.test.js` 24 项。
-- **下次基点**：`<fill>`
+- **下次基点**：`00fd1d1`（本批最后一个产品代码提交）
