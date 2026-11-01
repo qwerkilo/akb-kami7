@@ -549,6 +549,80 @@
     posterFooter(ctx, T, W, H, hashtag, photoSrc);
   }
 
+  // 7 人杂志版：主视觉 > 2/3 > 4–7，而不是「一张大图 + 六张同样小的联系表」。
+  function drawMagazineSeven(ctx, T, opts, W, H, heroY) {
+    const { members, images, subOf } = opts;
+    const fr = frame(W, H);
+    const M = fr.margin;
+    const hero = { x: M, y: heroY, w: 420, h: 560 };
+    ctx.save();
+    roundRect(ctx, hero.x, hero.y, hero.w, hero.h, 8);
+    ctx.clip();
+    photo(ctx, T, images[0], hero, members[0].name);
+    ctx.restore();
+    const capH = 84;
+    ctx.save();
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = T.colors.ink;
+    ctx.fillRect(hero.x, hero.y + hero.h - capH, hero.w, capH);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    ctx.fillStyle = T.colors.tape;
+    ctx.font = `400 58px ${T.fonts.display}`;
+    ctx.fillText("1", hero.x + 28, hero.y + hero.h - 22);
+    ctx.fillStyle = T.colors.card;
+    ctx.font = `700 32px ${T.fonts.jp}`;
+    ctx.fillText(
+      clipText(ctx, members[0].name, hero.w - 130, 32, 700, T.fonts.jp),
+      hero.x + 96,
+      hero.y + hero.h - 30
+    );
+    ctx.save();
+    ctx.globalAlpha = 0.8;
+    ctx.font = `500 18px ${T.fonts.ui}`;
+    ctx.fillText(
+      `${members[0].group} ・ ${String(subOf(members[0]) || "")}`,
+      hero.x + 96,
+      hero.y + hero.h - 62
+    );
+    ctx.restore();
+
+    // 2/3：右侧两张中号，和 4–7 的小号拉开层级
+    for (let i = 1; i <= 2; i++) {
+      slot(
+        ctx,
+        T,
+        images[i],
+        members[i],
+        i + 1,
+        M + 460,
+        heroY + (i - 1) * 300,
+        400,
+        280,
+        false,
+        true,
+        subOf
+      );
+    }
+    // 4–7：底部一行
+    for (let i = 3; i < 7; i++) {
+      slot(
+        ctx,
+        T,
+        images[i],
+        members[i],
+        i + 1,
+        M + (i - 3) * 238,
+        heroY + 600,
+        220,
+        293,
+        false,
+        true,
+        subOf
+      );
+    }
+  }
+
   // ---- 样式 B：杂志封面（大标题 + 冠军横图 + 联系表网格） ----
   function drawMagazine(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
@@ -578,6 +652,11 @@
     ctx.fillRect(M, ruleY, W - M * 2, 3);
 
     const heroY = ruleY + 44;
+    if (n <= 7) {
+      drawMagazineSeven(ctx, T, opts, W, H, heroY);
+      posterFooter(ctx, T, W, H, hashtag, photoSrc);
+      return;
+    }
     const rows = n <= 7 ? 1 : n <= 16 ? 2 : 3;
     const cols = Math.max(2, Math.ceil((n - 1) / rows));
     const gap = 8;
