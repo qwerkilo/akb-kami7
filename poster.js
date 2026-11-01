@@ -623,6 +623,102 @@
     }
   }
 
+  // 8–40 人杂志版：前 7 名保留 1 / 2–3 / 4–7 三层，其余进底部联系表；
+  // 不再让 15/39 张缩成同一尺寸的小格子。
+  function drawMagazineTiered(ctx, T, opts, W, H, heroY) {
+    const { members, images, subOf } = opts;
+    const n = members.length;
+    const fr = frame(W, H);
+    const M = fr.margin;
+    const scale = H > 1440 ? 0.9 : 0.55;
+    const hero = { x: M, y: heroY, w: 420 * scale, h: 560 * scale };
+    ctx.save();
+    roundRect(ctx, hero.x, hero.y, hero.w, hero.h, 8);
+    ctx.clip();
+    photo(ctx, T, images[0], hero, members[0].name);
+    ctx.restore();
+    const capH = 64 * scale;
+    ctx.save();
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = T.colors.ink;
+    ctx.fillRect(hero.x, hero.y + hero.h - capH, hero.w, capH);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    ctx.fillStyle = T.colors.tape;
+    ctx.font = `400 ${Math.round(42 * scale)}px ${T.fonts.display}`;
+    ctx.fillText("1", hero.x + 18, hero.y + hero.h - 18);
+    ctx.fillStyle = T.colors.card;
+    ctx.font = `700 ${Math.round(24 * scale)}px ${T.fonts.jp}`;
+    ctx.font = `700 ${Math.round(24 * scale)}px ${T.fonts.jp}`;
+    ctx.fillText(members[0].name, hero.x + 62, hero.y + hero.h - 22);
+
+    const sw = 270 * scale;
+    const sh = 300 * scale;
+    const sx = M + hero.w + 34;
+    for (let i = 1; i <= 2; i++) {
+      slot(
+        ctx,
+        T,
+        images[i],
+        members[i],
+        i + 1,
+        sx,
+        heroY + (i - 1) * (sh + 26),
+        sw,
+        sh,
+        false,
+        true,
+        subOf
+      );
+    }
+    const mw = 220 * scale;
+    const mh = 250 * scale;
+    const midY = Math.max(heroY + hero.h, heroY + sh * 2 + 26) + 24;
+    for (let i = 3; i < 7; i++) {
+      slot(
+        ctx,
+        T,
+        images[i],
+        members[i],
+        i + 1,
+        M + (i - 3) * (mw + 18),
+        midY,
+        mw,
+        mh,
+        false,
+        true,
+        subOf
+      );
+    }
+    const restY = midY + mh + 34;
+    const restN = n - 7;
+    const cols = n <= 16 ? 5 : 9;
+    const rows = Math.ceil(restN / cols);
+    const gap = n <= 16 ? 18 : 10;
+    const rw = (W - M * 2 - gap * (cols - 1)) / cols;
+    const rh = Math.min(
+      mh * 0.75,
+      (fr.footerTop - restY - gap * (rows - 1)) / rows
+    );
+    for (let i = 7; i < n; i++) {
+      const k = i - 7;
+      slot(
+        ctx,
+        T,
+        images[i],
+        members[i],
+        i + 1,
+        M + (k % cols) * (rw + gap),
+        restY + Math.floor(k / cols) * (rh + gap),
+        rw,
+        Math.max(40, rh - 24),
+        false,
+        true,
+        subOf
+      );
+    }
+  }
+
   // ---- 样式 B：杂志封面（大标题 + 冠军横图 + 联系表网格） ----
   function drawMagazine(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
@@ -657,80 +753,7 @@
       posterFooter(ctx, T, W, H, hashtag, photoSrc);
       return;
     }
-    const rows = n <= 7 ? 1 : n <= 16 ? 2 : 3;
-    const cols = Math.max(2, Math.ceil((n - 1) / rows));
-    const gap = 8;
-    const labelH = 30;
-    const cw = (W - M * 2 - gap * (cols - 1)) / cols;
-    const ch = cw * 1.333;
-    const gridH = rows * (ch + labelH) + (rows - 1) * 12;
-    const heroH = Math.max(220, fr.footerTop - heroY - gridH - 48);
-
-    ctx.save();
-    roundRect(ctx, M, heroY, W - M * 2, heroH, 8);
-    ctx.clip();
-    photo(
-      ctx,
-      T,
-      images[0],
-      { x: M, y: heroY, w: W - M * 2, h: heroH },
-      members[0].name
-    );
-    ctx.restore();
-    const capH = 84;
-    ctx.save();
-    ctx.globalAlpha = 0.82;
-    ctx.fillStyle = T.colors.ink;
-    ctx.fillRect(M, heroY + heroH - capH, W - M * 2, capH);
-    ctx.globalAlpha = 1;
-    ctx.restore();
-    ctx.fillStyle = T.colors.tape;
-    ctx.font = `400 58px ${T.fonts.display}`;
-    ctx.fillText("1", M + 28, heroY + heroH - 22);
-    ctx.fillStyle = T.colors.card;
-    ctx.font = `700 40px ${T.fonts.jp}`;
-    ctx.fillText(
-      clipText(ctx, members[0].name, W - M * 2 - 200, 40, 700, T.fonts.jp),
-      M + 96,
-      heroY + heroH - 30
-    );
-    ctx.save();
-    ctx.globalAlpha = 0.8;
-    ctx.font = `500 22px ${T.fonts.ui}`;
-    ctx.fillText(
-      `${members[0].group} ・ ${String(subOf(members[0]) || "")}`,
-      M + 96,
-      heroY + heroH - 64
-    );
-    ctx.restore();
-
-    const gy = heroY + heroH + 36;
-    for (let i = 1; i < n; i++) {
-      const k = i - 1;
-      const x = M + (k % cols) * (cw + gap);
-      const y = gy + Math.floor(k / cols) * (ch + labelH + 12);
-      slotCard(ctx, T, images[i], members[i], x, y, cw, ch, true);
-      if (T.rankStyle === "editorial") {
-        editorialNumber(ctx, T, i + 1, x + 8, y + 4, Math.min(30, cw * 0.18));
-      } else {
-        ctx.save();
-        roundRect(ctx, x + 6, y + 6, 46, 24, 12);
-        ctx.fillStyle = rankColor(i + 1, T);
-        ctx.fill();
-        ctx.fillStyle = "#fff";
-        ctx.font = `800 15px ${T.fonts.ui}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(String(i + 1), x + 29, y + 19);
-        ctx.restore();
-      }
-      ctx.textAlign = "center";
-      ctx.textBaseline = "alphabetic";
-      ctx.fillStyle = T.colors.ink;
-      const ns = fitText(ctx, members[i].name, cw, 17, 700, T.fonts.jp);
-      ctx.font = `700 ${ns}px ${T.fonts.jp}`;
-      ctx.fillText(members[i].name, x + cw / 2, y + ch + ns + 8);
-    }
+    drawMagazineTiered(ctx, T, opts, W, H, heroY);
     posterFooter(ctx, T, W, H, hashtag, photoSrc);
   }
 
