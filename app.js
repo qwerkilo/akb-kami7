@@ -1643,7 +1643,9 @@
   }
 
   function lockMark(off) {
-    return off ? '<span class="lock" aria-hidden="true">🔒</span>' : "";
+    return off
+      ? '<svg class="lock" viewBox="0 0 12 14" aria-hidden="true" focusable="false"><rect x="1.5" y="6" width="9" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 6V4.4a2.5 2.5 0 0 1 5 0V6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>'
+      : "";
   }
 
   function renderScreen() {

@@ -458,6 +458,18 @@ main {
   background: var(--card);
   font: 800 13px/1 var(--font-round);
   padding: 8px 14px;
+  min-height: 44px;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease);
+}
+.seg button:hover:not([aria-checked="true"]) {
+  border-color: var(--pink);
+}
+.seg-size button {
+  min-width: 44px;
 }
 .seg button[aria-checked="true"] {
   color: var(--seg-active-color);
@@ -564,6 +576,10 @@ main {
 .filter-body .search {
   flex: 1 1 100%;
 }
+.group-pick select,
+select {
+  min-height: 44px;
+}
 .group-pick select {
   border: var(--border);
   border-radius: 12px;
@@ -629,6 +645,7 @@ html[data-cols="compact"] {
   /* 窄屏收内边距：13px 时每个头 47px，而首屏要放两个（团 + 期生）。
      真值由 /tmp/opencode 的首屏判据（第一张卡 top ≤ 400）守着。 */
   padding: 7px 12px;
+  min-height: 44px;
   border: 0;
   background: var(--card);
   text-align: left;
@@ -916,6 +933,10 @@ html[data-cols="compact"] {
 }
 
 /* ---------- buttons ---------- */
+#start-btn,
+.coach .ghost {
+  min-height: 44px;
+}
 .primary,
 .ghost {
   border: var(--border);
@@ -938,6 +959,22 @@ html[data-cols="compact"] {
 .primary {
   background: var(--peach);
   color: var(--on-primary);
+}
+.primary,
+.ghost {
+  transition:
+    transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+.primary:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+.ghost:hover:not(:disabled) {
+  border-color: var(--pink);
+  color: var(--pink);
 }
 .primary:active:not(:disabled),
 .ghost:active:not(:disabled) {
@@ -1935,8 +1972,10 @@ html[data-cols="compact"] {
   font-weight: 700;
 }
 .screen-row .mark .lock {
+  width: 11px;
+  height: 13px;
   margin-inline-end: 4px;
-  font-size: 11px;
+  vertical-align: -1px;
 }
 .screen-row.locked .mark {
   opacity: 0.4;
@@ -2099,7 +2138,8 @@ html[data-cols="compact"] {
     margin-top: 6px;
   }
   .masthead-main .seg-series button {
-    min-height: 38px;
+    min-height: 44px;
+    min-width: 44px;
     padding: 6px 12px;
     font-size: 13px;
   }
