@@ -191,7 +191,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 281, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 282, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -1802,8 +1802,8 @@ runSuite({
       // -- 海报样式：默认 a、可切换、记忆
       block("海报样式");
       check(
-        "样式 chips 四个",
-        (await page.locator(".seg-style [data-style]").count()) === 4
+        "样式 chips 五个",
+        (await page.locator(".seg-style [data-style]").count()) === 5
       );
       const styleOn = await page.evaluate(
         () =>
@@ -1811,6 +1811,10 @@ runSuite({
             .style
       );
       check("样式默认 = 金字塔(a)", styleOn === "a", String(styleOn));
+      await page.click('.seg-style [data-style="e"]');
+      await page.waitForTimeout(1200);
+      const pxE = await posterPx();
+      check("切接触印相：暗房底色 #101012", pxE === "16,16,18", pxE);
       await page.click('.seg-style [data-style="b"]');
       await page.waitForTimeout(1200);
       const pxB = await posterPx();

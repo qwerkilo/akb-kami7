@@ -46,6 +46,7 @@
 | 2026-11-01 · 皮肤扩展（玻璃/青瓷/珍珠 + 官方 A+C） | 107 | [2026-11-01-skins.md](checkpoints/2026-11-01-skins.md) |
 | 2026-11-01 · 原版「剧目」 | 108 | [2026-11-01-classic-playbill.md](checkpoints/2026-11-01-classic-playbill.md) |
 | 2026-11-01 · 皮肤系统守卫（retro） | 109 | [2026-11-01-skin-guards.md](checkpoints/2026-11-01-skin-guards.md) |
+| 2026-11-01 · 接触印相（第五样式） | 110 | [2026-11-01-poster-contact.md](checkpoints/2026-11-01-poster-contact.md) |
 
 ### 未收口清单
 

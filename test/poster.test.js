@@ -442,7 +442,7 @@ test("默认样式 = a：省略 style 与 style:'a' 的调用序列完全一致"
   assert.deepEqual(runStyle(undefined, 32).calls, runStyle("a", 32).calls);
 });
 
-test("四样式 × 7/16/40：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
+test("五样式 × 7/16/40：画布尺寸正确、全员上图、所有绘制都在画布内", () => {
   for (const style of poster.styles) {
     for (const n of [7, 16, 40]) {
       const { calls, ctx } = runStyle(style, n);
@@ -502,7 +502,7 @@ test("B/C/D：全员名字与名次都落笔（对比 a 只画前 16 名）", ()
   }
 });
 
-test("四样式都消费注入令牌：ink 随 tokens 变、cardStroke=0 不描边、=3 描边", () => {
+test("五样式都消费注入令牌：ink 随 tokens 变、cardStroke=0 不描边、=3 描边", () => {
   const run = (style, tokens) => {
     const members = people(16);
     const { ctx, calls } = fakeCtx();
@@ -626,7 +626,7 @@ test("全员无照片时每个位置都有占位（四样式 × 三档，占位�
   // 收口成一处绘制点之后，「没有照片」这件事的结果不再取决于样式：
   // 每一格要么有脸，要么有底色 + 名字首字。c（榜单）此前是**零占位**——
   // 领奖台与紧凑榜行只有 if (images[i]) 没有 else，40 档离线时 37/40 没有脸。
-  for (const style of ["a", "b", "c", "d"]) {
+  for (const style of poster.styles) {
     for (const n of [7, 16, 40]) {
       // 名字首字必须互不相同：people(n) 的「成员1/成员2/…」首字都是「成」，
       // 那样「首字顺序对不对」这条断言等于没有判别力（下标错位也测不出来）。
@@ -679,7 +679,7 @@ test("全员无照片时每个位置都有占位（四样式 × 三档，占位�
   }
 });
 
-test("占位视觉消费 tokens（placeholder / placeholderInk，四样式都不许硬编码残留）", () => {
+test("占位视觉消费 tokens（placeholder / placeholderInk，五样式都不许硬编码残留）", () => {
   for (const style of ["a", "b", "c", "d"]) {
     const members = people(7);
     const { ctx, calls } = fakeCtx();

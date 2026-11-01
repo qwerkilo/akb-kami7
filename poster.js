@@ -1325,7 +1325,166 @@
     );
   }
 
-  const STYLES = ["a", "b", "c", "d"];
+  // 接触印相：暗房工作台 —— 黑场、胶片齿孔、3/2/2（7 人）/ 4×4（16）/ 6×6（40）
+  // 卡片是白边印相纸，冠军用白色蜡笔圈；它是唯一不跟皮肤底色走的样式（暗房即约束）。
+  function contactRows(n) {
+    if (n === 7) return [3, 2, 2];
+    if (n === 16) return [4, 4, 4, 4];
+    return [5, 5, 5, 5, 5, 5, 5, 5];
+  }
+
+  function filmHoles(ctx, W, H) {
+    ctx.save();
+    ctx.fillStyle = "rgba(255,255,255,.22)";
+    for (let y = 42; y < H - 28; y += 46) {
+      roundRect(ctx, 20, y, 12, 8, 2);
+      ctx.fill();
+      roundRect(ctx, W - 32, y, 12, 8, 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function contactCard(ctx, T, im, m, rank, x, y, w, h, subOf) {
+    const labelH = Math.max(34, Math.min(76, h * 0.2));
+    panel(ctx, T, x, y, w, h, Math.min(3, T.corner), {
+      stroke: Math.max(1, T.cardStroke),
+    });
+    if (T.cardStroke > 0) {
+      ctx.save();
+      roundRect(ctx, x + 1, y + 1, w - 2, h - 2, Math.min(3, T.corner));
+      ctx.lineWidth = T.cardStroke;
+      ctx.strokeStyle = T.colors.ink;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.save();
+    roundRect(ctx, x + 3, y + 3, w - 6, h - labelH - 3, 2);
+    ctx.clip();
+    photo(ctx, T, im, { x, y, w, h: h - labelH }, m.name);
+    ctx.restore();
+
+    // 名次：左上角；冠军用白蜡笔圈（不是贴纸、不是色块）
+    const numSize = Math.max(16, Math.min(30, w * 0.18));
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.font = `700 ${numSize}px ${T.fonts.ui}`;
+    const label = String(rank).padStart(2, "0");
+    const tx = x + 8;
+    const ty = y + 8;
+    ctx.fillStyle = rank === 1 ? T.colors.pink : T.colors.ink;
+    ctx.fillText(label, tx, ty);
+    if (rank === 1) {
+      ctx.strokeStyle = "rgba(255,255,255,.92)";
+      ctx.lineWidth = Math.max(2, numSize * 0.14);
+      ctx.beginPath();
+      ctx.arc(
+        tx + numSize * 0.72,
+        ty + numSize * 0.55,
+        numSize * 1.35,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 姓名 + 期生/年份；卡片下沿留白像印相纸的手写栏
+    const nameSize = Math.max(11, Math.min(20, w * 0.09));
+    const sub = String(subOf(m) || "");
+    ctx.save();
+    ctx.fillStyle = T.colors.ink;
+    ctx.font = `700 ${nameSize}px ${T.fonts.name || T.fonts.jp}`;
+    ctx.fillText(
+      clipText(ctx, m.name, w - 12, nameSize, 700, T.fonts.name || T.fonts.jp),
+      x + 6,
+      y + h - labelH + 5
+    );
+    if (labelH >= 46) {
+      ctx.fillStyle = T.colors.muted;
+      ctx.font = `500 ${Math.max(9, nameSize - 4)}px ${T.fonts.ui}`;
+      ctx.fillText(
+        clipText(ctx, sub, w - 12, nameSize - 4, 500, T.fonts.ui),
+        x + 6,
+        y + h - labelH + 5 + nameSize + 4
+      );
+    }
+    ctx.restore();
+  }
+
+  function drawContact(ctx, T, opts, W, H) {
+    const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
+    const n = members.length;
+    const fr = frame(W, H);
+    ctx.fillStyle = "#101012";
+    ctx.fillRect(0, 0, W, H);
+    filmHoles(ctx, W, H);
+
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    const titleSize = fitText(ctx, title, W - 220, 74, 700, T.fonts.display);
+    ctx.font = `700 ${titleSize}px ${T.fonts.display}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(title, 76, 86);
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = T.colors.pink;
+    ctx.font = `700 16px ${T.fonts.ui}`;
+    ctx.fillText("CONTACT SHEET", 78, 162);
+    ctx.fillStyle = "rgba(255,255,255,.58)";
+    ctx.font = `500 14px ${T.fonts.ui}`;
+    ctx.fillText(dateText, 78, 186);
+    ctx.textAlign = "right";
+    ctx.fillText(
+      `ROLL ${String(n).padStart(2, "0")} / FRAME 01–${String(n).padStart(2, "0")}`,
+      W - 78,
+      162
+    );
+    ctx.restore();
+
+    const rows = contactRows(n);
+    const maxCols = Math.max(...rows);
+    const gap = n === 40 ? 10 : 18;
+    const top = 222;
+    const bottom = fr.footerTop - 20;
+    const rowH = (bottom - top - gap * (rows.length - 1)) / rows.length;
+    const cardW = Math.min(
+      (W - 156 - gap * (maxCols - 1)) / maxCols,
+      rowH * 0.72
+    );
+    const cardH = Math.min(rowH, cardW * 1.42);
+    let idx = 0;
+    rows.forEach((count, r) => {
+      const total = count * cardW + (count - 1) * gap;
+      const x0 = (W - total) / 2;
+      const y = top + r * (rowH + gap);
+      for (let c = 0; c < count && idx < n; c++, idx++) {
+        contactCard(
+          ctx,
+          T,
+          images[idx],
+          members[idx],
+          idx + 1,
+          x0 + c * (cardW + gap),
+          y,
+          cardW,
+          cardH,
+          subOf
+        );
+      }
+    });
+
+    ctx.save();
+    ctx.fillStyle = "rgba(255,255,255,.52)";
+    ctx.font = `500 14px ${T.fonts.ui}`;
+    ctx.fillText(`${photoSrc}  ·  ${hashtag}`, 78, H - 36);
+    ctx.restore();
+  }
+
+  const STYLES = ["a", "b", "c", "d", "e"];
 
   function draw(ctx, opts) {
     const T = resolveTokens(opts.tokens);
@@ -1339,7 +1498,9 @@
           ? drawChart
           : opts.style === "d"
             ? drawCollage
-            : drawClassic;
+            : opts.style === "e"
+              ? drawContact
+              : drawClassic;
     fn(ctx, T, opts, size.width, size.height);
   }
 
