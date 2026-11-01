@@ -612,6 +612,10 @@
   // 每个系列的**全部**命名差异都收在这一张表里。加系列 = 加一行，
   // 而不是再往嵌套三元里塞一层 —— 三个系列时那串三元已经 CCN 12（棘轮红线），
   // 加第四个必超。牌位相关的键（选拔组 / 圈内 / 神7）四个系列共用，不在这里分叉。
+  // 皮肤的单一出处：session / 测试 / E2E 都从这里取；index.html 的首屏内联白名单
+  // 不能 import，由 test/style-artifact.test.js 断言与这里一致。
+  const SKINS = ["akb", "classic", "sticker", "glass", "celadon", "pearl"];
+
   const SERIES_KEYS = {
     "48g": {
       brand7: "brand_7",
@@ -1394,6 +1398,7 @@
 
   return {
     SERIES_KEYS,
+    SKINS,
     normalizeName,
     haystack,
     romanize,

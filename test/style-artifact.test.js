@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const I18N = require("../i18n.js");
+const core = require("../core.js");
 
 // 产物不变式：style.css 六款皮肤的令牌块必须键集相同。
 // 曾经贴纸块多出 --placeholder/--placeholder-ink，而 :root 兜底挂在贴纸块上
@@ -30,7 +31,28 @@ function blockKeys(selector) {
 
 const firstFamily = (font) => (/["']([^"']+)["']/.exec(font) || [, ""])[1];
 
-const SKIN_IDS = ["akb", "classic", "sticker", "glass", "celadon", "pearl"];
+const SKIN_IDS = core.SKINS;
+
+// 每个皮肤只能有一块「令牌块」（体内含 --floor），否则后写的那块会静默覆盖前一块：
+// 本轮改 classic 奶油纸时只改了第一块，运行时仍是旧色，E2E 才抓到。
+test("每个皮肤恰好一块令牌块（重复会静默覆盖）", () => {
+  for (const id of SKIN_IDS) {
+    const re = new RegExp(`\\[data-skin="${id}"\\]\\s*\\{`, "g");
+    const hits = [];
+    let m;
+    while ((m = re.exec(css))) {
+      const end = css.indexOf("\n}\n", m.index);
+      assert.ok(end > m.index, `${id} 的块没有闭合`);
+      const body = css.slice(m.index, end);
+      if (/--floor\s*:/.test(body)) hits.push(m.index);
+    }
+    assert.equal(
+      hits.length,
+      1,
+      `${id} 有 ${hits.length} 块令牌块（应恰好 1 块）`
+    );
+  }
+});
 
 test("六款皮肤的令牌键集相同且无重复", () => {
   const blocks = SKIN_IDS.map((id) => ({
@@ -522,6 +544,22 @@ test("品牌装饰条：高度随字号，窄屏留出了条的位置（不许�
 // 而 E2E 脚本不入仓 —— 所以这里守**形状与形状之间的关系**。改这几处而不同步
 // 下面的断言，会让新访客的首屏又看不到产品（此前 738px，视口 844 的 87%）。
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+test("index.html 首屏皮肤白名单 == core.SKINS", () => {
+  const at = html.indexOf('var s = localStorage.getItem("akb:skin")');
+  assert.ok(at >= 0, "index.html 缺首屏皮肤内联脚本");
+  const end = html.indexOf("</script>", at);
+  const code = html.slice(at, end);
+  const ids = [...code.matchAll(/s === "([a-z]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(
+    [...new Set(ids)].sort(),
+    [...core.SKINS].sort(),
+    "内联白名单与 core.SKINS 不一致"
+  );
+  assert.ok(
+    code.includes(`: "${core.SKINS[0]}"`),
+    "内联兜底皮肤必须是 core.SKINS[0]"
+  );
+});
 
 test("引导卡：正文在原生 details 里，默认只占一行", () => {
   const details = /<details class="coach-more">([\s\S]*?)<\/details>/.exec(

@@ -232,12 +232,12 @@ test("draw：注入 tokens 后使用注入的颜色与字体，缺省回退内�
   assert.ok(
     !injected.calls.fills.some((f) =>
       [
-        "#f5f1e6",
-        "#ffffff",
-        "#20242e",
-        "#6f6a60",
-        "#cfc7b8",
-        "#ffe08a",
+        "#f1e7d8",
+        "#fffdf7",
+        "#2b211b",
+        "#71614f",
+        "#c9b8a4",
+        "#f3d98b",
         "#e4007f",
       ].includes(f)
     ),
@@ -251,7 +251,7 @@ test("draw：注入 tokens 后使用注入的颜色与字体，缺省回退内�
   });
   assert.ok(partial.calls.fills.includes("#0a0a0a"), "部分注入未生效");
   assert.ok(
-    partial.calls.fills.includes("#ffe08a"),
+    partial.calls.fills.includes("#f3d98b"),
     "未注入的颜色应回退内置默认"
   );
   assert.ok(
@@ -261,8 +261,8 @@ test("draw：注入 tokens 后使用注入的颜色与字体，缺省回退内�
 
   const fallback = fakeCtx();
   poster.draw(fallback.ctx, base);
-  assert.ok(fallback.calls.fills.includes("#f5f1e6"), "缺省未回退内置地板色");
-  assert.deepEqual(poster.defaultTokens().colors.tape, "#ffe08a");
+  assert.ok(fallback.calls.fills.includes("#f1e7d8"), "缺省未回退内置地板色");
+  assert.deepEqual(poster.defaultTokens().colors.tape, "#f3d98b");
 });
 
 function drawFull(n) {
@@ -378,10 +378,13 @@ test("draw：短标题用最大字号 64px 绘制", () => {
   );
 });
 
-test("draw：cardStroke 0 不描卡片边（原版），默认 3px（贴纸）", () => {
-  assert.equal(poster.defaultTokens().cardStroke, 3);
+test("draw：cardStroke 0 不描卡片边（原版/贴纸默认）", () => {
+  assert.equal(poster.defaultTokens().cardStroke, 0);
   const sticker = drawWith(7);
-  assert.ok(sticker.calls.strokes.includes(3), "贴纸应有 3px 卡片描边");
+  assert.ok(
+    sticker.calls.strokes.every((w) => w <= 2),
+    "默认令牌不应有 3px 卡片描边"
+  );
   const members = people(7);
   members.forEach((m, i) => (m.subtitle = `副${i + 1}`));
   const { ctx, calls } = fakeCtx();

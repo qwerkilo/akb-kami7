@@ -11,6 +11,7 @@ const { runSuite } = require("./_suite.cjs");
 const { isExpectedNoise } = require("./_noise.cjs");
 const { firstScreenGeo, firstScreenOk } = require("./_ui.cjs");
 const S = require("./_store.cjs");
+const CORE = require("../core.js");
 
 const PORT = 8765;
 const BASE = `http://127.0.0.1:${PORT}/`;
@@ -190,7 +191,7 @@ async function checkSecondRound(page) {
 // 预期噪声：favicon、断网阶段的资源失败，以及「导航中断字体预热」这一两百个请求
 runSuite({
   name: "e2e",
-  expect: 279, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
+  expect: 281, // 数守恒的**唯一**声明点（此前四套件各写一份、runner 四条正则反解）
   port: PORT,
   body: async ({ browser, checker }) => {
     const check = checker.check;
@@ -2274,6 +2275,25 @@ runSuite({
         JSON.stringify(touch)
       );
 
+      // 六款皮肤后工具区一度超出 1280px 右缘（截图里按钮被裁）。
+      const fit = await pd.evaluate(() => {
+        const btns = [...document.querySelectorAll(".seg-skin [data-skin]")];
+        const inside = btns.every((b) => {
+          const q = b.getBoundingClientRect();
+          return q.left >= 0 && q.right <= window.innerWidth + 1;
+        });
+        return {
+          count: btns.length,
+          inside,
+          noScroll: document.documentElement.scrollWidth <= window.innerWidth,
+        };
+      });
+      check(
+        "桌面 1280px：六款皮肤按钮完整可见且无横向滚动",
+        fit.count === CORE.SKINS.length && fit.inside && fit.noScroll,
+        JSON.stringify(fit)
+      );
+
       // ---- 卡片大小档位（「一排几个头像」）----
       const cardW = () =>
         pd.$eval(".card", (el) => el.getBoundingClientRect().width);
@@ -2289,6 +2309,20 @@ runSuite({
         "刷新后档位保持（akb:cols）",
         Math.abs(w2 - w1) < 2,
         `${w1} → ${w2}`
+      );
+
+      // 原版「剧目」不能把列数写死：大/中/小仍要改变卡片宽度。
+      await setSkin(pd, "classic");
+      await pd.click('.seg-cols [data-cols="std"]');
+      await pd.waitForTimeout(300);
+      const c0 = await cardW();
+      await pd.click('.seg-cols [data-cols="large"]');
+      await pd.waitForTimeout(300);
+      const c1 = await cardW();
+      check(
+        "桌面 1280px：原版「剧目」的大档仍改变卡片宽度",
+        c1 > c0 + 4,
+        `${c0} → ${c1}`
       );
       await ctxD.close();
     }

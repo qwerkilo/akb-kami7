@@ -13,19 +13,19 @@
       '"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Meiryo",' + ui;
     return {
       colors: {
-        floor: "#f5f1e6",
-        card: "#ffffff",
-        ink: "#20242e",
-        muted: "#6f6a60",
-        line: "#cfc7b8",
+        floor: "#f1e7d8",
+        card: "#fffdf7",
+        ink: "#2b211b",
+        muted: "#71614f",
+        line: "#c9b8a4",
         pink: "#e4007f",
-        tape: "#ffe08a",
+        tape: "#f3d98b",
         placeholder: "#e4e7ee",
         placeholderInk: "#7e8390",
       },
       fonts: { ui, jp, name: jp, display: '"Dela Gothic One",' + jp },
-      cardStroke: 3,
-      corner: 10,
+      cardStroke: 0,
+      corner: 6,
       shadow: true,
       rankStyle: "tape",
     };

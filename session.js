@@ -15,7 +15,7 @@
   // `SERIES.includes(next)` 直接 return false，点击静默无反应。
   const SERIES = Object.keys(CORE.SERIES_KEYS);
   const SIZES = [7, 16, 40];
-  const SKINS = ["akb", "classic", "sticker", "glass", "celadon", "pearl"];
+  const SKINS = CORE.SKINS;
   const LANGS = ["zh", "en", "ja"];
   // 键名住在 core.PREF_KEYS（跨模块契约的单一出处）
   const stateKey = CORE.PREF_KEYS.state;
