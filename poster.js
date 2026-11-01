@@ -1330,7 +1330,7 @@
   function contactRows(n) {
     if (n === 7) return [3, 2, 2];
     if (n === 16) return [4, 4, 4, 4];
-    return [5, 5, 5, 5, 5, 5, 5, 5];
+    return [6, 6, 6, 6, 6, 6, 4];
   }
 
   function filmHoles(ctx, W, H) {
