@@ -1325,8 +1325,8 @@
     );
   }
 
-  // 接触印相：暗房工作台 —— 黑场、胶片齿孔、3/2/2（7 人）/ 4×4（16）/ 6×6（40）
-  // 卡片是白边印相纸，冠军用白色蜡笔圈；它是唯一不跟皮肤底色走的样式（暗房即约束）。
+  // 接触印相：暗房工作台 —— 黑场、胶片齿孔、3/2/2（7 人）/ 4×4（16）/ 6×7（40，末行 4）
+  // 卡片是白边印相纸，冠军用品红蜡笔圈；它是唯一不跟皮肤底色走的样式（暗房即约束）。
   function contactRows(n) {
     if (n === 7) return [3, 2, 2];
     if (n === 16) return [4, 4, 4, 4];
@@ -1348,16 +1348,8 @@
   function contactCard(ctx, T, im, m, rank, x, y, w, h, subOf) {
     const labelH = Math.max(34, Math.min(76, h * 0.2));
     panel(ctx, T, x, y, w, h, Math.min(3, T.corner), {
-      stroke: Math.max(1, T.cardStroke),
+      stroke: T.cardStroke,
     });
-    if (T.cardStroke > 0) {
-      ctx.save();
-      roundRect(ctx, x + 1, y + 1, w - 2, h - 2, Math.min(3, T.corner));
-      ctx.lineWidth = T.cardStroke;
-      ctx.strokeStyle = T.colors.ink;
-      ctx.stroke();
-      ctx.restore();
-    }
     ctx.save();
     roundRect(ctx, x + 3, y + 3, w - 6, h - labelH - 3, 2);
     ctx.clip();
@@ -1391,7 +1383,7 @@
     ctx.restore();
 
     // 姓名 + 期生/年份；卡片下沿留白像印相纸的手写栏
-    const nameSize = Math.max(11, Math.min(20, w * 0.09));
+    const nameSize = Math.max(12, Math.min(20, w * 0.09));
     const sub = String(subOf(m) || "");
     ctx.save();
     ctx.fillStyle = T.colors.ink;

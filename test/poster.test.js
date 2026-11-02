@@ -528,6 +528,12 @@ test("五样式都消费注入令牌：ink 随 tokens 变、cardStroke=0 不描�
     assert.ok(thin.fills.includes("#123456"), `${style} 未用注入 ink`);
     assert.ok(thick.fills.includes("#654321"), `${style} 未用注入 ink`);
     assert.ok(thick.fonts.length > 0, style);
+    if (style === "e") {
+      assert.ok(
+        !thin.strokes.includes(1),
+        "接触印相 cardStroke=0 仍描了 1px 边"
+      );
+    }
     assert.ok(
       thick.strokes.length > thin.strokes.length,
       `${style} cardStroke=3 未描边（thin=${thin.strokes.length} thick=${thick.strokes.length}）`
@@ -625,7 +631,7 @@ test("D 拼贴：7/16/40 都是 1 > 2–3 > 4–7 的面积层级", () => {
   }
 });
 
-test("全员无照片时每个位置都有占位（四样式 × 三档，占位与首字）", () => {
+test("全员无照片时每个位置都有占位（五样式 × 三档，占位与首字）", () => {
   // 收口成一处绘制点之后，「没有照片」这件事的结果不再取决于样式：
   // 每一格要么有脸，要么有底色 + 名字首字。c（榜单）此前是**零占位**——
   // 领奖台与紧凑榜行只有 if (images[i]) 没有 else，40 档离线时 37/40 没有脸。
@@ -683,7 +689,7 @@ test("全员无照片时每个位置都有占位（四样式 × 三档，占位�
 });
 
 test("占位视觉消费 tokens（placeholder / placeholderInk，五样式都不许硬编码残留）", () => {
-  for (const style of ["a", "b", "c", "d"]) {
+  for (const style of poster.styles) {
     const members = people(7);
     const { ctx, calls } = fakeCtx();
     poster.draw(ctx, {
@@ -898,4 +904,23 @@ test("接触印相：冠军蜡笔圈完整落在第一张卡内（不压邻卡�
       `${n} 的冠军圈越出卡片：${JSON.stringify({ card: { cardX, cardY, cardW, cardH }, ring })}`
     );
   }
+});
+
+test("接触印相 40 档：姓名不小于 12px（6×7 的可用性承诺）", () => {
+  const members = people(40);
+  const { ctx, calls } = fakeCtx();
+  poster.draw(ctx, {
+    members,
+    images: fakeImgs(40),
+    title: "T",
+    dateText: "D",
+    hashtag: "#H",
+    photoSrc: "P",
+    subOf: () => "s",
+    style: "e",
+  });
+  const row = calls.textFonts.find(([t]) => t === "成员1");
+  assert.ok(row, "找不到成员1的姓名绘制");
+  const size = Number(/(\d+)px/.exec(row[1])[1]);
+  assert.ok(size >= 12, `接触印相 40 档姓名只有 ${size}px`);
 });
