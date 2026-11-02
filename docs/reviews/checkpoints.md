@@ -48,6 +48,7 @@
 | 2026-11-01 · 皮肤系统守卫（retro） | 109 | [2026-11-01-skin-guards.md](checkpoints/2026-11-01-skin-guards.md) |
 | 2026-11-01 · 接触印相（第五样式） | 110 | [2026-11-01-poster-contact.md](checkpoints/2026-11-01-poster-contact.md) |
 | 2026-11-01 · 测试矩阵复检 | 111 | [2026-11-01-test-matrix-v2.md](checkpoints/2026-11-01-test-matrix-v2.md) |
+| 2026-11-02 · 接触印相/测试矩阵两轴审查 | 112 | [2026-11-02-code-review.md](checkpoints/2026-11-02-code-review.md) |
 
 ### 未收口清单
 
