@@ -16,6 +16,7 @@ const TMP = require("node:path").join(
   require("node:os").tmpdir(),
   "akb-pwa-e2e"
 );
+const RULES = require(path.join(ROOT, "sw-cache-rules.js"));
 const PORT = 8781;
 const BASE = `http://127.0.0.1:${PORT}/`;
 
@@ -140,7 +141,10 @@ runSuite({
       return (await shell.keys()).length;
     });
     ok(cached >= 12, `壳已预缓存（${cached} 条）`);
-    ok(cached === 15, `壳缓存没有重复的 index 副本（${cached} 条）`);
+    ok(
+      cached === RULES.SHELL_FILES.filter((f) => f !== "./").length,
+      `壳缓存没有重复的 index 副本（${cached} 条）`
+    );
 
     console.log("\n[2] 断网后完整走完 挑人 → 对决 → 出图");
     // 先等 document.fonts.ready 再量：否则在线侧可能量到 FOUT 期间的回退字体宽度，

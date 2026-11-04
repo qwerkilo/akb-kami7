@@ -20,6 +20,8 @@
     "style.css",
     "core.js",
     "session.js",
+    "poster-core.js",
+    "poster-layouts.js",
     "poster.js",
     "i18n.js",
     "members.js",
