@@ -11,7 +11,7 @@
 import { readFileSync } from "node:fs";
 import { parsers } from "prettier/plugins/babel";
 
-const FUNCTION_TYPES = new Set([
+export const FUNCTION_TYPES = new Set([
   "FunctionDeclaration",
   "FunctionExpression",
   "ArrowFunctionExpression",
@@ -65,7 +65,7 @@ function countBody(node) {
   return ccn;
 }
 
-function nameOf(node, parent) {
+export function nameOf(node, parent) {
   if (node.id && node.id.name) return node.id.name;
   if (node.key && node.key.name) return node.key.name; // 方法 / 属性
   if (node.key && node.key.value) return String(node.key.value);

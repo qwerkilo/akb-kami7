@@ -1,0 +1,177 @@
+{
+  "core.js::searchHit": {
+    "lines": 5,
+    "params": 5,
+    "from": 418
+  },
+  "core.js::profileRows": {
+    "lines": 28,
+    "params": 5,
+    "from": 820
+  },
+  "session.js::create": {
+    "lines": 449,
+    "params": 1,
+    "from": 23
+  },
+  "poster-core.js::cover": {
+    "lines": 8,
+    "params": 6,
+    "from": 59
+  },
+  "poster-core.js::roundRect": {
+    "lines": 9,
+    "params": 6,
+    "from": 68
+  },
+  "poster-core.js::fitText": {
+    "lines": 9,
+    "params": 6,
+    "from": 78
+  },
+  "poster-core.js::clipText": {
+    "lines": 9,
+    "params": 6,
+    "from": 88
+  },
+  "poster-core.js::tape": {
+    "lines": 8,
+    "params": 7,
+    "from": 98
+  },
+  "poster-core.js::panel": {
+    "lines": 22,
+    "params": 8,
+    "from": 108
+  },
+  "poster-core.js::topRoundedRect": {
+    "lines": 11,
+    "params": 6,
+    "from": 131
+  },
+  "poster-core.js::photo": {
+    "lines": 28,
+    "params": 5,
+    "from": 145
+  },
+  "poster-core.js::slotCard": {
+    "lines": 16,
+    "params": 10,
+    "from": 174
+  },
+  "poster-core.js::editorialRank": {
+    "lines": 27,
+    "params": 9,
+    "from": 210
+  },
+  "poster-core.js::editorialNumber": {
+    "lines": 13,
+    "params": 6,
+    "from": 239
+  },
+  "poster-core.js::rankTape": {
+    "lines": 26,
+    "params": 9,
+    "from": 253
+  },
+  "poster-core.js::slotLabel": {
+    "lines": 23,
+    "params": 11,
+    "from": 286
+  },
+  "poster-core.js::slot": {
+    "lines": 42,
+    "params": 14,
+    "from": 310
+  },
+  "poster-core.js::placeRow": {
+    "lines": 24,
+    "params": 11,
+    "from": 353
+  },
+  "poster-core.js::podium": {
+    "lines": 50,
+    "params": 6,
+    "from": 378
+  },
+  "poster-core.js::drawSeven": {
+    "lines": 11,
+    "params": 5,
+    "from": 429
+  },
+  "poster-core.js::drawSixteen": {
+    "lines": 13,
+    "params": 5,
+    "from": 441
+  },
+  "poster-core.js::drawPyramid": {
+    "lines": 52,
+    "params": 5,
+    "from": 467
+  },
+  "poster-core.js::posterFooter": {
+    "lines": 18,
+    "params": 6,
+    "from": 520
+  },
+  "poster-layouts.js::drawClassic": {
+    "lines": 40,
+    "params": 5,
+    "from": 38
+  },
+  "poster-layouts.js::drawMagazineSeven": {
+    "lines": 72,
+    "params": 6,
+    "from": 80
+  },
+  "poster-layouts.js::drawMagazineTiered": {
+    "lines": 99,
+    "params": 6,
+    "from": 155
+  },
+  "poster-layouts.js::drawMagazine": {
+    "lines": 36,
+    "params": 5,
+    "from": 256
+  },
+  "poster-layouts.js::drawChart": {
+    "lines": 223,
+    "params": 5,
+    "from": 301
+  },
+  "poster-layouts.js::collageHeader": {
+    "lines": 33,
+    "params": 7,
+    "from": 543
+  },
+  "poster-layouts.js::collageCard": {
+    "lines": 67,
+    "params": 6,
+    "from": 588
+  },
+  "poster-layouts.js::collageSeven": {
+    "lines": 56,
+    "params": 10,
+    "from": 657
+  },
+  "poster-layouts.js::collageFeatured": {
+    "lines": 74,
+    "params": 10,
+    "from": 716
+  },
+  "poster-layouts.js::drawCollage": {
+    "lines": 35,
+    "params": 5,
+    "from": 791
+  },
+  "poster-layouts.js::contactCard": {
+    "lines": 59,
+    "params": 10,
+    "from": 847
+  },
+  "poster-layouts.js::drawContact": {
+    "lines": 70,
+    "params": 5,
+    "from": 907
+  }
+}
