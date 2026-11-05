@@ -7,22 +7,10 @@
   const GROUPS = window.AKB_GROUPS || [];
   const BY_ID = new Map(CORE.flattenMembers(GROUPS).map((m) => [m.id, m]));
 
-  // 分享链接（ADR-0025）：只读展示分享者的排名；不写 localStorage、不碰接收者的存档。
-  const sharedLink = (() => {
-    const d = CORE.decodeShare(location.search);
-    if (!d) return null;
-    const members = d.ids.map((id) => BY_ID.get(id));
-    if (members.some((m) => !m || m.series !== d.series)) return null;
-    return { ...d, members };
-  })();
-  let sharedOn = !!sharedLink;
-  let titleBeforeShared = null;
-
   // 只读分享页的真实上下文：series/pick 会被 sync() 反复拉回接收者的存档，
-  // 所以结果相关的命名一律从这里取，而不是读那两个变量。
-  const activeSeries = () =>
-    sharedOn && sharedLink ? sharedLink.series : series;
-  const activeSize = () => (sharedOn && sharedLink ? sharedLink.size : pick);
+  // 所以结果相关的命名一律从分享模块取，而不是读那两个变量。
+  const activeSeries = () => share.series() || series;
+  const activeSize = () => share.size() || pick;
 
   // 简介数据拆在 bios.js（首屏少解析 ~106KB）。空闲或打开资料卡时加载；
   // 离线由 SW 壳缓存兜底（bios.js 在 sw-cache-rules.js 的 SHELL_FILES 里）。
@@ -51,6 +39,7 @@
   let view = "pick";
   let duel50 = false;
   let introOpen = false;
+  let ranking = [];
   const warmed = new Set();
   function warmPhotos() {
     // 对决卡与海报读 img/full，名册只用到 img/thumb：选中的成员顺手把 full 预热，
@@ -156,6 +145,27 @@
       /[&<>"]/g,
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]
     );
+
+  function shareLink() {
+    return share.link();
+  }
+
+  const share = window.AKB_APP_SHARE.create({
+    $,
+    CORE,
+    t,
+    byId: (id) => BY_ID.get(id),
+    getSeries: () => series,
+    getRanking: () => ranking,
+    setRanking: (v) => {
+      ranking = v;
+    },
+    renderChrome,
+    renderResultBody,
+    onExit: () => {
+      view = "pick";
+    },
+  });
 
   const metaText = (m) => CORE.metaText(m, t, lang);
   const fullMeta = (m) => CORE.fullMeta(m, t, lang);
@@ -1105,78 +1115,6 @@
   });
 
   /* ---------------- result ---------------- */
-  let ranking = [];
-
-  // ---- 分享链接的只读结果（ADR-0025）----
-  function paintSharedSteps() {
-    const bar = $("#steps");
-    if (!bar) return;
-    for (const btn of bar.querySelectorAll("[data-step]")) {
-      const key = btn.getAttribute("data-step");
-      // 当前步（出图）不可点：点它只会退出只读，用户预期是「什么都不发生」
-      btn.disabled = key !== "pick";
-      btn.setAttribute("aria-current", key === "result" ? "step" : "false");
-    }
-  }
-
-  /** 只读结果页的渲染体：任何重渲染（切换语言/皮肤/样式）都必须走这里。 */
-  function paintSharedView() {
-    if (!sharedLink) return false;
-    ranking = sharedLink.members.slice();
-    $("#shared-note").hidden = false;
-    $("#resort-btn").hidden = true;
-    renderResultBody();
-    paintSharedSteps();
-    return true;
-  }
-
-  function enterShared() {
-    if (!sharedLink) return;
-    const input = $("#title-input");
-    titleBeforeShared = {
-      value: input.value,
-      dirty: input.dataset.dirty || "",
-    };
-    input.value =
-      sharedLink.title ||
-      CORE.names(sharedLink.series, sharedLink.size, t).title;
-    // 标记为「用户改过」：applyStatic / setLang 不得用接收者的默认标题覆盖分享标题
-    input.dataset.dirty = "1";
-    renderChrome();
-    paintSharedView();
-  }
-
-  function exitShared() {
-    if (!sharedOn) return;
-    sharedOn = false;
-    ranking = [];
-    view = "pick"; // 否则 CTA 会走「结果页返回」= abandon，清掉接收者自己的对决存档
-    $("#shared-note").hidden = true;
-    $("#resort-btn").hidden = false;
-    const input = $("#title-input");
-    if (input && titleBeforeShared) {
-      input.value = titleBeforeShared.value;
-      if (titleBeforeShared.dirty)
-        input.dataset.dirty = titleBeforeShared.dirty;
-      else delete input.dataset.dirty;
-    }
-    titleBeforeShared = null;
-    if (location.search) history.replaceState(null, "", location.pathname);
-    renderChrome();
-  }
-
-  /** 当前结果页的分享链接；file:// 或排名为空时返回空串（复制时提示失败）。 */
-  function shareLink() {
-    if (!ranking.length || !location.protocol.startsWith("http")) return "";
-    const q = CORE.encodeShare({
-      series: sharedOn && sharedLink ? sharedLink.series : series,
-      size: ranking.length,
-      ids: ranking.map((m) => m.id),
-      title: $("#title-input").value,
-    });
-    return q ? `${location.origin}${location.pathname}?${q}` : "";
-  }
-
   const rankList = $("#rank-list");
 
   rankList.addEventListener("keydown", profileKey);
@@ -1511,7 +1449,7 @@
     if (!S.setSkin(next)) return;
     sync();
     paintSkin();
-    if (sharedOn || snap.phase === "result") drawPoster();
+    if (share.on() || snap.phase === "result") drawPoster();
   }
 
   /* ---------------- 向导模式（v5 A） ---------------- */
@@ -1706,7 +1644,7 @@
   }
 
   function paint() {
-    if (sharedOn && paintSharedView()) return;
+    if (share.on() && share.paint()) return;
     sync();
     if (view === "screening") {
       show("screen");
@@ -1730,7 +1668,7 @@
   // opts 透给 startDuel（目前只有 { shuffle }，出图页「这几位重新排序」用）
   function navigate(intent, opts) {
     // 只读分享页里的任何导航（步骤 ①、重新选人、CTA）都先退回接收者自己的会话
-    if (sharedOn && intent !== "boot") exitShared();
+    if (share.on() && intent !== "boot") share.exit();
     const out = CORE.nav(navCtx(), intent);
     if (out.effect === "abandon") S.abandonDuel();
     hideToast();
@@ -1812,7 +1750,7 @@
 
   function stepClick(step) {
     // 只读分享页的 ① 只是退出只读，不涉及接收者自己的对决 —— 不要弹确认
-    if (sharedOn) return navigate(step.dataset.step);
+    if (share.on()) return navigate(step.dataset.step);
     // ① 在非 pick 相位会 abandon 掉进行中的对决（core.nav 的 pick 规则）——与
     // 「重新选人」是同一条销毁路径，复用同一句确认（M5 只盖了按钮，这条漏了；
     // 第八轮扫描抓到：结果页点 ① 海报与全部答案直接消失、零确认）。
@@ -1968,7 +1906,7 @@
   navigate("boot");
   pwa.init();
   warmBios();
-  if (sharedOn) enterShared();
+  if (share.on()) share.enter();
 })();
 
 // L11：boot 占位与相位切换解耦 —— 模块加载后的下一帧就把它摘掉（相位在 init 里
