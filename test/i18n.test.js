@@ -41,8 +41,11 @@ test("index.html 引用的 i18n 键都存在", () => {
   }
 });
 
-test("app.js 中静态引用的文案键都存在", () => {
-  const src = fs.readFileSync(path.join(root, "app.js"), "utf8");
+test("app.js / app-pwa.js 中静态引用的文案键都存在", () => {
+  const src = [
+    fs.readFileSync(path.join(root, "app.js"), "utf8"),
+    fs.readFileSync(path.join(root, "app-pwa.js"), "utf8"),
+  ].join("\n");
   const keys = new Set(
     [...src.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g)].map((m) => m[1])
   );
@@ -185,6 +188,7 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
   const sources = [
     html,
     fs.readFileSync(path.join(root, "app.js"), "utf8"),
+    fs.readFileSync(path.join(root, "app-pwa.js"), "utf8"),
     fs.readFileSync(path.join(root, "core.js"), "utf8"),
   ].join("\n");
   const refs = new Set(
@@ -300,18 +304,18 @@ test("指引步数与文档口径一致（iOS 四步，其余三步）", () => {
   });
 });
 
-test("步数表只有一个家：app.js 读 i18n 的，不自持一份", () => {
+test("步数表只有一个家：app-pwa 读 i18n 的，不自持一份", () => {
   // 上面的测试只看得见 i18n 侧；app.js 若偷偷自持一份副本，两边会再次分家
   // （这正是修前的形态：改 app.js 的 ios 步数测试照样全绿）。
   const fs = require("node:fs");
   const path = require("node:path");
-  const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  assert.match(src, /I18N\.GUIDE_STEPS/, "app.js 必须读 I18N.GUIDE_STEPS");
+  const src = fs.readFileSync(path.join(__dirname, "..", "app-pwa.js"), "utf8");
+  assert.match(src, /I18N\.GUIDE_STEPS/, "app-pwa.js 必须读 I18N.GUIDE_STEPS");
   // 锚定那份表的**形状**，不要全文扫 `ios: <数字>`——无关的普通数据会误报
   assert.doesNotMatch(
     src,
     /\bGUIDE_STEPS\s*=\s*\{/,
-    "app.js 不得自持步数表（应来自 i18n）"
+    "app-pwa.js 不得自持步数表（应来自 i18n）"
   );
 });
 

@@ -27,6 +27,7 @@
     "members.js",
     "bios.js",
     "simplified.js",
+    "app-pwa.js",
     "app.js",
     "sw-cache-rules.js",
     "manifest.webmanifest",
