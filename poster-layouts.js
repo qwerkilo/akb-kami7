@@ -152,13 +152,8 @@
 
   // 8–40 人杂志版：前 7 名保留 1 / 2–3 / 4–7 三层，其余进底部联系表；
   // 不再让 15/39 张缩成同一尺寸的小格子。
-  function drawMagazineTiered(ctx, T, opts, W, H, heroY) {
-    const { members, images, subOf } = opts;
-    const n = members.length;
-    const fr = frame(W, H);
-    const M = fr.margin;
-    const scale = H > 1440 ? 0.9 : 0.55;
-    const hero = { x: M, y: heroY, w: 420 * scale, h: 560 * scale };
+  function magazineHero(ctx, T, g) {
+    const { members, images, hero, scale } = g;
     ctx.save();
     roundRect(ctx, hero.x, hero.y, hero.w, hero.h, 8);
     ctx.clip();
@@ -178,7 +173,10 @@
     ctx.font = `700 ${Math.round(24 * scale)}px ${T.fonts.jp}`;
     ctx.font = `700 ${Math.round(24 * scale)}px ${T.fonts.jp}`;
     ctx.fillText(members[0].name, hero.x + 62, hero.y + hero.h - 22);
+  }
 
+  function magazineTieredRest(ctx, T, g) {
+    const { members, images, subOf, M, heroY, hero, scale, fr, W, n } = g;
     const sw = 270 * scale;
     const sh = 300 * scale;
     const sx = M + hero.w + 34;
@@ -252,6 +250,28 @@
     }
   }
 
+  function drawMagazineTiered(ctx, T, opts, W, H, heroY) {
+    const { members, images, subOf } = opts;
+    const n = members.length;
+    const fr = frame(W, H);
+    const M = fr.margin;
+    const scale = H > 1440 ? 0.9 : 0.55;
+    const hero = { x: M, y: heroY, w: 420 * scale, h: 560 * scale };
+    magazineHero(ctx, T, { members, images, hero, scale });
+    magazineTieredRest(ctx, T, {
+      members,
+      images,
+      subOf,
+      M,
+      heroY,
+      hero,
+      scale,
+      fr,
+      W,
+      n,
+    });
+  }
+
   // ---- 样式 B：杂志封面（大标题 + 冠军横图 + 联系表网格） ----
   function drawMagazine(ctx, T, opts, W, H) {
     const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
@@ -298,44 +318,8 @@
     return rank <= 7 ? T.colors.pink : T.colors.ink;
   }
 
-  function drawChart(ctx, T, opts, W, H) {
-    const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
-    const n = members.length;
-    const fr = frame(W, H);
-    const M = fr.margin;
-    const k = H / 1440;
-    ctx.fillStyle = T.colors.floor;
-    ctx.fillRect(0, 0, W, H);
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    const ts = fitText(ctx, title, W - M * 2, 58 * k, 900, T.fonts.display);
-    ctx.fillStyle = T.colors.ink;
-    ctx.fillText(title, M, 108 * k);
-    ctx.font = `500 24px ${T.fonts.ui}`;
-    ctx.fillStyle = T.colors.muted;
-    ctx.fillText(dateText, M, ts + 152 * k);
-
-    // 领奖台横向几何按「可用宽度预算」缩放（kx），与画布高度解耦：
-    // 16 档高版（H=1920）不再横向重叠，且整体保持居中
-    const kx = Math.min(1.02, (W - 156) / 924);
-    const wSide = 250 * kx;
-    const wBig = 336 * kx;
-    const gapP = 44 * kx;
-    const podH = 452 * kx;
-    const x2 = 78;
-    const x1 = x2 + wSide + gapP;
-    const pod = [
-      { i: 1, x: x2, y: 340, w: wSide, h: 380 * kx, bar: 74 * kx },
-      { i: 0, x: x1, y: 268, w: wBig, h: podH, bar: 92 * kx },
-      {
-        i: 2,
-        x: x1 + wBig + gapP,
-        y: 356,
-        w: wSide,
-        h: 364 * kx,
-        bar: 74 * kx,
-      },
-    ];
+  function chartPodium(ctx, T, g) {
+    const { members, images, pod, kx, k } = g;
     for (const p of pod) {
       if (!members[p.i]) continue;
       panel(ctx, T, p.x, p.y, p.w, p.h, 18, {
@@ -399,58 +383,61 @@
       ctx.font = `700 ${ns}px ${T.fonts.jp}`;
       ctx.fillText(members[p.i].name, p.x + p.w / 2, p.y + p.h - 14 * kx);
     }
+  }
 
-    const listTop = 268 + podH + 80;
+  function chartFew(ctx, T, g) {
+    const { members, images, n, listTop, fr, W, M, k } = g;
     const count = n - 3;
-    if (count <= 4) {
-      // 余人少（7 档）：一行大字卡，与领奖台共同纵向居中分布
-      const gap2 = 24;
-      const cardW = Math.min(300, (W - M * 2 - gap2 * (count - 1)) / count);
-      const photoH2 = cardW * 1.34;
-      const cardH2 = photoH2 + 44;
-      const rowW = count * cardW + (count - 1) * gap2;
-      const x0 = (W - rowW) / 2;
-      const y = listTop + Math.max(0, (fr.footerTop - listTop - cardH2) / 2);
-      for (let i = 3; i < n; i++) {
-        const k2 = i - 3;
-        const x = x0 + k2 * (cardW + gap2);
-        slotCard(
-          ctx,
-          T,
-          images[i],
-          members[i],
-          x,
-          y,
-          cardW,
-          cardH2,
-          false,
-          photoH2
-        );
-        if (T.rankStyle === "editorial") {
-          editorialNumber(ctx, T, i + 1, x + 10, y + 8, 30);
-        } else {
-          ctx.textAlign = "center";
-          ctx.fillStyle = rankColor(i + 1, T);
-          ctx.font = `400 34px ${T.fonts.display}`;
-          ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
-          ctx.textAlign = "left";
-        }
-        ctx.fillStyle = T.colors.ink;
-        const ns2 = fitText(
-          ctx,
-          members[i].name,
-          cardW - 74,
-          24,
-          700,
-          T.fonts.jp
-        );
-        ctx.font = `700 ${ns2}px ${T.fonts.jp}`;
-        ctx.fillText(members[i].name, x + 62, y + cardH2 - 16);
+    // 余人少（7 档）：一行大字卡，与领奖台共同纵向居中分布
+    const gap2 = 24;
+    const cardW = Math.min(300, (W - M * 2 - gap2 * (count - 1)) / count);
+    const photoH2 = cardW * 1.34;
+    const cardH2 = photoH2 + 44;
+    const rowW = count * cardW + (count - 1) * gap2;
+    const x0 = (W - rowW) / 2;
+    const y = listTop + Math.max(0, (fr.footerTop - listTop - cardH2) / 2);
+    for (let i = 3; i < n; i++) {
+      const k2 = i - 3;
+      const x = x0 + k2 * (cardW + gap2);
+      slotCard(
+        ctx,
+        T,
+        images[i],
+        members[i],
+        x,
+        y,
+        cardW,
+        cardH2,
+        false,
+        photoH2
+      );
+      if (T.rankStyle === "editorial") {
+        editorialNumber(ctx, T, i + 1, x + 10, y + 8, 30);
+      } else {
+        ctx.textAlign = "center";
+        ctx.fillStyle = rankColor(i + 1, T);
+        ctx.font = `400 34px ${T.fonts.display}`;
+        ctx.fillText(String(i + 1), x + 34, y + cardH2 - 14);
+        ctx.textAlign = "left";
       }
-      ctx.textAlign = "left";
-      posterFooter(ctx, T, W, H, hashtag, photoSrc);
-      return;
+      ctx.fillStyle = T.colors.ink;
+      const ns2 = fitText(
+        ctx,
+        members[i].name,
+        cardW - 74,
+        24,
+        700,
+        T.fonts.jp
+      );
+      ctx.font = `700 ${ns2}px ${T.fonts.jp}`;
+      ctx.fillText(members[i].name, x + 62, y + cardH2 - 16);
     }
+    ctx.textAlign = "left";
+  }
+
+  function chartMany(ctx, T, g) {
+    const { members, images, n, listTop, fr, W, M, k, subOf } = g;
+    const count = n - 3;
     const cols = count > 30 ? 3 : 2;
     const rows = Math.max(1, Math.ceil(count / cols));
     const listH = fr.footerTop - listTop;
@@ -517,6 +504,54 @@
       ctx.font = `500 ${20 * k}px ${T.fonts.ui}`;
       ctx.fillStyle = T.colors.muted;
       ctx.fillText(sub, x + colW, y + rowH / 2 + 8 * k);
+    }
+    ctx.textAlign = "left";
+  }
+
+  function drawChart(ctx, T, opts, W, H) {
+    const { members, images, title, dateText, hashtag, photoSrc, subOf } = opts;
+    const n = members.length;
+    const fr = frame(W, H);
+    const M = fr.margin;
+    const k = H / 1440;
+    ctx.fillStyle = T.colors.floor;
+    ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    const ts = fitText(ctx, title, W - M * 2, 58 * k, 900, T.fonts.display);
+    ctx.fillStyle = T.colors.ink;
+    ctx.fillText(title, M, 108 * k);
+    ctx.font = `500 24px ${T.fonts.ui}`;
+    ctx.fillStyle = T.colors.muted;
+    ctx.fillText(dateText, M, ts + 152 * k);
+    // 领奖台横向几何按「可用宽度预算」缩放（kx），与画布高度解耦：
+    // 16 档高版（H=1920）不再横向重叠，且整体保持居中
+    const kx = Math.min(1.02, (W - 156) / 924);
+    const wSide = 250 * kx;
+    const wBig = 336 * kx;
+    const gapP = 44 * kx;
+    const podH = 452 * kx;
+    const x2 = 78;
+    const x1 = x2 + wSide + gapP;
+    const pod = [
+      { i: 1, x: x2, y: 340, w: wSide, h: 380 * kx, bar: 74 * kx },
+      { i: 0, x: x1, y: 268, w: wBig, h: podH, bar: 92 * kx },
+      {
+        i: 2,
+        x: x1 + wBig + gapP,
+        y: 356,
+        w: wSide,
+        h: 364 * kx,
+        bar: 74 * kx,
+      },
+    ];
+    chartPodium(ctx, T, { members, images, pod, kx, k });
+    const listTop = 268 + podH + 80;
+    const count = n - 3;
+    if (count <= 4) {
+      chartFew(ctx, T, { members, images, n, listTop, fr, W, M, k, subOf });
+    } else {
+      chartMany(ctx, T, { members, images, n, listTop, fr, W, M, k, subOf });
     }
     ctx.textAlign = "left";
     posterFooter(ctx, T, W, H, hashtag, photoSrc);
