@@ -146,13 +146,16 @@ test("poster.js 的兜底令牌逐值等于贴纸皮肤块（值相等，不只�
   }
 });
 
-test("app.js 的 posterTokens() 映射用的是同一批 CSS 变量名（别让上面那张表悄悄过期）", () => {
+test("app-poster.js 的 tokens() 映射用的是同一批 CSS 变量名（别让上面那张表悄悄过期）", () => {
   const fs = require("node:fs");
   const path = require("node:path");
-  const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const src = fs.readFileSync(
+    path.join(__dirname, "..", "app-poster.js"),
+    "utf8"
+  );
   const body = src.slice(
-    src.indexOf("function posterTokens()"),
-    src.indexOf("function posterTokens()") + 1400
+    src.indexOf("function tokens()"),
+    src.indexOf("function tokens()") + 1400
   );
   for (const v of [
     "--floor",
@@ -169,7 +172,7 @@ test("app.js 的 posterTokens() 映射用的是同一批 CSS 变量名（别让�
     "--font-jp",
     "--font-display",
   ]) {
-    assert.ok(body.includes(`"${v}"`), `app.js posterTokens() 应读 ${v}`);
+    assert.ok(body.includes(`"${v}"`), `app-poster.js tokens() 应读 ${v}`);
   }
 });
 
@@ -812,13 +815,17 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
   );
   // 预览从 toDataURL 改成 toBlob + object URL（082–185ms 的同步编码移出主线程）：
   // 仍然必须是「先拿到像素再揭幕」，只是信号从 data URL 变成 object URL。
+  const posterSrc = fs.readFileSync(
+    path.join(__dirname, "..", "app-poster.js"),
+    "utf8"
+  );
   assert.match(
-    app,
+    posterSrc,
     /canvas\.toBlob\(/,
     "海报预览必须用 toBlob（同步 toDataURL 会合成 282–306ms 长任务）"
   );
   assert.match(
-    app,
+    posterSrc,
     /img\.src = url;[\s\S]{0,80}\n\s*unveil\(\)/,
     "unveil 必须在海报有像素之后调用（否则飞过去是一片空白）"
   );

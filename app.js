@@ -93,7 +93,7 @@
     sync(); // setter 改的是 session 的 state，snap 是副本
     posterStyle = snap.posterStyle;
     renderStyleSeg();
-    drawPoster();
+    painter.draw();
   }
 
   function applyStatic() {
@@ -733,13 +733,13 @@
     show("result");
     renderSteps();
     renderStyleSeg();
-    drawPoster();
+    painter.draw();
   }
 
   let drawTimer;
   $("#title-input").addEventListener("input", () => {
     clearTimeout(drawTimer);
-    drawTimer = setTimeout(drawPoster, 200);
+    drawTimer = setTimeout(() => painter.draw(), 200);
   });
   // 「这几位重新排序」：shuffle 传进 startDuel，由它对**每一层内部**洗牌
   // （层级归属是语义，层内顺序是自由量 —— 洗它不违反「跨层级不比较」）
@@ -751,7 +751,7 @@
     if (!window.confirm(t("reselect_confirm"))) return;
     navigate("restart");
   });
-  $("#save-btn").addEventListener("click", savePoster);
+  $("#save-btn").addEventListener("click", () => painter.save());
   $("#copy-link").addEventListener("click", async () => {
     const link = shareLink();
     if (!link) return toast(t("copy_failed"));
@@ -771,119 +771,6 @@
       "noopener"
     );
   });
-
-  /* ---------------- poster canvas ---------------- */
-  const imgCache = new Map();
-
-  function loadImg(src) {
-    if (!imgCache.has(src)) {
-      imgCache.set(
-        src,
-        new Promise((res) => {
-          const im = new Image();
-          im.onload = () => res(im);
-          im.onerror = () => res(null);
-          im.src = src;
-        })
-      );
-    }
-    return imgCache.get(src);
-  }
-
-  async function fontsReady() {
-    if (!document.fonts) return;
-    // 字体加载失败要吞掉：document.fonts.load() 在取不到字体时会 reject，
-    // 一路冒泡会让 drawPoster 整条断掉——断网时正是这种情况（字体子集没缓存到），
-    // 结果是海报画布一直空白、用户只看到一张空图。
-    const wait = Promise.all([
-      document.fonts.load(`64px "Dela Gothic One"`),
-      document.fonts.load(`700 40px "Zen Kaku Gothic New"`, "渡辺麻友"),
-    ]).catch(() => {});
-    await Promise.race([wait, new Promise((r) => setTimeout(r, 2500))]);
-  }
-
-  function posterTokens() {
-    const d = AKB_POSTER.defaultTokens();
-    const cs = getComputedStyle(document.documentElement);
-    const v = (name, fallback) =>
-      (cs.getPropertyValue(name) || "").replace(/\s+/g, " ").trim() || fallback;
-    return {
-      colors: {
-        floor: v("--floor", d.colors.floor),
-        card: v("--card", d.colors.card),
-        ink: v("--ink", d.colors.ink),
-        muted: v("--muted", d.colors.muted),
-        line: v("--line", d.colors.line),
-        pink: v("--pink", d.colors.pink),
-        tape: v("--lemon", d.colors.tape),
-        placeholder: v("--placeholder", d.colors.placeholder),
-        placeholderInk: v("--placeholder-ink", d.colors.placeholderInk),
-      },
-      fonts: {
-        ui: v("--font-ui", d.fonts.ui),
-        jp: v("--font-jp", d.fonts.jp),
-        name: v("--font-poster-name", v("--font-jp", d.fonts.jp)),
-        display: v("--font-poster", v("--font-display", d.fonts.display)),
-      },
-      cardStroke: parseFloat(v("--poster-card-stroke", "3px")) || 0,
-      corner: parseFloat(v("--poster-corner", "10px")),
-      shadow: v("--poster-shadow", "1") !== "0",
-      rankStyle: v("--poster-rank", "tape"),
-    };
-  }
-
-  async function drawPoster() {
-    if (!ranking.length) return;
-    const canvas = $("#poster-canvas");
-    const ctx = canvas.getContext("2d");
-    const [imgs] = await Promise.all([
-      Promise.all(ranking.map((m) => loadImg(fullSrc(m)))),
-      fontsReady(),
-    ]);
-
-    const ex = resultView.exportData();
-    AKB_POSTER.draw(ctx, {
-      members: ranking,
-      images: imgs,
-      title: ex.title,
-      dateText: ex.dateText,
-      hashtag: ex.hashtag,
-      photoSrc: t(series === "love" ? "photo_src_love" : "photo_src"),
-      subOf: posterSub,
-      tokens: posterTokens(),
-      style: posterStyle,
-    });
-
-    try {
-      // toDataURL 是同步编码（40 人实测 177–185ms，合成 282–306ms 的长任务）；
-      // toBlob 把编码移出主线程，预览用 object URL。下载路径本来就是 toBlob。
-      const blob = await new Promise((resolve) =>
-        canvas.toBlob(resolve, "image/png")
-      );
-      if (!blob) throw new Error("poster blob is null");
-      const url = URL.createObjectURL(blob);
-      const img = $("#poster-img");
-      if (img.dataset.objUrl) URL.revokeObjectURL(img.dataset.objUrl);
-      img.dataset.objUrl = url;
-      img.src = url;
-      unveil(); // 海报有像素了才揭幕，否则飞过去是一片空白
-    } catch (err) {
-      $("#poster-img").alt = t("poster_fail");
-      console.error(err);
-    }
-  }
-
-  function savePoster() {
-    const canvas = $("#poster-canvas");
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = resultView.exportData().fileName;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    }, "image/png");
-  }
 
   function setLang(next) {
     if (!S.setLang(next)) return;
@@ -945,7 +832,7 @@
     if (!S.setSkin(next)) return;
     sync();
     paintSkin();
-    if (share.on() || snap.phase === "result") drawPoster();
+    if (share.on() || snap.phase === "result") painter.draw();
   }
 
   /* ---------------- 向导模式（v5 A） ---------------- */
@@ -1352,6 +1239,19 @@
     snapshot: () => snap,
     byId: (id) => BY_ID.get(id),
     renderBody: () => renderResultBody(),
+  });
+
+  const painter = window.AKB_APP_POSTER.create({
+    $,
+    AKB_POSTER,
+    getRanking: () => ranking,
+    exportData: () => resultView.exportData(),
+    fullSrc,
+    t,
+    series: () => series,
+    subOf: posterSub,
+    style: () => posterStyle,
+    unveil,
   });
 
   /* ---------------- 更多浮层（语言 / 外观） ---------------- */
