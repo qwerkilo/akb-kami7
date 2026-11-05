@@ -41,11 +41,12 @@ test("index.html 引用的 i18n 键都存在", () => {
   }
 });
 
-test("app.js / app-pwa.js / app-duel.js 中静态引用的文案键都存在", () => {
+test("app.js / app-pwa.js / app-duel.js / app-screen.js 中静态引用的文案键都存在", () => {
   const src = [
     fs.readFileSync(path.join(root, "app.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-pwa.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-duel.js"), "utf8"),
+    fs.readFileSync(path.join(root, "app-screen.js"), "utf8"),
   ].join("\n");
   const keys = new Set(
     [...src.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g)].map((m) => m[1])
@@ -191,6 +192,7 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
     fs.readFileSync(path.join(root, "app.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-pwa.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-duel.js"), "utf8"),
+    fs.readFileSync(path.join(root, "app-screen.js"), "utf8"),
     fs.readFileSync(path.join(root, "core.js"), "utf8"),
   ].join("\n");
   const refs = new Set(
