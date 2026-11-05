@@ -49,6 +49,7 @@
 | 2026-11-01 · 接触印相（第五样式） | 110 | [2026-11-01-poster-contact.md](checkpoints/2026-11-01-poster-contact.md) |
 | 2026-11-01 · 测试矩阵复检 | 111 | [2026-11-01-test-matrix-v2.md](checkpoints/2026-11-01-test-matrix-v2.md) |
 | 2026-11-02 · 接触印相/测试矩阵两轴审查 | 112 | [2026-11-02-code-review.md](checkpoints/2026-11-02-code-review.md) |
+| 2026-11-05 · 结构重构（poster/管线/规范） | 113 | [2026-11-05-refactor.md](checkpoints/2026-11-05-refactor.md) |
 
 ### 未收口清单
 
