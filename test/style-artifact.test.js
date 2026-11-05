@@ -840,16 +840,22 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
     "切屏转场的兜底在 playOnce 里（降级时动画事件不来）"
   );
   // 层级段：必须真的往 #duel-tiers 里写，且翻转只在换组时。
-  // 2026-10-04 拆 CCN 后渲染体在 renderTierStrip（renderDuel 调它）——钉调用点 + 实现体。
-  const duel = /function renderDuel\(\) \{([\s\S]*?)\n  \}/.exec(app);
-  assert.ok(duel, "找不到 renderDuel()");
+  // 2026-11-05 拆出 app-duel.js 后，渲染体在 render()（调 renderTierStrip）。
+  const duelSrc = fs.readFileSync(
+    path.join(__dirname, "..", "app-duel.js"),
+    "utf8"
+  );
+  const duel = /function render\(\) \{([\s\S]*?)\n  \}/.exec(duelSrc);
+  assert.ok(duel, "找不到 app-duel 的 render()");
   assert.match(
     duel[1],
-    /renderTierStrip\(\)/,
-    "renderDuel 必须调 renderTierStrip()"
+    /renderTierStrip\(s\)/,
+    "render() 必须调 renderTierStrip(s)"
   );
-  const strip = /function renderTierStrip\(\) \{([\s\S]*?)\n  \}/.exec(app);
-  assert.ok(strip, "找不到 renderTierStrip()");
+  const strip = /function renderTierStrip\(s\) \{([\s\S]*?)\n  \}/.exec(
+    duelSrc
+  );
+  assert.ok(strip, "找不到 renderTierStrip(s)");
   assert.match(
     strip[1],
     /\$\("#duel-tiers"\)/,
@@ -867,16 +873,15 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
     "必须与上一次的组号比较"
   );
   assert.match(
-    app,
+    duelSrc,
     /let lastTierIdx = null/,
     "lastTierIdx 必须在模块作用域（跨渲染记忆）"
   );
   // 钉进函数体**并剥注释**：全文件匹配（或函数体含注释）会被注释里的 "--fill" 满足
-  // —— 两轴审查实测：删掉真正写 --fill 的那行、只留注释，旧断言仍绿。
-  const stripHTML = /function tierStripHTML\(\) \{([\s\S]*?)\n  \}/.exec(
-    stripJsComments(app)
+  const stripHTML = /function tierStripHTML\(s\) \{([\s\S]*?)\n  \}/.exec(
+    stripJsComments(duelSrc)
   );
-  assert.ok(stripHTML, "找不到 tierStripHTML()");
+  assert.ok(stripHTML, "找不到 tierStripHTML(s)");
   assert.match(
     stripHTML[1],
     /--fill/,
@@ -1117,7 +1122,10 @@ test("兜底时长从 CSS 实际读出，且两条清理路径都在（事件 + 
   );
 });
 test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是决策，不是裸字面量）", () => {
-  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const app = fs.readFileSync(
+    path.join(__dirname, "..", "app-duel.js"),
+    "utf8"
+  );
   const i18n = fs.readFileSync(path.join(__dirname, "..", "i18n.js"), "utf8");
   assert.match(app, /const PICK_CONFIRM_MS = \d+;/, "延迟要有具名常量");
   assert.doesNotMatch(
@@ -1133,9 +1141,12 @@ test("对决：160ms 落盘延迟必须是具名常量并写明原因（它是�
 });
 
 test("对决：撤回在「答案未落盘」的窗口里必须给出反馈（键道路径没有 disabled 对等物）", () => {
-  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const app = fs.readFileSync(
+    path.join(__dirname, "..", "app-duel.js"),
+    "utf8"
+  );
   const undoFn = /function undo\(\) \{[\s\S]*?\n  \}/.exec(app);
-  assert.ok(undoFn, "app.js 里要有 undo()");
+  assert.ok(undoFn, "app-duel.js 里要有 undo()");
   assert.match(
     undoFn[0],
     /if \(answering\) return toast\(t\("duel_undo_pending"\)\);/,

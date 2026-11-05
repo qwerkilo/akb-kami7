@@ -27,6 +27,7 @@
     "members.js",
     "bios.js",
     "simplified.js",
+    "app-duel.js",
     "app-share.js",
     "app-pwa.js",
     "app.js",

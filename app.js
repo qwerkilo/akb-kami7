@@ -37,7 +37,6 @@
   let series = snap.series;
   let pick = snap.size;
   let view = "pick";
-  let duel50 = false;
   let introOpen = false;
   let ranking = [];
   const warmed = new Set();
@@ -885,157 +884,6 @@
     syncSelection();
   });
 
-  /* ---------------- duel (replayable merge sort) ---------------- */
-  function beginDuel(opts) {
-    if (!S.startDuel(opts)) return false;
-    duel50 = false;
-    snap.selected.forEach((id) => {
-      new Image().src = fullSrc(BY_ID.get(id));
-    });
-    show("duel");
-    renderDuel();
-    maybeIntro();
-    return true;
-  }
-
-  let lastTierIdx = null;
-  function renderDuelProgress() {
-    $("#duel-max").textContent = snap.duel.max;
-    $("#duel-step").textContent = snap.duel.step;
-    $("#duel-bar").style.width = `${snap.duel.percent}%`;
-    const extra = $("#duel-extra");
-    if (!extra) return;
-    // 多轮筛选时对决跨层级（保留组 + 各轮划掉组），单一百分比看不出层级跳跃 →
-    // tier/tiers 就是为此而算的（ADR-0019）
-    extra.textContent = t(
-      "duel_extra",
-      snap.duel.percent,
-      snap.duel.remaining,
-      Math.max(1, Math.ceil(snap.duel.etaSeconds / 60)),
-      snap.duel.tier + 1,
-      snap.duel.tiers
-    );
-  }
-
-  // 层级段：一共 tiers 组、现在第 tier+1 组、已答 tierAnswered / 组内上限 tierMax
-  function tierStripHTML() {
-    const n = Math.max(1, snap.duel.tiers || 1);
-    const now = Math.min(snap.duel.tier || 0, n - 1);
-    let html = "";
-    for (let i = 0; i < n; i++)
-      html += `<i class="${i < now ? "done" : i === now ? "now" : ""}"></i>`;
-    if (!html || !snap.duel.tierMax) return html;
-    // 组内进度：当前段的 --fill（渐变填充，不改尺寸）
-    const pct = Math.max(
-      0,
-      Math.min(
-        100,
-        Math.round(((snap.duel.tierAnswered || 0) / snap.duel.tierMax) * 100)
-      )
-    );
-    return html.replace('class="now"', `class="now" style="--fill:${pct}%"`);
-  }
-
-  function renderTierStrip() {
-    const tiers = $("#duel-tiers");
-    if (!tiers) return;
-    // 翻转只在**换组**时来一次：整排每次渲染都重建，不判一下就会每答一题
-    // 都播一次 200ms 的装饰（效率区的每次点击不该有这种东西）。
-    const nowIdx = Math.min(
-      snap.duel.tier || 0,
-      Math.max(1, snap.duel.tiers || 1) - 1
-    );
-    tiers.classList.toggle(
-      "flip",
-      lastTierIdx !== null && lastTierIdx !== nowIdx
-    );
-    lastTierIdx = nowIdx;
-    tiers.innerHTML = tierStripHTML();
-  }
-
-  function renderDuel() {
-    sync();
-    if (snap.phase === "result") return navigate("advance");
-    if (snap.phase !== "duel") return;
-    renderDuelProgress();
-    renderTierStrip();
-    $("#undo-btn").disabled = !snap.duel.canUndo;
-    fillFighter($("#fighter-a"), BY_ID.get(snap.duel.pair[0]));
-    fillFighter($("#fighter-b"), BY_ID.get(snap.duel.pair[1]));
-    // 换人对读屏播报（L10 尾巴）：进度有 aria-live，选手姓名此前没有出口。
-    const live = $("#duel-live");
-    if (live) {
-      live.textContent = snap.duel.pair
-        .map((id) => BY_ID.get(id)?.name || "")
-        .filter(Boolean)
-        .join(" vs ");
-    }
-    duel50 = CORE.milestone(snap.duel.percent, duel50).shown;
-    renderSteps();
-  }
-
-  function fillFighter(el, m) {
-    el.classList.remove("picked");
-    el.innerHTML = `<span class="ph"><img src="${fullSrc(m)}" alt=""></span>
-      <span class="nm">${esc(m.name)}</span>
-      <span class="kn">${esc(m.kana)}</span>
-      <span class="meta">${esc(fullMeta(m))}</span>`;
-    el.setAttribute("aria-label", t("pick_who", m.name));
-  }
-
-  function canDuelInput() {
-    return (
-      view === "duel" &&
-      snap.phase === "duel" &&
-      !introOpen &&
-      !profileId &&
-      !pwa.isOpen()
-    );
-  }
-
-  // 点一张脸之后**故意**推迟 160ms 才落盘：让 `.fighter.picked` 的位移+缩放
-  // 被看到 —— 否则「我选了这张」只有一帧，160 档（40 档 106 题）会看不清自己在选谁。
-  // 代价是这段时间内所有对决命令都被冻结（闩见下），撤回按钮在这期间是 disabled
-  // （`canUndo` 为 false），而键盘的 Z/Backspace 原先**完全静默** —— 现在补一句提示。
-  const PICK_CONFIRM_MS = 160;
-  let answering = false;
-  function answer(leftWins) {
-    if (answering || !canDuelInput()) return;
-    answering = true;
-    const forSeries = series;
-    (leftWins ? $("#fighter-a") : $("#fighter-b")).classList.add("picked");
-    setTimeout(() => {
-      answering = false;
-      if (S.snapshot().series !== forSeries) return;
-      if (!canDuelInput()) return;
-      if (!S.answer(leftWins)) return;
-      sync();
-      if (snap.duel) {
-        const ms = CORE.milestone(snap.duel.percent, duel50);
-        duel50 = ms.shown;
-        if (ms.celebrate) toast(t("halfway"));
-      }
-      navigate("advance");
-    }, PICK_CONFIRM_MS);
-  }
-
-  function undo() {
-    if (!canDuelInput()) return;
-    // 这 160ms 里 `canUndo` 是 false（答案还没落盘），所以撤回按钮是 disabled
-    // —— 用户看得见对等物；键盘没有，于是给它一句提示，别让按键悄悄消失。
-    if (answering) return toast(t("duel_undo_pending"));
-    if (!S.undo()) return;
-    navigate("advance");
-  }
-
-  $("#fighter-a").addEventListener("click", () => answer(true));
-  $("#fighter-b").addEventListener("click", () => answer(false));
-  $("#undo-btn").addEventListener("click", undo);
-  $("#back-pick-btn").addEventListener("click", () => {
-    navigate("leave");
-    toast(t("duel_saved"));
-  });
-
   // 当前打开的可圈禁浮层：简介 / 对决说明 / 安装指引。
   function openDialog() {
     if (profileId) return $("#profile");
@@ -1098,20 +946,9 @@
     return true;
   }
 
-  // 对决页键盘：←→ 选边、z/Backspace 撤回。输入框内与带修饰键时不接管。
-  const UNDO_KEYS = new Set(["z", "Z", "Backspace"]);
-  function duelArrowKey(e) {
-    if (!canDuelInput()) return;
-    if (e.target.closest?.("input, textarea")) return;
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === "ArrowLeft") answer(true);
-    else if (e.key === "ArrowRight") answer(false);
-    else if (UNDO_KEYS.has(e.key)) undo();
-  }
-
   document.addEventListener("keydown", (e) => {
     if (segArrowKey(e)) return;
-    duelArrowKey(e);
+    duel.arrowKey(e);
   });
 
   /* ---------------- result ---------------- */
@@ -1653,7 +1490,7 @@
     }
     if (view === "duel" && snap.phase === "duel") {
       show("duel");
-      renderDuel();
+      duel.render();
       return;
     }
     if (view === "result" && snap.phase === "result") {
@@ -1675,7 +1512,7 @@
     view = out.view;
     // 对决的对手来自「已选 + 筛选层级」（ADR-0019 改写版），不再由调用方传 order
     if (out.effect === "start" || out.effect === "resume")
-      return beginDuel(opts);
+      return duel.begin(opts);
     paint();
     return true;
   }
@@ -1848,6 +1685,29 @@
     I18N,
     setPageInert,
     warmFonts,
+  });
+
+  const duel = window.AKB_APP_DUEL.create({
+    $,
+    CORE,
+    S,
+    t,
+    esc,
+    fullSrc,
+    fullMeta,
+    byId: (id) => BY_ID.get(id),
+    view: () => view,
+    series: () => series,
+    introOpen: () => introOpen,
+    profileId: () => profileId,
+    pwaOpen: () => pwa.isOpen(),
+    snapshot: () => snap,
+    sync,
+    show,
+    navigate,
+    renderSteps,
+    toast,
+    maybeIntro,
   });
 
   /* ---------------- 更多浮层（语言 / 外观） ---------------- */
