@@ -793,15 +793,14 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
     /opacity var\(--dur-mid\)/,
     "揭幕的克隆必须淡出（否则两张脸停在海报上，像两张照片贴在海报角上）"
   );
-  // 清理路径：transitionend + 兜底定时器，两条都要在（降级时动画不来，只有兜底）
+  // 清理路径收在 playOnce 里（transitionend + 兜底定时器）；播放逻辑只管触发。
   const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
-  const fn = /function unveil\(\) \{([\s\S]*?)\n  \}/.exec(app);
-  assert.ok(fn, "app.js 里找不到 unveil()（揭幕没接线？）");
-  assert.match(
-    fn[1],
-    /transitionend/,
-    "unveil 必须监听 transitionend 来清理克隆层"
+  const unveilSrc = fs.readFileSync(
+    path.join(__dirname, "..", "app-unveil.js"),
+    "utf8"
   );
+  const fn = /function play\(\) \{([\s\S]*?)\n  \}/.exec(unveilSrc);
+  assert.ok(fn, "app-unveil.js 里找不到 play()（揭幕没接线？）");
   assert.match(
     fn[1],
     /playOnce\(layer, "transition", \{[\s\S]*?selfOnly: false/,
@@ -810,8 +809,8 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
   );
   assert.match(
     app,
-    /captureUnveil\(\);[^\n]*\n?\s*show\("result"\)/,
-    'captureUnveil 必须在 show("result") 之前调用（之后对决页已隐藏，取不到位置）'
+    /unveilFx\.capture\(\);[^\n]*\n?\s*show\("result"\)/,
+    'capture 必须在 show("result") 之前调用（之后对决页已隐藏，取不到位置）'
   );
   // 预览从 toDataURL 改成 toBlob + object URL（082–185ms 的同步编码移出主线程）：
   // 仍然必须是「先拿到像素再揭幕」，只是信号从 data URL 变成 object URL。
@@ -981,7 +980,10 @@ test("窄屏让位：摘要隐藏但信息进可及名；档位段三语言装�
     "摘要被 CSS 隐藏后必须把同一句话挂到 .filter-trigger 的 aria-label 上"
   );
   // 揭幕：appendChild 之后必须强制一次样式重算，否则浏览器不保证产生 transition
-  const unveilFn = /function unveil\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  const unveilFn = /function play\(\) \{([\s\S]*?)\n  \}/.exec(
+    fs.readFileSync(path.join(__dirname, "..", "app-unveil.js"), "utf8")
+  );
+  assert.ok(unveilFn, "app-unveil.js 里找不到 play()");
   assert.match(
     unveilFn[1],
     /void layer\.offsetHeight/,

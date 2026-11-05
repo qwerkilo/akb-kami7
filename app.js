@@ -244,8 +244,7 @@
       entering = null;
     }
     if (phase !== "result") {
-      unveiled = false;
-      unveilFrom = null;
+      unveilFx.reset();
     }
     const shown = $(`#phase-${phase}`);
     if (shown) {
@@ -651,85 +650,10 @@
   $("#rank-list").addEventListener("keydown", profileKey);
   $("#rank-list").addEventListener("click", profileClick);
 
-  /* ---------------- 揭幕（签名时刻，工单 04 / ADR-0020 §3）----------------
-     最后比较的两张脸合并成一张海报：用两个 fixed 定位的克隆从对决页的位置
-     飞到海报画面的位置并淡出，同时海报自己淡入。
-     用 transform 而不是 left/top/width —— 后者会逐帧触发布局，两张脸也够不上
-     合成层；transform 从起点尺寸缩到终点尺寸是同一条 GPU 路径。
-     降级（prefers-reduced-motion: reduce）时整段跳过，海报直接显影。 */
-  let unveilFrom = null;
-  let unveiled = false;
-  const reducedMotion = () =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function captureUnveil() {
-    if (reducedMotion()) return;
-    const imgs = [$("#fighter-a"), $("#fighter-b")]
-      .map((el) => el && el.querySelector("img"))
-      .filter(Boolean);
-    if (imgs.length !== 2) return;
-    unveilFrom = imgs
-      .map((im) => {
-        const r = im.getBoundingClientRect();
-        if (!r.width) return null;
-        return {
-          src: im.currentSrc || im.src,
-          x: r.x,
-          y: r.y,
-          w: r.width,
-          h: r.height,
-        };
-      })
-      .filter(Boolean);
-    if (unveilFrom.length !== 2) unveilFrom = null;
-  }
-
-  function unveil() {
-    if (!unveilFrom || unveiled || reducedMotion()) {
-      unveilFrom = null;
-      return;
-    }
-    unveiled = true;
-    const from = unveilFrom;
-    unveilFrom = null;
-    const host = $("#poster");
-    if (!host) return;
-    const to = host.getBoundingClientRect();
-    if (!to.width) return;
-    const layer = document.createElement("div");
-    layer.className = "unveil";
-    layer.setAttribute("aria-hidden", "true");
-    for (const f of from) {
-      const img = document.createElement("img");
-      img.src = f.src;
-      img.alt = "";
-      img.style.cssText = `left:${to.x}px;top:${to.y}px;width:${to.width}px;height:${to.height}px;
-        transform:translate(${f.x - to.x}px, ${f.y - to.y}px) scale(${f.w / to.width}, ${f.h / to.height});`;
-      layer.appendChild(img);
-    }
-    document.body.appendChild(layer);
-    // 强制一次样式重算再进 rAF 改 transform：浏览器**不保证**在 appendChild 与
-    // rAF 回调之间做过重算，不这么做 transition 可能压根不产生（两轴都实测到
-    // 隔离复现里 0 条动画；真实应用里因为图片解码恰好触发了重算才侥幸在跑）。
-    void layer.offsetHeight;
-    // 过渡挂在克隆层里的 img 上，所以它们的 transitionend 冒泡上来就算完成
-    // （selfOnly:false）；收尾动作是移除克隆层本身。
-    playOnce(layer, "transition", {
-      onDone: () => layer.remove(),
-      selfOnly: false,
-    });
-    requestAnimationFrame(() => {
-      for (const img of layer.children) {
-        img.style.transform = "none";
-        img.style.opacity = "0";
-      }
-    });
-  }
-
   /** 结果页的渲染顺序只有这一处（普通结果与只读分享共用）。 */
   function renderResultBody() {
     resultView.renderList();
-    captureUnveil(); // 必须在 show 之前 —— 之后对决页已隐藏，取不到位置
+    unveilFx.capture(); // 必须在 show 之前 —— 之后对决页已隐藏，取不到位置
     show("result");
     renderSteps();
     renderStyleSeg();
@@ -1251,8 +1175,10 @@
     series: () => series,
     subOf: posterSub,
     style: () => posterStyle,
-    unveil,
+    unveil: () => unveilFx.play(),
   });
+
+  const unveilFx = window.AKB_APP_UNVEIL.create({ $, playOnce });
 
   /* ---------------- 更多浮层（语言 / 外观） ---------------- */
   const moreBtn = $("#more-btn");
