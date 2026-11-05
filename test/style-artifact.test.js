@@ -1020,14 +1020,18 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
   // 冷加载时名册渲染晚于那个窗口就会整个不播（实测三次进入有一次不播）。
   assert.match(
     app,
-    /rosterEntering = phase === "pick"/,
-    "show() 必须按相位置 rosterEntering"
+    /picker\.setEntering\(phase === "pick"\)/,
+    "show() 必须按相位置挑人模块的进场标志"
   );
-  const entered = /function rosterEntered\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  const pickSrc = fs.readFileSync(
+    path.join(__dirname, "..", "app-pick.js"),
+    "utf8"
+  );
+  const entered = /function rosterEntered\(\) \{([\s\S]*?)\n  \}/.exec(pickSrc);
   assert.ok(entered, "找不到 rosterEntered()");
   assert.match(
     entered[1],
-    /const wanted = rosterEntering;\s*\n\s*rosterEntering = false;/,
+    /const wanted = entering;\s*\n\s*entering = false;/,
     "rosterEntered 必须消费标志（否则下一次重渲会重播）"
   );
   assert.match(
@@ -1044,7 +1048,7 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
     parseFloat(shared["--dur-fast"]) + 8 * parseFloat(shared["--stagger-step"]);
   assert.ok(need > 0, `理论最坏时长算不出来（${need}ms），CSS 令牌变了？`);
   // 两条渲染路径都要消费标志，否则标志会漏给下一次渲染
-  const roster = /function renderRoster\(\) \{([\s\S]*?)\n  \}/.exec(app);
+  const roster = /function renderRoster\(\) \{([\s\S]*?)\n  \}/.exec(pickSrc);
   assert.ok(roster, "找不到 renderRoster()");
   // 必须是**最后一条语句**，不是「函数体里出现过」—— 架构扫描候选 4：
   // 原来的 /rosterEntered\(\)/ 只验任意位置，于是把它从末尾挪到第一行（末尾那次删掉）
@@ -1061,7 +1065,7 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
       roster[1].lastIndexOf("rosterEntered()"),
     "必须先写 innerHTML 再调 rosterEntered()"
   );
-  const search = /function renderSearch\([\s\S]*?\n  \}/.exec(app);
+  const search = /function renderSearch\([\s\S]*?\n  \}/.exec(pickSrc);
   assert.match(
     search[0],
     /rosterEntered\(\)/,
@@ -1159,10 +1163,13 @@ test("对决：撤回在「答案未落盘」的窗口里必须给出反馈（�
 });
 
 test("折叠段：类名前缀只从 sectionHTML 一处产出（架构扫描候选 6）", () => {
-  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const app = fs.readFileSync(
+    path.join(__dirname, "..", "app-pick.js"),
+    "utf8"
+  );
   // sectionHTML 是唯一的模板：level 只决定前缀与 data 属性名
   const tpl = /function sectionHTML\(o\) \{[\s\S]*?\n  \}/.exec(app);
-  assert.ok(tpl, "app.js 里要有 sectionHTML(o)");
+  assert.ok(tpl, "app-pick.js 里要有 sectionHTML(o)");
   // 2026-10-04 拆 CCN 后前缀先算进 cls、data 属性名由 cls 派生 —— 语义不变（level 是唯一来源）
   for (const frag of [
     'const cls = o.level === "grp" ? "grp" : "gen"',
@@ -1178,7 +1185,11 @@ test("折叠段：类名前缀只从 sectionHTML 一处产出（架构扫描候�
     .filter((f) => f.endsWith(".js"))
     .filter((f) => {
       const body = fs.readFileSync(path.join(root, f), "utf8");
-      return f !== "app.js" && /<section class="(gen|grp)/.test(body);
+      return (
+        f !== "app.js" &&
+        f !== "app-pick.js" &&
+        /<section class="(gen|grp)/.test(body)
+      );
     });
   assert.equal(
     outside.length,
@@ -1237,7 +1248,7 @@ test("折叠段：类名前缀只从 sectionHTML 一处产出（架构扫描候�
   const nested = /function nested\(\) \{[\s\S]*?\n  \}/.exec(app);
   assert.ok(nested, "找不到 nested()");
   assert.ok(
-    /snap\.group === "all"/.test(nested[0]),
+    /snapshot\(\)\.group === "all"/.test(nested[0]),
     "nested() 必须读 snap.group —— 写死 true/false 就是把层级绑死在猜的上面"
   );
 });

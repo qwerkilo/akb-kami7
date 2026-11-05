@@ -2436,7 +2436,18 @@ runSuite({
         { timeout: 15000, hard: true }
       );
       await ps.click('.seg-style [data-style="e"]');
-      await ps.waitForTimeout(1200);
+      // 海报是异步绘制的：固定等待在并发跑（e2e:all）时会被负载拉长，
+      // 读到白底就会假红。等到像素真的变成暗房底色再断言。
+      await waitFor(
+        ps,
+        "海报样式像素",
+        () => {
+          const c = document.getElementById("poster-canvas");
+          const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;
+          return d[0] === 16 && d[1] === 16 && d[2] === 18;
+        },
+        { timeout: 15000 }
+      );
       const storageStylePx = await ps.evaluate(() => {
         const c = document.getElementById("poster-canvas");
         const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;

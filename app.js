@@ -231,7 +231,6 @@
 
   let entering = null;
   // 「即将进入挑人步」：renderRoster 渲染完才消费它，见 show() 里的注释
-  let rosterEntering = false;
 
   function show(phase) {
     for (const id of ["pick", "screen", "duel", "result"]) {
@@ -267,7 +266,7 @@
     // 这里只置标志，**由渲染本身决定要不要加类**：我第一版在 show() 里加类并
     // 兜底摘类（时长由 playOnce 从 CSS 读出，不写现值）——冷缓存下名册渲染更晚 → 卡片在窗口之后创建 →
     // 根本没有动画（实测两次进入一次没播）。
-    rosterEntering = phase === "pick";
+    picker.setEntering(phase === "pick");
     $("#roster")?.classList.remove("enter");
     // 对决时把页头与步骤条整体收起：这一步要的是两张脸，不是导航
     // （工单 03 / ADR-0019；页头里的语言/皮肤切换在返回挑人页后仍可用）
@@ -280,309 +279,6 @@
     const foot = $("#site-foot");
     if (foot) foot.hidden = chrome;
     window.scrollTo({ top: 0 });
-  }
-
-  /* ---------------- pick ---------------- */
-  const roster = $("#roster");
-
-  function viewOpts() {
-    return {
-      group: snap.group,
-      generation: snap.generation,
-      status: snap.filter,
-      query: snap.query,
-      selected: snap.selected,
-    };
-  }
-
-  const rosterView = () => CORE.rosterView(seriesGroups(), viewOpts());
-
-  // 计数文案单一出处（数字来自投影，i18n 留在 DOM 层）
-  function countText(node) {
-    return snap.filter === "all" && node.current
-      ? t("people_now", node.count, node.current)
-      : t("people", node.count);
-  }
-
-  function cardHTML(m, showGroup, i) {
-    const sel = snap.selected.indexOf(m.id);
-    const meta = showGroup ? `${m.group} · ${metaText(m)}` : metaText(m);
-    // --i 是进场 stagger 的下标（工单 03）。不传时为 0：搜索结果不需要错开入场。
-    // **封顶在 CSS 里**（min(var(--i), 8)），JS 只传原始下标 —— 此前 8 这个数
-    // 在 app.js 与测试里各存一份，改了一处另一处不响。
-    const idx = typeof i === "number" ? i : 0;
-    return `<button class="card" style="--i:${idx}" data-id="${m.id}" aria-pressed="${sel >= 0}" data-order="${sel + 1}" title="${esc(m.name)}${m.kana ? "（" + esc(m.kana) + "）" : ""}">
-      <span class="info" role="button" tabindex="0" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
-      <span class="ph"><img src="${thumbSrc(m)}" alt="" loading="lazy" decoding="async" width="240" height="320"></span>
-      <span class="nm">${esc(m.name)}</span>
-      <span class="meta${m.status === "current" ? " now" : ""}">${esc(meta)}</span>
-    </button>`;
-  }
-
-  let secSeq = 0;
-
-  // 「这一层是不是嵌套的」：没选定具体团体时，期生段挂在团体段下面。
-  // 原来这个判据藏在 sectionHTML 里读 snap.group，现在提到调用处显式传。
-  function nested() {
-    return snap.group === "all";
-  }
-
-  // 一个折叠段。level 只决定类名前缀与 data 属性名，其余形状两级完全一样 ——
-  // 之前这是四套实现（两个渲染器 + 两个 toggle + 两个徽章循环）。
-  // `sub` 由渲染的地方显式给出（顶层团体里的期生段是嵌套的），不再从筛选状态反推。
-  function sectionHTML(o) {
-    // level 只决定前缀与 data 属性名；两层共用同一份模板（候选 6 收口）。
-    const cls = o.level === "grp" ? "grp" : "gen";
-    const attr = cls === "grp" ? "group" : "sec";
-    const open = o.open;
-    return `<section class="${cls}${o.sub ? " sub" : ""}" data-${attr}="${esc(o.id)}">
-      <button class="${cls}-head" aria-expanded="${open}" aria-controls="${o.uid}">
-        <i class="chev" aria-hidden="true"></i>
-        <span class="${cls}-name">${esc(o.label)}</span>
-        <span class="${cls}-count">${countText(o.node)}</span>
-        <span class="${cls}-picked">${o.picked ? t("picked", o.picked) : ""}</span>
-      </button>
-      <div class="${cls}-body" id="${o.uid}" ${open ? "" : "hidden"}>${o.body}</div>
-    </section>`;
-  }
-
-  // 期生段：一张可折叠的卡片列表
-  function genSectionHTML(sec, sub) {
-    const open = snap.open.includes(sec.id);
-    return sectionHTML({
-      level: "gen",
-      sub,
-      id: sec.id,
-      uid: `gen-${++secSeq}`,
-      label: sec.label,
-      picked: sec.picked,
-      node: sec,
-      open,
-      body: open
-        ? sec.members.map((m, k) => cardHTML(m, false, k)).join("")
-        : "",
-    });
-  }
-
-  // 团体段：body 是它下面的期生段
-  function grpSectionHTML(node) {
-    const open = snap.open.includes(openKey("grp", node.group));
-    const body = open
-      ? node.sections.map((s) => genSectionHTML(s, nested())).join("")
-      : "";
-    return sectionHTML({
-      level: "grp",
-      id: node.group,
-      uid: "grp-" + esc(node.group),
-      label: node.group,
-      picked: node.picked,
-      node,
-      open,
-      body,
-    });
-  }
-
-  function viewSection(id) {
-    for (const node of rosterView().nodes) {
-      const sec = node.sections.find((s) => s.id === id);
-      if (sec) return sec;
-    }
-    return null;
-  }
-
-  function renderPick(opts = {}) {
-    ensureOpen();
-    renderRoster();
-    syncSelection();
-    if (opts.resetScroll) roster.scrollTop = 0;
-  }
-
-  function renderRoster() {
-    sync();
-    const view = rosterView();
-    // 投影一变就重画摘要：搜索 / 换团 / 换期生只走这里，此前摘要停在旧数
-    // （第八轮扫描抓到：名册 7 张、#filter-sum 仍显示 1134）。
-    paintFilterSum();
-    if (view.mode === "search") return renderSearch(view);
-
-    const twoLevel = view.mode === "tree";
-    const html = [];
-    for (const node of view.nodes) {
-      if (twoLevel) {
-        // 两级：团体段是顶层，它下面的期生段是嵌套的
-        html.push(grpSectionHTML(node));
-        continue;
-      }
-      // 只有一层（选定了某个团体，或搜结果之外的状态）：期生段直接铺在名册里
-      html.push(
-        node.sections.map((sec) => genSectionHTML(sec, nested())).join("")
-      );
-    }
-    roster.innerHTML =
-      html.join("") || `<p class="empty">${t("empty_filter")}</p>`;
-    rosterEntered();
-  }
-
-  // 进场 stagger 的开关：卡片**已经存在**之后才加 .roster.enter，
-  // 所以卡片一插入就是动画的起点（CSS 里 .roster.enter .card 才有 animation）。
-  // 动画结束或兜底窗口后摘掉（窗口由 playOnce 从 CSS 读出，不写现值），摘掉后重渲不再有动画。
-  function rosterEntered() {
-    const el = $("#roster");
-    const wanted = rosterEntering;
-    rosterEntering = false;
-    if (!el) return;
-    el.classList.remove("enter");
-    if (!wanted) return;
-    // 动画挂在 .card 上（.roster.enter .card），所以取样选择器给 ".card"，
-    // 时长由 playOnce 从 CSS 读出再加统一余量 —— 此前这里写死 600ms。
-    // 余量要紧贴不得：本机冷加载时主线程被字体与脚本占住，动画还在延迟相位
-    // 就被摘类 → 整批 cancelled（实测三次进入有一次整个不播）。
-    playOnce(el, "animation", { cls: "enter", sample: ".card" });
-  }
-
-  BY_ID.forEach((m) => {
-    m.hay = CORE.haystack(m, FOLD);
-  });
-
-  // 宽命中（单个 "a" 曾命中 1000+）会把 467KB 的 innerHTML 一次重建 → 冻结 ~1s。
-  // 只渲染前 N 张，其余用一行诚实提示（再输入一个字即可缩小）。
-  const SEARCH_RENDER_CAP = 40;
-  function renderSearch(view) {
-    const hits = view.hits;
-    const shown = hits.slice(0, SEARCH_RENDER_CAP);
-    const more = hits.length - shown.length;
-    roster.innerHTML = hits.length
-      ? `<p class="search-hint">${t("found", hits.length)}</p><div class="gen-body">${shown.map((m) => cardHTML(m, true)).join("")}</div>${more > 0 ? `<p class="hint">${t("search_more", more)}</p>` : ""}`
-      : `<p class="empty">${t("empty_search", esc(snap.query))}</p><p class="hint">${t("empty_search_hint")}</p>`;
-    rosterEntered();
-  }
-
-  // 折叠/展开一个段。两级同一个算法：定位 → 取内容 → 切 hidden → 写 aria-expanded。
-  // 折叠态的存储键：团体段记在 `g:<团名>` 下，期生段记在段 id 下 —— 与
-  // grpSectionHTML / genSectionHTML 里读 snap.open 用的是同一个约定（合成一处前，
-  // toggleGroupNode 用的 `"g:" + name` 与渲染侧的 "g:" + node.group 是两处字面量）。
-  function openKey(level, key) {
-    return level === "grp" ? "g:" + key : key;
-  }
-
-  function toggleSection(level, key, content) {
-    // key 是数据派生的团体名/期生名；含引号时拼选择器会抛 DOMException（质检发现④）
-    const k = CSS.escape(key);
-    const sec = roster.querySelector(
-      level === "grp" ? `.grp[data-group="${k}"]` : `.gen[data-sec="${k}"]`
-    );
-    if (!sec) return;
-    const c = level === "grp" ? "grp" : "gen";
-    const head = sec.querySelector(`.${c}-head`);
-    const body = sec.querySelector(`.${c}-body`);
-    const open = S.toggleOpen(openKey(level, key));
-    if (open) {
-      body.innerHTML = content();
-      body.hidden = false;
-    } else {
-      body.hidden = true;
-      body.innerHTML = "";
-    }
-    head.setAttribute("aria-expanded", open);
-    // 原来这里还有一段「折叠后把视口滚回该段」的补偿。它是**死代码**：
-    // #phase-pick 是 min-height 而非固定高，名册容器随内容长高，
-    // `.roster` 的 overflow-y:auto 永远不触发（实测 scrollHeight === clientHeight、
-    // scrollTop 恒 0），所以两层都没生效过 —— grill 时我把它当成「团体层缺补偿」
-    // 是错的。真要滚回该 scrollIntoView 或滚 window，不是 scrollTop。
-  }
-
-  function toggleGroup(secId) {
-    toggleSection("gen", secId, () =>
-      // 显式包一层：把 cardHTML 直接交给 .map 会把 (element, index, array) 三个
-      // 参数全传进去，第三参 i 收到的是**数组** → Math.min(array, 8) = NaN →
-      // `--i: NaN` 是已定义的自定义属性，var(--i, 0) 的兜底不生效 →
-      // calc(NaN * 18ms) 整条失效，animation-delay 静默回退 initial，且无报错。
-      (viewSection(secId)?.members || []).map((m) => cardHTML(m)).join("")
-    );
-  }
-
-  function toggleGroupNode(name) {
-    toggleSection("grp", name, () => {
-      const node = rosterView().nodes.find((n) => n.group === name);
-      return node
-        ? node.sections.map((s) => genSectionHTML(s, nested())).join("")
-        : "";
-    });
-  }
-
-  function toggleMember(id) {
-    if (!S.toggleSelect(id)) {
-      const tray = $("#tray");
-      tray.classList.remove("shake");
-      void tray.offsetWidth;
-      tray.classList.add("shake");
-      return;
-    }
-    sync();
-    if (snap.selected.length === snap.size) toast(t("picked_full"));
-    syncSelection();
-  }
-
-  function syncSelection() {
-    sync();
-    roster.querySelectorAll(".card").forEach((el) => {
-      const i = snap.selected.indexOf(el.dataset.id);
-      el.setAttribute("aria-pressed", i >= 0);
-      el.dataset.order = i + 1;
-    });
-    const view = rosterView();
-    const secPicked = new Map();
-    const grpPicked = new Map();
-    for (const node of view.nodes) {
-      grpPicked.set(node.group, node.picked);
-      for (const sec of node.sections) secPicked.set(sec.id, sec.picked);
-    }
-    for (const [level, picked] of [
-      ["gen", secPicked],
-      ["grp", grpPicked],
-    ]) {
-      const key = level === "grp" ? "group" : "sec";
-      roster.querySelectorAll(`.${level}`).forEach((sec) => {
-        const n = picked.get(sec.dataset[key]) || 0;
-        sec.querySelector(`.${level}-picked`).textContent = n
-          ? t("picked", n)
-          : "";
-      });
-    }
-    roster.classList.toggle("full", snap.selected.length >= pick);
-    renderTray();
-    renderSteps();
-    renderGuide();
-  }
-
-  function renderTray() {
-    const slots = [];
-    for (let i = 0; i < pick; i++) {
-      const m = BY_ID.get(snap.selected[i]);
-      const label = m
-        ? esc(
-            t("slot_remove", m.name, m.group, CORE.genText(m.generation, lang))
-          )
-        : "";
-      slots.push(
-        m
-          ? `<li class="slot"><button type="button" data-remove="${m.id}" aria-label="${label}" title="${label}"><img src="${thumbSrc(m)}" alt="${esc(m.name)}"></button></li>`
-          : `<li class="slot empty-slot" aria-label="${t("empty_slot")}"></li>`
-      );
-    }
-    $("#slots").innerHTML = slots.join("");
-    const left = pick - snap.selected.length;
-    const btn = $("#start-btn");
-    btn.disabled = left > 0;
-    btn.textContent =
-      left > 0
-        ? t("need", left)
-        : snap.phase === "duel"
-          ? t("resume_go")
-          : t("screen_go");
-    btn.classList.toggle("emphasis", left === 0);
-    const clearBtn = $("#clear-btn");
-    if (clearBtn) clearBtn.disabled = snap.selected.length === 0;
   }
 
   /* ---------------- 简介（原型 C 杂志编辑） ---------------- */
@@ -682,22 +378,22 @@
     if (id) openProfile(id);
   }
 
-  roster.addEventListener("keydown", profileKey);
+  $("#roster").addEventListener("keydown", profileKey);
 
-  roster.addEventListener("click", (e) => {
+  $("#roster").addEventListener("click", (e) => {
     const grp = e.target.closest(".grp-head");
-    if (grp) return toggleGroupNode(grp.parentElement.dataset.group);
+    if (grp) return picker.toggleGroupNode(grp.parentElement.dataset.group);
     const head = e.target.closest(".gen-head");
-    if (head) return toggleGroup(head.parentElement.dataset.sec);
+    if (head) return picker.toggleGroup(head.parentElement.dataset.sec);
     const pid = profileIdOf(e);
     if (pid) return openProfile(pid);
     const card = e.target.closest(".card");
-    if (card) toggleMember(card.dataset.id);
+    if (card) picker.toggleMember(card.dataset.id);
   });
 
   $("#slots").addEventListener("click", (e) => {
     const b = e.target.closest("[data-remove]");
-    if (b) toggleMember(b.dataset.remove);
+    if (b) picker.toggleMember(b.dataset.remove);
   });
 
   const groupSelect = $("#group-filter");
@@ -752,7 +448,7 @@
   function paintFilterSum() {
     const el = $("#filter-sum");
     if (!el) return;
-    const view = rosterView();
+    const view = picker.view();
     const n =
       view.mode === "search"
         ? view.hits.length
@@ -799,7 +495,7 @@
 
   function renderAll() {
     renderChrome();
-    renderPick();
+    picker.render();
     if (view !== "pick") paint();
   }
 
@@ -816,19 +512,19 @@
     S.setGroup(groupSelect.value);
     // 期生选项依赖当前团（决定 2），所以换团要重算 —— 否则给的是上一个团的期生。
     refreshGenOptions();
-    renderPick({ resetScroll: true });
+    picker.render({ resetScroll: true });
   });
 
   genSelect.addEventListener("change", () => {
     S.setGeneration(genSelect.value);
-    renderPick({ resetScroll: true });
+    picker.render({ resetScroll: true });
   });
 
   document.querySelectorAll(".seg-filter button").forEach((b) => {
     b.addEventListener("click", () => {
       S.setFilter(b.dataset.filter);
       paintFilters();
-      renderPick();
+      picker.render();
     });
   });
 
@@ -850,7 +546,7 @@
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       S.setQuery(e.target.value);
-      renderPick({ resetScroll: true });
+      picker.render({ resetScroll: true });
     }, 120);
   });
 
@@ -881,7 +577,7 @@
     if (!snap.selected.length) return;
     if (!window.confirm(t("clear_confirm"))) return;
     S.clearSelection();
-    syncSelection();
+    picker.syncSelection();
   });
 
   // 当前打开的可圈禁浮层：简介 / 对决说明 / 安装指引。
@@ -1345,7 +1041,7 @@
     // 只让搜索态早退：团/期生作用域同样需要「没有可见卡就补展开」——否则该作用域
     // 与筛选相交为空时，整个名册空白且没有空态文案（M1 的 E 变体）。
     if (snap.query) return;
-    const nodes = rosterView().nodes;
+    const nodes = picker.view().nodes;
     if (!nodes.length) return;
     // 判据是「有没有**展开的段**活在当前投影里」——不能只看 snap.open 非空：
     // 筛选一出（如「现役」），原先展开的段可能被整体剔除，旧键变悬空，于是
@@ -1431,7 +1127,7 @@
     }
     view = "pick";
     show("pick");
-    renderPick();
+    picker.render();
   }
 
   // opts 透给 startDuel（目前只有 { shuffle }，出图页「这几位重新排序」用）
@@ -1652,6 +1348,29 @@
     sync,
     renderSteps,
     navigate,
+  });
+
+  const picker = window.AKB_APP_PICK.create({
+    $,
+    CORE,
+    S,
+    t,
+    esc,
+    thumbSrc,
+    metaText,
+    seriesGroups,
+    ensureOpen,
+    paintFilterSum,
+    playOnce,
+    renderSteps,
+    renderGuide,
+    toast,
+    byId: (id) => BY_ID.get(id),
+    snapshot: () => snap,
+    sync,
+    lang: () => lang,
+    members: [...BY_ID.values()],
+    fold: FOLD,
   });
 
   /* ---------------- 更多浮层（语言 / 外观） ---------------- */
