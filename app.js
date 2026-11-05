@@ -648,24 +648,8 @@
   });
 
   /* ---------------- result ---------------- */
-  const rankList = $("#rank-list");
-
-  rankList.addEventListener("keydown", profileKey);
-
-  function renderRankList() {
-    $("#rank-list").innerHTML = ranking
-      .map(
-        (m, i) => `<li>
-      <span class="no">${i + 1}</span>
-      <img src="${thumbSrc(m)}" alt="">
-      <span class="nm">${esc(m.name)}<span class="meta">${esc(fullMeta(m))}</span></span>
-      <span class="info" role="button" tabindex="0" aria-label="${t("bio_open")}" data-profile="${m.id}">i</span>
-    </li>`
-      )
-      .join("");
-  }
-
-  rankList.addEventListener("click", profileClick);
+  $("#rank-list").addEventListener("keydown", profileKey);
+  $("#rank-list").addEventListener("click", profileClick);
 
   /* ---------------- 揭幕（签名时刻，工单 04 / ADR-0020 §3）----------------
      最后比较的两张脸合并成一张海报：用两个 fixed 定位的克隆从对决页的位置
@@ -744,19 +728,12 @@
 
   /** 结果页的渲染顺序只有这一处（普通结果与只读分享共用）。 */
   function renderResultBody() {
-    renderRankList();
+    resultView.renderList();
     captureUnveil(); // 必须在 show 之前 —— 之后对决页已隐藏，取不到位置
     show("result");
     renderSteps();
     renderStyleSeg();
     drawPoster();
-  }
-
-  function renderResult() {
-    sync();
-    if (snap.phase !== "result") return;
-    ranking = snap.ranking.map((id) => BY_ID.get(id));
-    renderResultBody();
   }
 
   let drawTimer;
@@ -787,7 +764,7 @@
   });
   $("#shared-cta").addEventListener("click", () => navigate("pick"));
   $("#share-btn").addEventListener("click", () => {
-    const ex = resultExport();
+    const ex = resultView.exportData();
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(ex.caption)}${ex.shareUrl ? "&url=" + encodeURIComponent(ex.shareUrl) : ""}`,
       "_blank",
@@ -855,20 +832,6 @@
     };
   }
 
-  // 结果页导出装配：标题回退、日期规则、分享串与文件名各自只此一处
-  function resultExport() {
-    const title = $("#title-input").value.trim() || names().title;
-    const d = new Date();
-    return {
-      title,
-      dateText: `${names().eyebrow} · ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`,
-      hashtag: names().posterTags,
-      fileName: `${names().fileBase}.png`,
-      caption: `${title}\n\n${ranking.map((m, i) => `${i + 1}. ${m.name}`).join("\n")}\n\n${names().shareTags}`,
-      shareUrl: shareLink(),
-    };
-  }
-
   async function drawPoster() {
     if (!ranking.length) return;
     const canvas = $("#poster-canvas");
@@ -878,7 +841,7 @@
       fontsReady(),
     ]);
 
-    const ex = resultExport();
+    const ex = resultView.exportData();
     AKB_POSTER.draw(ctx, {
       members: ranking,
       images: imgs,
@@ -916,7 +879,7 @@
       if (!blob) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = resultExport().fileName;
+      a.download = resultView.exportData().fileName;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, "image/png");
@@ -1122,7 +1085,7 @@
       return;
     }
     if (view === "result" && snap.phase === "result") {
-      renderResult();
+      resultView.render();
       return;
     }
     view = "pick";
@@ -1371,6 +1334,24 @@
     lang: () => lang,
     members: [...BY_ID.values()],
     fold: FOLD,
+  });
+
+  const resultView = window.AKB_APP_RESULT.create({
+    $,
+    esc,
+    t,
+    thumbSrc,
+    fullMeta,
+    names,
+    getRanking: () => ranking,
+    setRanking: (v) => {
+      ranking = v;
+    },
+    shareLink,
+    sync,
+    snapshot: () => snap,
+    byId: (id) => BY_ID.get(id),
+    renderBody: () => renderResultBody(),
   });
 
   /* ---------------- 更多浮层（语言 / 外观） ---------------- */
