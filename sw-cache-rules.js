@@ -27,6 +27,7 @@
     "members.js",
     "bios.js",
     "simplified.js",
+    "app-fonts.js",
     "app-unveil.js",
     "app-poster.js",
     "app-result.js",

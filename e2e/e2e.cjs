@@ -1812,10 +1812,26 @@ runSuite({
           const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;
           return d[0] + "," + d[1] + "," + d[2];
         });
+      const waitPosterPx = async (rgb, label) => {
+        await page.evaluate((v) => {
+          window.__posterWant = v;
+        }, rgb);
+        return waitFor(
+          page,
+          label,
+          () => {
+            const c = document.getElementById("poster-canvas");
+            const d = c.getContext("2d").getImageData(6, 6, 1, 1).data;
+            return d[0] + "," + d[1] + "," + d[2] === window.__posterWant;
+          },
+          { timeout: 20000 }
+        );
+      };
+      await waitPosterPx("255,255,255", "海报：官方风底色");
       const akbPx = await posterPx();
       check("海报：官方风皮肤底色 #ffffff", akbPx === "255,255,255", akbPx);
       await setSkin(page, "classic");
-      await page.waitForTimeout(1200);
+      await waitPosterPx("243,236,220", "海报：原版底色");
       const classicPx = await posterPx();
       check(
         "海报：原版皮肤底色 #f3ecdc",
@@ -1823,7 +1839,7 @@ runSuite({
         classicPx
       );
       await setSkin(page, "sticker");
-      await page.waitForTimeout(1200);
+      await waitPosterPx("241,231,216", "海报：贴纸底色");
       const stickerPx = await posterPx();
       check(
         "海报：贴纸皮肤底色 #f1e7d8",
@@ -1844,7 +1860,7 @@ runSuite({
       );
       check("样式默认 = 金字塔(a)", styleOn === "a", String(styleOn));
       await page.click('.seg-style [data-style="e"]');
-      await page.waitForTimeout(1200);
+      await waitPosterPx("16,16,18", "海报：接触印相底色");
       const pxE = await posterPx();
       check("切接触印相：暗房底色 #101012", pxE === "16,16,18", pxE);
       await page.reload({ waitUntil: "domcontentloaded", timeout: 120000 });
@@ -1858,7 +1874,7 @@ runSuite({
         )) === "e"
       );
       await page.click('.seg-style [data-style="b"]');
-      await page.waitForTimeout(1200);
+      await waitPosterPx("255,253,247", "海报：杂志封面底色");
       const pxB = await posterPx();
       check("切杂志封面：画面变纸白", pxB === "255,253,247", pxB);
       check(
@@ -1869,7 +1885,7 @@ runSuite({
         )) === "b"
       );
       await page.click('.seg-style [data-style="a"]');
-      await page.waitForTimeout(1200);
+      await waitPosterPx("241,231,216", "海报：金字塔底色");
       const pxA2 = await posterPx();
       check("切回金字塔：底色恢复", pxA2 === "241,231,216", pxA2);
 
