@@ -35,7 +35,6 @@
   let series = snap.series;
   let pick = snap.size;
   let view = "pick";
-  let introOpen = false;
   let ranking = [];
   const warmed = new Set();
   function warmPhotos() {
@@ -519,7 +518,7 @@
   // 当前打开的可圈禁浮层：简介 / 对决说明 / 安装指引。
   function openDialog() {
     if (profile.isOpen()) return $("#profile");
-    if (introOpen) return $("#duel-intro");
+    if (guide.isIntroOpen()) return $("#duel-intro");
     if (pwa.isOpen()) return $("#pwa-sheet");
     return null;
   }
@@ -554,7 +553,7 @@
     if (e.key !== "Escape") return;
     if (moreOpen()) return setMore(false);
     if (pwa.isOpen()) return pwa.close();
-    if (introOpen) return closeIntro();
+    if (guide.isIntroOpen()) return guide.closeIntro();
     if (profile.isOpen()) return profile.close();
   });
 
@@ -592,7 +591,7 @@
     resultView.renderList();
     unveilFx.capture(); // 必须在 show 之前 —— 之后对决页已隐藏，取不到位置
     show("result");
-    renderSteps();
+    guide.renderSteps();
     renderStyleSeg();
     painter.draw();
   }
@@ -639,7 +638,7 @@
     lang = snap.lang;
     renderAll();
     profile.reopen();
-    if (introOpen) paintIntro();
+    if (guide.isIntroOpen()) guide.paintIntro();
   }
 
   document.addEventListener("click", (e) => {
@@ -700,23 +699,6 @@
   // 「已看过」标记：键名在 core.PREF_KEYS。**内存回落是有意的取舍**——存储不可用
   // （隐私模式 / 配额满）时，标记只在本会话有效：引导卡不该在同一次会话里反复弹，
   // 而皮肤/语言/海报样式在那种情况下回落到默认值（用户看不出异常）。
-  const COACH_KEY = CORE.PREF_KEYS.coach;
-  const INTRO_KEY = CORE.PREF_KEYS.duelIntro;
-
-  const memFlags = new Set();
-  function storedFlag(key) {
-    try {
-      if (localStorage.getItem(key) === "1") return true;
-    } catch (_) {}
-    return memFlags.has(key);
-  }
-  function rememberFlag(key) {
-    memFlags.add(key);
-    try {
-      localStorage.setItem(key, "1");
-    } catch (_) {}
-  }
-
   let toastTimer;
   function toast(msg) {
     const el = $("#toast");
@@ -736,17 +718,6 @@
     el.classList.remove("show");
   }
 
-  function ringSVG(n, m) {
-    const pct = m ? Math.min(1, n / m) : 0;
-    const c = 2 * Math.PI * 26;
-    return `<svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
-      <circle cx="32" cy="32" r="26" fill="none" style="stroke: var(--line)" stroke-width="7"></circle>
-      <circle cx="32" cy="32" r="26" fill="none" style="stroke: var(--pink)" stroke-width="7" stroke-linecap="round"
-        stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (1 - pct)).toFixed(1)}" transform="rotate(-90 32 32)"></circle>
-      <text class="ring-t" x="32" y="37" text-anchor="middle">${n}/${m}</text>
-    </svg>`;
-  }
-
   function ensureOpen() {
     sync();
     // 只让搜索态早退：团/期生作用域同样需要「没有可见卡就补展开」——否则该作用域
@@ -764,45 +735,6 @@
     if (!snap.open.includes(first.id)) S.toggleOpen(first.id);
     const sec = first.sections[0];
     if (sec && !snap.open.includes(sec.id)) S.toggleOpen(sec.id);
-  }
-
-  function renderGuide() {
-    sync();
-    const coach = $("#coach");
-    if (coach) {
-      coach.hidden = storedFlag(COACH_KEY);
-      if (!coach.hidden) {
-        $("#coach-title").textContent = t("coach_title", names().brand);
-        $("#coach-body").textContent = t("coach_body", snap.size);
-      }
-    }
-    const ring = $("#pick-ring");
-    if (ring) {
-      ring.innerHTML = ringSVG(snap.selected.length, snap.size);
-      const byGroup = new Map();
-      snap.selected.forEach((id) => {
-        const m = BY_ID.get(id);
-        if (m) byGroup.set(m.group, (byGroup.get(m.group) || 0) + 1);
-      });
-      $("#pick-cov").innerHTML =
-        `<b class="cov-sum">${esc(t("picked_of", snap.selected.length, snap.size))}</b>` +
-        [...byGroup.entries()]
-          .map(
-            ([g, n]) => `<span class="cov-chip">${esc(g)} <b>${n}</b></span>`
-          )
-          .join("");
-    }
-    const res = $("#resume-card");
-    if (res) {
-      res.hidden = !snap.duel;
-      if (snap.duel)
-        $("#resume-body").textContent = t(
-          "resume_body",
-          snap.duel.step,
-          snap.duel.max,
-          snap.duel.percent
-        );
-    }
   }
 
   function navCtx() {
@@ -856,72 +788,31 @@
     return true;
   }
 
-  function renderSteps() {
-    sync();
-    const bar = $("#steps");
-    if (!bar) return;
-    for (const s of CORE.steps(navCtx())) {
-      const btn = bar.querySelector(`[data-step="${s.key}"]`);
-      if (!btn) continue;
-      btn.disabled = !s.enabled;
-      btn.setAttribute("aria-current", s.active ? "step" : "false");
-      if (s.key === "pick") {
-        $("#step-pick-n").textContent = s.badge;
-      } else if (s.key === "duel") {
-        const b = $("#step-duel-n");
-        b.hidden = s.badge == null;
-        if (s.badge != null) b.textContent = t("step_duel_n", s.badge);
-      }
-    }
-  }
-
-  function paintIntro() {
-    sync();
-    if (!snap.duel) return;
-    $("#di-line2").textContent = t(
-      "duel_intro_2",
-      snap.duel.max,
-      Math.max(1, Math.ceil(snap.duel.etaSeconds / 60))
-    );
-  }
-  function maybeIntro() {
-    const el = $("#duel-intro");
-    if (!el) return;
-    if (storedFlag(INTRO_KEY)) {
-      el.hidden = true;
-      introOpen = false;
-      return;
-    }
-    paintIntro();
-    el.hidden = false;
-    introOpen = true;
-    setPageInert(true, ["duel-intro"]);
-    const go = el.querySelector('[data-act="intro-go"]');
-    if (go) go.focus();
-  }
-  function closeIntro() {
-    rememberFlag(INTRO_KEY);
-    $("#duel-intro").hidden = true;
-    introOpen = false;
-    setPageInert(false);
-    const f = $("#fighter-a");
-    if (f) f.focus();
-  }
+  const guide = window.AKB_APP_GUIDE.create({
+    $,
+    CORE,
+    S,
+    t,
+    esc,
+    names,
+    getSnap: () => snap,
+    sync,
+    byId: (id) => BY_ID.get(id),
+    navCtx,
+    setPageInert,
+  });
 
   // data-act 的动作查表（原型设为 null，data-act 是任意字符串，防原型链上的名字）。
   const CLICK_ACTIONS = Object.assign(Object.create(null), {
-    "coach-ok": () => {
-      rememberFlag(COACH_KEY);
-      $("#coach").hidden = true;
-    },
+    "coach-ok": () => guide.dismissCoach(),
     "resume-go": () => navigate("resume"),
     "resume-drop": () => {
       // 同「重新选人」：放弃会作废对决进度（此前 0 确认）。
       if (!window.confirm(t("drop_confirm"))) return;
       navigate("drop");
     },
-    "intro-go": closeIntro,
-    "intro-skip": closeIntro,
+    "intro-go": () => guide.closeIntro(),
+    "intro-skip": () => guide.closeIntro(),
   });
 
   function stepClick(step) {
@@ -976,16 +867,16 @@
     byId: (id) => BY_ID.get(id),
     view: () => view,
     series: () => series,
-    introOpen: () => introOpen,
+    introOpen: () => guide.isIntroOpen(),
     profileId: () => (profile.isOpen() ? true : null),
     pwaOpen: () => pwa.isOpen(),
     snapshot: () => snap,
     sync,
     show,
     navigate,
-    renderSteps,
+    renderSteps: guide.renderSteps,
     toast,
-    maybeIntro,
+    maybeIntro: guide.maybeIntro,
   });
 
   const screen = window.AKB_APP_SCREEN.create({
@@ -999,7 +890,7 @@
     byId: (id) => BY_ID.get(id),
     snapshot: () => snap,
     sync,
-    renderSteps,
+    renderSteps: guide.renderSteps,
     navigate,
   });
 
@@ -1015,8 +906,8 @@
     ensureOpen,
     paintFilterSum,
     playOnce,
-    renderSteps,
-    renderGuide,
+    renderSteps: guide.renderSteps,
+    renderGuide: guide.renderGuide,
     toast,
     byId: (id) => BY_ID.get(id),
     snapshot: () => snap,

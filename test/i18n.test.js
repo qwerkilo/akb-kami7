@@ -48,6 +48,7 @@ test("app.js / app-pwa.js / app-duel.js / app-screen.js / app-pick.js / app-post
     fs.readFileSync(path.join(root, "app-duel.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-screen.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-pick.js"), "utf8"),
+    fs.readFileSync(path.join(root, "app-guide.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-poster.js"), "utf8"),
   ].join("\n");
   const keys = new Set(
@@ -196,6 +197,7 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
     fs.readFileSync(path.join(root, "app-duel.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-screen.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-pick.js"), "utf8"),
+    fs.readFileSync(path.join(root, "app-guide.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-poster.js"), "utf8"),
     fs.readFileSync(path.join(root, "core.js"), "utf8"),
   ].join("\n");
