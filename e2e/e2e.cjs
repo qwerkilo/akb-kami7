@@ -538,11 +538,10 @@ runSuite({
             hard: true,
           });
           await page.click("#resort-btn", { force: true });
-          // 8s → 15s：2026-10-06 迁移后的 e2e:all 里在这里超时过一次（同一份代码紧接着
-          // 单跑 245/245，语义与迁移前逐处相同 → 是门太紧、不是回归）；套件里其余
-          // 「点击 → 相位变化」的门都在 15s 档。
+          // 8s → 15s → 30s：单跑通过、e2e:all 四套件并发且可用内存 ~4GB 时
+          // 15s 仍会偶尔超时（同一份代码单跑 288/288）——是门太紧，不是回归。
           await waitForSelector(page, "对决相位", "#phase-duel:not([hidden])", {
-            timeout: 15000,
+            timeout: 30000,
             hard: true,
           });
           // resort 会重开对决 → maybeIntro() 又弹说明卡，遮罩会挡住答题

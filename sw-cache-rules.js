@@ -18,6 +18,7 @@
   const SHELL_FILES = [
     "index.html",
     "style.css",
+    "core-text.js",
     "core.js",
     "session.js",
     "poster-core.js",

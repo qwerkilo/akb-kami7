@@ -175,8 +175,11 @@ test("简介自由文本对照表：结构合法且覆盖产物中的趣味/特�
   );
 });
 
-test("core.js 中静态引用的文案键都存在", () => {
-  const src = fs.readFileSync(path.join(root, "core.js"), "utf8");
+test("core.js / core-text.js 中静态引用的文案键都存在", () => {
+  const src = [
+    fs.readFileSync(path.join(root, "core.js"), "utf8"),
+    fs.readFileSync(path.join(root, "core-text.js"), "utf8"),
+  ].join("\n");
   const keys = new Set(
     [...src.matchAll(/\bt\(\s*"([A-Za-z0-9_]+)"(?!\s*\+)/g)].map((m) => m[1])
   );
@@ -199,6 +202,7 @@ test("无引用的键只允许动态家族（死键守卫）", () => {
     fs.readFileSync(path.join(root, "app-pick.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-guide.js"), "utf8"),
     fs.readFileSync(path.join(root, "app-poster.js"), "utf8"),
+    fs.readFileSync(path.join(root, "core-text.js"), "utf8"),
     fs.readFileSync(path.join(root, "core.js"), "utf8"),
   ].join("\n");
   const refs = new Set(
