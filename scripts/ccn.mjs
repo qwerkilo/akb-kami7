@@ -143,8 +143,11 @@ export function selfTest() {
   if (nested.length !== 2 || nested[1].ccn !== 2)
     failures.push(`嵌套函数未独立列出 ${JSON.stringify(nested)}`);
   // 真实文件的回归点：lizard 会截断的两个函数
-  const core = readFileSync(new URL("../core.js", import.meta.url), "utf8");
-  const kn = jsCcn(core).find((f) => f.name === "kanjiNumber");
+  const roster = readFileSync(
+    new URL("../core-roster.js", import.meta.url),
+    "utf8"
+  );
+  const kn = jsCcn(roster).find((f) => f.name === "kanjiNumber");
   if (!kn || kn.ccn !== 7 || kn.to - kn.from > 10)
     failures.push(`kanjiNumber 口径漂移 ${JSON.stringify(kn)}`);
   return { ok: failures.length === 0, failures };
