@@ -834,7 +834,11 @@ test("揭幕：样式用令牌、克隆层可点穿、且有清理路径", () =>
 test("接线：切屏转场、层级段、海报淡入三处都必须真的被调用", () => {
   const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   // 切屏转场：类加上、事件判来源、兜底定时器三件都在
-  const show = /function show\(phase\) \{([\s\S]*?)\n  \}/.exec(app);
+  const phaseSrc = fs.readFileSync(
+    path.join(__dirname, "..", "app-phase.js"),
+    "utf8"
+  );
+  const show = /function show\(phase\) \{([\s\S]*?)\n  \}/.exec(phaseSrc);
   assert.ok(show, "找不到 show()");
   assert.match(
     show[1],
@@ -842,7 +846,9 @@ test("接线：切屏转场、层级段、海报淡入三处都必须真的被�
     "show() 必须经 playOnce 给新相位播一次 .enter（事件判来源与兜底都在里面）"
   );
   assert.ok(
-    /function playOnce\(/.test(app),
+    /function playOnce\(/.test(
+      fs.readFileSync(path.join(__dirname, "..", "app-motion.js"), "utf8")
+    ),
     "切屏转场的兜底在 playOnce 里（降级时动画事件不来）"
   );
   // 层级段：必须真的往 #duel-tiers 里写，且翻转只在换组时。
@@ -1024,11 +1030,14 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
   assert.ok(enter, "缺 .roster.enter .card（进场动画的挂载点）");
   assert.match(enter[1], /animation:\s*cardIn var\(--dur-(fast|mid|slow)\)/);
 
-  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const phaseSrc = fs.readFileSync(
+    path.join(__dirname, "..", "app-phase.js"),
+    "utf8"
+  );
   // 标志由 show() 置、由渲染消费 —— 不能在 show() 里加类 + 定时摘类，
   // 冷加载时名册渲染晚于那个窗口就会整个不播（实测三次进入有一次不播）。
   assert.match(
-    app,
+    phaseSrc,
     /picker\.setEntering\(phase === "pick"\)/,
     "show() 必须按相位置挑人模块的进场标志"
   );
@@ -1087,10 +1096,13 @@ test("名册进场：动画挂在 .roster.enter 上（不是 .card 上），且�
 // 全绿（切换转场会在动画开始前就被摘掉 / 揭幕克隆层会被提前抠掉）。
 // 现在按「兜底 ≥ 该动画时长 + 余量」来断，且动画时长取自令牌而不是写死数字。
 test("兜底时长从 CSS 实际读出，且两条清理路径都在（事件 + 定时器）", () => {
-  const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+  const app = fs.readFileSync(
+    path.join(__dirname, "..", "app-motion.js"),
+    "utf8"
+  );
   const play =
     /function playOnce\(el, kind, opts = \{\}\) \{[\s\S]*?\n  \}/.exec(app);
-  assert.ok(play, "app.js 里要有 playOnce(el, kind, opts)");
+  assert.ok(play, "app-motion.js 里要有 playOnce(el, kind, opts)");
   // ① 兜底不再写死毫秒：它由 getComputedStyle 读出的实际时长 + 统一余量决定
   assert.ok(
     /getComputedStyle\(/.test(app) && /function motionMs\(/.test(app),

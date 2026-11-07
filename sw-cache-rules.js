@@ -27,6 +27,8 @@
     "members.js",
     "bios.js",
     "simplified.js",
+    "app-motion.js",
+    "app-phase.js",
     "app-guide.js",
     "app-profile.js",
     "app-fonts.js",
