@@ -14,8 +14,6 @@
 
   // 简介数据拆在 bios.js（首屏少解析 ~106KB）。空闲或打开资料卡时加载；
   // 离线由 SW 壳缓存兜底（bios.js 在 sw-cache-rules.js 的 SHELL_FILES 里）。
-  let BIOS = null;
-  let biosLoading = null;
 
   // 首次访问的默认语言按浏览器判定（这是「选什么」的决定，不是持久化）；
   // 一旦用户自己选过，session 里的落盘值优先。
@@ -281,8 +279,6 @@
   }
 
   /* ---------------- 简介（原型 C 杂志编辑） ---------------- */
-  let profileId = null;
-
   // 浮层打开时把页面其余部分设为 inert：Tab 不会再走到背景（M4 的圈禁，
   // 用平台能力而不是手搓 tabindex 队列）。三个浮层共用，keep 是当前浮层的 id。
   function setPageInert(on, keep = []) {
@@ -293,88 +289,29 @@
     }
   }
 
-  let profileOpener = null;
-
-  function loadBios() {
-    if (biosLoading) return biosLoading;
-    biosLoading = new Promise((resolve) => {
-      const el = document.createElement("script");
-      el.src = "bios.js";
-      el.async = true;
-      el.onload = () => resolve((BIOS = window.AKB_BIOS || {}));
-      el.onerror = () => resolve(null);
-      document.head.appendChild(el);
-    });
-    return biosLoading;
-  }
-
-  function warmBios() {
-    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1200));
-    idle(() => void loadBios());
-  }
-
-  function paintProfileRows() {
-    const m = BY_ID.get(profileId);
-    if (!m) return;
-    const bio = (BIOS && BIOS[m.id]) || {};
-    const rows = CORE.profileRows({ ...m, bio }, t, lang, I18N.values);
-    $("#pf-fields").innerHTML = rows
-      .map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`)
-      .join("");
-  }
-
-  function openProfile(id) {
-    const m = BY_ID.get(id);
-    if (!m) return;
-    profileId = id;
-    $("#pf-photo").src = thumbSrc(m);
-    $("#pf-name").textContent = m.name;
-    $("#pf-kana").textContent = m.kana || "";
-    $("#pf-badge").textContent =
-      m.group + (m.generation ? " · " + CORE.genText(m.generation, lang) : "");
-    $("#pf-close").setAttribute("aria-label", t("bio_close"));
-    paintProfileRows();
-    $("#profile").hidden = false;
-    setPageInert(true, ["profile"]);
-    profileOpener = document.activeElement;
-    $("#pf-close")?.focus();
-    // 首次打开早于空闲预取：数据到了补画一次（失败就保持无 bio 的卡片）
-    loadBios().then(() => {
-      if (profileId === id && !$("#profile").hidden) paintProfileRows();
-    });
-  }
-
-  function closeProfile() {
-    profileId = null;
-    $("#profile").hidden = true;
-    setPageInert(false);
-    // 焦点还给真正的触发者（pwa-sheet 同款；不还的话键盘用户会落回页面开头）
-    if (profileOpener && profileOpener.isConnected) profileOpener.focus();
-    profileOpener = null;
-  }
-
-  $("#profile").addEventListener("click", (e) => {
-    if (e.target === $("#profile") || e.target.closest(".pf-close"))
-      closeProfile();
+  const profile = window.AKB_APP_PROFILE.create({
+    $,
+    CORE,
+    t,
+    esc,
+    thumbSrc,
+    byId: (id) => BY_ID.get(id),
+    lang: () => lang,
+    I18N,
+    setPageInert,
   });
-
-  // ⓘ 的成员归属只看 data-profile（不再依赖 DOM 位置或容器）
-  function profileIdOf(e) {
-    const info = e.target.closest(".info");
-    return info ? info.dataset.profile || null : null;
-  }
 
   function profileKey(e) {
     if (e.key !== "Enter" && e.key !== " ") return;
-    const id = profileIdOf(e);
+    const id = profile.idOf(e);
     if (!id) return;
     e.preventDefault();
-    openProfile(id);
+    profile.open(id);
   }
 
   function profileClick(e) {
-    const id = profileIdOf(e);
-    if (id) openProfile(id);
+    const id = profile.idOf(e);
+    if (id) profile.open(id);
   }
 
   $("#roster").addEventListener("keydown", profileKey);
@@ -384,8 +321,8 @@
     if (grp) return picker.toggleGroupNode(grp.parentElement.dataset.group);
     const head = e.target.closest(".gen-head");
     if (head) return picker.toggleGroup(head.parentElement.dataset.sec);
-    const pid = profileIdOf(e);
-    if (pid) return openProfile(pid);
+    const pid = profile.idOf(e);
+    if (pid) return profile.open(pid);
     const card = e.target.closest(".card");
     if (card) picker.toggleMember(card.dataset.id);
   });
@@ -581,7 +518,7 @@
 
   // 当前打开的可圈禁浮层：简介 / 对决说明 / 安装指引。
   function openDialog() {
-    if (profileId) return $("#profile");
+    if (profile.isOpen()) return $("#profile");
     if (introOpen) return $("#duel-intro");
     if (pwa.isOpen()) return $("#pwa-sheet");
     return null;
@@ -618,7 +555,7 @@
     if (moreOpen()) return setMore(false);
     if (pwa.isOpen()) return pwa.close();
     if (introOpen) return closeIntro();
-    if (profileId) return closeProfile();
+    if (profile.isOpen()) return profile.close();
   });
 
   // 段控件（radiogroup）的左右方向键：任何 .seg 都适用（L9 前只有皮肤段有）。
@@ -701,7 +638,7 @@
     sync();
     lang = snap.lang;
     renderAll();
-    if (profileId) openProfile(profileId);
+    profile.reopen();
     if (introOpen) paintIntro();
   }
 
@@ -1040,7 +977,7 @@
     view: () => view,
     series: () => series,
     introOpen: () => introOpen,
-    profileId: () => profileId,
+    profileId: () => (profile.isOpen() ? true : null),
     pwaOpen: () => pwa.isOpen(),
     snapshot: () => snap,
     sync,
@@ -1177,7 +1114,7 @@
   renderChrome();
   navigate("boot");
   pwa.init();
-  warmBios();
+  profile.warm();
   if (share.on()) share.enter();
 })();
 
